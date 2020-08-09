@@ -18,8 +18,15 @@ export default class TestUIManager extends cc.Component {
     }
     showTip(){
       
-        UIManager.inst.tipMseeage.showTip("hello world");
+        UIManager.inst.tipMseeage.showTip("hello world singleTip");
     }
+
+    showTips(){
+      
+        UIManager.inst.tipMseeage.showTips("hello world tips");
+        // UIManager.inst.tipMseeage.showTips("hello world tips 2");
+    }
+
     showTipBox(){
       
         UIManager.inst.tipMseeage.showTipBox("hello world 666");

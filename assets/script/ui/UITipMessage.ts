@@ -2,13 +2,18 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class UITipMessage extends cc.Component {
-    
-    @property(cc.Node)
-    tip: cc.Node = null;
-    @property(cc.Label)
-    tipContent: cc.Label = null;
-    @property(cc.Node)
 
+    @property(cc.Node)
+    singleTip: cc.Node = null;
+    @property(cc.Label)
+    singleTipContent: cc.Label = null;
+
+    @property(cc.Node)
+    tipGroup: cc.Node = null;
+    tipItem: cc.Node = null;
+    tipPool: cc.NodePool = null;
+
+    @property(cc.Node)
     tipBox: cc.Node = null;
     @property(cc.Label)
     tipBoxContent: cc.Label = null;
@@ -16,34 +21,83 @@ export default class UITipMessage extends cc.Component {
     btnConfirm: cc.Button = null;
     @property(cc.Button)
     btnCancel: cc.Button = null;
-
     cbConfirm: Function = null;
     cbCancel: Function = null;
 
     onLoad() {
-        this.tip.opacity = 0;
-        this.tip.zIndex = 2;
+        this.singleTip.opacity = 0;
+        this.singleTip.zIndex = 2;
+        this.tipGroup.zIndex = 2;
+        this.tipItem = this.tipGroup.children[0];
+        this.tipPool = new cc.NodePool();
+        for (let i = 0, len = 10; i < len; i++) {
+            let tip: cc.Node = cc.instantiate(this.tipItem);
+            tip["Miles_Content"] = tip.getComponentInChildren(cc.Label);
+            this.tipPool.put(tip);
+        }
+        this.tipGroup.removeAllChildren();
         this.tipBox.active = false;
         this.tipBox.zIndex = 1;
     }
 
     /**
-     * 显示提示
+     * 显示单条提示
      * @param content 提示内容
-     * @param delay 延迟消失时间
      */
-    showTip(content: string, delay = 1.2) {
-        this.tip.stopAllActions();
-        this.tip.opacity = 255;
-        this.tipContent.string = content;
-        this.tip.stopAllActions();
-        cc.tween(this.tip)
-            .delay(delay)
+    showTip(content: string) {
+        this.singleTip.stopAllActions();
+        this.singleTip.opacity = 255;
+        this.singleTipContent.string = content;
+        this.singleTip.stopAllActions();
+        cc.tween(this.singleTip)
+            .delay(1.2)
             .to(0.2, { opacity: 0 })
             .start();
     }
 
-    
+    /**
+     * 显示向上浮动提示
+     * @param content 提示内容
+     */
+    showTips(content: string) {
+        let tip = this.tipPool.get();
+        if (!tip) {
+            tip = cc.instantiate(this.tipItem);
+            tip["Miles_Content"] = tip.getComponentInChildren(cc.Label);
+        }
+        (tip["Miles_Content"] as cc.Label).string = content;
+        tip["Miles_Move"] = true;
+        tip.opacity = 255;
+        tip.y = 0;
+        tip.parent = this.tipGroup;
+        let count = this.tipGroup.childrenCount;
+        if (count > 1 && this.tipGroup.children[count - 2].y < 45) {
+            let deltaY = 45 - this.tipGroup.children[count - 2].y;
+            for (let i = count - 2; i >= 0; i--) {
+                let y = this.tipGroup.children[i].y + deltaY;
+                this.tipGroup.children[i].y = y <= this.tipGroup.height ? y : this.tipGroup.height;
+            }
+        }
+    }
+
+    update(dt) {
+        for (let i = 0, len = this.tipGroup.childrenCount; i < len; i++) {
+            let tip = this.tipGroup.children[i];
+            if (tip["Miles_Move"]) {
+                tip.y += 200 * dt;
+                if (tip.y >= this.tipGroup.height) {
+                    tip["Miles_Move"] = false;
+                    cc.tween(tip)
+                        .to(0.2, { opacity: 0 })
+                        .call(() => {
+                            this.tipPool.put(tip)
+                        })
+                        .start();
+                }
+            }
+        }
+    }
+
 
     /**
      * 显示提示框

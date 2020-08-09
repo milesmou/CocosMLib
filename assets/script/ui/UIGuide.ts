@@ -7,30 +7,27 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export default class UIGUide extends UIBase {
 
+    @property(cc.Node)
+    bg: cc.Node = null;
+
     @property(cc.JsonAsset)
     guideData: cc.JsonAsset = null;
-
-    @property(cc.Node)
-    mask: cc.Node = null;
 
     guideId: number = 0;
     pathArr: String[] = null;
     cbFinish: Function = null;
 
-
-    onLoad() {
-        this.mask.active = false;
+    start() {
+        this.bg.active = false;
     }
+
 
     public startGuide(guideId: number, cbFinish?: Function) {
         if (this.guideId != 0) return;
-        this.mask.position = cc.v2(0, 0);
-        this.mask.width = 0;
-        this.mask.height = 0;
         let data: string = this.guideData.json[guideId];
         if (data) {
+            this.bg.active = true;
             this.pathArr = data.split(";");
-            this.mask.active = true;
             this.guideId = guideId;
             this.cbFinish = cbFinish;
             this.bindClickEventByIndex(0);
@@ -45,8 +42,7 @@ export default class UIGUide extends UIBase {
             let func = (uiData: UIBase) => {
                 let btnNode = cc.find(strs[1], uiData.node);
                 if (btnNode) {
-                    this.showGuide1(btnNode);
-                    btnNode.once("click", this.onClickGuideBtn.bind(this, index));
+                    this.showGuide1(btnNode, index);
                 }
             }
             if (ui && ui.node.parent) {
@@ -59,10 +55,14 @@ export default class UIGUide extends UIBase {
         }
     }
 
-    public onClickGuideBtn(index: number) {
+    public onClickGuideBtn(index: number, originButton: cc.Button, cloneButton: cc.Button) {
+        if(originButton instanceof cc.Toggle){
+            originButton.isChecked = true;
+        }
+        cloneButton.node.destroy();
         if (index < this.pathArr.length) {
             if (index == this.pathArr.length - 1) {
-                this.mask.active = false;
+                this.bg.active = false;
                 this.guideId = 0;
                 this.cbFinish && this.cbFinish();
                 this.cbFinish = null;
@@ -74,13 +74,12 @@ export default class UIGUide extends UIBase {
         }
     }
 
-    public showGuide1(btnNode: cc.Node) {
-        let pos1 = btnNode.convertToWorldSpaceAR(cc.v2(0, 0));
-        let pos2 = this.mask.parent.convertToNodeSpaceAR(pos1);
-        cc.tween(this.mask)
-            .to(0.35, {
-                x: pos2.x, y: pos2.y,
-                width: btnNode.width, height: btnNode.height
-            }).start();
+    public showGuide1(btnNode: cc.Node, index: number) {
+        let originButton = btnNode.getComponent(cc.Button);
+        let cloneBtnNode = cc.instantiate(btnNode);
+        let pos = this.node.convertToNodeSpaceAR(btnNode.convertToWorldSpaceAR(cc.v2(0, 0)));
+        cloneBtnNode.parent = this.node;
+        cloneBtnNode.position = pos;
+        cloneBtnNode.once("click", this.onClickGuideBtn.bind(this, index, originButton));
     }
 }

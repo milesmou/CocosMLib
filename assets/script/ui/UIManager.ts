@@ -45,12 +45,11 @@ export class UIManager {
         this.shade = await this.instUINode("ui/shade");
 
         //添加上层ui
-        let guideNode = await this.instUINode(EUIName.UIGuide);
-        this.higherLayer.addChild(guideNode);
-        this.guide = guideNode.getComponent(UIGUide);
+        this.guide = await this.initUI(EUIName.UIGuide) as UIGUide;
+        this.higherLayer.addChild(this.guide.node);
         let tipMseeageNode = await this.instUINode(EUIName.UITipMessage);
-        this.higherLayer.addChild(tipMseeageNode);
         this.tipMseeage = tipMseeageNode.getComponent(UITipMessage);
+        this.higherLayer.addChild(tipMseeageNode);
     }
 
 
@@ -193,7 +192,7 @@ export class UIManager {
 }
 
 export enum EUIName {//字符串值为ui加载路径
-    UIGuide = "ui/guide",
+    UIGuide = "ui/UIGuide",
     UITipMessage = "ui/UITipMessage",
     UI1 = "ui/ui1",
     UI2 = "ui/ui2",
