@@ -95,7 +95,7 @@
         "__id__": 3
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [],
     "_prefab": {
       "__id__": 6
@@ -1811,6 +1811,12 @@
       "__id__": 1
     },
     "_enabled": true,
+    "destroyNode": false,
+    "showShade": false,
+    "cover": false,
+    "blockInputEvent": false,
+    "showAction": 0,
+    "closeBtn": null,
     "singleTip": {
       "__id__": 2
     },

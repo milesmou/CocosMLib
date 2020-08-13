@@ -19,12 +19,14 @@ export class UIManager {
     private uiStack: UIBase[] = null;
     private cooldown = false;//ui打开时进入冷却
 
-    /** 半透明遮罩 */
+    /** 当前在最上层的UI */
+    private topUI: UIBase = null;
+    /** UI的半透明遮罩 */
     private shade: cc.Node = null;
-    /** 普通的ui页面 */
-    private normalLayer: cc.Node = null;
-    /** 比较上层的ui界面(如提示信息、引导、loading遮罩等)不参与ui堆栈 */
-    private higherLayer: cc.Node = null;
+    /** 普通的UI页面 */
+    private NormalLayer: cc.Node = null;
+    /** 比较上层的UI界面(如提示信息、引导等等)不参与UI堆栈 */
+    private HigherLayer: cc.Node = null;
 
     public guide: UIGUide = null;
     public tipMseeage: UITipMessage = null;
@@ -35,21 +37,20 @@ export class UIManager {
         EventUtil.on(GameEvent.OpenUI, this.openUI, this);
         EventUtil.on(GameEvent.CloseUI, this.closeUI, this);
         let canvas = cc.find("Canvas");
-        this.normalLayer = new cc.Node("normalLayer");
-        this.normalLayer.setContentSize(cc.winSize);
-        this.normalLayer.parent = canvas;
-        this.higherLayer = new cc.Node("higherLayer");
-        this.higherLayer.setContentSize(cc.winSize);
-        this.higherLayer.parent = canvas;
+        this.NormalLayer = new cc.Node("NormalLayer");
+        this.NormalLayer.setContentSize(cc.winSize);
+        this.NormalLayer.parent = canvas;
+        this.HigherLayer = new cc.Node("HigherLayer");
+        this.HigherLayer.setContentSize(cc.winSize);
+        this.HigherLayer.parent = canvas;
 
-        this.shade = await this.instUINode("ui/shade");
+        this.shade = await this.instNode(EUIName.UIShade);
 
         //添加上层ui
         this.guide = await this.initUI(EUIName.UIGuide) as UIGUide;
-        this.higherLayer.addChild(this.guide.node);
-        let tipMseeageNode = await this.instUINode(EUIName.UITipMessage);
-        this.tipMseeage = tipMseeageNode.getComponent(UITipMessage);
-        this.higherLayer.addChild(tipMseeageNode);
+        this.guide.node.parent = this.HigherLayer;
+        this.tipMseeage = await this.initUI(EUIName.UITipMessage) as UITipMessage;
+        this.tipMseeage.node.parent = this.HigherLayer;
     }
 
 
@@ -58,8 +59,10 @@ export class UIManager {
         this.cooldown = true;
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
-        this.normalLayer.addChild(ui.node, this.getUIZIndex());
+        ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 1;
+        ui.node.parent = this.NormalLayer;
         this.uiStack.push(ui);
+        this.topUI = ui;
         this.setShade();
         await ui.open(obj?.action);
         this.setUIVisible();
@@ -72,6 +75,7 @@ export class UIManager {
         let index = this.uiStack.indexOf(ui)
         if (index != -1) {
             this.uiStack.splice(index, 1);
+            this.topUI = this.uiStack[this.uiStack.length - 1];
             this.setShade();
             this.setUIVisible();
             await ui.close(action);
@@ -84,7 +88,7 @@ export class UIManager {
         }
     }
 
-    public async initUI(name: EUIName) {
+    private async initUI(name: EUIName): Promise<UIBase> {
         let ui = this.uiDict[name];
         if (ui?.isValid) {
             let index = this.uiStack.indexOf(ui);
@@ -95,7 +99,7 @@ export class UIManager {
             ui.setOpacity(255);
             return ui;
         }
-        let node = await this.instUINode(name);
+        let node = await this.instNode(name);
         ui = node.getComponent(UIBase);
         ui.init();
         ui.setUIName(name);
@@ -103,7 +107,7 @@ export class UIManager {
         return ui;
     }
 
-    private async instUINode(name: string) {
+    private async instNode(name: string): Promise<cc.Node> {
         let p = new Promise<cc.Node>((resolve, reject) => {
             cc.resources.load(name, cc.Prefab, (err, prefab: any) => {
                 if (err) {
@@ -133,28 +137,11 @@ export class UIManager {
         }
     }
 
-    public getTopUI() {
-        let stackLen = this.uiStack.length;
-        if (stackLen > 0) {
-            let ui = this.uiStack[stackLen - 1];
-            return ui;
-        }
-    }
-
-    public getUIZIndex() {
-        let ui = this.getTopUI();
-        if (ui) {
-            return ui.node.zIndex + 2;
-        }
-        return 0;
-    }
-
     private setShade() {
         this.shade.parent = null;
-        let ui = this.getTopUI();
-        if (ui?.showShade) {
-            this.shade.zIndex = ui.node.zIndex - 1;
-            this.shade.parent = this.normalLayer;
+        if (this.topUI?.showShade) {
+            this.shade.zIndex = this.topUI.node.zIndex - 1;
+            this.shade.parent = this.NormalLayer;
         }
     }
 
@@ -192,6 +179,7 @@ export class UIManager {
 }
 
 export enum EUIName {//字符串值为ui加载路径
+    UIShade = "ui/shade",
     UIGuide = "ui/UIGuide",
     UITipMessage = "ui/UITipMessage",
     UI1 = "ui/ui1",

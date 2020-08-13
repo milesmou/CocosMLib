@@ -1,7 +1,9 @@
+import UIBase from "./UIBase";
+
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class UITipMessage extends cc.Component {
+export default class UITipMessage extends UIBase {
 
     @property(cc.Node)
     singleTip: cc.Node = null;
@@ -25,9 +27,10 @@ export default class UITipMessage extends cc.Component {
     cbCancel: Function = null;
 
     onLoad() {
+        this.singleTip.active = true;
         this.singleTip.opacity = 0;
-        this.singleTip.zIndex = 2;
-        this.tipGroup.zIndex = 2;
+
+        this.tipGroup.active = true;
         this.tipItem = this.tipGroup.children[0];
         this.tipPool = new cc.NodePool();
         for (let i = 0, len = 10; i < len; i++) {
@@ -36,8 +39,8 @@ export default class UITipMessage extends cc.Component {
             this.tipPool.put(tip);
         }
         this.tipGroup.removeAllChildren();
+        
         this.tipBox.active = false;
-        this.tipBox.zIndex = 1;
     }
 
     /**
@@ -48,7 +51,6 @@ export default class UITipMessage extends cc.Component {
         this.singleTip.stopAllActions();
         this.singleTip.opacity = 255;
         this.singleTipContent.string = content;
-        this.singleTip.stopAllActions();
         cc.tween(this.singleTip)
             .delay(1.2)
             .to(0.2, { opacity: 0 })
