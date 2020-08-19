@@ -49,30 +49,15 @@ export default class UIBase extends cc.Component {
     protected uiName: string = null;
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
-    init() {
+    init(name: string) {
+        this.uiName = name;
         this.node.setContentSize(cc.winSize);
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
     }
 
-    setUIName(name: string) {
-        this.uiName = name;
-    }
-
     setArgs(args: any) {
         this.args = args;
-    }
-
-    setZIndex(index: number) {
-        this.node.zIndex = index;
-    }
-
-    setActive(bool: boolean) {
-        this.node.active = bool;
-    }
-
-    setOpacity(opacity: number) {
-        this.node.opacity = cc.misc.clampf(opacity, 0, 255);
     }
 
     open(action?: boolean) {

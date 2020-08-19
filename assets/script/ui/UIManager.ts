@@ -45,6 +45,8 @@ export class UIManager {
         this.HigherLayer.parent = canvas;
 
         this.shade = await this.instNode(EUIName.UIShade);
+        this.shade.parent = this.NormalLayer;
+        this.shade.active = false;
 
         //添加上层ui
         this.guide = await this.initUI(EUIName.UIGuide) as UIGUide;
@@ -54,7 +56,7 @@ export class UIManager {
     }
 
 
-    public async openUI<T extends UIBase>(name: EUIName, obj?: { args: any, action: boolean }) {
+    public async openUI<T extends UIBase>(name: EUIName, obj?: { args: any, action: boolean }): Promise<T> {
         if (this.cooldown) return;
         this.cooldown = true;
         let ui = await this.initUI(name);
@@ -70,7 +72,7 @@ export class UIManager {
         return ui as T;
     }
 
-    public async closeUI(name: EUIName, action?: boolean) {
+    public async closeUI(name: EUIName, action?: boolean): Promise<void> {
         let ui = this.uiDict[name];
         let index = this.uiStack.indexOf(ui)
         if (index != -1) {
@@ -82,7 +84,6 @@ export class UIManager {
             ui.node.parent = null;
             if (ui.destroyNode) {
                 ui.node.destroy();
-                cc.resources.release(name);
                 this.uiDict[name] = undefined;
             }
         }
@@ -95,14 +96,13 @@ export class UIManager {
             if (index > -1) {
                 this.uiStack.splice(index, 1);
             }
-            ui.setActive(true);
-            ui.setOpacity(255);
+            ui.node.active = true;
+            ui.node.opacity = 255;
             return ui;
         }
         let node = await this.instNode(name);
         ui = node.getComponent(UIBase);
-        ui.init();
-        ui.setUIName(name);
+        ui.init(name);
         this.uiDict[name] = ui;
         return ui;
     }
@@ -112,7 +112,7 @@ export class UIManager {
             cc.resources.load(name, cc.Prefab, (err, prefab: any) => {
                 if (err) {
                     console.error(err);
-                    reject(err);
+                    reject();
                 } else {
                     let node = cc.instantiate(prefab);
                     resolve(node);
@@ -138,24 +138,24 @@ export class UIManager {
     }
 
     private setShade() {
-        this.shade.parent = null;
-        if (this.topUI?.showShade) {
-            this.shade.zIndex = this.topUI.node.zIndex - 1;
-            this.shade.parent = this.NormalLayer;
+        for (let i = this.uiStack.length - 1; i >= 0; i--) {
+            let ui = this.uiStack[i];
+            if (ui?.showShade) {
+                this.shade.active = true;
+                this.shade.zIndex = ui.node.zIndex - 1;
+                return;
+            }
         }
+        this.shade.active = false;
     }
 
     private setUIVisible() {
         let isCover = false;
         for (let i = this.uiStack.length - 1; i >= 0; i--) {
             let ui = this.uiStack[i];
-            if (i == this.uiStack.length - 1) {
-                ui.setOpacity(255);
-            }
+            ui.node.opacity = isCover ? 0 : 255;
             if (!isCover) {
                 isCover = ui.cover;
-            } else {
-                ui.setOpacity(0);
             }
         }
     }

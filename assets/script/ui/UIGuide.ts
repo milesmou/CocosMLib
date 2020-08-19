@@ -21,7 +21,6 @@ export default class UIGUide extends UIBase {
         this.bg.active = false;
     }
 
-
     public startGuide(guideId: number, cbFinish?: Function) {
         if (this.guideId != 0) return;
         let data: string = this.guideData.json[guideId];
