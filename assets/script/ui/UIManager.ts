@@ -56,7 +56,7 @@ export class UIManager {
     }
 
 
-    public async openUI<T extends UIBase>(name: EUIName, obj?: { args: any, action: boolean }): Promise<T> {
+    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, action?: boolean }): Promise<T> {
         if (this.cooldown) return;
         this.cooldown = true;
         let ui = await this.initUI(name);
@@ -72,7 +72,7 @@ export class UIManager {
         return ui as T;
     }
 
-    public async closeUI(name: EUIName, action?: boolean): Promise<void> {
+    public async closeUI(name: EUIName, obj?: { action?: boolean }): Promise<void> {
         let ui = this.uiDict[name];
         let index = this.uiStack.indexOf(ui)
         if (index != -1) {
@@ -80,7 +80,7 @@ export class UIManager {
             this.topUI = this.uiStack[this.uiStack.length - 1];
             this.setShade();
             this.setUIVisible();
-            await ui.close(action);
+            await ui.close(obj?.action);
             ui.node.parent = null;
             if (ui.destroyNode) {
                 ui.node.destroy();

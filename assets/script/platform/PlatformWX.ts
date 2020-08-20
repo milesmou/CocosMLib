@@ -5,12 +5,17 @@ export class PlatformWX extends PlatformBase {
 
     systemInfo = null;//系统信息
     launchInfo = null;//启动游戏信息
-    shareTitle = "【斗地主合集】好友约场永久免费，叫上朋友一起来吧~";//默认分享标题
-    shareImageUrl = "https://web.bzw.cn/wechatgame/doudizhu/sharepic/share2.png";//默认分享图片
-    adUnitIdCfg = { V_1: "", B_1: "", I_1: "" }
+    shareTitle = "默认分享标题";//默认分享标题
+    shareImageUrl = "默认分享图片地址";//默认分享图片
+    adUnitIdCfg = {
+        Video1: "",
+        Banner1: "",
+        Interstitial1: ""
+    }
 
     constructor() {
         super();
+        console.log("运行环境：wx");
         this.systemInfo = wx.getSystemInfoSync();
         this.launchInfo = wx.getLaunchOptionsSync();
         this.showShareMenu({});
@@ -18,26 +23,17 @@ export class PlatformWX extends PlatformBase {
         cc.game.on(cc.game.EVENT_HIDE, this.shareResult, this);
     }
 
+    getPlatform() {
+        return "wx";
+    }
+
     /**
      * 微信登陆流程
-     * @param obj.authorize 是否需要授权用户信息 默认false
-     * @param obj.authIcon 授权提示图标
      */
-    login(obj: { authorize?: boolean, authIcon?: cc.Node, success?: Function, fail?: Function }) {
+    login(obj?: { success?: Function, fail?: Function }) {
         wx.login({
             success: loginRes => {
-                if (obj.authorize) {
-                    this.authorize({
-                        scope: "scope.userInfo",
-                        success: userRes => {
-                            obj.success && obj.success(loginRes, userRes);
-                        },
-                        fail: obj.fail,
-                        authIcon: obj.authIcon
-                    });
-                } else {
-                    obj.success && obj.success(loginRes);
-                }
+                obj.success && obj.success(loginRes);
             },
             fail: () => {
                 console.log("wx.login fail");
@@ -49,9 +45,8 @@ export class PlatformWX extends PlatformBase {
     /**
      * 请求授权
      * @param obj.scope 授权权限 例: scope.userLocation
-     * @param obj.authIcon 请求授权用户信息时提示图标
      */
-    authorize(obj: { scope: string, success?: Function, fail?: Function, authIcon?: cc.Node }) {
+    authorize(obj: { scope: string, success?: Function, fail?: Function }) {
         wx.getSetting({
             success: settingRes => {
                 let authSetting = settingRes.authSetting;
@@ -59,7 +54,6 @@ export class PlatformWX extends PlatformBase {
                     if (obj.scope != "scope.userInfo") {
                         obj.success && obj.success();
                     } else {
-                        obj.authIcon && (obj.authIcon.active = false);
                         wx.getUserInfo({
                             withCredentials: true,
                             lang: "zh_CN",
@@ -80,13 +74,12 @@ export class PlatformWX extends PlatformBase {
                             }
                         });
                     } else {//获取用户信息必须创建授权按钮
-                        if (this.compareVersion("2.0.6") < 1) {
+                        if (!this.compareVersion("2.0.6")) {
                             wx.showModal({
                                 title: "温馨提示",
                                 content: "当前微信版本过低，请升级到最新版微信后重试!",
                             });
                         } else {
-                            obj.authIcon && (obj.authIcon.active = true);
                             let button = wx.createUserInfoButton({
                                 withCredentials: true, type: 'text', text: "",
                                 style: {
@@ -99,7 +92,6 @@ export class PlatformWX extends PlatformBase {
                                 if (authRes.userInfo) {
                                     console.log("用户授权");
                                     button.destroy();
-                                    obj.authIcon && (obj.authIcon.active = false);
                                     if (emitTap) {
                                         emitTap = false;
                                         obj.success && obj.success(authRes);
@@ -127,66 +119,27 @@ export class PlatformWX extends PlatformBase {
 
     /**
      * 主动拉起转发，给好友分享信息
-     * @param obj.shareType  number类型 不赋值默认普通分享, 1:截取屏幕中间5:4区域分享 2:分享obj.camera渲染的内容
      */
-    async shareAppMessage(obj: {
-        shareType?: number, title?: string, imageUrl?: string, query?: string, camera?: cc.Camera,
-        dynamic?: { activityId?: string, count?: number, limit?: number }, success?: Function, fail?: Function, complete?: Function
-    } = {}) {
+    async shareAppMessage(obj?: { title?: string, imageUrl?: string, query?: string, camera?: cc.Camera, success?: Function, fail?: Function, complete?: Function }) {
         this.shareTime = Date.now();
-        this.shareSuccess = obj.success;
-        this.shareFail = obj.fail;
-        this.shareComplete = obj.complete;
-        obj.title = obj.title || this.shareTitle;
+        this.shareSuccess = obj?.success;
+        this.shareFail = obj?.fail;
+        this.shareComplete = obj?.complete;
+        obj.title = obj?.title || this?.shareTitle;
         //判断分享方式
-        if (!obj.shareType) {//普通分享
-            obj.imageUrl = obj.imageUrl || this.shareImageUrl;
-
-        } else if (obj.shareType == 1) {//分享屏幕正中间
-            obj.imageUrl = this.getImageUrlFromCanvasCenter();
-        } else if (obj.shareType == 2) {//分享传入的camera渲染的内容
-            if (!obj.camera) {
-                console.warn("未传入camera参数，本次分享失败");
-                return;
-            }
+        if (obj?.camera) {//分享传入的camera渲染的内容//普通分享
             obj.imageUrl = this.getImageUrlByCamera(obj.camera);
-        }
-        //判断是否带动态参数
-        let shareMenuArgs = null;
-        if (obj.dynamic) {
-            shareMenuArgs = {
-                withShareTicket: true,
-                isUpdatableMessage: true,
-                activityId: obj.dynamic.activityId,
-                targetState: 0,
-                templateInfo: {
-                    parameterList: [{
-                        name: 'member_count',
-                        value: obj.dynamic.count + ''
-                    }, {
-                        name: 'room_limit',
-                        value: obj.dynamic.limit + ''
-                    }]
-                },
-                success: () => {
-                    share();
-                }
-            };
+
+        } else if (obj?.imageUrl) {//分享屏幕正中间
+            obj.imageUrl = obj.imageUrl;
         } else {
-            shareMenuArgs = {
-                withShareTicket: false,
-                success: () => {
-                    share();
-                }
-            };
+            obj.imageUrl = this.getImageUrlFromCanvasCenter();
         }
-        let share = () => {
-            wx.shareAppMessage({
-                title: obj.title,
-                imageUrl: obj.imageUrl,
-                query: obj.query
-            });
-        }
+        wx.shareAppMessage({
+            title: obj.title,
+            imageUrl: obj.imageUrl,
+            query: obj.query
+        });
     }
     /**
      * 分享结果判断
@@ -266,9 +219,9 @@ export class PlatformWX extends PlatformBase {
     /**
      * 显示右上角菜单里的转发按钮
      */
-    showShareMenu(obj: { title?: string, imageUrl?: string }) {
-        obj.title = obj.title || this.shareTitle;
-        obj.imageUrl = obj.imageUrl || this.shareImageUrl;
+    showShareMenu(obj?: { title?: string, imageUrl?: string }) {
+        obj.title = obj?.title || this.shareTitle;
+        obj.imageUrl = obj?.imageUrl || this.shareImageUrl;
         wx.showShareMenu();
         wx.onShareAppMessage(() => ({ title: obj.title, imageUrl: obj.imageUrl }));
     }
@@ -277,15 +230,15 @@ export class PlatformWX extends PlatformBase {
     bannerCache = {};//缓存banner及其显示次数
     /**
      * 添加banner
-     * @param adId  广告位id
+     * @param id  广告位id
      * @param posNode 跟随的节点 默认居中置底
      * @param width 宽度 默认300
      * @param sCnt 展示次数
      * @param preload 预加载banner 默认false直接展示banner
      */
-    addBanner(obj: { adId: number, posNode?: cc.Node, width?: number, sCnt?: number, preload?: number }) {
-        let { adId, posNode, width, sCnt, preload } = obj;
-        let adUnitId = this.adUnitIdCfg["B_" + adId];
+    addBanner(obj: { id: number, posNode?: cc.Node, width?: number, sCnt?: number, preload?: number }) {
+        let { id, posNode, width, sCnt, preload } = obj;
+        let adUnitId = this.adUnitIdCfg["Banner" + id];
         width = cc.misc.clampf(width, 300, this.systemInfo.screenHeight);
         sCnt = obj.sCnt || 2;
         this.hideAllBanner();
@@ -337,15 +290,20 @@ export class PlatformWX extends PlatformBase {
     /**
      * 添加插屏广告   
      */
-    addInterstitial(obj: { adId: number }) {
-        let adUnitId = this.adUnitIdCfg["I_" + obj.adId];
+    addInterstitial(obj: { id: number }) {
+        let adUnitId = this.adUnitIdCfg["Interstitial" + obj.id];
         if (this.compareVersion("2.6.0")) {
             if (!this.interstitial) {
                 this.interstitial = wx.createInterstitialAd({ adUnitId: adUnitId });
             }
-            this.interstitial.show().catch(err => {
-                console.log(err);
-            });
+            this.interstitial
+                .load()
+                .then(() => {
+                    this.interstitial.show();
+                })
+                .catch(err => {
+                    console.error(err);
+                });
         }
     }
 
@@ -361,9 +319,9 @@ export class PlatformWX extends PlatformBase {
      * @param obj.adId 广告id @param obj.success 观看完成
      * @param obj.fail 未完整观看视频 @param obj.error 拉取视频出错
      */
-    watchVideo(obj: { adId: number, success?: Function, fail?: Function, error?: Function }) {
+    watchVideo(obj: { id: number, success?: Function, fail?: Function, error?: Function }) {
         let video = wx.createRewardedVideoAd({
-            adUnitId: this.adUnitIdCfg["V_" + obj.adId]
+            adUnitId: this.adUnitIdCfg["Video" + obj.id]
         });
         if (video) {
             video.offClose();
@@ -386,15 +344,14 @@ export class PlatformWX extends PlatformBase {
 
     /**
      *  判断系统SDK版本是否符合最低版本要求
-     * @ver 最低SDK版本要求
-     * @returns 符合返回1，不符合返回0
+     * @ver 最低SDK版本要求 格式：1.0.0
      */
-    compareVersion(ver: string) {
+    compareVersion(ver: string): boolean {
         let sdkVer = this.systemInfo.SDKVersion;
         let pat = /\d+.\d+.\d+/;
         if (!pat.test(ver) || !pat.test(sdkVer)) {
             console.warn("SDKVersion取值异常");
-            return 0;
+            return false;
         }
         let arr1 = sdkVer.split(".");
         let arr2 = ver.split(".");
@@ -402,12 +359,12 @@ export class PlatformWX extends PlatformBase {
             let v1 = parseInt(arr1[i]);
             let v2 = parseInt(arr2[i]);
             if (v1 > v2) {
-                return 1;
+                return true;
             } else if (v1 < v2) {
-                return 0;
+                return false;
             }
         }
-        return 1;
+        return true;
     }
 
     /**

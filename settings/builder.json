@@ -7,9 +7,9 @@
     "upsideDown": false
   },
   "packageName": "org.cocos2d.demo",
-  "startScene": "70865fa4-0fcd-4bd2-badc-cd6bb68ec2d1",
+  "startScene": "a18824f3-4081-499a-aebe-5ef531b24787",
   "title": "MH-CocosCreator-Utils",
-  "webOrientation": "auto",
+  "webOrientation": "landscape",
   "includeSDKBox": false,
   "inlineSpriteFrames": true,
   "inlineSpriteFrames_native": true,

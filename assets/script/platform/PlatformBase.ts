@@ -24,4 +24,5 @@ export abstract class PlatformBase {
     /** key：广告位ID，value：子类中配置对应广告位的adUnitId */
     abstract adUnitIdCfg: { [key: string]: string };
     abstract login(obj?);
+    abstract getPlatform(): string;
 }
