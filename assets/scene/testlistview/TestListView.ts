@@ -1,4 +1,4 @@
-import ListView from "../../script/component/ListView";
+import ListView from "../../libs/component/ListView";
 
 const { ccclass, property } = cc._decorator;
 @ccclass

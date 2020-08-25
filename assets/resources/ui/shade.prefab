@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "shade",
+    "_name": "Shade",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
@@ -143,7 +143,7 @@
     "asset": {
       "__uuid__": "8cba4b3f-11a6-44e5-a73c-4dce8fd77d7f"
     },
-    "fileId": "6dntvvCG5L665iqgyEc2w7",
+    "fileId": "",
     "sync": false
   }
 ]

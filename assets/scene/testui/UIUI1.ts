@@ -1,6 +1,6 @@
 const {ccclass,property} = cc._decorator;
-import  UIBase from "../../script/ui/UIBase";
-import { UIManager,EUIName } from "../../script/ui/UIManager";
+import  UIBase from "../../libs/ui/UIBase";
+import { UIManager,EUIName } from "../../libs/ui/UIManager";
 
 
 @ccclass

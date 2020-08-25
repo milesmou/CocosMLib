@@ -10,7 +10,7 @@ let EFitType = cc.Enum({
 
 /** Canvas、背景、widget(针对全面屏)适配工具 */
 @ccclass
-export default class Adaptive extends cc.Component {
+export default class Adapter extends cc.Component {
 
     @property({
         tooltip: "若当前节点为背景，是否需要适配屏幕",

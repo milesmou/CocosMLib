@@ -174,7 +174,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 453.69,
+      "width": 191.21,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -227,8 +227,8 @@
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "Labelasdas asdasdasdad",
-    "_N$string": "Labelasdas asdasdasdad",
+    "_string": "hello world",
+    "_N$string": "hello world",
     "_fontSize": 40,
     "_lineHeight": 40,
     "_enableWrapText": true,
@@ -422,7 +422,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 453.69,
+      "width": 191.21,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -475,8 +475,8 @@
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "Labelasdas asdasdasdad",
-    "_N$string": "Labelasdas asdasdasdad",
+    "_string": "hello world",
+    "_N$string": "hello world",
     "_fontSize": 40,
     "_lineHeight": 40,
     "_enableWrapText": true,
@@ -1848,7 +1848,7 @@
     "asset": {
       "__uuid__": "1e2fa71b-9229-4f2c-b1e9-2ac5bd6aa7dd"
     },
-    "fileId": "4ca5vAAppA2pEq3NLcadHw",
+    "fileId": "",
     "sync": false
   }
 ]

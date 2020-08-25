@@ -179,11 +179,11 @@ export class UIManager {
 }
 
 export enum EUIName {//字符串值为ui加载路径
-    UIShade = "ui/shade",
+    UIShade = "ui/Shade",
     UIGuide = "ui/UIGuide",
     UITipMessage = "ui/UITipMessage",
-    UI1 = "ui/ui1",
-    UI2 = "ui/ui2",
-    UI3 = "ui/ui3",
-    UI4 = "ui/ui4",
+    UI1 = "uitest/ui1",
+    UI2 = "uitest/ui2",
+    UI3 = "uitest/ui3",
+    UI4 = "uitest/ui4",
 }

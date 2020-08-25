@@ -1,4 +1,4 @@
-import { UIManager, EUIName } from "../../script/ui/UIManager";
+import { UIManager, EUIName } from "../../libs/ui/UIManager";
 // import ButtonAssist from "../../script/component/ButtonAssist";
 // import ButtonAssist from "../../script/component/ButtonAssist";
 // import ButtonAssist from "../../script/component/ButtonAssist";

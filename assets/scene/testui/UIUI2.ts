@@ -1,7 +1,7 @@
 const {ccclass,property} = cc._decorator;
-import  UIBase from "../../script/ui/UIBase";
-import { EventUtil, GameEvent } from "../../script/utils/EventUtil";
-import { EUIName } from "../../script/ui/UIManager";
+import  UIBase from "../../libs/ui/UIBase";
+import { EventUtil, GameEvent } from "../../libs/utils/EventUtil";
+import { EUIName } from "../../libs/ui/UIManager";
 
 
 @ccclass

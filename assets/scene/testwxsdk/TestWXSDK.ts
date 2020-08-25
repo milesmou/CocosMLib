@@ -1,4 +1,4 @@
-import Language from "../../script/component/Language";
+import Language from "../../libs/component/Language";
 
 const { ccclass, property } = cc._decorator;
 

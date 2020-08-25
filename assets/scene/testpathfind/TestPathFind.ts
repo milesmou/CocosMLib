@@ -1,4 +1,4 @@
-import { PathFind } from "../../script/utils/PathFind";
+import { PathFind } from "../../libs/utils/PathFind";
 
 const { ccclass, property } = cc._decorator;
 

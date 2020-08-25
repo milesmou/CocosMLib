@@ -1,6 +1,6 @@
-import { SocketConnect } from "../../script/network/SocketConnect";
-import { EventUtil } from "../../script/utils/EventUtil";
-import { HttpRequest } from "../../script/network/HttpRequest";
+import { SocketConnect } from "../../libs/network/SocketConnect";
+import { EventUtil } from "../../libs/utils/EventUtil";
+import { HttpRequest } from "../../libs/network/HttpRequest";
 
 const { ccclass, property } = cc._decorator;
 

@@ -1,4 +1,4 @@
-import { EUIName, UIManager } from "../../script/ui/UIManager";
+import { EUIName, UIManager } from "../../libs/ui/UIManager";
 
 const {ccclass, property} = cc._decorator;
 
