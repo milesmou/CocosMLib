@@ -1,8 +1,14 @@
+import { Utils } from "./Utils";
+
+interface IStroageItem {
+    k: string,//本地存储key
+    v: any//默认值
+}
 /**
- * 本地存储键枚举
+ * 本地存储对象
  */
-export enum EStroageKey {
-    TestObject = "TestObject"
+export const StroageDict: { [key: string]: IStroageItem } = {
+    LastResetDate: { k: "LastResetDate", v: 0 }
 }
 
 /**
@@ -10,7 +16,6 @@ export enum EStroageKey {
  */
 export class StroageUtil {
 
-    private constructor() { }
     private static _inst: StroageUtil = null;
     public static get inst() {
         if (!this._inst) {
@@ -18,32 +23,38 @@ export class StroageUtil {
         }
         return this._inst;
     }
+    private constructor() {
+        if (Utils.getToday() > this.getNumber(StroageDict.LastResetDate)) {
+            this.setValue(StroageDict.LastResetDate, Utils.getToday());
+            //在这里重置一些需要每日重置的值
+        }
+    }
     /**
      * 获取number类型的本地存储值
      */
-    getNumber(key: EStroageKey, defaultValue: number): number {
-        let value = parseFloat(cc.sys.localStorage.getItem(key));
-        return isNaN(value) ? defaultValue : value;
+    getNumber(stroageItem: IStroageItem): number {
+        let value = parseFloat(cc.sys.localStorage.getItem(stroageItem.k));
+        return isNaN(value) ? stroageItem.v : value;
     }
 
     /**
      * 获取string类型的本地存储值
      */
-    getString(key: EStroageKey, defaultValue: string): string {
-        let value = cc.sys.localStorage.getItem(key) + "";
+    getString(stroageItem: IStroageItem): string {
+        let value = cc.sys.localStorage.getItem(stroageItem.k) + "";
         if (value) {
             return value;
         }
-        return defaultValue;
+        return stroageItem.v;
     }
 
     /**
      * 获取boolean类型的本地存储值
      */
-    getBoolean(key: EStroageKey, defaultValue: boolean): boolean {
-        let value = cc.sys.localStorage.getItem(key) + "";
+    getBoolean(stroageItem: IStroageItem): boolean {
+        let value = cc.sys.localStorage.getItem(stroageItem.k) + "";
         if (value != "true" && value != "false") {
-            return defaultValue;
+            return stroageItem.v;
         } else {
             return value != "false";
         }
@@ -52,13 +63,13 @@ export class StroageUtil {
     /**
      * 获取object类型的本地存储值
      */
-    getObject(key: EStroageKey, defaultValue: object): object {
-        let value = cc.sys.localStorage.getItem(key);
+    getObject(stroageItem: IStroageItem): object {
+        let value = cc.sys.localStorage.getItem(stroageItem.k);
         try {
             value = JSON.parse(value);
         } catch (err) {
-            console.error(key, ": JSON.parse转化对象错误 ", value);
-            value = defaultValue;
+            console.error(stroageItem.k, ": JSON.parse转化对象错误 ", value);
+            value = stroageItem.v;
         }
         return value;
     }
@@ -66,11 +77,11 @@ export class StroageUtil {
     /**
      * 设置本地存储值
      */
-    setValue(key: EStroageKey, value: number | string | boolean | object) {
-        if (typeof value == "object") {
+    setValue(stroageItem: IStroageItem, value: any) {
+        if (typeof value === "object") {
             value = JSON.stringify(value);
         }
-        cc.sys.localStorage.setItem(key, value);
+        cc.sys.localStorage.setItem(stroageItem.k, value);
     }
 
 }

@@ -1,9 +1,8 @@
 {
     "version": "",
     "serverRootDir": "",
-    "resourceRootDir": "",
+    "resourceRootDir": "D:\\WorkSpace\\Cocos\\CocosCreator-Utils\\build\\jsb-link",
     "genManifestDir": "",
-    "localServerPath": "",
     "hotAddressArray": [],
     "buildTime": null,
     "genTime": null,

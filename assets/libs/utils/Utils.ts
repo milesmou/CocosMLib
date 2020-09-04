@@ -53,9 +53,9 @@ export class Utils {
     }
 
     /**
-     * 返回今天的日期,格式20000101
+     * 返回今天的日期,格式20200101
      */
-    static getToDay() {
+    static getToday() {
         let lt10 = v => {
             return v < 10 ? "0" + v : "" + v;
         }
@@ -94,6 +94,21 @@ export class Utils {
             str += `${lt10(minutes)}分${lt10(seconds)}秒`
         }
         return str;
+    }
+
+    /**
+     * 获取一个随机数
+     * @param min 最小值
+     * @param max 最大值
+     * @param isInteger 是否是整数 默认true
+     */
+    static getRandomNum(min: number, max: number, isInteger = true) {
+        let delta = max - min;
+        let value = Math.random() * delta + min;
+        if (isInteger) {
+            value = Math.round(value);
+        }
+        return value;
     }
 
     /**
