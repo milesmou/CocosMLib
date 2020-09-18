@@ -1,5 +1,3 @@
-import { platform } from "../platform/Platform";
-
 const { ccclass, property } = cc._decorator;
 
 let EFitType = cc.Enum({
@@ -84,7 +82,7 @@ export default class Adapter extends cc.Component {
         //widget针对全面屏适配
         if (this.fitWidget) {
             let widget = this.node.getComponent(cc.Widget);
-            if (platform.screentype == 2) {
+            if (ScreenType == 2) {
                 if (widget.isAlignTop) {
                     widget.top = this.top;
                 }

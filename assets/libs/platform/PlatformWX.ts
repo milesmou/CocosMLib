@@ -1,20 +1,16 @@
-import { PlatformBase } from "./PlatformBase";
-
 /** 微信小游戏平台相关方法的实现 */
-export class PlatformWX extends PlatformBase {
+export class PlatformWX implements IPlatform {
 
     systemInfo = null;//系统信息
     launchInfo = null;//启动游戏信息
     shareTitle = "默认分享标题";//默认分享标题
     shareImageUrl = "默认分享图片地址";//默认分享图片
-    adUnitIdCfg = {
-        Video1: "",
-        Banner1: "",
-        Interstitial1: ""
+
+    adCfg: {
+        video: { 1: "asdfgh" }
     }
 
     constructor() {
-        super();
         console.log("运行环境：wx");
         this.systemInfo = wx.getSystemInfoSync();
         this.launchInfo = wx.getLaunchOptionsSync();
@@ -238,7 +234,7 @@ export class PlatformWX extends PlatformBase {
      */
     addBanner(obj: { id: number, posNode?: cc.Node, width?: number, sCnt?: number, preload?: number }) {
         let { id, posNode, width, sCnt, preload } = obj;
-        let adUnitId = this.adUnitIdCfg["Banner" + id];
+        let adUnitId = this.adCfg["Banner"][id];
         width = cc.misc.clampf(width, 300, this.systemInfo.screenHeight);
         sCnt = obj.sCnt || 2;
         this.hideAllBanner();
@@ -290,8 +286,8 @@ export class PlatformWX extends PlatformBase {
     /**
      * 添加插屏广告   
      */
-    addInterstitial(obj: { id: number }) {
-        let adUnitId = this.adUnitIdCfg["Interstitial" + obj.id];
+    addInterstitial(id) {
+        let adUnitId = this.adCfg["Interstitial"][id];
         if (this.compareVersion("2.6.0")) {
             if (!this.interstitial) {
                 this.interstitial = wx.createInterstitialAd({ adUnitId: adUnitId });
@@ -321,7 +317,7 @@ export class PlatformWX extends PlatformBase {
      */
     watchVideo(obj: { id: number, success?: Function, fail?: Function, error?: Function }) {
         let video = wx.createRewardedVideoAd({
-            adUnitId: this.adUnitIdCfg["Video" + obj.id]
+            adUnitId: this.adCfg["Video"][obj.id]
         });
         if (video) {
             video.offClose();

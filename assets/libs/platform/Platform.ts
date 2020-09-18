@@ -1,21 +1,25 @@
-import { PlatformBase } from "./PlatformBase";
 import { PlatformWX } from "./PlatformWX";
 
-class PlatformDebug extends PlatformBase {
+Orientation = (() => {
+    return cc.winSize.width < cc.winSize.height ? 1 : 2;
+})();
+
+ScreenType = (() => {
+    return Math.max(cc.winSize.width, cc.winSize.height) / Math.min(cc.winSize.width, cc.winSize.height) < 1.78 ? 1 : 2;
+})();
+
+class PlatformDev implements IPlatform {
     constructor() {
-        super();
-        console.log("运行环境：debug");
+        console.log("运行环境：dev");
     }
-    adUnitIdCfg = {};
+    adCfg = {};
     login(obj?) { return "mouhong"; }
-    getPlatform() { return "debug"; }
+    getPlatform() { return "dev"; }
 }
 /** 根据对运行环境的检测，创建对应平台类的实例 */
-const platform: PlatformBase = (() => {
-    switch (cc.sys.platform) {
-        case cc.sys.WECHAT_GAME:
-            return new PlatformWX();
+Platform = (() => {
+    if (cc.sys.platform == cc.sys.WECHAT_GAME) {
+        return new PlatformWX();
     }
-    return new PlatformDebug();
+    return new PlatformDev();
 })();
-export { platform }
