@@ -16,20 +16,24 @@ export default class UIGUide extends UIBase {
     guideId: number = 0;
     pathArr: String[] = null;
     cbFinish: Function = null;
+    stepFunc: { [step: number]: Function } = null;
 
     start() {
         this.bg.active = false;
     }
 
-    public startGuide(guideId: number, cbFinish?: Function) {
+    public startGuide(guideId: number, args?: { cbFinish?: Function, stepFunc?: { [step: number]: Function } }) {
         if (this.guideId != 0) return;
         let data: string = this.guideData.json[guideId];
         if (data) {
             this.bg.active = true;
-            this.pathArr = data.split(";");
             this.guideId = guideId;
-            this.cbFinish = cbFinish;
+            this.pathArr = data.split(";");
+            this.cbFinish = args?.cbFinish;
+            this.stepFunc = args?.stepFunc;
             this.bindClickEventByIndex(0);
+        } else {
+            console.error(`引导${this.guideId} 数据未找到`);
         }
     }
 
@@ -39,9 +43,21 @@ export default class UIGUide extends UIBase {
             let uiName = EUIName[strs[0]];
             let ui = UIManager.inst.getUI(uiName);
             let func = (uiData: UIBase) => {
-                let btnNode = cc.find(strs[1], uiData.node);
+                let nodePath = strs[1];
+                let btnNode: cc.Node = null;
+                if (nodePath.endsWith("()")) {
+                    if (!this.stepFunc[index]) {
+                        console.error(`引导${this.guideId} 第${index}步 未传入stepFunc`);
+                        return;
+                    }
+                    btnNode = this.stepFunc[index](cc.find(nodePath.replace("()", ""), uiData.node));
+                } else {
+                    btnNode = cc.find(nodePath, uiData.node);
+                }
                 if (btnNode) {
                     this.showGuide1(btnNode, index);
+                } else {
+                    console.error(`引导${this.guideId} 第${index}步 未找到指定node`);
                 }
             }
             if (ui && ui.node.parent) {
@@ -51,11 +67,13 @@ export default class UIGUide extends UIBase {
                     func(uiData);
                 })
             }
+        } else {
+            console.error(`引导${this.guideId} 第${index}步 配置数据错误`);
         }
     }
 
     public onClickGuideBtn(index: number, originButton: cc.Button, cloneButton: cc.Button) {
-        if(originButton instanceof cc.Toggle){
+        if (originButton instanceof cc.Toggle) {
             originButton.isChecked = true;
         }
         cloneButton.node.destroy();
@@ -63,8 +81,10 @@ export default class UIGUide extends UIBase {
             if (index == this.pathArr.length - 1) {
                 this.bg.active = false;
                 this.guideId = 0;
+                this.pathArr = null;
                 this.cbFinish && this.cbFinish();
                 this.cbFinish = null;
+                this.stepFunc = null;
                 console.log("guide over");
             } else {
                 let newIndex = index + 1;

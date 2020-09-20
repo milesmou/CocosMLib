@@ -10,6 +10,7 @@ ScreenType = (() => {
 
 class PlatformDev implements IPlatform {
     constructor() {
+        console.log(Config.env);
         console.log("运行环境：dev");
     }
     adCfg = {};
