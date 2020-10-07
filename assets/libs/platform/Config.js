@@ -1,3 +1,3 @@
-Config = {
+window.Config = {
     env:1
 }
