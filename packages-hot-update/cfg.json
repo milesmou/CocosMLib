@@ -1,10 +1,13 @@
 {
-    "version": "",
-    "serverRootDir": "",
-    "resourceRootDir": "D:\\WorkSpace\\Cocos\\CocosCreator-Utils\\build\\jsb-link",
+    "version": "1.0.0",
+    "serverRootDir": "http://192.168.0.20/HotUpdate",
+    "resourceRootDir": "D:\\Workspace\\CocosCreator-Utils\\build\\jsb-default",
     "genManifestDir": "",
-    "hotAddressArray": [],
-    "buildTime": null,
-    "genTime": null,
+    "hotAddressArray": [
+        "http://192.168.0.20/",
+        "http://192.168.0.20/HotUpdate"
+    ],
+    "buildTime": 1602234597173,
+    "genTime": 1602234597173,
     "genVersion": null
 }

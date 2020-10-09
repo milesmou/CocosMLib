@@ -57,7 +57,7 @@
     "_is3DNode": true,
     "_groupIndex": 0,
     "groupIndex": 0,
-    "autoReleaseAssets": true,
+    "autoReleaseAssets": false,
     "_id": "4be1cb4d-d9df-4f5d-a956-d7f3f99c533e"
   },
   {
@@ -177,7 +177,7 @@
       "array": [
         0,
         0,
-        393.6951538462054,
+        401.83578735597956,
         0,
         0,
         0,
@@ -313,7 +313,6 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_useOriginalSize": false,
     "_string": "主场景",
     "_N$string": "主场景",
     "_fontSize": 40,
@@ -409,7 +408,6 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_useOriginalSize": false,
     "_string": "版本 1.0.0",
     "_N$string": "版本 1.0.0",
     "_fontSize": 40,
@@ -480,7 +478,7 @@
       "__id__": 2
     },
     "_enabled": true,
-    "prefab": {
+    "loadPrefab": {
       "__uuid__": "0f3e83e1-195e-4664-8cec-7e1a77ed2b00"
     },
     "_id": "58YzDr73BMro61fLhh1H6Z"

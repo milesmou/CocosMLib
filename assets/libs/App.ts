@@ -8,18 +8,18 @@ const { ccclass, property } = cc._decorator;
 export default class App extends cc.Component {
 
     @property(cc.Prefab)
-    prefab: cc.Prefab = null;
+    loadPrefab: cc.Prefab = null;
 
     loading: UILoading = null;
 
     onLoad() {
-        let node = cc.instantiate(this.prefab);
+        let node = cc.instantiate(this.loadPrefab);
         node.parent = this.node;
         this.loading = node.getComponent(UILoading);
     }
 
     start() {
-        this.loading.loadRes().then(() => {
+        this.loading.load().then(() => {
             this.loading.node.destroy();
             console.log("加载完成");
         });

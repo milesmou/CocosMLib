@@ -34,13 +34,10 @@
       },
       {
         "__id__": 17
-      },
-      {
-        "__id__": 18
       }
     ],
     "_prefab": {
-      "__id__": 19
+      "__id__": 18
     },
     "_opacity": 255,
     "_color": {
@@ -543,7 +540,6 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_useOriginalSize": false,
     "_string": "0%",
     "_N$string": "0%",
     "_fontSize": 40,
@@ -620,17 +616,10 @@
     "labelProgress": {
       "__id__": 14
     },
-    "_id": ""
-  },
-  {
-    "__type__": "5e9a0c6JgNOF4mNQHfzII7G",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 1
+    "hotUpdate": true,
+    "manifest": {
+      "__uuid__": "8ee443bc-1181-4edf-9391-98009cc36eee"
     },
-    "_enabled": true,
-    "manifestUrl": null,
     "_id": ""
   },
   {
