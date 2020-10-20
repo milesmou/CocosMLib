@@ -20,25 +20,56 @@ export default class ButtonAssist extends cc.Component {
         min: 0
     })
     cooldown = 0;
+    @property({
+        displayName: "多边形按钮",
+        tooltip: "按钮是否是多边形按钮，当前节点上必须有PolygonCollider组件，且多边形应在节点矩形范围内",
+        visible: function () { return this.getComponent(cc.PolygonCollider) }
+    })
+    polygonButton = false;
     button: cc.Button = null;
 
     onLoad() {
         this.button = this.getComponent(cc.Button);
+        let polygon = this.getComponent(cc.PolygonCollider);
         if (this.button) {
             this.button["disableDefault"] = this.disableDefault;
             this.node.on("click", this.onClick, this);
+        } else {
+            console.warn(`节点${this.node.name}上没有Button组件`);
+        }
+        if (this.button && this.polygonButton && polygon) {
+            let points = polygon.points.map(v => this.node.convertToWorldSpaceAR(v));
+            this.button["_onTouchBegan"] = function (event) {
+                if (!this.interactable || !this.enabledInHierarchy) return;
+                if (cc.Intersection.pointInPolygon(event.getLocation(), points)) {
+                    this._pressed = true;
+                    this._updateState();
+                    event.stopPropagation();
+                    this.outOfPolygon = false;
+                } else {
+                    this.outOfPolygon = true;
+                }
+            }
+        }
+    }
+
+    start() {
+        //多边形按钮关闭触摸吞噬 当触摸点不在多边形内继续冒泡触摸事件
+        if (this.polygonButton) {
+            this.node['_touchListener'].swallowTouches = false;
         }
     }
 
     onClick() {
         if (this.disableDefault && this.audioClip) {
-            console.log("playEffect");
+            console.log("playCustomEffect");
         }
         this.button.interactable = false;
         this.scheduleOnce(() => {
             this.button.interactable = true;
         }, this.cooldown);
     }
+
     /**
      * 修改原型，针对所有按钮，不需要将该组件挂在Button节点上同样有效
      * 为按钮增加播放点击音效，button["disableDefault"]=true时不会播放默认音效
@@ -47,15 +78,17 @@ export default class ButtonAssist extends cc.Component {
         cc.Button.prototype["_onTouchEnded"] = function (event) {
             if (!this.interactable || !this.enabledInHierarchy) return;
             if (this._pressed) {
-                if (!this.disableDefault) {
-                    console.log("playEffect");
+                if (!this.disableDefault) {//默认音效是否被禁用
+                    console.log("playDefaultEffect");
                 }
                 cc.Component.EventHandler.emitEvents(this.clickEvents, event);
                 this.node.emit('click', this);
             }
             this._pressed = false;
             this._updateState();
-            event.stopPropagation();
+            if (!this.outOfPolygon) {//触摸点不在多边形内继续冒泡触摸事件
+                event.stopPropagation();
+            }
         }
     }
 }
