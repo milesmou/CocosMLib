@@ -11,14 +11,13 @@ let EFitType = cc.Enum({
 export default class Adapter extends cc.Component {
 
     @property({
-        tooltip: "若当前节点为背景，是否需要适配屏幕",
-        visible: function () { return this.getComponent(cc.Sprite) }
+        tooltip: "当前节点为是否需要适配屏幕",
     })
-    fitBackground = false;
+    fitNode = false;
     @property({
         type: EFitType,
-        tooltip: "背景适配方式，默认自动适配去除黑边",
-        visible: function () { return this.getComponent(cc.Sprite) && this.fitBackground }
+        tooltip: "节点适配方式，默认自动适配去除黑边",
+        visible: function () { return this.fitNode }
     })
     fitType = EFitType.Auto;
 
@@ -62,8 +61,8 @@ export default class Adapter extends cc.Component {
             }
         }
 
-        //背景图适配根据所选适配方式，默认自动适配去除黑边
-        if (this.fitBackground) {
+        //节点适配根据所选适配方式，默认自动适配去除黑边
+        if (this.fitNode) {
             let wRatio = cc.winSize.width / this.node.width;
             let hRatio = cc.winSize.height / this.node.height;
             switch (this.fitType) {

@@ -1,6 +1,6 @@
 import { PlatformWX } from "./PlatformWX";
 
-cc.director.once(cc.Director.EVENT_BEFORE_SCENE_LAUNCH,()=>{
+cc.game.once(cc.game.EVENT_GAME_INITED,()=>{
     window.Orientation = (() => {
         return cc.winSize.width < cc.winSize.height ? 1 : 2;
     })();
