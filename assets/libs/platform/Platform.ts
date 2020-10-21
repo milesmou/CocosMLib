@@ -1,12 +1,13 @@
 import { PlatformWX } from "./PlatformWX";
 
-window.Orientation = (() => {
-    return cc.winSize.width < cc.winSize.height ? 1 : 2;
-})();
-
-window.ScreenType = (() => {
-    return Math.max(cc.winSize.width, cc.winSize.height) / Math.min(cc.winSize.width, cc.winSize.height) < 1.78 ? 1 : 2;
-})();
+cc.director.once(cc.Director.EVENT_BEFORE_SCENE_LAUNCH,()=>{
+    window.Orientation = (() => {
+        return cc.winSize.width < cc.winSize.height ? 1 : 2;
+    })();
+    window.ScreenType = (() => {        
+        return Math.max(cc.winSize.width, cc.winSize.height) / Math.min(cc.winSize.width, cc.winSize.height) < 1.78 ? 1 : 2;
+    })();
+})
 
 class PlatformDev implements IPlatform {
     constructor() {
