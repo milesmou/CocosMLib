@@ -60,6 +60,14 @@ export default class UIBase extends cc.Component {
         this.args = args;
     }
 
+    setOpacity(value: number) {
+        this.node.opacity = value;
+    }
+
+    setActive(value: boolean) {
+        this.node.active = value;
+    }
+
     open(action?: boolean) {
         if (action == undefined) action = Boolean(this.showAction & EAction.OPEN);
         let p = new Promise<boolean>((resovle, reject) => {
@@ -103,5 +111,11 @@ export default class UIBase extends cc.Component {
         });
         return p;
     }
+
+    /** UI完全打开时触发 */
+    onOpen() { }
+
+    /** UI完全关闭时触发 */
+    onClose() { }
 
 }

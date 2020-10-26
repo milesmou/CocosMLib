@@ -1,5 +1,4 @@
 export enum HotUpdateCode {
-    NotNative,//不是原生环境
     ManifestNotFound,//本地manifest未找到
     ManifestUrlError,//远程manifest地址错误
     DownloadFail,//下载远程manifest失败
@@ -8,36 +7,37 @@ export enum HotUpdateCode {
     UpdateFail//下载更新失败
 }
 
+
 export class HotUpdate {
 
     manifest: cc.Asset = null;
 
-    assetsMgr = null;//jsb资源管理器
+    assetsMgr: jsb.AssetsManager = null;//jsb资源管理器
 
     storagePath = "";//热更新文件缓存路径
 
     updating = false; //更新中
 
-    failCount = 0;//更新失败次数
-
-    canRetry = false;//能否重新更新
+    failCount = 5;//更新失败重试次数
 
     resultCode: HotUpdateCode;
-
     progress: (completedCount: number, totalCount: number) => void;
     complete: (code: HotUpdateCode) => void;
+    showDesc: (str: string) => void;
 
-    constructor(manifest: cc.Asset, progress: (completedCount: number, totalCount: number) => void, complete: (code: HotUpdateCode) => void) {
+    constructor(manifest: cc.Asset, progress: (completedCount: number, totalCount: number) => void, complete: (code: HotUpdateCode) => void, showDesc: (str: string) => void) {
 
         if (!cc.sys.isNative) {
-            complete(0);
+            console.log("not native environment");
             return;
         }
         this.manifest = manifest;
         this.progress = progress;
         this.complete = complete;
+        this.showDesc = showDesc;
+
         this.storagePath = ((jsb.fileUtils ? jsb.fileUtils.getWritablePath() : '/') + 'mouhong-remote-asset');
-        console.log('Storage path for remote asset : ' + this.storagePath);
+        console.log('热更新资源保存路径 : ' + this.storagePath);
 
         this.assetsMgr = new jsb.AssetsManager("", this.storagePath, this.versionCompareHandle.bind(this));
 
@@ -49,35 +49,33 @@ export class HotUpdate {
 
     versionCompareHandle(versionA, versionB) {
         console.log("Custom Version Compare: version A is " + versionA + ', version B is ' + versionB);
-        var vA = versionA.split('.');
-        var vB = versionB.split('.');
-        for (var i = 0; i < vA.length; ++i) {
-            var a = parseInt(vA[i]);
-            var b = parseInt(vB[i] || 0);
+        let vA = versionA.split('.');
+        let vB = versionB.split('.');
+        for (let i = 0; i < vA.length; ++i) {
+            let a = parseInt(vA[i]);
+            let b = parseInt(vB[i] || 0);
             if (a === b) {
                 continue;
-            }
-            else {
+            } else {
                 return a - b;
             }
         }
         if (vB.length > vA.length) {
             return -1;
-        }
-        else {
+        } else {
             return 0;
         }
     }
 
-    VerifyHandle(path, asset) {
+    VerifyHandle(path: string, asset: jsb.ManifestAsset) {
         // When asset is compressed, we don't need to check its md5, because zip file have been deleted.
-        var compressed = asset.compressed;
+        let compressed = asset.compressed;
         // Retrieve the correct md5 value.
-        var expectedMD5 = asset.md5;
+        let expectedMD5 = asset.md5;
         // asset.path is relative path and path is absolute.
-        var relativePath = asset.path;
+        let relativePath = asset.path;
         // The size of asset file, but this value could be absent.
-        var size = asset.size;
+        let size = asset.size;
         if (compressed) {
             // console.log("Verification passed : " + relativePath);
             return true;
@@ -95,7 +93,7 @@ export class HotUpdate {
         }
         if (this.assetsMgr.getState() === jsb.AssetsManager.State.UNINITED) {
             // Resolve md5 url
-            var url = this.manifest.nativeUrl;
+            let url = this.manifest.nativeUrl;
             if (cc.loader.md5Pipe) {
                 url = cc.loader.md5Pipe.transformURL(url);
             }
@@ -115,7 +113,7 @@ export class HotUpdate {
             this.assetsMgr.setEventCallback(this.updateCb.bind(this));
             if (this.assetsMgr.getState() === jsb.AssetsManager.State.UNINITED) {
                 // Resolve md5 url
-                var url = this.manifest.nativeUrl;
+                let url = this.manifest.nativeUrl;
                 if (cc.loader.md5Pipe) {
                     url = cc.loader.md5Pipe.transformURL(url);
                 }
@@ -127,7 +125,7 @@ export class HotUpdate {
         }
     }
 
-    checkCb(event) {
+    checkCb(event: jsb.EventAssetsManager) {
         console.log('Code : ' + event.getEventCode());
         let msg = "";
         let readyToUpdate = false;
@@ -164,9 +162,9 @@ export class HotUpdate {
         }
     }
 
-    updateCb(event) {
-        var needRestart = false;
-        var failed = false;
+    updateCb(event: jsb.EventAssetsManager) {
+        let needRestart = false;
+        let failed = false;
         switch (event.getEventCode()) {
             case jsb.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
                 console.log('No local manifest file found, hot update skipped.');
@@ -174,8 +172,8 @@ export class HotUpdate {
                 failed = true;
                 break;
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
-                console.log(`progress ：${event.getDownloadedFiles()} / ${event.getTotalFiles()} `);
-                this.progress(event.getDownloadedFiles(), event.getTotalFiles());
+                console.log(`progress ：${event.getDownloadedBytes()} / ${event.getTotalBytes()} `);
+                this.progress(event.getDownloadedBytes(), event.getTotalBytes());
                 let msg = event.getMessage();
                 if (msg) {
                     console.log(msg);
@@ -199,9 +197,9 @@ export class HotUpdate {
                 break;
             case jsb.EventAssetsManager.UPDATE_FAILED:
                 console.log('Update failed. ' + event.getMessage());
+                this.assetsMgr.downloadFailedAssets();
                 this.resultCode = HotUpdateCode.UpdateFail;
-                this.updating = false;
-                this.canRetry = true;
+                this.failCount--;
                 break;
             case jsb.EventAssetsManager.ERROR_UPDATING:
                 console.log('Asset update error: ' + event.getAssetId() + ', ' + event.getMessage());
@@ -214,7 +212,7 @@ export class HotUpdate {
                 break;
         }
 
-        if (failed) {
+        if (failed && this.failCount <= 0) {
             this.assetsMgr.setEventCallback(null);
             this.updating = false;
             this.complete(this.resultCode);
@@ -223,8 +221,8 @@ export class HotUpdate {
         if (needRestart) {
             this.complete(this.resultCode);
             this.assetsMgr.setEventCallback(null);
-            var searchPaths = jsb.fileUtils.getSearchPaths();
-            var newPaths = this.assetsMgr.getLocalManifest().getSearchPaths();
+            let searchPaths = jsb.fileUtils.getSearchPaths();
+            let newPaths = this.assetsMgr.getLocalManifest().getSearchPaths();
             console.log("newPaths : " + JSON.stringify(newPaths));
             Array.prototype.unshift.apply(searchPaths, newPaths);//追加脚本搜索路径
 
@@ -238,18 +236,3 @@ export class HotUpdate {
     }
 
 }
-
-
-/* // 为了使热更新脚本生效 在 main.js 的开头添加如下代码
-(function () {
-    if (typeof window.jsb === 'object') {
-        var hotUpdateSearchPaths = localStorage.getItem('HotUpdateSearchPaths');
-        if (hotUpdateSearchPaths) {
-            jsb.fileUtils.setSearchPaths(JSON.parse(hotUpdateSearchPaths));
-        }
-    }
-})(); */
-
-
-
-

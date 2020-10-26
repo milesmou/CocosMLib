@@ -1,3 +1,4 @@
+import Singleton from "./Singleton";
 import { Utils } from "./Utils";
 
 interface IStroageItem {
@@ -7,23 +8,18 @@ interface IStroageItem {
 /**
  * 本地存储对象
  */
-export const StroageDict: { [key: string]: IStroageItem } = {
+export const StroageDict = {
     LastResetDate: { k: "LastResetDate", v: 0 }
 }
 
 /**
  * 本地存储工具类
  */
-export class StroageUtil {
+export class StroageUtil extends Singleton {
 
-    private static _inst: StroageUtil = null;
-    public static get inst() {
-        if (!this._inst) {
-            this._inst = new StroageUtil();
-        }
-        return this._inst;
-    }
+    public static get Inst(): StroageUtil { return this.getInstance() }
     private constructor() {
+        super();
         if (Utils.getToday() > this.getNumber(StroageDict.LastResetDate)) {
             this.setValue(StroageDict.LastResetDate, Utils.getToday());
             //在这里重置一些需要每日重置的值
@@ -41,7 +37,7 @@ export class StroageUtil {
      * 获取string类型的本地存储值
      */
     getString(stroageItem: IStroageItem): string {
-        let value = cc.sys.localStorage.getItem(stroageItem.k) + "";
+        let value = cc.sys.localStorage.getItem(stroageItem.k);
         if (value) {
             return value;
         }

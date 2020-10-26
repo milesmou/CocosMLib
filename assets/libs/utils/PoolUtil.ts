@@ -1,3 +1,5 @@
+import Singleton from "./Singleton";
+
 /** 对象池枚举 */
 export enum EPoolName {
     MOU,
@@ -5,19 +7,13 @@ export enum EPoolName {
 }
 
 /** 对象池工具类 */
-export class PoolUtil {
-
+export class PoolUtil extends Singleton {
+    public static get Inst(): PoolUtil { return this.getInstance() }
     private prefabs: Map<EPoolName, cc.Prefab> = new Map();
     private pools: Map<EPoolName, cc.NodePool> = new Map();
-    private static _inst: PoolUtil = null;
-    public static get inst() {
-        if (!this._inst) {
-            this._inst = new PoolUtil();
-        }
-        return this._inst;
-    }
     
     private constructor() {
+        super()
         cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, () => {
             this.pools.forEach(pool => {
                 pool.clear();

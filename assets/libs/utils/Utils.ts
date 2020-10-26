@@ -8,7 +8,7 @@ export class Utils {
     * @param url 远程图片路径（带扩展名）
     */
     static loadRemotePic(sprite: cc.Sprite, url: string) {
-        cc.assetManager.loadRemote(url, (err, texture) => {
+        cc.assetManager.loadRemote(url, (err, texture:any) => {
             if (err) {
                 console.error(err);
             } else {
@@ -121,4 +121,35 @@ export class Utils {
         return str;
     }
 
+     /**
+     * 将 cc.resources.load Promise化
+     */
+    static load(paths: string, onProgress: (finish: number, total: number) => void): Promise<cc.Asset> {
+        let p = new Promise<cc.Asset>((resolve, reject) => {
+            cc.resources.load(paths, onProgress, (err, assets) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(assets);
+                }
+            })
+        })
+        return p;
+    }
+
+    /**
+    * 将 cc.resources.loadDir Promise化
+    */
+    static loadDir(paths: string, onProgress: (finish: number, total: number) => void): Promise<cc.Asset[]> {
+        let p = new Promise<cc.Asset[]>((resolve, reject) => {
+            cc.resources.loadDir(paths, onProgress, (err, assets) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(assets);
+                }
+            })
+        })
+        return p;
+    }
 }

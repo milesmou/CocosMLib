@@ -7,9 +7,9 @@ const { ccclass, property } = cc._decorator;
 export default class UI3 extends UIBase {
 
     startGuide() {
-        UIManager.inst.guide.startGuide(1, {
+        UIManager.Inst.guide.startGuide(1, {
             cbFinish: () => {
-                UIManager.inst.tipMseeage.showTip("引导结束");
+                UIManager.Inst.tipMseeage.showTip("引导结束");
             },
             stepFunc: {
                 2: (node: cc.Node) => {
@@ -21,7 +21,7 @@ export default class UI3 extends UIBase {
 
 
     openUI4() {
-        UIManager.inst.openUI(EUIName.UI4);
+        UIManager.Inst.openUI(EUIName.UI4);
     }
 
 }

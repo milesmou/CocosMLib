@@ -41,7 +41,7 @@ export default class UIGUide extends UIBase {
         let strs = this.pathArr[index].split(":");
         if (strs.length == 2) {
             let uiName = EUIName[strs[0]];
-            let ui = UIManager.inst.getUI(uiName);
+            let ui = UIManager.Inst.getUI(uiName);
             let func = (uiData: UIBase) => {
                 let nodePath = strs[1];
                 let btnNode: cc.Node = null;

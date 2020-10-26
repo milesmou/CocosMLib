@@ -8,7 +8,9 @@ export default class UILoading extends UIBase {
     @property(cc.ProgressBar)
     progressBar: cc.ProgressBar = null;
     @property(cc.Label)
-    labelProgress: cc.Label = null;
+    lblDesc: cc.Label = null;
+    @property(cc.Label)
+    lblProgress: cc.Label = null;
 
     @property({
         tooltip: "原生平台是否要开启热更新"
@@ -24,7 +26,7 @@ export default class UILoading extends UIBase {
 
     load() {
         return new Promise((resolve, reject) => {
-            if (this.hotUpdate && this.manifest) {
+            if (cc.sys.isNative && this.hotUpdate && this.manifest) {
                 new HotUpdate(
                     this.manifest,
                     this.onProgress.bind(this),
@@ -33,7 +35,8 @@ export default class UILoading extends UIBase {
                         this.loadRes().then(() => {
                             resolve();
                         });
-                    }
+                    },
+                    this.showDesc.bind(this)
                 );
             } else {
                 this.loadRes().then(() => {
@@ -45,13 +48,14 @@ export default class UILoading extends UIBase {
 
     loadRes() {
         return new Promise((resolve, reject) => {
+            this.showDesc("正在加载...");
             cc.tween(this.progressBar)
                 .to(
                     1.5, { progress: 1 },
                     {
                         progress: (start, end, current, ratio) => {
                             let num = start + (end - start) * ratio;
-                            this.labelProgress.string = `${Math.floor(num * 100)}%`;
+                            this.onProgress(num, 1);
                             return num;
                         }
                     })
@@ -62,13 +66,16 @@ export default class UILoading extends UIBase {
         })
     }
 
-    onProgress(completedCount: number, totalCount: number) {
-        console.log(`progress ${completedCount} / ${totalCount}`);
-
+    onProgress(loaded: number, total: number) {
+        this.lblProgress.string = Math.round(loaded / total * 100) + "%";
     }
 
     complete(code: HotUpdateCode) {
-        console.log("complete resultCode = ",code);
+        console.log("complete resultCode = ", code);
+    }
+
+    showDesc(content: string) {
+        this.lblDesc.string = content;
     }
 
 }

@@ -1,3 +1,5 @@
+import Singleton from "./Singleton";
+
 /** 音频加载路径枚举 */
 export enum EAudio {
 	//音乐
@@ -7,22 +9,17 @@ export enum EAudio {
 }
 
 /** 音频管理工具类 */
-export class AudioUtil {
+export class AudioMgr extends Singleton{
+    public static get Inst(): AudioMgr { return this.getInstance() }
 
 	public bMusic: boolean = true;
 	public bEffect: boolean = true;
 	private sMusicKey: string = "MusicSwitch";
 	private sEffectKey: string = "EffectSwitch";
 
-	private static _inst: AudioUtil = null;
-	public static get inst() {
-		if (!this._inst) {
-			this._inst = new AudioUtil();
-		}
-		return this._inst;
-	}
 
 	private constructor() {
+        super()
 		this.bMusic = cc.sys.localStorage.getItem(this.sMusicKey) + "" != "false";
 		this.bEffect = cc.sys.localStorage.getItem(this.sEffectKey) + "" != "false";
 	}

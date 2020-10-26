@@ -2,18 +2,10 @@ import UIBase from "./UIBase";
 import { EventUtil, GameEvent } from "../utils/EventUtil";
 import UITipMessage from "./UITipMessage";
 import UIGUide from "./UIGuide";
+import Singleton from "../utils/Singleton";
 
-export class UIManager {
-
-    private constructor() { }
-    private static _inst: UIManager = null;
-    public static get inst() {
-        if (!this._inst) {
-            this._inst = new UIManager();
-        }
-        return this._inst;
-    }
-
+export class UIManager extends Singleton {
+    public static get Inst(): UIManager { return this.getInstance() }
 
     private uiDict: { [name: string]: UIBase } = null;
     private uiStack: UIBase[] = null;
@@ -56,11 +48,13 @@ export class UIManager {
     }
 
 
-    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, action?: boolean }): Promise<T> {
+    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, action?: boolean, active?: boolean, opacity?: number }): Promise<T> {
         if (this.cooldown) return;
         this.cooldown = true;
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
+        ui.setActive(typeof obj?.active === "boolean" ? obj.active : true)
+        ui.setOpacity(typeof obj?.opacity === "number" ? obj.opacity : 255);
         ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 1;
         ui.node.parent = this.NormalLayer;
         this.uiStack.push(ui);
@@ -69,6 +63,7 @@ export class UIManager {
         await ui.open(obj?.action);
         this.setUIVisible();
         this.cooldown = false;
+        ui.onOpen();
         return ui as T;
     }
 
@@ -86,18 +81,30 @@ export class UIManager {
                 ui.node.destroy();
                 this.uiDict[name] = undefined;
             }
+            ui.onClose();
         }
     }
 
-    private async initUI(name: EUIName): Promise<UIBase> {
+    public toTop(name: EUIName) {
+        let ui = this.uiDict[name];
+        let index = this.uiStack.indexOf(ui)
+        if (index != -1) {
+            ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 1;
+            this.uiStack.splice(index, 1);
+            this.uiStack.push(ui);
+            this.topUI = this.uiStack[this.uiStack.length - 1];
+            this.setShade();
+            this.setUIVisible();
+        }
+    }
+
+    public async initUI(name: EUIName): Promise<UIBase> {
         let ui = this.uiDict[name];
         if (ui?.isValid) {
             let index = this.uiStack.indexOf(ui);
             if (index > -1) {
                 this.uiStack.splice(index, 1);
             }
-            ui.node.active = true;
-            ui.node.opacity = 255;
             return ui;
         }
         let node = await this.instNode(name);
@@ -111,7 +118,7 @@ export class UIManager {
         let p = new Promise<cc.Node>((resolve, reject) => {
             cc.resources.load(name, cc.Prefab, (err, prefab: any) => {
                 if (err) {
-                    console.error(err);
+                    console.error(name, err);
                     reject();
                 } else {
                     let node = cc.instantiate(prefab);
@@ -122,18 +129,10 @@ export class UIManager {
         return p;
     }
 
-    public getUI<T extends UIBase>(c: new () => T | EUIName): T {
-        if (!c) return;
-        if (typeof c === "string") {
-            let ui = this.uiDict[c] as T;
-            if (ui && ui.isValid) {
-                return ui;
-            }
-        } else {
-            for (let name in this.uiDict) {
-                let ui = this.uiDict[name];
-                if (ui instanceof c) return ui as T;
-            }
+    public getUI(name: EUIName) {
+        let ui = this.uiDict[name];
+        if (ui && ui.isValid) {
+            return ui;
         }
     }
 
@@ -153,7 +152,7 @@ export class UIManager {
         let isCover = false;
         for (let i = this.uiStack.length - 1; i >= 0; i--) {
             let ui = this.uiStack[i];
-            ui.node.opacity = isCover ? 0 : 255;
+            ui.setOpacity(isCover ? 0 : 255);
             if (!isCover) {
                 isCover = ui.cover;
             }

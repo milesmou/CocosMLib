@@ -171,7 +171,7 @@ export class PathFind {
         for (let i = 0; i < this._gridList.length; i++) {
             let grid = this._gridList[i];
             let gridNode = new cc.Node();
-            gridNode.position = grid.pos;
+            gridNode.setPosition(grid.pos, 0);
             debugMap.addChild(gridNode);
             let renderComp = gridNode.addComponent(cc.Graphics);
             renderComp.rect(-this.gridSize / 2 + 1, -this.gridSize / 2 + 1, this.gridSize - 2, this.gridSize - 2);

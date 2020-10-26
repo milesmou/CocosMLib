@@ -9,27 +9,27 @@ const { ccclass, property } = cc._decorator;
 export default class TestUIManager extends cc.Component {
 
     start() {
-        UIManager.inst.init();
+        UIManager.Inst.init();
 
     }
 
     openUI() {
-        UIManager.inst.openUI(EUIName.UI1);
+        UIManager.Inst.openUI(EUIName.UI1);
     }
     showTip() {
 
-        UIManager.inst.tipMseeage.showTip("hello world singleTip");
+        UIManager.Inst.tipMseeage.showTip("hello world singleTip");
     }
 
     showTips() {
 
-        UIManager.inst.tipMseeage.showTips("hello world tips");
+        UIManager.Inst.tipMseeage.showTips("hello world tips");
         // UIManager.inst.tipMseeage.showTips("hello world tips 2");
     }
 
     showTipBox() {
 
-        UIManager.inst.tipMseeage.showTipBox("hello world 666", 2, {
+        UIManager.Inst.tipMseeage.showTipBox("hello world 666", 2, {
             cbConfirm: () => {
                 console.log("ok");
             },
