@@ -1,4 +1,4 @@
-import { EventUtil, GameEvent } from "../utils/EventUtil";
+import { EventMgr, GameEvent } from "../utils/EventMgr";
 
 const { property, ccclass } = cc._decorator;
 
@@ -72,7 +72,7 @@ export default class UIBase extends cc.Component {
         if (action == undefined) action = Boolean(this.showAction & EAction.OPEN);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
-                EventUtil.emit(this.uiName + "_open", this);
+                EventMgr.emit(this.uiName + "_open", this);
                 resovle(true);
             };
             if (action) {
@@ -90,14 +90,14 @@ export default class UIBase extends cc.Component {
 
     /** 关闭UI时调用此方法 */
     safeClose() {
-        EventUtil.emit(GameEvent.CloseUI, this.uiName);
+        EventMgr.emit(GameEvent.CloseUI, this.uiName);
     }
 
     close(action?: boolean) {
         if (action == undefined) action = Boolean(this.showAction & EAction.CLOSE);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
-                EventUtil.emit(this.uiName + "_close", this);
+                EventMgr.emit(this.uiName + "_close", this);
                 resovle(true);
             };
             if (action) {

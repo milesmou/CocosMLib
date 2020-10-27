@@ -25,7 +25,7 @@ export default class UILoading extends UIBase {
 
 
     load() {
-        return new Promise((resolve, reject) => {
+        let p = new Promise((resolve, reject) => {
             if (cc.sys.isNative && this.hotUpdate && this.manifest) {
                 new HotUpdate(
                     this.manifest,
@@ -44,6 +44,7 @@ export default class UILoading extends UIBase {
                 });
             }
         });
+        return p;
     }
 
     loadRes() {
@@ -66,8 +67,8 @@ export default class UILoading extends UIBase {
         })
     }
 
-    onProgress(loaded: number, total: number) {
-        this.lblProgress.string = Math.round(loaded / total * 100) + "%";
+    onProgress(complete: number, total: number) {
+        this.lblProgress.string = Math.round(complete / total * 100) + "%";
     }
 
     complete(code: HotUpdateCode) {

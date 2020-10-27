@@ -1,5 +1,5 @@
 /** 全局事件管理工具 */
-export class EventUtil {
+export class EventMgr {
     private static eventMap: Map<string | number, { callback: Function, thisObj?: object, once?: boolean }[]> = new Map();
 
     /** 为事件注册一个回调,重复注册只保留第一次的事件 */

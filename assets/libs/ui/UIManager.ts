@@ -1,11 +1,12 @@
 import UIBase from "./UIBase";
-import { EventUtil, GameEvent } from "../utils/EventUtil";
+import { EventMgr, GameEvent } from "../utils/EventMgr";
 import UITipMessage from "./UITipMessage";
 import UIGUide from "./UIGuide";
-import Singleton from "../utils/Singleton";
 
-export class UIManager extends Singleton {
-    public static get Inst(): UIManager { return this.getInstance() }
+export class UIManager  {
+    private static inst: UIManager  = null;
+    public static get Inst() { return this.inst || (this.inst = new this()) }
+    private constructor() { }
 
     private uiDict: { [name: string]: UIBase } = null;
     private uiStack: UIBase[] = null;
@@ -26,8 +27,8 @@ export class UIManager extends Singleton {
     /** 场景加载后手动调用初始化 */
     public async init() {
         this.clear();
-        EventUtil.on(GameEvent.OpenUI, this.openUI, this);
-        EventUtil.on(GameEvent.CloseUI, this.closeUI, this);
+        EventMgr.on(GameEvent.OpenUI, this.openUI, this);
+        EventMgr.on(GameEvent.CloseUI, this.closeUI, this);
         let canvas = cc.find("Canvas");
         this.NormalLayer = new cc.Node("NormalLayer");
         this.NormalLayer.setContentSize(cc.winSize);

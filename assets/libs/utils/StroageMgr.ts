@@ -1,7 +1,6 @@
-import Singleton from "./Singleton";
 import { Utils } from "./Utils";
 
-interface IStroageItem {
+interface StroageItem {
     k: string,//本地存储key
     v: any//默认值
 }
@@ -15,11 +14,10 @@ export const StroageDict = {
 /**
  * 本地存储工具类
  */
-export class StroageUtil extends Singleton {
-
-    public static get Inst(): StroageUtil { return this.getInstance() }
+export class StroageMgr {
+    private static inst: StroageMgr  = null;
+    public static get Inst() { return this.inst || (this.inst = new this()) }
     private constructor() {
-        super();
         if (Utils.getToday() > this.getNumber(StroageDict.LastResetDate)) {
             this.setValue(StroageDict.LastResetDate, Utils.getToday());
             //在这里重置一些需要每日重置的值
@@ -28,7 +26,7 @@ export class StroageUtil extends Singleton {
     /**
      * 获取number类型的本地存储值
      */
-    getNumber(stroageItem: IStroageItem): number {
+    getNumber(stroageItem: StroageItem): number {
         let value = parseFloat(cc.sys.localStorage.getItem(stroageItem.k));
         return isNaN(value) ? stroageItem.v : value;
     }
@@ -36,7 +34,7 @@ export class StroageUtil extends Singleton {
     /**
      * 获取string类型的本地存储值
      */
-    getString(stroageItem: IStroageItem): string {
+    getString(stroageItem: StroageItem): string {
         let value = cc.sys.localStorage.getItem(stroageItem.k);
         if (value) {
             return value;
@@ -47,7 +45,7 @@ export class StroageUtil extends Singleton {
     /**
      * 获取boolean类型的本地存储值
      */
-    getBoolean(stroageItem: IStroageItem): boolean {
+    getBoolean(stroageItem: StroageItem): boolean {
         let value = cc.sys.localStorage.getItem(stroageItem.k) + "";
         if (value != "true" && value != "false") {
             return stroageItem.v;
@@ -59,7 +57,7 @@ export class StroageUtil extends Singleton {
     /**
      * 获取object类型的本地存储值
      */
-    getObject(stroageItem: IStroageItem): object {
+    getObject(stroageItem: StroageItem): object {
         let value = cc.sys.localStorage.getItem(stroageItem.k);
         try {
             value = JSON.parse(value);
@@ -73,7 +71,7 @@ export class StroageUtil extends Singleton {
     /**
      * 设置本地存储值
      */
-    setValue(stroageItem: IStroageItem, value: any) {
+    setValue(stroageItem: StroageItem, value: any) {
         if (typeof value === "object") {
             value = JSON.stringify(value);
         }

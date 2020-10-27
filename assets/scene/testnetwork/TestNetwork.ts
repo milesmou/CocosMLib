@@ -1,5 +1,5 @@
 import { SocketConnect } from "../../libs/network/SocketConnect";
-import { EventUtil } from "../../libs/utils/EventUtil";
+import { EventMgr } from "../../libs/utils/EventMgr";
 import { HttpRequest } from "../../libs/network/HttpRequest";
 
 const { ccclass, property } = cc._decorator;
@@ -18,7 +18,7 @@ export default class TestNetwork extends cc.Component {
     socketConn: SocketConnect = new SocketConnect("ws://echo.websocket.org");
     onLoad() {
         this.socketConn.openSocket();
-        EventUtil.on(1000, content => {
+        EventMgr.on(1000, content => {
             this.showText2.string = content;
         });
     }

@@ -11,7 +11,6 @@ cc.game.once(cc.game.EVENT_GAME_INITED,()=>{
 
 class PlatformDev implements IPlatform {
     constructor() {
-        console.log(Config.env);
         console.log("运行环境：dev");
     }
     adCfg = {};

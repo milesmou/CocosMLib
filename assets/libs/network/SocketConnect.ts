@@ -1,4 +1,4 @@
-import { EventUtil } from "../utils/EventUtil";
+import { EventMgr } from "../utils/EventMgr";
 
 export class SocketConnect extends cc.Component{
     public constructor(url: string) {
@@ -66,7 +66,7 @@ export class SocketConnect extends cc.Component{
         let obj = JSON.parse(data);
         let msgId = obj.msgId;
         let content = obj.content;
-        EventUtil.emit(msgId, content);
+        EventMgr.emit(msgId, content);
     }
 
     public sendMessage(msgId, content) {

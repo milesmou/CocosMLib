@@ -1,6 +1,6 @@
 const {ccclass,property} = cc._decorator;
 import  UIBase from "../../libs/ui/UIBase";
-import { EventUtil, GameEvent } from "../../libs/utils/EventUtil";
+import { EventMgr, GameEvent } from "../../libs/utils/EventMgr";
 import { EUIName } from "../../libs/ui/UIManager";
 
 
@@ -19,7 +19,7 @@ export default class UIUI2 extends UIBase {
     }
 
     close1(){
-        EventUtil.emit(GameEvent.CloseUI,EUIName.UI1);
+        EventMgr.emit(GameEvent.CloseUI,EUIName.UI1);
     }
 
 }

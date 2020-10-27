@@ -152,4 +152,30 @@ export class Utils {
         })
         return p;
     }
+
+     /**
+     * 原生平台下载文件到本地
+     * @param url 文件下载链接
+     * @param ext 文件的扩展名（1.txt扩展名为.txt）
+     * @param onFileProgress 下载进度回调方法
+     */
+    static download(url: string, ext: string, onFileProgress?: (complete: number, total: number) => void) {
+        let p = new Promise<any>((resolve, reject) => {
+            if (!cc.sys.isNative) {
+                reject("非原生平台");
+            }
+            cc.assetManager.downloader.download(
+                url, url, ext,
+                { onFileProgress: onFileProgress },
+                (err, res) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(res);
+                    }
+                }
+            )
+        })
+        return p;
+    }
 }

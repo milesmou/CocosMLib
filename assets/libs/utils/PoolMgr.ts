@@ -1,27 +1,15 @@
-import Singleton from "./Singleton";
-
 /** 对象池枚举 */
-export enum EPoolName {
+export enum PoolName {
     MOU,
     HONG
 }
 
 /** 对象池工具类 */
-export class PoolUtil extends Singleton {
-    public static get Inst(): PoolUtil { return this.getInstance() }
-    private prefabs: Map<EPoolName, cc.Prefab> = new Map();
-    private pools: Map<EPoolName, cc.NodePool> = new Map();
-    
-    private constructor() {
-        super()
-        cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, () => {
-            this.pools.forEach(pool => {
-                pool.clear();
-            });
-            this.prefabs.clear();
-            this.pools.clear();
-        });
-    }
+export class PoolMgr {
+    private static inst: PoolMgr  = null;
+    public static get Inst() { return this.inst || (this.inst = new this()) }
+    private prefabs: Map<PoolName, cc.Prefab> = new Map();
+    private pools: Map<PoolName, cc.NodePool> = new Map();
 
     /**
      * 初始化一个对象池
@@ -29,7 +17,7 @@ export class PoolUtil extends Singleton {
      * @param prefab 预制体
      * @param num 初始化节点数量
      */
-    initPool(poolName: EPoolName, prefab: cc.Prefab, num: number = 10) {
+    initPool(poolName: PoolName, prefab: cc.Prefab, num: number = 10) {
         if (!this.pools.has(poolName)) {
             let pool = new cc.NodePool();
             this.prefabs.set(poolName, prefab);
@@ -46,7 +34,7 @@ export class PoolUtil extends Singleton {
      * 从对象池中获取节点
      * @param poolName 对象池名字
      */
-    get(poolName: EPoolName) {
+    get(poolName: PoolName) {
         if (this.pools.has(poolName)) {
             let pool = this.pools.get(poolName);
             if (pool.size() > 0) {
@@ -64,7 +52,7 @@ export class PoolUtil extends Singleton {
      * @param poolName 对象池名字
      * @param nodeRes 节点或节点数组
      */
-    put(poolName: EPoolName, nodeRes: cc.Node | cc.Node[]) {
+    put(poolName: PoolName, nodeRes: cc.Node | cc.Node[]) {
         if (this.pools.has(poolName)) {
             let pool = this.pools.get(poolName);
             if (nodeRes instanceof Array) {
@@ -77,5 +65,16 @@ export class PoolUtil extends Singleton {
         } else {
             console.error("对象池不存在!");
         }
+    }
+
+    /**
+     * 销毁所有对象池中的对象
+     */
+    realse(){
+        this.pools.forEach(pool => {
+            pool.clear();
+        });
+        this.prefabs.clear();
+        this.pools.clear();
     }
 }

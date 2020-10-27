@@ -1,6 +1,6 @@
 import UIBase from "./UIBase";
 import { UIManager, EUIName } from "./UIManager";
-import { EventUtil } from "../utils/EventUtil";
+import { EventMgr } from "../utils/EventMgr";
 
 const { ccclass, property } = cc._decorator;
 
@@ -63,7 +63,7 @@ export default class UIGUide extends UIBase {
             if (ui && ui.node.parent) {
                 func(ui);
             } else {
-                EventUtil.once(uiName + "_open", (uiData: UIBase) => {
+                EventMgr.once(uiName + "_open", (uiData: UIBase) => {
                     func(uiData);
                 })
             }
@@ -98,7 +98,7 @@ export default class UIGUide extends UIBase {
         let cloneBtnNode = cc.instantiate(btnNode);
         let pos = this.node.convertToNodeSpaceAR(btnNode.convertToWorldSpaceAR(cc.v2(0, 0)));
         cloneBtnNode.parent = this.node;
-        cloneBtnNode.position = pos;
+        cloneBtnNode.position = cc.v3(pos);
         cloneBtnNode.once("click", this.onClickGuideBtn.bind(this, index, originButton));
     }
 }
