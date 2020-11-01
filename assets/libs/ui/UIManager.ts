@@ -49,16 +49,21 @@ export class UIManager  {
     }
 
 
-    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, action?: boolean, active?: boolean, opacity?: number }): Promise<T> {
+    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, action?: boolean, active?: boolean,  underTop?: boolean }): Promise<T> {
         if (this.cooldown) return;
         this.cooldown = true;
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
         ui.setActive(typeof obj?.active === "boolean" ? obj.active : true)
-        ui.setOpacity(typeof obj?.opacity === "number" ? obj.opacity : 255);
-        ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 1;
+        if (!this.topUI || !(typeof obj?.underTop === "boolean") || !obj?.underTop) {
+            ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 1;
+            this.uiStack.push(ui);
+        } else {
+            this.topUI.node.zIndex += 2;
+            ui.node.zIndex = this.topUI.node.zIndex - 2;
+            this.uiStack.splice(this.uiStack.length - 1, 0, ui);
+        }
         ui.node.parent = this.NormalLayer;
-        this.uiStack.push(ui);
         this.topUI = ui;
         this.setShade();
         await ui.open(obj?.action);
