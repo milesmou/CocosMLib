@@ -25,7 +25,7 @@ export default class Language extends cc.Component {
         for (let i = 0, len = comps.length; i < len; i++) {
             let comp = comps[i];
             if (comp instanceof cc.Label || comp instanceof cc.RichText) {
-                comp.string = Language.getStringByID(this.ID);
+                comp.string = Language.getStringByID(this.ID) || comp.string;
                 break;
             } else if (comp instanceof cc.Sprite) {
                 Language.loadSpriteFrameByID(this.ID, comp);
@@ -34,20 +34,29 @@ export default class Language extends cc.Component {
         }
     }
 
-    static dict: { [ID: number]: string } = null;
-    static initLanguageDict(dict: { [ID: number]: string }) {
-        if (!this.dict) {
-            this.dict = dict;
-        }
+    static dict: { [ID: number]: any } = null;
+    static atlas: cc.SpriteAtlas = null;
+    static initLanguageDict(dict: { [ID: number]: any }, atlas: cc.SpriteAtlas) {
+        this.dict = this.dict || dict;
+        this.atlas = this.atlas || atlas;
     }
 
-    static getStringByID(ID: number): string {
-        return this.dict[ID] || "";
+    static getStringByID(ID: number, ...args): string {
+        if (!this.dict) return;
+        if (!this.dict[ID] || !this.dict[ID][mm.lang]) {
+            console.warn(`ID=${ID} Lang=${mm.lang}  在语言表中无对应内容`);
+            return "";
+        }
+        return Utils.formatString(this.dict[ID][mm.lang], ...args);
     }
 
     static loadSpriteFrameByID(ID: number, sprite: cc.Sprite) {
-        let imgUrl = this.getStringByID(ID);
-        Utils.loadLocalPic(sprite, imgUrl);
+        if (!this.dict || !this.atlas) return;
+        let name = this.getStringByID(ID);
+        let spriteFrame = this.atlas.getSpriteFrame(name);
+        if (spriteFrame) {
+            sprite.spriteFrame = spriteFrame;
+        }
     }
 
 }

@@ -1,4 +1,3 @@
-import { UIManager } from "./ui/UIManager";
 import UILoading from "./ui/UILoading";
 
 const { ccclass, property } = cc._decorator;

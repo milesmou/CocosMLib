@@ -1,3 +1,4 @@
-window.Config = {
-    env:1
+window.mm = {}
+mm.config = {
+    env: 1
 }

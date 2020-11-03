@@ -58,13 +58,13 @@ export class UIManager  {
         if (!this.topUI || !(typeof obj?.underTop === "boolean") || !obj?.underTop) {
             ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 1;
             this.uiStack.push(ui);
+            this.topUI = ui;
         } else {
             this.topUI.node.zIndex += 2;
             ui.node.zIndex = this.topUI.node.zIndex - 2;
             this.uiStack.splice(this.uiStack.length - 1, 0, ui);
         }
         ui.node.parent = this.NormalLayer;
-        this.topUI = ui;
         this.setShade();
         await ui.open(obj?.action);
         this.setUIVisible();

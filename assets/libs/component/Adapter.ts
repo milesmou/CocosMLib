@@ -9,15 +9,20 @@ let EFitType = cc.Enum({
 /** Canvas、背景、widget(针对全面屏)适配工具 */
 @ccclass
 export default class Adapter extends cc.Component {
-
     @property({
-        tooltip: "当前节点为是否需要适配屏幕",
+        tooltip: "根据屏幕比例，自动设置Canvas适配方式，显示全部内容",
+        readonly: true,
+        visible: function () { return this.getComponent(cc.Canvas) }
     })
-    fitNode = false;
+    fitCanvas = true;
+    @property({
+        tooltip: "当前节点Size是否需要适配屏幕(等比缩放)",
+    })
+    fitSize = false;
     @property({
         type: EFitType,
         tooltip: "节点适配方式，默认自动适配去除黑边",
-        visible: function () { return this.fitNode }
+        visible: function () { return this.fitSize }
     })
     fitType = EFitType.Auto;
 
@@ -51,7 +56,7 @@ export default class Adapter extends cc.Component {
         //Canvas适配优先显示全部内容
         if (this.node.name == "Canvas") {
             let size = cc.view.getFrameSize();
-            let canvas = this.node.getComponent(cc.Canvas);
+            let canvas = this.getComponent(cc.Canvas);
             if (Math.max(size.width, size.height) / Math.min(size.width, size.height) < 1.77) {//平板比例
                 canvas.fitWidth = size.width > size.height;//横屏适配宽度
                 canvas.fitHeight = size.width < size.height;//竖屏适配高度
@@ -62,7 +67,7 @@ export default class Adapter extends cc.Component {
         }
 
         //节点适配根据所选适配方式，默认自动适配去除黑边
-        if (this.fitNode) {
+        if (this.fitSize) {
             let wRatio = cc.winSize.width / this.node.width;
             let hRatio = cc.winSize.height / this.node.height;
             switch (this.fitType) {
@@ -80,8 +85,8 @@ export default class Adapter extends cc.Component {
 
         //widget针对全面屏适配
         if (this.fitWidget) {
-            let widget = this.node.getComponent(cc.Widget);
-            if (ScreenType == 2) {
+            let widget = this.getComponent(cc.Widget);
+            if (mm.screen == 2) {
                 if (widget.isAlignTop) {
                     widget.top = this.top;
                 }
