@@ -15,7 +15,7 @@ export const StroageDict = {
  * 本地存储工具类
  */
 export class StroageMgr {
-    private static inst: StroageMgr  = null;
+    private static inst: StroageMgr = null;
     public static get Inst() { return this.inst || (this.inst = new this()) }
     private constructor() {
         if (Utils.getToday() > this.getNumber(StroageDict.LastResetDate)) {
