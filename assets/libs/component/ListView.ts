@@ -211,10 +211,10 @@ export default class ListView extends cc.Component {
     setItemPosByIndex(index: number, item: cc.Node) {
         if (this.scrollMode == ScrollMode.Horizontal) {
             let x = this.layout.paddingLeft + (this.layout.spacingX + item.width) * index + item.width / 2;
-            item.position = cc.v2(x, 0);
+            item.position = cc.v3(x, 0);
         } else if (this.scrollMode == ScrollMode.Vertical) {
             let y = - (this.layout.paddingTop + (this.layout.spacingY + item.height) * index + item.height / 2)
-            item.position = cc.v2(0, y);
+            item.position = cc.v3(0, y);
         }
         item[this.itemIndexKey] = index;
         this.itemDict[index] = item;

@@ -21,6 +21,10 @@ export default class Language extends cc.Component {
     ID = 0;
 
     onLoad() {
+        this.updateContent();
+    }
+
+    updateContent() {
         let comps: cc.Component[] = this.node["_components"];
         for (let i = 0, len = comps.length; i < len; i++) {
             let comp = comps[i];
