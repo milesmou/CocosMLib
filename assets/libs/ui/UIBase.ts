@@ -70,10 +70,10 @@ export default class UIBase extends cc.Component {
 
     open(action?: boolean) {
         if (action == undefined) action = Boolean(this.showAction & EAction.OPEN);
-        let p = new Promise<boolean>((resovle, reject) => {
+        let p = new Promise<void>((resovle, reject) => {
             let callback = () => {
                 EventMgr.emit(this.uiName + "_open", this);
-                resovle(true);
+                resovle();
             };
             if (action) {
                 this.node.scale = 0.85;
@@ -95,10 +95,10 @@ export default class UIBase extends cc.Component {
 
     close(action?: boolean) {
         if (action == undefined) action = Boolean(this.showAction & EAction.CLOSE);
-        let p = new Promise<boolean>((resovle, reject) => {
+        let p = new Promise<void>((resovle, reject) => {
             let callback = () => {
                 EventMgr.emit(this.uiName + "_close", this);
-                resovle(true);
+                resovle();
             };
             if (action) {
                 cc.tween(this.node)

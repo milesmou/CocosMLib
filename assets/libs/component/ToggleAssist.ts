@@ -6,7 +6,7 @@ export default class ToggleAssist extends cc.Component {
     @property({
         type: cc.Node,
         displayName: "背景节点",
-        tooltip: "按钮选中时隐藏背景",
+        tooltip: "选中时隐藏背景",
         visible: function () { return this.getComponent(cc.Toggle) }
     })
     bg: cc.Node = null;

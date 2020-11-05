@@ -3,8 +3,8 @@ import { EventMgr, GameEvent } from "../utils/EventMgr";
 import UITipMessage from "./UITipMessage";
 import UIGUide from "./UIGuide";
 
-export class UIManager  {
-    private static inst: UIManager  = null;
+export class UIManager {
+    private static inst: UIManager = null;
     public static get Inst() { return this.inst || (this.inst = new this()) }
     private constructor() { }
 
@@ -49,20 +49,19 @@ export class UIManager  {
     }
 
 
-    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, action?: boolean, active?: boolean,  underTop?: boolean }): Promise<T> {
+    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, action?: boolean, active?: boolean, toBottom?: boolean }): Promise<T> {
         if (this.cooldown) return;
         this.cooldown = true;
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
         ui.setActive(typeof obj?.active === "boolean" ? obj.active : true)
-        if (!this.topUI || !(typeof obj?.underTop === "boolean") || !obj?.underTop) {
-            ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 1;
+        if (obj?.toBottom) {
+            ui.node.zIndex = -1;
+            this.uiStack.unshift(ui);
+        } else {
+            ui.node.zIndex = this.topUI?.isValid ? this.topUI.node.zIndex + 2 : 1;
             this.uiStack.push(ui);
             this.topUI = ui;
-        } else {
-            this.topUI.node.zIndex += 2;
-            ui.node.zIndex = this.topUI.node.zIndex - 2;
-            this.uiStack.splice(this.uiStack.length - 1, 0, ui);
         }
         ui.node.parent = this.NormalLayer;
         this.setShade();
@@ -88,19 +87,6 @@ export class UIManager  {
                 this.uiDict[name] = undefined;
             }
             ui.onClose();
-        }
-    }
-
-    public toTop(name: EUIName) {
-        let ui = this.uiDict[name];
-        let index = this.uiStack.indexOf(ui)
-        if (index != -1) {
-            ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 1;
-            this.uiStack.splice(index, 1);
-            this.uiStack.push(ui);
-            this.topUI = this.uiStack[this.uiStack.length - 1];
-            this.setShade();
-            this.setUIVisible();
         }
     }
 
