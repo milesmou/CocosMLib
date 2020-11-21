@@ -1,4 +1,4 @@
-# MH-CocosCreator-Utils
+# CocosCreator-Utils
 
 assets/libs/component 功能性组件  
 assets/libs/network 网络  
