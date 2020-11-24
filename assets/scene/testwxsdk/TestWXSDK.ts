@@ -1,4 +1,4 @@
-import Language from "../../libs/component/Language";
+import Lang from "../../libs/component/Language";
 
 const { ccclass, property } = cc._decorator;
 
@@ -9,7 +9,7 @@ export default class TestWXSDK extends cc.Component {
     label: cc.Label = null;
 
     onLoad() {
-        Language.initLanguageDict({ 10: "hello", 11: "world" });
+        Lang.initLanguageDict({ 10: "hello", 11: "world" });
     }
 
     start() {

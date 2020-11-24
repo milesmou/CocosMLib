@@ -22,6 +22,14 @@ export default class Language extends cc.Component {
 
     onLoad() {
         this.updateContent();
+        Language.list.push(this);
+    }
+
+    onDestroy() {
+        let index = Language.list.indexOf(this);
+        if (index > -1) {
+            Language.list.splice(index, 1);
+        }
     }
 
     updateContent() {
@@ -29,20 +37,29 @@ export default class Language extends cc.Component {
         for (let i = 0, len = comps.length; i < len; i++) {
             let comp = comps[i];
             if (comp instanceof cc.Label || comp instanceof cc.RichText) {
-                comp.string = Language.getStringByID(this.ID) || comp.string;
+                let content = Language.args[this.ID] ? Language.getStringByID(this.ID, ...Language.args[this.ID]) : Language.getStringByID(this.ID);
+                comp.string = content || comp.string;
                 break;
             } else if (comp instanceof cc.Sprite) {
-                Language.loadSpriteFrameByID(this.ID, comp);
+                Language.getSpriteFrameByID(this.ID, comp);
                 break;
             }
         }
     }
 
+    static list: Language[] = [];
+    static args: { [ID: number]: any[] } = {};
     static dict: { [ID: number]: any } = null;
     static atlas: cc.SpriteAtlas = null;
-    static initLanguageDict(dict: { [ID: number]: any }, atlas: cc.SpriteAtlas) {
+    static init(dict: { [ID: number]: any }, atlas: cc.SpriteAtlas) {
         this.dict = this.dict || dict;
         this.atlas = this.atlas || atlas;
+    }
+
+    static reload() {
+        this.list.forEach(v => {
+            v.isValid && v.updateContent();
+        })
     }
 
     static getStringByID(ID: number, ...args): string {
@@ -51,10 +68,13 @@ export default class Language extends cc.Component {
             console.warn(`ID=${ID} Lang=${mm.lang}  在语言表中无对应内容`);
             return "";
         }
+        if (args.length > 0) {
+            this.args[ID] = args;
+        }
         return Utils.formatString(this.dict[ID][mm.lang], ...args);
     }
 
-    static loadSpriteFrameByID(ID: number, sprite: cc.Sprite) {
+    static getSpriteFrameByID(ID: number, sprite: cc.Sprite) {
         if (!this.dict || !this.atlas) return;
         let name = this.getStringByID(ID);
         let spriteFrame = this.atlas.getSpriteFrame(name);
