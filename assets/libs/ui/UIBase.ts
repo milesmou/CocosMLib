@@ -34,10 +34,23 @@ export default class UIBase extends cc.Component {
     blockInputEvent = true;
     @property({
         type: EAction,
-        displayName: "动画",
-        tooltip: "是否启用UI打开和关闭动画"
+        displayName: "动画(主动)",
+        tooltip: "启用UI自身打开和关闭时动画"
     })
-    showAction = EAction.NONE;
+    activeAction = EAction.NONE;
+    @property({
+        type: EAction,
+        displayName: "动画(被动)",
+        tooltip: "启用UI受顶层UI影响时打开和关闭动画(顶层UI的Cover属性为true会影响下层UI的显示状态)"
+    })
+    passiveAction = EAction.NONE;
+    @property({
+        type: cc.Animation,
+        displayName: "动画组件",
+        tooltip: "UI打开关闭时播放指定动画(0:OPEN 1:CLOSE)，组件不存在时播放默认动画",
+        visible: function () { return this.activeAction > 0 || this.passiveAction > 0 }
+    })
+    animation: cc.Animation = null;
     @property({
         type: cc.Button,
         displayName: "关闭按钮",
@@ -54,6 +67,7 @@ export default class UIBase extends cc.Component {
         this.node.setContentSize(cc.winSize);
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
+        this.animation && (this.animation.playOnLoad = false);
     }
 
     setArgs(args: any) {
@@ -68,19 +82,34 @@ export default class UIBase extends cc.Component {
         this.node.active = value;
     }
 
-    open(action?: boolean) {
-        if (action == undefined) action = Boolean(this.showAction & EAction.OPEN);
-        let p = new Promise<void>((resovle, reject) => {
+    /**
+     * @param active 默认true UI主动打开
+     */
+    openAction(active = true) {
+        EventMgr.emit(this.uiName + "_onOpening", this);
+        let bAction = Boolean((active ? this.activeAction : this.passiveAction) & EAction.OPEN);
+        let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
-                EventMgr.emit(this.uiName + "_open", this);
-                resovle();
+                EventMgr.emit(this.uiName + "_onOpen", this);
+                resovle(true);
             };
-            if (action) {
-                this.node.scale = 0.85;
-                cc.tween(this.node)
-                    .to(0.3, { scale: 1 }, { easing: "elasticOut" })
-                    .call(callback)
-                    .start();
+            if (bAction) {
+                if (this.animation) {//播放指定动画
+                    let clip = this.animation.getClips()[0];
+                    if (clip) {
+                        this.animation.once("finished", callback);
+                        this.animation.play(clip.name);
+                    } else {
+                        console.warn(this.node.name, "无UI打开动画文件");
+                        callback();
+                    }
+                } else {//播放默认动画
+                    this.node.scale = 0.85;
+                    cc.tween(this.node)
+                        .to(0.3, { scale: 1 }, { easing: "elasticOut" })
+                        .call(callback)
+                        .start();
+                }
             } else {
                 callback();
             }
@@ -93,18 +122,33 @@ export default class UIBase extends cc.Component {
         EventMgr.emit(GameEvent.CloseUI, this.uiName);
     }
 
-    close(action?: boolean) {
-        if (action == undefined) action = Boolean(this.showAction & EAction.CLOSE);
-        let p = new Promise<void>((resovle, reject) => {
+    /**
+     * @param active 默认true UI主动关闭
+     */
+    closeAction(active = true) {
+        EventMgr.emit(this.uiName + "_onClosing", this);
+        let bAction = Boolean((active ? this.activeAction : this.passiveAction) & EAction.CLOSE);
+        let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
-                EventMgr.emit(this.uiName + "_close", this);
-                resovle();
+                EventMgr.emit(this.uiName + "_onClose", this);
+                resovle(true);
             };
-            if (action) {
-                cc.tween(this.node)
-                    .to(0.2, { scale: 0.5 }, { easing: "backIn" })
-                    .call(callback)
-                    .start();
+            if (bAction) {
+                if (this.animation) {//播放指定动画
+                    let clip = this.animation.getClips()[1];
+                    if (clip) {
+                        this.animation.once("finished", callback);
+                        this.animation.play(clip.name);
+                    } else {
+                        console.warn(this.node.name, "无UI关闭动画文件");
+                        callback();
+                    }
+                } else {//播放默认动画
+                    cc.tween(this.node)
+                        .to(0.2, { scale: 0.5 }, { easing: "backIn" })
+                        .call(callback)
+                        .start();
+                }
             } else {
                 callback();
             }
@@ -112,10 +156,9 @@ export default class UIBase extends cc.Component {
         return p;
     }
 
-    /** UI完全打开时触发 */
+    /** UI完全打开时触发 (UI打开动画播放完)*/
     onOpen() { }
 
-    /** UI完全关闭时触发 */
+    /** UI完全关闭时触发 (UI关闭动画播放完)*/
     onClose() { }
-
 }

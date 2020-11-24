@@ -195,7 +195,7 @@
       "array": [
         0,
         0,
-        561.3035507169358,
+        661.6434084913112,
         0,
         0,
         0,
@@ -3187,6 +3187,7 @@
     "disableDefault": false,
     "audioClip": null,
     "cooldown": 3,
+    "polygonButton": false,
     "_id": "a7qjhOTBVFU73zQuZsC2p5"
   },
   {
@@ -3574,6 +3575,7 @@
     "disableDefault": false,
     "audioClip": null,
     "cooldown": 0,
+    "polygonButton": false,
     "_id": "b8Vlzk+klDXaVC2vsnzirk"
   },
   {

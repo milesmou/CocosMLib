@@ -29,14 +29,14 @@ export default class TestUIManager extends cc.Component {
 
     showTipBox() {
 
-        UIManager.Inst.tipMseeage.showTipBox("hello world 666", 2, {
-            cbConfirm: () => {
+        UIManager.Inst.tipMseeage.showTipBox("hello world 666", 2,
+            () => {
                 console.log("ok");
             },
-            cbCancel:()=>{
+            () => {
                 console.log("cancel");
             }
-        });
+        );
     }
 
 }

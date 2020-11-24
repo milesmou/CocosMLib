@@ -1,4 +1,6 @@
 import UILoading from "./ui/UILoading";
+import { UIManager } from "./ui/UIManager";
+import { EventMgr, GameEvent } from "./utils/EventMgr";
 
 const { ccclass, property } = cc._decorator;
 
@@ -12,16 +14,24 @@ export default class App extends cc.Component {
     loading: UILoading = null;
 
     onLoad() {
+        EventMgr.on(GameEvent.EnterGameScene, this.enterGameScene, this);
         let node = cc.instantiate(this.loadPrefab);
         node.parent = this.node;
         this.loading = node.getComponent(UILoading);
     }
 
+    onDestroy() {
+        EventMgr.off(GameEvent.EnterGameScene, this.enterGameScene, this);
+    }
+
     start() {
-        this.loading.load().then(() => {
-            this.loading.node.destroy();
-            console.log("加载完成");
+        UIManager.Inst.init().then(() => {
+            this.loading.load();
         });
+    }
+
+    enterGameScene() {
+        this.loading.node.destroy();
     }
 
 }

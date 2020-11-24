@@ -107,14 +107,14 @@ export default class UITipMessage extends UIBase {
      * @param boxType 提示框类型 1：一个确认按钮 2：确认和取消按钮
      * @param opts 确认和取消按钮回调
      */
-    showTipBox(content: string, boxType = 2, opts: { cbConfirm?: Function, cbCancel?: Function } = {}) {
+    showTipBox(content: string, boxType = 2,  cbConfirm?: Function, cbCancel?: Function ) {
         this.tipBox.active = true;
         this.tipBoxContent.string = content;
         this.btnConfirm.node.once("click", this.Confirm, this);
         this.btnCancel.node.once("click", this.Cancel, this);
         this.btnCancel.node.active = boxType == 2;
-        this.cbConfirm = opts.cbConfirm;
-        this.cbCancel = opts.cbCancel;
+        this.cbConfirm = cbConfirm;
+        this.cbCancel = cbCancel;
     }
 
     Confirm() {

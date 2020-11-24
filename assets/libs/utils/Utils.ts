@@ -8,14 +8,18 @@ export class Utils {
     * @param url 远程图片路径（带扩展名）
     */
     static loadRemotePic(sprite: cc.Sprite, url: string) {
-        cc.assetManager.loadRemote(url, (err, texture:any) => {
-            if (err) {
-                console.error(err);
-            } else {
-                let spFrame = new cc.SpriteFrame(texture);
-                sprite.spriteFrame = spFrame;
-            }
-        });
+        let p = new Promise<void>((resolve, reject) => {
+            cc.assetManager.loadRemote(url, (err, texture: any) => {
+                if (err) {
+                    console.error(err);
+                } else {
+                    let spFrame = new cc.SpriteFrame(texture);
+                    sprite.spriteFrame = spFrame;
+                    resolve();
+                }
+            });
+        })
+        return p;
     }
 
     /**
@@ -24,13 +28,17 @@ export class Utils {
      * @param url 本地图片路径（不带扩展名）
      */
     static loadLocalPic(sprite: cc.Sprite, url: string) {
-        cc.resources.load(url, cc.SpriteFrame, (err, texture: any) => {
-            if (err) {
-                console.error(err);
-            } else {
-                sprite.spriteFrame = texture;
-            }
-        });
+        let p = new Promise<void>((resolve, reject) => {
+            cc.resources.load(url, cc.SpriteFrame, (err, texture: any) => {
+                if (err) {
+                    console.error(err);
+                } else {
+                    sprite.spriteFrame = texture;
+                    resolve();
+                }
+            });
+        })
+        return p;
     }
 
     /** 
@@ -97,6 +105,14 @@ export class Utils {
     }
 
     /**
+     * arr1是否包含arr2所有元素
+     */
+    static isArrContained(arr1: any[], arr2: any[]) {
+        let arr = arr2.filter(v => arr1.includes(v));
+        return arr.length == arr2.length;
+    }
+
+    /**
      * 获取一个随机数
      * @param min 最小值
      * @param max 最大值
@@ -119,14 +135,68 @@ export class Utils {
             str = str.replace(`{${i}}`, v);
         });
         return str;
+        Promise
     }
 
-     /**
+    /**
      * 将 cc.resources.load Promise化
      */
-    static load(paths: string, onProgress: (finish: number, total: number) => void): Promise<cc.Asset> {
+    static load(path: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number) => void): Promise<cc.Asset> {
         let p = new Promise<cc.Asset>((resolve, reject) => {
-            cc.resources.load(paths, onProgress, (err, assets) => {
+            cc.resources.load(path, type, onProgress, (err, asset) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(asset);
+                }
+            })
+        })
+        return p;
+    }
+
+    /**
+     * 在cc.resources.load基础上增加一个数组资源加载
+     */
+    static loadArray(paths: string[], onProgress?: (finish: number, total: number) => void): Promise<cc.Asset[]> {
+        let finishArr: number[] = [], totalArr: number[] = [];
+        let assets: cc.Asset[] = [];
+        let p = new Promise<cc.Asset[]>((resolve, reject) => {
+            paths.forEach((path, i) => {
+                cc.resources.load(path,
+                    (_finish, _total) => {
+                        finishArr[i] = _finish || 0;
+                        totalArr[i] = _total || 0;
+                        if (onProgress) {
+                            let finish = 0;
+                            let total = 0;
+                            for (let i = 0; i < paths.length; i++) {
+                                finish += (finishArr[i] || 0);
+                                total += (totalArr[i] || 0);
+                            }
+                            onProgress(finish, total);
+                        }
+                    },
+                    (err, asset) => {
+                        if (err) {
+                            reject(err)
+                        } else {
+                            assets.push(asset);
+                            if (assets.length == paths.length) {
+                                resolve(assets);
+                            }
+                        }
+                    })
+            });
+        })
+        return p;
+    }
+
+    /**
+    * 将 cc.resources.loadDir Promise化
+    */
+    static loadDir(path: string, onProgress?: (finish: number, total: number) => void): Promise<cc.Asset[]> {
+        let p = new Promise<cc.Asset[]>((resolve, reject) => {
+            cc.resources.loadDir(path, onProgress, (err, assets) => {
                 if (err) {
                     reject(err)
                 } else {
@@ -138,37 +208,47 @@ export class Utils {
     }
 
     /**
-    * 将 cc.resources.loadDir Promise化
-    */
-    static loadDir(paths: string, onProgress: (finish: number, total: number) => void): Promise<cc.Asset[]> {
-        let p = new Promise<cc.Asset[]>((resolve, reject) => {
-            cc.resources.loadDir(paths, onProgress, (err, assets) => {
+   * 将 cc.assetManager.loadRemote Promise化
+   */
+    static loadRemote(path: string): Promise<cc.Asset> {
+        let p = new Promise<cc.Asset>((resolve, reject) => {
+            cc.assetManager.loadRemote(path, (err, asset) => {
                 if (err) {
                     reject(err)
                 } else {
-                    resolve(assets);
+                    resolve(asset);
                 }
             })
         })
         return p;
     }
 
-     /**
+    static downloadProgressCb: Map<string, Function[]> = new Map();
+    /**
      * 原生平台下载文件到本地
      * @param url 文件下载链接
      * @param ext 文件的扩展名（1.txt扩展名为.txt）
-     * @param onFileProgress 下载进度回调方法
+     * @param onFileProgress 下载进度回调方法 (同一url只有第一次传入的回调方法有效)
      */
-    static download(url: string, ext: string, onFileProgress?: (complete: number, total: number) => void) {
+    static download(url: string, ext: string, onFileProgress?: (loaded: number, total: number) => void) {
+        if (!cc.sys.isNative) return;
         let p = new Promise<any>((resolve, reject) => {
-            if (!cc.sys.isNative) {
-                reject("非原生平台");
+            if (onFileProgress) {
+                !this.downloadProgressCb.get(url) && this.downloadProgressCb.set(url, []);
+                this.downloadProgressCb.get(url).push(onFileProgress);
             }
             cc.assetManager.downloader.download(
                 url, url, ext,
-                { onFileProgress: onFileProgress },
+                {
+                    onFileProgress: (loaded, total) => {
+                        let arrCb = this.downloadProgressCb.get(url);
+                        arrCb && arrCb.forEach(v => v(loaded, total));
+                    }
+                },
                 (err, res) => {
+                    this.downloadProgressCb.delete(url);
                     if (err) {
+                        console.error(err);
                         reject(err);
                     } else {
                         resolve(res);

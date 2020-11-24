@@ -66,8 +66,9 @@ export class EventMgr {
 export enum GameEvent {
     OpenUI = -10000,
     CloseUI,
-    Test3,
-    Test4 = 10000,
+    EnterGameScene,
+    Test3 = 10000,
+    Test4,
     Test5,
     Test6
 }

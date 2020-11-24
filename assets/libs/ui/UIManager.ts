@@ -38,6 +38,7 @@ export class UIManager {
         this.HigherLayer.parent = canvas;
 
         this.shade = await this.instNode(EUIName.UIShade);
+        this.shade.setContentSize(cc.winSize);
         this.shade.parent = this.NormalLayer;
         this.shade.active = false;
 
@@ -49,30 +50,35 @@ export class UIManager {
     }
 
 
-    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, action?: boolean, active?: boolean, toBottom?: boolean }): Promise<T> {
+    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, underTop?: boolean }): Promise<T> {
         if (this.cooldown) return;
         this.cooldown = true;
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
-        ui.setActive(typeof obj?.active === "boolean" ? obj.active : true)
-        if (obj?.toBottom) {
-            ui.node.zIndex = -1;
-            this.uiStack.unshift(ui);
+        if (obj?.underTop && this.topUI?.isValid) {
+            ui.setOpacity(0)
+            ui.node.zIndex = this.topUI.node.zIndex;
+            this.topUI.node.zIndex += 2;
+            this.uiStack.splice(this.uiStack.length - 1, 0, ui);
         } else {
+            ui.setOpacity(255)
+            if (this.topUI?.isValid && ui.cover) {
+                this.topUI.closeAction(false)
+            }
             ui.node.zIndex = this.topUI?.isValid ? this.topUI.node.zIndex + 2 : 1;
             this.uiStack.push(ui);
             this.topUI = ui;
         }
         ui.node.parent = this.NormalLayer;
         this.setShade();
-        await ui.open(obj?.action);
+        this.isTopUI(ui) && await ui.openAction();
         this.setUIVisible();
         this.cooldown = false;
         ui.onOpen();
         return ui as T;
     }
 
-    public async closeUI(name: EUIName, obj?: { action?: boolean }): Promise<void> {
+    public async closeUI(name: EUIName): Promise<void> {
         let ui = this.uiDict[name];
         let index = this.uiStack.indexOf(ui)
         if (index != -1) {
@@ -80,7 +86,10 @@ export class UIManager {
             this.topUI = this.uiStack[this.uiStack.length - 1];
             this.setShade();
             this.setUIVisible();
-            await ui.close(obj?.action);
+            if (index == this.uiStack.length && this.topUI?.isValid && ui.cover) {
+                this.topUI.openAction(false);
+            }
+            await ui.closeAction();
             ui.node.parent = null;
             if (ui.destroyNode) {
                 ui.node.destroy();
@@ -97,12 +106,13 @@ export class UIManager {
             if (index > -1) {
                 this.uiStack.splice(index, 1);
             }
-            return ui;
+        } else {
+            let node = await this.instNode(name);
+            ui = node.getComponent(UIBase);
+            ui.init(name);
+            this.uiDict[name] = ui;
         }
-        let node = await this.instNode(name);
-        ui = node.getComponent(UIBase);
-        ui.init(name);
-        this.uiDict[name] = ui;
+        ui.setActive(true);
         return ui;
     }
 
@@ -113,12 +123,17 @@ export class UIManager {
                     console.error(name, err);
                     reject();
                 } else {
-                    let node = cc.instantiate(prefab);
+                    let node: cc.Node = cc.instantiate(prefab);
+                    node.position = cc.v3(0, 0);
                     resolve(node);
                 }
             });
         });
         return p;
+    }
+
+    public isTopUI(ui: UIBase) {
+        return this.topUI == ui;
     }
 
     public getUI(name: EUIName) {
@@ -144,7 +159,13 @@ export class UIManager {
         let isCover = false;
         for (let i = this.uiStack.length - 1; i >= 0; i--) {
             let ui = this.uiStack[i];
-            ui.setOpacity(isCover ? 0 : 255);
+            if (!isCover) {
+                ui.setOpacity(255);
+                ui.node.resumeSystemEvents(true);
+            } else {
+                ui.setOpacity(0);
+                ui.node.pauseSystemEvents(true);
+            }
             if (!isCover) {
                 isCover = ui.cover;
             }

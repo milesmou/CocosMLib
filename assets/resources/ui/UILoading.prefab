@@ -719,7 +719,9 @@
     "showShade": false,
     "cover": false,
     "blockInputEvent": true,
-    "showAction": 0,
+    "activeAction": 0,
+    "passiveAction": 0,
+    "animation": null,
     "closeBtn": null,
     "progressBar": {
       "__id__": 14
