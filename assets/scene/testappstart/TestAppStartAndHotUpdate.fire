@@ -177,7 +177,7 @@
       "array": [
         0,
         0,
-        661.6434084913112,
+        661.1562692016824,
         0,
         0,
         0,
@@ -478,9 +478,7 @@
       "__id__": 2
     },
     "_enabled": true,
-    "loadPrefab": {
-      "__uuid__": "0f3e83e1-195e-4664-8cec-7e1a77ed2b00"
-    },
+    "loadPrefab": null,
     "_id": "58YzDr73BMro61fLhh1H6Z"
   }
 ]

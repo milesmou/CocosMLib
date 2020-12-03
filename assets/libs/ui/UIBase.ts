@@ -90,10 +90,12 @@ export default class UIBase extends cc.Component {
         let bAction = Boolean((active ? this.activeAction : this.passiveAction) & EAction.OPEN);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
+                this.node.resumeSystemEvents(true);
                 EventMgr.emit(this.uiName + "_onOpen", this);
                 resovle(true);
             };
             if (bAction) {
+                this.node.pauseSystemEvents(true);
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.getClips()[0];
                     if (clip) {
@@ -130,10 +132,12 @@ export default class UIBase extends cc.Component {
         let bAction = Boolean((active ? this.activeAction : this.passiveAction) & EAction.CLOSE);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
+                this.node.resumeSystemEvents(true);
                 EventMgr.emit(this.uiName + "_onClose", this);
                 resovle(true);
             };
             if (bAction) {
+                this.node.pauseSystemEvents(true);
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.getClips()[1];
                     if (clip) {

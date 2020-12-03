@@ -1,6 +1,5 @@
 import { EventMgr, GameEvent } from "../utils/EventMgr";
 import { HotUpdate, HotUpdateCode } from "../utils/HotUpdate";
-import { Utils } from "../utils/Utils";
 import UIBase from "./UIBase";
 import { UIManager } from "./UIManager";
 
@@ -21,50 +20,66 @@ export default class UILoading extends UIBase {
     hotUpdate = false;
     @property({
         type: cc.Asset,
-        tooltip: "本地version.manifest文件",
+        tooltip: "本地project.manifest文件",
         visible: function () { return this.hotUpdate }
     })
     manifest: cc.Asset = null;
 
     load() {
-        if (this.hotUpdate && this.manifest && cc.sys.isNative) {
-            HotUpdate.Inst.start(
-                this.manifest,
-                this.setTips.bind(this),
-                this.onProgress.bind(this),
-                this.complete.bind(this)
-            );
-        } else {
-            this.loadCfg()
-        }
+        this.loadCfg();
     }
 
     loadCfg() {
-        this.loadRes(); return;
-        Utils.loadRemote("https://localhost:8080/GameConfig.json?" + Date.now())
-            .then((v: cc.JsonAsset) => {
-                this.loadRes();
-            })
-            .catch(() => {
-                UIManager.Inst.tipMseeage.showTipBox(
-                    "游戏配置加载失败，请检查网络是否正常！", 1,
-                    () => {
-                        this.load();
-                    }
-                );
-            })
+        this.setTips("Loading Config")
+        // Utils.loadRemote("http://localhost/GameConfig.json?" + Date.now())
+        //     .then((v: cc.JsonAsset) => {
+        //         if (this.hotUpdate && this.manifest && cc.sys.isNative) {
+        //             this.checkVersion();
+        //         } else {
+        //             this.loadRes()
+        //         }
+        //     })
+        //     .catch(() => {
+        //         UIManager.Inst.tipMseeage.showTipBox(
+        //             "遊戲配置加載失敗，請檢查網絡是否正常！", 1,
+        //             () => {
+        //                 this.loadCfg();
+        //             }
+        //         );
+        //     })
+        this.loadRes();
+    }
+
+    checkVersion() {
+        HotUpdate.Inst.start(
+            this.manifest,
+            this.setTips.bind(this),
+            this.onProgress.bind(this),
+            this.complete.bind(this)
+        );
     }
 
     async loadRes() {
         //加载游戏数据
-        // this.setTips({ "zh": "加载中...", "zh_ft": "蒌入中⋯" }[mm.lang])
+        this.setTips("Loading Game Data")
         // let gameDatas = await Utils.loadDir("data", this.onProgress.bind(this));
+        // for (const v of gameDatas) {
+        //     if (v.name == "GameData") {
+        //         DataManager.Inst.initData((v as cc.JsonAsset).json);
+        //     } else if (v.name == "Language") {
+        //         Language.init((v as cc.JsonAsset).json["Language"], null);
+        //     }
+        // }
         //加载ui
         // if (cc.sys.isBrowser) {
-        //     this.setTips({ "zh": "加载场景资源...", "zh_ft": "蒌入场景资源⋯" }[mm.lang])
+        //     this.setTips("Loading Game Scene")
         //     await Utils.loadDir("ui", this.onProgress.bind(this));
         // }
-        //加载壁纸
+        // //加载壁纸
+        // let wallpaperId = StroageMgr.Inst.getNumber(StroageDict.WallpaperId, DataManager.Inst.globalVal.InitWallpaper);
+        // let videoId = DataManager.Inst.wallpapers[wallpaperId].ResID;
+        // let videoRes = await Utils.load("texture/wallpaper/" + videoId);
+        // BGVideoPlayer.Inst.setBGVideo(videoRes);
         EventMgr.emit(GameEvent.EnterGameScene);
     }
 
@@ -88,7 +103,7 @@ export default class UILoading extends UIBase {
         console.log("HotUpdate ResultCode = ", code);
         if (code == HotUpdateCode.Success) {
             UIManager.Inst.tipMseeage.showTipBox(
-                "版本更新完成，需要重启游戏！", 1,
+                "版本更新完成，需要重啟遊戲！", 1,
                 () => {
                     cc.audioEngine.stopAll();
                     cc.game.restart();
@@ -96,14 +111,14 @@ export default class UILoading extends UIBase {
             );
         } else if (code == HotUpdateCode.Fail) {
             UIManager.Inst.tipMseeage.showTipBox(
-                "版本更新失败，请检查网络是否正常，重新尝试更新!", 1,
+                "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", 1,
                 () => {
                     cc.audioEngine.stopAll();
                     cc.game.restart();
                 }
             );
         } else if (code == HotUpdateCode.UpToDate) {
-            this.loadCfg()
+            this.loadRes()
         }
     }
 

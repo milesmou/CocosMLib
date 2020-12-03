@@ -732,9 +732,9 @@
     "lblProgress": {
       "__id__": 17
     },
-    "hotUpdate": false,
+    "hotUpdate": true,
     "manifest": {
-      "__uuid__": "8ee443bc-1181-4edf-9391-98009cc36eee"
+      "__uuid__": "c4c2fc81-deb7-4626-ae0c-4cbca31e4a29"
     },
     "_id": ""
   },

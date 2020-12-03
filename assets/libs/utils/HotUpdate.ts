@@ -1,3 +1,5 @@
+//注意：修改热更新工具使导出的Manifest文件中的packageUrl地址追加版本号(manifest-gen.js中packageUrl:t替换为packageUrl:t+"/"+e)
+
 export enum HotUpdateCode {
     UpToDate,//已经是最新版本
     Success,//更新成功
@@ -11,11 +13,11 @@ export class HotUpdate {
 
     private readonly TAG = "[HotUpdate]";
 
-    manifest: cc.Asset = null;//本地version.manifest文件
+    manifest: cc.Asset = null;//本地project.manifest文件
 
     assetsMgr: jsb.AssetsManager = null;//jsb资源管理器
 
-    updating = false;//更新中
+    updating = false; //更新中
 
     failCount = 3;//更新失败次数
 
@@ -38,7 +40,7 @@ export class HotUpdate {
         let storagePath = ((jsb.fileUtils ? jsb.fileUtils.getWritablePath() : '/') + 'miles_remote_asset');
         console.log(this.TAG, '热更新资源存放路径：' + storagePath);
 
-        this.setTips("正在检测版本更新");
+        this.setTips("Check Updating");
         this.assetsMgr = new jsb.AssetsManager("", storagePath, this.versionCompareHandle.bind(this));
         this.assetsMgr.setVerifyCallback(this.VerifyHandle.bind(this));
         this.checkHotUpdate();
@@ -86,7 +88,7 @@ export class HotUpdate {
             this.assetsMgr.loadLocalManifest(url);
         }
         if (!this.assetsMgr.getLocalManifest() || !this.assetsMgr.getLocalManifest().isLoaded()) {
-            console.log(this.TAG, "加载本地manifest文件失败");
+            console.log(this.TAG, "加载本地project.manifest文件失败");
             this.onUpdateFail();
             return;
         }
@@ -104,22 +106,22 @@ export class HotUpdate {
     hotUpdateCb(event: jsb.EventAssetsManager) {
         switch (event.getEventCode()) {
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
-                this.setTips("正在下载更新");
-                console.log(this.TAG, `下载进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()}?`);
+                this.setTips("Download Updates");
+                console.log(this.TAG, `下载进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()} `);
                 this.progress(event.getDownloadedFiles(), event.getTotalFiles());
                 break;
             case jsb.EventAssetsManager.NEW_VERSION_FOUND:
-                console.log(this.TAG, "发现新版本");
+                console.log(this.TAG, "New Version Found");
                 this.setTips("发现新版本，准备下载");
                 this.hotUpdate();
                 break;
             case jsb.EventAssetsManager.ALREADY_UP_TO_DATE:
-                this.setTips("已经是最新版本");
+                this.setTips("Already Up To Date");
                 console.log(this.TAG, '已经是最新版本');
                 this.onUpdateSuccess(HotUpdateCode.UpToDate);
                 break;
             case jsb.EventAssetsManager.UPDATE_FINISHED:
-                this.setTips("更新完成，准备重启游戏");
+                this.setTips("Finished，Ready To Restart Game");
                 console.log(this.TAG, '更新完成', event.getMessage());
                 this.onUpdateSuccess(HotUpdateCode.Success);
                 break;
@@ -148,10 +150,10 @@ export class HotUpdate {
         if (code == HotUpdateCode.Success) {
             let searchPaths = jsb.fileUtils.getSearchPaths();
             let newPaths = this.assetsMgr.getLocalManifest().getSearchPaths();
-            console.log(this.TAG, "搜索路径:?" + JSON.stringify(newPaths));
+            console.log(this.TAG, "搜索路径: " + JSON.stringify(newPaths));
             Array.prototype.unshift.apply(searchPaths, newPaths);//追加脚本搜索路径
-            
-            //?!!!?在main.js中添加脚本搜索路径，否则热更的脚本不会生效
+
+            // !!! 在main.js中添加脚本搜索路径，否则热更的脚本不会生效
             cc.sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));
             jsb.fileUtils.setSearchPaths(searchPaths);
         }

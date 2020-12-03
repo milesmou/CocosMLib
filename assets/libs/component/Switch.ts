@@ -1,40 +1,32 @@
 const { ccclass, property } = cc._decorator;
-
-/** 开关组件，用于控制子节点之间的显隐关系 */
+/** 所在节点的子节点做开关处理，当CheckNode显示时隐藏它所有兄弟节点 */
 @ccclass
 export default class Switch extends cc.Component {
 
     @property({
-        tooltip: "是否显示指定的CheckNode"
+        type: cc.Node,
+        tooltip: "默认显示的节点"
     })
-    isChecked = true;
-    @property({
-        tooltip: "CheckNode与其它兄弟节点显示状态是否互斥，即当CheckNode显示时隐藏所有兄弟节点"
-    })
-    mutex = true;
-    @property(cc.Node)
     private checkNode: cc.Node = null;
 
-    onLoad(){
+    onLoad() {
         this.updateContent();
     }
 
     /** 更新显示状态 */
-    updateContent() {
+    private updateContent() {
         this.node.children.forEach(v => {
             if (v == this.checkNode) {
                 v.active = true;
             } else {
-                if (this.mutex) {
-                    v.active = false;
-                }
+                v.active = false;
             }
         });
     }
 
     /** 更新CheckNode */
-    updateCheck(index: number) {
-        this.checkNode = this.node.children[index];
+    updateCheck(childIndex: number) {
+        this.checkNode = this.node.children[childIndex];
         this.updateContent();
     }
 
