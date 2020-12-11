@@ -7,14 +7,23 @@ import { UIManager,EUIName } from "../../libs/ui/UIManager";
 export default class UIUI1 extends UIBase {
 
     onLoad(){
-        // super.onLoad();
+        console.log("onLoad");
     }
 
-
     start () {
-        // let {ak,bk} = this.args;
-        // super..start();
-        
+        console.log("start");
+    }
+
+    onEnable(){
+        console.log("onEnable"); 
+    }
+
+    onShowBegin(){
+        console.log("onShowBegin");
+    }
+
+    onShow(){
+        console.log("onShow");
     }
 
     onclick(){

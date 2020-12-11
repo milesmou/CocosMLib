@@ -1,6 +1,6 @@
 import UIBase from "./UIBase";
 import { UIManager, EUIName } from "./UIManager";
-import { EventMgr } from "../utils/EventMgr";
+import { EventMgr, GameEvent } from "../utils/EventMgr";
 import { Guide } from "../../script/game/DataEntity";
 import DataManager from "../../script/game/DataManager";
 import Language from "../component/Language";
@@ -149,8 +149,12 @@ export default class UIGUide extends UIBase {
         if (UIManager.Inst.isTopUI(ui)) {
             show(ui);
         } else {
-            EventMgr.once(EUIName[guide.UIName] + "_onShow", (uiData: UIBase) => {
-                show(uiData);
+            EventMgr.once(GameEvent.OnUIShow, (uiName: EUIName, uiData: UIBase) => {
+                if (uiName == EUIName[guide.UIName]) {
+                    this.scheduleOnce(() => {
+                        show(uiData);
+                    })
+                }
             });
         }
     }

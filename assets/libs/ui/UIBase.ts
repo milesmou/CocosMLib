@@ -1,4 +1,4 @@
-import { EUIName, UIManager } from "./UIManager";
+import { EventMgr, GameEvent } from "../utils/EventMgr";
 
 const { property, ccclass } = cc._decorator;
 
@@ -143,7 +143,7 @@ export default class UIBase extends cc.Component {
 
     /** 关闭UI时调用此方法 */
     safeClose() {
-        UIManager.Inst.hideUI(this.uiName as EUIName);
+        EventMgr.emit(GameEvent.HideUI, this.uiName);
     }
 
     /** @param mode true:主动 false:被动 */

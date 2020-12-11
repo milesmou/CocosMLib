@@ -1,5 +1,5 @@
 import UIBase from "./UIBase";
-import { EventMgr } from "../utils/EventMgr";
+import { EventMgr, GameEvent } from "../utils/EventMgr";
 import UITipMessage from "./UITipMessage";
 import UIGUide from "./UIGuide";
 
@@ -31,6 +31,9 @@ export class UIManager {
     /** 场景加载后手动调用初始化 */
     public async init() {
         this.clear();
+        EventMgr.on(GameEvent.ShowUI, this.showUI, this);
+        EventMgr.on(GameEvent.HideUI, this.hideUI, this);
+
         let canvas = cc.find("Canvas");
         this.NormalLayer = new cc.Node("NormalLayer");
         this.NormalLayer.setContentSize(mm.safeArea);
@@ -86,9 +89,9 @@ export class UIManager {
             await ui.openAction(true);
             this.setUIVisible();
             this.cooldown = false;
-            EventMgr.emit(name + "_onShow", ui);
             ui.onShow(true);
-            
+            EventMgr.emit(GameEvent.OnUIShow, name, ui);
+
         }
         return ui as T;
     }
@@ -110,7 +113,7 @@ export class UIManager {
                 }
                 await ui.closeAction(true);
                 ui.onHide(true);
-                EventMgr.emit(name + "_onHide", ui);
+                EventMgr.emit(GameEvent.OnUIHide, name, ui);
             }
             ui.node.parent = null;
             if (ui.destroyNode) {
