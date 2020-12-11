@@ -20,7 +20,7 @@ export default class UIUI1 extends UIBase {
     onclick(){
         console.log("onclick");
         
-        UIManager.Inst.openUI(EUIName.UI2);
+        UIManager.Inst.showUI(EUIName.UI2);
     }
 
 }

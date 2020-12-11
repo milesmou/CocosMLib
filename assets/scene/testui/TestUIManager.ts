@@ -9,13 +9,14 @@ const { ccclass, property } = cc._decorator;
 export default class TestUIManager extends cc.Component {
 
     start() {
+        mm.safeArea = this.node.getContentSize();
         UIManager.Inst.init();
-
     }
 
     openUI() {
-        UIManager.Inst.openUI(EUIName.UI1);
+        UIManager.Inst.showUI(EUIName.UI1);
     }
+
     showTip() {
 
         UIManager.Inst.tipMseeage.showTip("hello world singleTip");

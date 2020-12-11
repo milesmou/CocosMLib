@@ -1,39 +1,52 @@
-import { PlatformWX } from "./PlatformWX";
+class PlatformTest implements IPlatform {
 
-class PlatformDev implements IPlatform {
-    constructor() {
-        console.log("Runtime：dev");
-    }
     adUintId = {};
     login(obj?) { return "mouhong"; }
-    getPlatform() { return "dev"; }
+    showBanner() { }
+    showRewardedVideo(params?) { }
+    showInterstitial() { }
+    reqInternalPay(skuid: string, params) {}
+    reportCustomEvent(event, args) { }
+}
+
+if (cc.sys.isBrowser) {
+    cc.macro.ENABLE_TRANSPARENT_CANVAS = true;
+}
+
+export enum EPlatformName {
+    Test = "Test",
+    GooglePlay = "GooglePlay",
+}
+
+/** 获取对应平台实例 */
+let getPlatformInst = () => {
+    console.log("Runtime", mm.config.platformName);
+    if (cc.sys.platform == cc.sys.ANDROID && mm.config.platformName == EPlatformName.Test) {
+        return new PlatformTest();
+    }
+    return new PlatformTest();
+}
+
+/** 获取语言环境 */
+let getLanguage = () => {
+    // let v = cc.sys.localStorage.getItem("SysLanguage") || cc.sys.languageCode;
+    // if (v == "zh-cn") {
+    //     v = "zh";
+    // } else if (v.includes("zh-")) {
+    //     v = "zh_ft";
+    // } else if (!["zh", "zh_ft"].includes(v)) {
+    //     v = "zh";
+    // }
+    let v = "zh_ft";
+    console.log("Lang:", v, " LanguageCode:", cc.sys.languageCode);
+    return v;
 }
 
 /** 全局变量赋值 */
 window.mm = {} as any;
-cc.game.once(cc.game.EVENT_GAME_INITED, () => {
-    mm.config = {
-        env: 1
-    }
-    let size = cc.view.getFrameSize();
-    mm.orientation = (() => {
-        return size.width < size.height ? 1 : 2;
-    })();
-    mm.screen = (() => {
-        return Math.max(size.width, size.height) / Math.min(size.width, size.height) < 1.78 ? 1 : 2;
-    })();
-    mm.lang = (() => {
-        let v = cc.sys.localStorage.getItem("SysLanguage") || cc.sys.languageCode;
-        if (v.includes("zh")) {
-            v = "zh";
-        }
-        console.log("Lang:", v, " LanguageCode:", cc.sys.languageCode);
-        return v;
-    })();
-    mm.platform = (() => {
-        if (cc.sys.platform == cc.sys.WECHAT_GAME) {
-            return new PlatformWX();
-        }
-        return new PlatformDev();
-    })();
-})
+mm.config = {} as any;
+mm.config.platformName = EPlatformName.Test;
+mm.config.version = "1.0.0";
+mm.config.url = `http://127.0.0.1/${mm.config.platformName}/`;
+mm.lang = getLanguage();
+mm.platform = getPlatformInst();

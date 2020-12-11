@@ -223,26 +223,25 @@ export class Utils {
         return p;
     }
 
-    static downloadProgressCb: Map<string, Function[]> = new Map();
+    static downloadProgressCb: Map<string, Function> = new Map();
     /**
      * 原生平台下载文件到本地
      * @param url 文件下载链接
-     * @param ext 文件的扩展名（1.txt扩展名为.txt）
      * @param onFileProgress 下载进度回调方法 (同一url只有第一次传入的回调方法有效)
      */
-    static download(url: string, ext: string, onFileProgress?: (loaded: number, total: number) => void) {
+    static download(url: string, onFileProgress?: (loaded: number, total: number) => void) {
         if (!cc.sys.isNative) return;
+        let ext = url.substr(url.lastIndexOf("."));
         let p = new Promise<any>((resolve, reject) => {
             if (onFileProgress) {
-                !this.downloadProgressCb.get(url) && this.downloadProgressCb.set(url, []);
-                this.downloadProgressCb.get(url).push(onFileProgress);
+                this.downloadProgressCb.set(url, onFileProgress);
             }
             cc.assetManager.downloader.download(
                 url, url, ext,
                 {
                     onFileProgress: (loaded, total) => {
                         let arrCb = this.downloadProgressCb.get(url);
-                        arrCb && arrCb.forEach(v => v(loaded, total));
+                        arrCb && arrCb(loaded, total);
                     }
                 },
                 (err, res) => {

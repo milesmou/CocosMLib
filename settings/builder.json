@@ -1,13 +1,20 @@
 {
-  "excludeScenes": [],
+  "excludeScenes": [
+    "70865fa4-0fcd-4bd2-badc-cd6bb68ec2d1",
+    "6c41407d-d3a0-4acd-a0cb-1d61dca6f544",
+    "d7bbd9e5-6e95-4a31-aa41-41851c22385c",
+    "eab58de6-d2c6-40f3-8bc0-673955890605",
+    "4be1cb4d-d9df-4f5d-a956-d7f3f99c533e",
+    "819f6ab3-8478-4b7c-80e2-4fe97c1ffa48"
+  ],
   "orientation": {
-    "landscapeLeft": true,
-    "landscapeRight": true,
-    "portrait": false,
+    "landscapeLeft": false,
+    "landscapeRight": false,
+    "portrait": true,
     "upsideDown": false
   },
   "packageName": "org.cocos2d.demo",
-  "startScene": "4be1cb4d-d9df-4f5d-a956-d7f3f99c533e",
+  "startScene": "a18824f3-4081-499a-aebe-5ef531b24787",
   "title": "MH-CocosCreator-Utils",
   "webOrientation": "landscape",
   "includeSDKBox": false,

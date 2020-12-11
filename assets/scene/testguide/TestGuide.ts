@@ -7,7 +7,7 @@ export default class TestGuide extends cc.Component {
 
     start(){
         UIManager.Inst.init().then(()=>{
-            UIManager.Inst.openUI(EUIName.UI3);
+            UIManager.Inst.showUI(EUIName.UI3);
         })
         
     }

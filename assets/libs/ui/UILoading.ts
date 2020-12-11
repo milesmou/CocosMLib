@@ -25,7 +25,7 @@ export default class UILoading extends UIBase {
     })
     manifest: cc.Asset = null;
 
-    load() {
+    start() {
         this.loadCfg();
     }
 
@@ -117,7 +117,7 @@ export default class UILoading extends UIBase {
                     cc.game.restart();
                 }
             );
-        } else if (code == HotUpdateCode.UpToDate) {
+        } else {//最新版本或manifest文件异常 跳过更新
             this.loadRes()
         }
     }

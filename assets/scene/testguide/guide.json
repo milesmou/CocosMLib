@@ -1,4 +1,0 @@
-{
-    "?":"配置格式  UI枚举KEY:Btn的Path 中间使用;隔开  以()结尾表示需要传入一个function来返回符合条件的node",
-    "1":"UI3:btn1;UI3:btn2;UI3:toggles();UI3:btn3;UI4:btn1"
-}

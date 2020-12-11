@@ -26,32 +26,6 @@ export default class Adapter extends cc.Component {
     })
     fitType = EFitType.Auto;
 
-    @property({
-        tooltip: "是否需要让widget适配全面屏，widget默认值为非全面屏(16:9)适配方案",
-        visible: function () { return this.node.name != "Canvas" && this.getComponent(cc.Widget) }
-    })
-    fitWidget = false;
-    @property({
-        tooltip: "全面屏时屏幕顶部的距离",
-        visible: function () { return this.fitWidget && this.getComponent(cc.Widget).isAlignTop }
-    })
-    top = 0;
-    @property({
-        tooltip: "全面屏时屏幕底部的距离",
-        visible: function () { return this.fitWidget && this.getComponent(cc.Widget).isAlignBottom }
-    })
-    bottom = 0;
-    @property({
-        tooltip: "全面屏时屏幕左部的距离",
-        visible: function () { return this.fitWidget && this.getComponent(cc.Widget).isAlignLeft }
-    })
-    left = 0;
-    @property({
-        tooltip: "全面屏时屏幕右部的距离",
-        visible: function () { return this.fitWidget && this.getComponent(cc.Widget).isAlignRight }
-    })
-    right = 0;
-
     onLoad() {
         //Canvas适配优先显示全部内容
         if (this.node.name == "Canvas") {
@@ -68,8 +42,8 @@ export default class Adapter extends cc.Component {
 
         //节点适配根据所选适配方式，默认自动适配去除黑边
         if (this.fitSize) {
-            let wRatio = cc.winSize.width / this.node.width;
-            let hRatio = cc.winSize.height / this.node.height;
+            let wRatio = mm.safeArea.width / this.node.width;
+            let hRatio = mm.safeArea.height / this.node.height;
             switch (this.fitType) {
                 case EFitType.Auto:
                     this.node.scale = Math.max(wRatio, hRatio);
@@ -82,26 +56,5 @@ export default class Adapter extends cc.Component {
                     break;
             }
         }
-
-        //widget针对全面屏适配
-        if (this.fitWidget) {
-            let widget = this.getComponent(cc.Widget);
-            if (mm.screen == 2) {
-                if (widget.isAlignTop) {
-                    widget.top = this.top;
-                }
-                if (widget.isAlignBottom) {
-                    widget.bottom = this.bottom;
-                }
-                if (widget.isAlignLeft) {
-                    widget.left = this.left;
-                }
-                if (widget.isAlignRight) {
-                    widget.right = this.right;
-                }
-                widget.updateAlignment();
-            }
-        }
-
     }
 }

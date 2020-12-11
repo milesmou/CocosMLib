@@ -21,7 +21,7 @@ export default class UI3 extends UIBase {
 
 
     openUI4() {
-        UIManager.Inst.openUI(EUIName.UI4);
+        UIManager.Inst.showUI(EUIName.UI4);
     }
 
 }

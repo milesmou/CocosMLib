@@ -2,6 +2,7 @@
 
 export enum HotUpdateCode {
     UpToDate,//已经是最新版本
+    ManifestError,//manifest文件异常
     Success,//更新成功
     Fail//更新失败
 }
@@ -17,9 +18,9 @@ export class HotUpdate {
 
     assetsMgr: jsb.AssetsManager = null;//jsb资源管理器
 
-    updating = false; //更新中
+    updating = false;//更新中
 
-    failCount = 3;//更新失败次数
+    failCount = 3;//更新失败重试次数
 
     resultCode: HotUpdateCode;
 
@@ -40,7 +41,7 @@ export class HotUpdate {
         let storagePath = ((jsb.fileUtils ? jsb.fileUtils.getWritablePath() : '/') + 'miles_remote_asset');
         console.log(this.TAG, '热更新资源存放路径：' + storagePath);
 
-        this.setTips("Check Updating");
+        this.setTips("Checking For Update");
         this.assetsMgr = new jsb.AssetsManager("", storagePath, this.versionCompareHandle.bind(this));
         this.assetsMgr.setVerifyCallback(this.VerifyHandle.bind(this));
         this.checkHotUpdate();
@@ -89,7 +90,7 @@ export class HotUpdate {
         }
         if (!this.assetsMgr.getLocalManifest() || !this.assetsMgr.getLocalManifest().isLoaded()) {
             console.log(this.TAG, "加载本地project.manifest文件失败");
-            this.onUpdateFail();
+            this.onUpdateComplete(HotUpdateCode.ManifestError);
             return;
         }
         this.assetsMgr.setEventCallback(this.hotUpdateCb.bind(this));
@@ -106,8 +107,8 @@ export class HotUpdate {
     hotUpdateCb(event: jsb.EventAssetsManager) {
         switch (event.getEventCode()) {
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
-                this.setTips("Download Updates");
-                console.log(this.TAG, `下载进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()} `);
+                this.setTips("Downloading Updates");
+                console.log(this.TAG, `下载进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()}?`);
                 this.progress(event.getDownloadedFiles(), event.getTotalFiles());
                 break;
             case jsb.EventAssetsManager.NEW_VERSION_FOUND:
@@ -118,12 +119,12 @@ export class HotUpdate {
             case jsb.EventAssetsManager.ALREADY_UP_TO_DATE:
                 this.setTips("Already Up To Date");
                 console.log(this.TAG, '已经是最新版本');
-                this.onUpdateSuccess(HotUpdateCode.UpToDate);
+                this.onUpdateComplete(HotUpdateCode.UpToDate);
                 break;
             case jsb.EventAssetsManager.UPDATE_FINISHED:
                 this.setTips("Finished，Ready To Restart Game");
                 console.log(this.TAG, '更新完成', event.getMessage());
-                this.onUpdateSuccess(HotUpdateCode.Success);
+                this.onUpdateComplete(HotUpdateCode.Success);
                 break;
             case jsb.EventAssetsManager.UPDATE_FAILED:
                 console.log(this.TAG, '更新失败', event.getMessage());
@@ -138,6 +139,9 @@ export class HotUpdate {
             case jsb.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
             case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
             case jsb.EventAssetsManager.ERROR_PARSE_MANIFEST:
+                console.log(this.TAG, 'manifest文件异常', event.getMessage());
+                this.onUpdateComplete(HotUpdateCode.ManifestError);
+                break;
             case jsb.EventAssetsManager.ERROR_UPDATING:
             case jsb.EventAssetsManager.ERROR_DECOMPRESS:
                 console.warn(this.TAG, '更新出错', event.getEventCode(), event.getMessage());
@@ -146,14 +150,14 @@ export class HotUpdate {
         }
     }
 
-    onUpdateSuccess(code: HotUpdateCode.UpToDate | HotUpdateCode.Success) {
+    onUpdateComplete(code: HotUpdateCode.UpToDate | HotUpdateCode.Success | HotUpdateCode.ManifestError) {
         if (code == HotUpdateCode.Success) {
             let searchPaths = jsb.fileUtils.getSearchPaths();
             let newPaths = this.assetsMgr.getLocalManifest().getSearchPaths();
-            console.log(this.TAG, "搜索路径: " + JSON.stringify(newPaths));
+            console.log(this.TAG, "搜索路径:?" + JSON.stringify(newPaths));
             Array.prototype.unshift.apply(searchPaths, newPaths);//追加脚本搜索路径
 
-            // !!! 在main.js中添加脚本搜索路径，否则热更的脚本不会生效
+            //?!!!?在main.js中添加脚本搜索路径，否则热更的脚本不会生效
             cc.sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));
             jsb.fileUtils.setSearchPaths(searchPaths);
         }

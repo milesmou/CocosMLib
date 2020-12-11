@@ -1,7 +1,8 @@
 import UIBase from "./UIBase";
-import { EventMgr, GameEvent } from "../utils/EventMgr";
+import { EventMgr } from "../utils/EventMgr";
 import UITipMessage from "./UITipMessage";
 import UIGUide from "./UIGuide";
+
 
 export class UIManager {
     private static inst: UIManager = null;
@@ -12,33 +13,40 @@ export class UIManager {
     private uiStack: UIBase[] = null;
     private cooldown = false;//ui打开时进入冷却
 
-    /** 当前在最上层的UI */
-    private topUI: UIBase = null;
-    /** UI的半透明遮罩 */
-    private shade: cc.Node = null;
+    /** 最上层的UI */
+    private get topUI() { return this.uiStack[this.uiStack.length - 1]; }
+    /** 最下层的UI */
+    private get botUI() { return this.uiStack[0]; }
     /** 普通的UI页面 */
     private NormalLayer: cc.Node = null;
     /** 比较上层的UI界面(如提示信息、引导等等)不参与UI堆栈 */
     private HigherLayer: cc.Node = null;
+    /** UI的半透明遮罩 */
+    public shade: cc.Node = null;
 
+    //常驻高层UI
     public guide: UIGUide = null;
     public tipMseeage: UITipMessage = null;
 
     /** 场景加载后手动调用初始化 */
     public async init() {
         this.clear();
-        EventMgr.on(GameEvent.OpenUI, this.openUI, this);
-        EventMgr.on(GameEvent.CloseUI, this.closeUI, this);
         let canvas = cc.find("Canvas");
         this.NormalLayer = new cc.Node("NormalLayer");
-        this.NormalLayer.setContentSize(cc.winSize);
+        this.NormalLayer.setContentSize(mm.safeArea);
+        let NWidget = this.NormalLayer.addComponent(cc.Widget);
+        NWidget.isAlignHorizontalCenter = true;
+        NWidget.isAlignVerticalCenter = true;
         this.NormalLayer.parent = canvas;
         this.HigherLayer = new cc.Node("HigherLayer");
-        this.HigherLayer.setContentSize(cc.winSize);
+        this.HigherLayer.setContentSize(mm.safeArea);
+        let HWidget = this.HigherLayer.addComponent(cc.Widget);
+        HWidget.isAlignHorizontalCenter = true;
+        HWidget.isAlignVerticalCenter = true;
         this.HigherLayer.parent = canvas;
 
         this.shade = await this.instNode(EUIName.UIShade);
-        this.shade.setContentSize(cc.winSize);
+        this.shade.setContentSize(mm.safeArea);
         this.shade.parent = this.NormalLayer;
         this.shade.active = false;
 
@@ -50,52 +58,65 @@ export class UIManager {
     }
 
 
-    public async openUI<T extends UIBase>(name: EUIName, obj?: { args?: any, underTop?: boolean }): Promise<T> {
-        if (this.cooldown) return;
+    public async showUI<T extends UIBase>(name: EUIName, obj?: { args?: any, preload?: boolean }): Promise<T> {
+        if (this.cooldown) { console.warn(`打开UI${name}失败`); return; }
         this.cooldown = true;
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
-        if (obj?.underTop && this.topUI?.isValid) {
-            ui.setOpacity(0)
-            ui.node.zIndex = this.topUI.node.zIndex;
-            this.topUI.node.zIndex += 2;
-            this.uiStack.splice(this.uiStack.length - 1, 0, ui);
-        } else {
-            ui.setOpacity(255)
-            if (this.topUI?.isValid && ui.cover) {
-                this.topUI.closeAction(false)
-            }
-            ui.node.zIndex = this.topUI?.isValid ? this.topUI.node.zIndex + 2 : 1;
+        if (obj?.preload && this.topUI) {//预加载在最下层
+            ui.setVisible(false);
+            ui.node.zIndex = this.botUI ? this.botUI.node.zIndex - 2 : 0;
+            ui.node.parent = this.NormalLayer;
+            this.uiStack.unshift(ui);
+            this.cooldown = false;
+        } else {//展示在最上层
+            let uiTop = this.topUI;
+            ui.setVisible(true);
+            ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 0;
+            ui.node.parent = this.NormalLayer;
             this.uiStack.push(ui);
-            this.topUI = ui;
+            this.setShade();
+            ui.onShowBegin(true);
+            if (uiTop && ui.cover) {
+                uiTop.onHideBegin(false);
+                uiTop.closeAction(false).then(() => {
+                    uiTop.onHide(false);
+                });
+            }
+            await ui.openAction(true);
+            this.setUIVisible();
+            this.cooldown = false;
+            EventMgr.emit(name + "_onShow", ui);
+            ui.onShow(true);
+            
         }
-        ui.node.parent = this.NormalLayer;
-        this.setShade();
-        this.isTopUI(ui) && await ui.openAction();
-        this.setUIVisible();
-        this.cooldown = false;
-        ui.onOpen();
         return ui as T;
     }
 
-    public async closeUI(name: EUIName): Promise<void> {
+    public async hideUI(name: EUIName): Promise<void> {
         let ui = this.uiDict[name];
         let index = this.uiStack.indexOf(ui)
         if (index != -1) {
             this.uiStack.splice(index, 1);
-            this.topUI = this.uiStack[this.uiStack.length - 1];
             this.setShade();
             this.setUIVisible();
-            if (index == this.uiStack.length && this.topUI?.isValid && ui.cover) {
-                this.topUI.openAction(false);
+            if (index == this.uiStack.length) {
+                ui.onHideBegin(true);
+                if (this.topUI && ui.cover) {
+                    this.topUI.onShowBegin(false);
+                    this.topUI.openAction(false).then(() => {
+                        this.topUI.onShow(false);
+                    });
+                }
+                await ui.closeAction(true);
+                ui.onHide(true);
+                EventMgr.emit(name + "_onHide", ui);
             }
-            await ui.closeAction();
             ui.node.parent = null;
             if (ui.destroyNode) {
                 ui.node.destroy();
                 this.uiDict[name] = undefined;
             }
-            ui.onClose();
         }
     }
 
@@ -156,16 +177,11 @@ export class UIManager {
     }
 
     private setUIVisible() {
+        if (this.uiStack.length == 0) return;
         let isCover = false;
         for (let i = this.uiStack.length - 1; i >= 0; i--) {
             let ui = this.uiStack[i];
-            if (!isCover) {
-                ui.setOpacity(255);
-                ui.node.resumeSystemEvents(true);
-            } else {
-                ui.setOpacity(0);
-                ui.node.pauseSystemEvents(true);
-            }
+            ui.setVisible(isCover ? false : true);
             if (!isCover) {
                 isCover = ui.cover;
             }
@@ -194,6 +210,7 @@ export enum EUIName {//字符串值为ui加载路径
     UIShade = "ui/Shade",
     UIGuide = "ui/UIGuide",
     UITipMessage = "ui/UITipMessage",
+    UILoading = "ui/UILoading",
     UI1 = "uitest/ui1",
     UI2 = "uitest/ui2",
     UI3 = "uitest/ui3",
