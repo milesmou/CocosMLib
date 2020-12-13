@@ -1,7 +1,5 @@
 import { UIManager, EUIName } from "../../libs/ui/UIManager";
-// import ButtonAssist from "../../script/component/ButtonAssist";
-// import ButtonAssist from "../../script/component/ButtonAssist";
-// import ButtonAssist from "../../script/component/ButtonAssist";
+import { AudioMgr, EAudio } from "../../libs/utils/AudioMgr";
 
 const { ccclass, property } = cc._decorator;
 
@@ -11,6 +9,7 @@ export default class TestUIManager extends cc.Component {
     start() {
         mm.safeArea = this.node.getContentSize();
         UIManager.Inst.init();
+        AudioMgr.Inst.playMusic(EAudio.M_BGM);
     }
 
     openUI() {
@@ -26,6 +25,18 @@ export default class TestUIManager extends cc.Component {
 
         UIManager.Inst.tipMseeage.showTips("hello world tips");
         // UIManager.inst.tipMseeage.showTips("hello world tips 2");
+    }
+
+    onClick(evt,data){
+        if(data==1){
+            AudioMgr.Inst.openMusic(true);
+            AudioMgr.Inst.openEffect(true);
+        }else if(data==2){
+            AudioMgr.Inst.openMusic(false);
+            AudioMgr.Inst.openEffect(false);
+        }else{
+            AudioMgr.Inst.playEffect(EAudio.E_CLICK);
+        }
     }
 
     showTipBox() {

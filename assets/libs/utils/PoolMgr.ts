@@ -1,40 +1,59 @@
-/** 对象池枚举 */
-export enum PoolName {
-    MOU,
-    HONG
+/** 对象池枚举 */
+export enum EPoolName {
+    Miles
 }
 
-/** 对象池工具类 */
+/** 对象池工具类 */
 export class PoolMgr {
-    private static inst: PoolMgr  = null;
+    private static inst: PoolMgr = null;
     public static get Inst() { return this.inst || (this.inst = new this()) }
-    private prefabs: Map<PoolName, cc.Prefab> = new Map();
-    private pools: Map<PoolName, cc.NodePool> = new Map();
+
+    private prefabs: Map<EPoolName, cc.Prefab> = new Map();
+    private pools: Map<EPoolName, cc.NodePool> = new Map();
 
     /**
-     * 初始化一个对象池
-     * @param poolName 对象池名字
-     * @param prefab 预制体
-     * @param num 初始化节点数量
+     * 初始化一个对象池
+     * @param poolName 对象池名字
+     * @param prefab 预制体
+     * @param num 初始化节点数量
      */
-    initPool(poolName: PoolName, prefab: cc.Prefab, num: number = 10) {
+    initPool(poolName: EPoolName, prefab: cc.Prefab, itemNum: number) {
         if (!this.pools.has(poolName)) {
             let pool = new cc.NodePool();
             this.prefabs.set(poolName, prefab);
             this.pools.set(poolName, pool);
-            for (let i = 0; i < num; i++) {
-                this.pools.get(poolName).put(cc.instantiate(prefab));
-            }
+            let gen = this.itemGen(pool, prefab, itemNum);
+            let p = new Promise<void>((resolve, reject) => {
+                let execute = () => {
+                    let d1 = Date.now();
+                    for (let e = gen.next(); ; e = gen.next()) {
+                        if (!e || e.done) {
+                            resolve();
+                            break;
+                        }
+                        if (typeof e.value == "function") {
+                            e.value();
+                        }
+                        let d2 = Date.now();
+                        if (d2 - d1 >= 3) {
+                            new cc.Component().scheduleOnce(execute);
+                            break;
+                        }
+                    }
+                }
+                execute();
+            });
+            return p;
         } else {
             console.warn("请勿重复创建对象池!");
         }
     }
 
     /**
-     * 从对象池中获取节点
-     * @param poolName 对象池名字
+     * 从对象池中获取节点
+     * @param poolName?对象池名字
      */
-    get(poolName: PoolName) {
+    get(poolName: EPoolName) {
         if (this.pools.has(poolName)) {
             let pool = this.pools.get(poolName);
             if (pool.size() > 0) {
@@ -48,11 +67,11 @@ export class PoolMgr {
     }
 
     /**
-     * 回收节点
-     * @param poolName 对象池名字
-     * @param nodeRes 节点或节点数组
+     * 回收节点
+     * @param poolName 对象池名字
+     * @param nodeRes 节点或节点数组
      */
-    put(poolName: PoolName, nodeRes: cc.Node | cc.Node[]) {
+    put(poolName: EPoolName, nodeRes: cc.Node | cc.Node[]) {
         if (this.pools.has(poolName)) {
             let pool = this.pools.get(poolName);
             if (nodeRes instanceof Array) {
@@ -67,10 +86,19 @@ export class PoolMgr {
         }
     }
 
+    *itemGen(pool: cc.NodePool, prefab: cc.Prefab, itemNum: number) {
+        for (let i = 0; i < itemNum; i++) {
+            let func = () => {
+                pool.put(cc.instantiate(prefab))
+            }
+            yield func;
+        }
+    };
+
     /**
-     * 销毁所有对象池中的对象
+     * 清除所有资源
      */
-    realse(){
+    clear() {
         this.pools.forEach(pool => {
             pool.clear();
         });

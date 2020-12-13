@@ -1,10 +1,11 @@
 /** 音频加载路径枚举 */
 export enum EAudio {
     //音乐
-    M_BGM = "bgm",
+    M_BGM = "sound/bgm",
     //音效
-    E_CLICK = "click"
+    E_CLICK = "sound/click"
 }
+
 
 /** 音频管理工具类 */
 export class AudioMgr {
@@ -15,85 +16,111 @@ export class AudioMgr {
     public bEffect: boolean = true;
     private sMusicKey: string = "MusicSwitch";
     private sEffectKey: string = "EffectSwitch";
+    private nowMusicPath: string = null;
+    private effect: number[] = [];
+    private music: number = -1;
 
     private constructor() {
+        cc.game.on(cc.game.EVENT_SHOW, this.onShow, this);
+        cc.game.on(cc.game.EVENT_HIDE, this.onHide, this);
         this.bMusic = cc.sys.localStorage.getItem(this.sMusicKey) + "" != "false";
         this.bEffect = cc.sys.localStorage.getItem(this.sEffectKey) + "" != "false";
     }
 
+    onShow() {
+        if (cc.audioEngine.getState(this.music) == cc.audioEngine.AudioState.PAUSED) {
+            cc.audioEngine.resume(this.music);
+        }
+        this.effect.forEach(v => {
+            if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PAUSED) {
+                cc.audioEngine.resume(v);
+            }
+        });
+    }
+
+    onHide() {
+        if (cc.audioEngine.getState(this.music) == cc.audioEngine.AudioState.PLAYING) {
+            cc.audioEngine.pause(this.music);
+        }
+        this.effect.forEach(v => {
+            if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PLAYING) {
+                cc.audioEngine.pause(v);
+            }
+        });
+    }
+
     /** 播放背景音乐 */
-    playMusic(clip: string | cc.AudioClip) {
+    playMusic(path: string) {
+        this.nowMusicPath = path;
         if (this.bMusic) {
             this.stopMusic();
-            if (clip instanceof cc.AudioClip) {
-                cc.audioEngine.playMusic(clip, true);
-            } else if (typeof clip == "string") {
-                cc.loader.loadRes(clip, cc.AudioClip, (err, audioClip) => {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    }
-                    cc.audioEngine.playMusic(audioClip, true);
-                });
-            } else {
-                console.warn("找不到音频资源");
-            }
+            cc.loader.loadRes(path, cc.AudioClip, (err, clip: cc.AudioClip) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                this.music = cc.audioEngine.play(clip, true, 1);
+            });
         }
     }
 
     /** 播放音效 */
-    playEffect(clip: string | cc.AudioClip) {
+    playEffect(path: string, onFinished?: Function) {
         if (this.bEffect) {
-            if (clip instanceof cc.AudioClip) {
-                cc.audioEngine.playEffect(clip, false);
-            } else if (typeof clip == "string") {
-                cc.loader.loadRes(clip, cc.AudioClip, (err, audioClip) => {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    }
-                    cc.audioEngine.playEffect(audioClip, false);
+            cc.loader.loadRes(path, cc.AudioClip, (err, clip: cc.AudioClip) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                let audioId = cc.audioEngine.play(clip, false, 1);
+                this.effect.push(audioId);
+                cc.audioEngine.setFinishCallback(audioId, () => {
+                    let index = this.effect.indexOf(audioId);
+                    index > -1 && this.effect.splice(index, 1);
+                    onFinished && onFinished();
                 });
-            } else {
-                console.warn("找不到音频资源");
-            }
+            });
         }
     }
 
     /** 停止播放音乐 */
     stopMusic() {
-        cc.audioEngine.stopMusic();
+        cc.audioEngine.stop(this.music);
+        this.music = -1;
     }
 
-    /** 停止播放音效 */
+    /** 停止播放所有音效 */
     stopEffect() {
-        cc.audioEngine.stopAllEffects();
+        this.effect.forEach(v => {
+            cc.audioEngine.stop(v);
+        });
+        this.effect = [];
     }
 
 
     /** 设置音乐开关 */
-    openMusic(open: boolean, clip?: string | cc.AudioClip) {
+    openMusic(open: boolean) {
         if (this.bMusic == open) return;
-        if (open) {
-            cc.audioEngine.resumeMusic();
-        } else {
-            cc.audioEngine.pauseMusic();
-        }
         this.bMusic = open;
+        if (open) {
+            if (cc.audioEngine.getState(this.music) == cc.audioEngine.AudioState.PAUSED) {
+                cc.audioEngine.resume(this.music);
+            } else {
+                this.playMusic(this.nowMusicPath);
+            }
+        } else {
+            cc.audioEngine.pause(this.music);
+        }
         cc.sys.localStorage.setItem(this.sMusicKey, this.bMusic);
     }
 
     /** 设置音效开关 */
     openEffect(open: boolean) {
         if (this.bEffect == open) return;
+        this.bEffect = open;
         if (!open) {
             this.stopEffect();
         }
-        this.bEffect = open;
         cc.sys.localStorage.setItem(this.sEffectKey, this.bEffect);
     }
 }
-
-
-
-
