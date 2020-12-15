@@ -89,10 +89,8 @@ export default class UIBase extends cc.Component {
     setVisible(visible: boolean) {
         if (visible) {
             this.setOpacity(255);
-            this.block.active = false;
         } else {
             this.setOpacity(0);
-            this.block.active = true;
         }
     }
 

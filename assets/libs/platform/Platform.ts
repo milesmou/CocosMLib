@@ -9,10 +9,6 @@ class PlatformTest implements IPlatform {
     reportCustomEvent(event, args) { }
 }
 
-if (cc.sys.isBrowser) {
-    cc.macro.ENABLE_TRANSPARENT_CANVAS = true;
-}
-
 export enum EPlatformName {
     Test = "Test",
     GooglePlay = "GooglePlay",

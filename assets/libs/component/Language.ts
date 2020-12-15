@@ -20,6 +20,8 @@ export default class Language extends cc.Component {
     })
     ID = 0;
 
+    private args: any[] = null;
+
     onLoad() {
         this.updateContent();
         Language.list.push(this);
@@ -32,12 +34,18 @@ export default class Language extends cc.Component {
         }
     }
 
-    updateContent() {
+    /** 设置参数并刷新内容(主要针对文本中有动态内容) */
+    setArgs(...args) {
+        this.args = args;
+        this.updateContent();
+    }
+
+    private updateContent() {
         let comps: cc.Component[] = this.node["_components"];
         for (let i = 0, len = comps.length; i < len; i++) {
             let comp = comps[i];
             if (comp instanceof cc.Label || comp instanceof cc.RichText) {
-                let content = Language.args[this.ID] ? Language.getStringByID(this.ID, ...Language.args[this.ID]) : Language.getStringByID(this.ID);
+                let content = this.args ? Language.getStringByID(this.ID, ...this.args) : Language.getStringByID(this.ID);
                 comp.string = content || comp.string;
                 break;
             } else if (comp instanceof cc.Sprite) {
@@ -48,7 +56,6 @@ export default class Language extends cc.Component {
     }
 
     static list: Language[] = [];
-    static args: { [ID: number]: any[] } = {};
     static dict: { [ID: number]: any } = null;
     static atlas: cc.SpriteAtlas = null;
     static init(dict: { [ID: number]: any }, atlas: cc.SpriteAtlas) {
@@ -67,9 +74,6 @@ export default class Language extends cc.Component {
         if (!this.dict[ID] || !this.dict[ID][mm.lang]) {
             console.warn(`ID=${ID} Lang=${mm.lang}  在语言表中无对应内容`);
             return "";
-        }
-        if (args.length > 0) {
-            this.args[ID] = args;
         }
         return Utils.formatString(this.dict[ID][mm.lang], ...args);
     }

@@ -24,7 +24,7 @@ export default class LabelHandler extends cc.Component {
     setParent(node: cc.Node) {
         let worldPos = node.convertToWorldSpaceAR(cc.v2(0, 0));
         let nodeSpace = this.node.convertToNodeSpaceAR(worldPos);
-        node.position = nodeSpace;
+        node.position = cc.v3(nodeSpace);
         node.parent = this.node;
     }
 }
