@@ -146,7 +146,7 @@ export default class UIGUide extends UIBase {
             this.shade.active = guide.ShowShade;
         }
         let ui = UIManager.Inst.getUI(EUIName[guide.UIName]);
-        if (UIManager.Inst.isTopUI(ui)) {
+        if (UIManager.Inst.getUILevel(EUIName[guide.UIName]) == 0) {
             show(ui);
         } else {
             EventMgr.once(GameEvent.OnUIShow, (uiName: EUIName, uiData: UIBase) => {

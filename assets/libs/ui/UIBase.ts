@@ -34,21 +34,15 @@ export default class UIBase extends cc.Component {
     blockInputEvent = true;
     @property({
         type: EAction,
-        displayName: "动画(主动)",
-        tooltip: "启用UI自身打开和关闭时动画"
+        displayName: "动画",
+        tooltip: "启用UI打开和关闭动画"
     })
-    activeAction = EAction.NONE;
-    @property({
-        type: EAction,
-        displayName: "动画(被动)",
-        tooltip: "启用UI受顶层UI影响时打开和关闭动画(顶层UI的Cover属性为true会影响下层UI的显示状态)"
-    })
-    passiveAction = EAction.NONE;
+    action = EAction.NONE;
     @property({
         type: cc.Animation,
         displayName: "动画组件",
         tooltip: "UI打开关闭时播放指定动画(0:OPEN 1:CLOSE)，组件不存在时播放默认动画",
-        visible: function () { return this.activeAction > 0 || this.passiveAction > 0 }
+        visible: function () { return this.action > 0 }
     })
     animation: cc.Animation = null;
     @property({
@@ -106,9 +100,8 @@ export default class UIBase extends cc.Component {
         this.node.active = value;
     }
 
-    /** @param mode true:主动 false:被动 */
-    openAction(mode: boolean) {
-        let bAction = Boolean((mode ? this.activeAction : this.passiveAction) & EAction.OPEN);
+    showAction() {
+        let bAction = Boolean(this.action & EAction.OPEN);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
                 this.block.active = false;
@@ -144,9 +137,8 @@ export default class UIBase extends cc.Component {
         EventMgr.emit(GameEvent.HideUI, this.uiName);
     }
 
-    /** @param mode true:主动 false:被动 */
-    closeAction(mode: boolean) {
-        let bAction = Boolean((mode ? this.activeAction : this.passiveAction) & EAction.CLOSE);
+    hideAction() {
+        let bAction = Boolean(this.action & EAction.CLOSE);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
                 this.block.active = false;
@@ -176,27 +168,15 @@ export default class UIBase extends cc.Component {
         return p;
     }
 
-    /**
-     * UI准备打开时触发 (UI打开动画播放前)
-     * @param mode true:主动 false:被动
-     */
-    onShowBegin(mode: boolean) { }
+    /** UI准备打开时触发 (UI打开动画播放前) */
+    onShowBegin() { }
 
-    /**
-     * UI准备关闭时触发 (UI关闭动画播放前)
-     * @param mode true:主动 false:被动
-     */
-    onHideBegin(mode: boolean) { }
+    /** UI准备关闭时触发 (UI关闭动画播放前) */
+    onHideBegin() { }
 
-    /** 
-     * UI完全打开时触发 (UI打开动画播放完)
-     * @param mode true:主动 false:被动
-     */
-    onShow(mode: boolean) { }
+    /** UI完全打开时触发 (UI打开动画播放完) */
+    onShow() { }
 
-    /**
-     * UI完全关闭时触发 (UI关闭动画播放完)
-     * @param mode true:主动 false:被动
-     */
-    onHide(mode: boolean) { }
+    /** UI完全关闭时触发 (UI关闭动画播放完) */
+    onHide() { }
 }

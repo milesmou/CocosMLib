@@ -14,6 +14,7 @@ export default class UIUI2 extends UIBase {
     start () {
         // let {ak,bk} = this.args;
         // super..start();
+        cc.assetManager.downloader.register
         
     }
 

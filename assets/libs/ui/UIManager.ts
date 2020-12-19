@@ -68,28 +68,22 @@ export class UIManager {
         ui.setArgs(obj?.args);
         if (obj?.preload && this.topUI) {//预加载在最下层
             ui.setVisible(false);
-            ui.node.zIndex = this.botUI ? this.botUI.node.zIndex - 2 : 0;
+            ui.node.zIndex = this.botUI?.node.zIndex < 0 ? this.botUI.node.zIndex - 2 : -10;
             ui.node.parent = this.NormalLayer;
             this.uiStack.unshift(ui);
             this.cooldown = false;
         } else {//展示在最上层
-            let uiTop = this.topUI;
             ui.setVisible(true);
-            ui.node.zIndex = this.topUI ? this.topUI.node.zIndex + 2 : 0;
+            ui.node.zIndex = this.topUI?.node.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
             ui.node.parent = this.NormalLayer;
             this.uiStack.push(ui);
             this.setShade();
-            ui.onShowBegin(true);
-            if (uiTop && ui.cover) {
-                uiTop.onHideBegin(false);
-                uiTop.closeAction(false).then(() => {
-                    uiTop.onHide(false);
-                });
-            }
-            await ui.openAction(true);
+            ui.onShowBegin();
+            EventMgr.emit(GameEvent.OnUIShowBegin, name, ui);
+            await ui.showAction();
             this.setUIVisible();
             this.cooldown = false;
-            ui.onShow(true);
+            ui.onShow();
             EventMgr.emit(GameEvent.OnUIShow, name, ui);
 
         }
@@ -104,21 +98,17 @@ export class UIManager {
             this.setShade();
             this.setUIVisible();
             if (index == this.uiStack.length) {
-                ui.onHideBegin(true);
-                if (this.topUI && ui.cover) {
-                    this.topUI.onShowBegin(false);
-                    this.topUI.openAction(false).then(() => {
-                        this.topUI.onShow(false);
-                    });
-                }
-                await ui.closeAction(true);
-                ui.onHide(true);
+                ui.onHideBegin();
+                EventMgr.emit(GameEvent.OnUIHideBegin, name, ui);
+                await ui.hideAction();
+                ui.onHide();
                 EventMgr.emit(GameEvent.OnUIHide, name, ui);
             }
-            ui.node.parent = null;
             if (ui.destroyNode) {
                 ui.node.destroy();
                 this.uiDict[name] = undefined;
+            }else{
+                ui.node.parent = null;
             }
         }
     }
@@ -156,8 +146,8 @@ export class UIManager {
         return p;
     }
 
-    public isTopUI(ui: UIBase) {
-        return this.topUI == ui;
+    public isTopUI(name: EUIName) {
+        return this.getUILevel(name) == 0;
     }
 
     public getUI(name: EUIName) {
@@ -165,6 +155,15 @@ export class UIManager {
         if (ui && ui.isValid) {
             return ui;
         }
+    }
+
+    /** 获取UI在栈中的层级，从0开始表示从顶到底，不在栈中为-1 */
+    public getUILevel(name: EUIName) {
+        if (this.uiStack.length == 0) return -1;
+        let ui = this.uiDict[name];
+        if (!ui) return -1;
+        let index = this.uiStack.indexOf(ui);
+        return this.uiStack.length - 1 - index;
     }
 
     private setShade() {
@@ -184,6 +183,7 @@ export class UIManager {
         let isCover = false;
         for (let i = this.uiStack.length - 1; i >= 0; i--) {
             let ui = this.uiStack[i];
+            if (ui.node.zIndex < 0) return;
             ui.setVisible(isCover ? false : true);
             if (!isCover) {
                 isCover = ui.cover;
@@ -206,7 +206,6 @@ export class UIManager {
         this.uiStack = [];
         this.cooldown = false;
     }
-
 }
 
 export enum EUIName {//字符串值为ui加载路径
