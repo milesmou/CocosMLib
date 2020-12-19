@@ -147,7 +147,9 @@ export class UIManager {
     }
 
     public isTopUI(name: EUIName) {
-        return this.getUILevel(name) == 0;
+        let ui = this.uiDict[name];
+        if(!ui) return false;
+        return this.topUI == ui;
     }
 
     public getUI(name: EUIName) {
