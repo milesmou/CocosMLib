@@ -11,6 +11,8 @@ const { ccclass, property } = cc._decorator;
 export default class UIGUide extends UIBase {
 
     @property(cc.Node)
+    block: cc.Node = null;
+    @property(cc.Node)
     shade: cc.Node = null;
     @property(cc.Node)
     finger: cc.Node = null;
@@ -21,12 +23,14 @@ export default class UIGUide extends UIBase {
     @property(cc.Node)
     btnScreen: cc.Node = null;
 
+    wait = false;//打开页面时延迟触发引导
     guideId: number = 0;
     guideData: Guide[] = [];
     cbFinish: Function = null;
     stepFunc: ((ui: UIBase) => cc.Node)[] = null;
 
     start() {
+        this.block.zIndex = -2;
         this.shade.zIndex = -1;
         this.tip.zIndex = 1;
         this.finger.zIndex = 2;
@@ -35,6 +39,7 @@ export default class UIGUide extends UIBase {
     }
 
     hide() {
+        this.block.active = false;
         this.shade.active = false;
         this.finger.active = false;
         this.tip.active = false;
@@ -68,7 +73,7 @@ export default class UIGUide extends UIBase {
                 return;
             }
         } else {
-            btnNode = cc.find(guide.NodePath, uiData.node);
+            btnNode = cc.find(guide.NodePath.trim(), uiData.node);
         }
         if (btnNode) {
             this.showGuideBtn(btnNode, index);
@@ -130,32 +135,42 @@ export default class UIGUide extends UIBase {
                 this.bindGuideBtnEvent(index, uiData);
             } else {
                 this.finger.active = false;
-                if (guide.ClickScreen) {
-                    this.btnScreen.once(cc.Node.EventType.TOUCH_END, () => {
-                        if (index < this.guideData.length) {
-                            if (index == this.guideData.length - 1) {
-                                this.guideOver();
-                            } else {
-                                this.showGuideStep(index + 1);
-                            }
+            }
+            if (guide.ClickScreen) {
+                this.btnScreen.once(cc.Node.EventType.TOUCH_END, () => {
+                    if (index < this.guideData.length) {
+                        if (index == this.guideData.length - 1) {
+                            this.guideOver();
+                        } else {
+                            this.showGuideStep(index + 1);
                         }
-                    });
-                }
+                    }
+                });
             }
             this.showTip(guide.TipText, guide.TipPos);
+            this.block.active = guide.BlockEvent;
             this.shade.active = guide.ShowShade;
         }
-        let ui = UIManager.Inst.getUI(EUIName[guide.UIName]);
-        if (UIManager.Inst.getUILevel(EUIName[guide.UIName]) == 0) {
-            show(ui);
+        if (UIManager.Inst.isTopUI(EUIName[guide.UIName])) {
+            let ui = UIManager.Inst.getUI(EUIName[guide.UIName]);
+            this.scheduleOnce(() => {
+                show(ui);
+            })
         } else {
-            EventMgr.once(GameEvent.OnUIShow, (uiName: EUIName, uiData: UIBase) => {
-                if (uiName == EUIName[guide.UIName]) {
-                    this.scheduleOnce(() => {
-                        show(uiData);
-                    })
-                }
-            });
+            let func = () => {
+                EventMgr.once(GameEvent.OnUIShow, (name: EUIName, uiData: UIBase) => {
+                    if (name == EUIName[guide.UIName]) {
+                        if (this.wait) {
+                            func();
+                        } else {
+                            this.scheduleOnce(() => {
+                                show(uiData);
+                            })
+                        }
+                    }
+                });
+            }
+            func();
         }
     }
 
@@ -200,7 +215,7 @@ export default class UIGUide extends UIBase {
             this.tip.active = true;
             this.tip.x = pos[0];
             this.tip.y = pos[1];
-            this.lblTip.string = Language.getStringByID(text);
+            Language.setStringByID(this.lblTip, text);
         }
     }
 

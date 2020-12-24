@@ -1,3 +1,5 @@
+import { AudioMgr, EAudio } from "../utils/AudioMgr";
+
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -21,7 +23,7 @@ export default class ButtonAssist extends cc.Component {
     })
     cooldown = 0;
     @property({
-        displayName: "多边形按钮",
+        displayName: "多边形按钮",//多边形按钮不能与其它按钮在同一条路径上
         tooltip: "按钮是否是多边形按钮，当前节点上必须有PolygonCollider组件，且多边形应在节点矩形范围内",
         visible: function () { return this.getComponent(cc.PolygonCollider) }
     })
@@ -38,10 +40,10 @@ export default class ButtonAssist extends cc.Component {
             console.warn(`节点${this.node.name}上没有Button组件`);
         }
         if (this.button && this.polygonButton && polygon) {
-            let points = polygon.points.map(v => this.node.convertToWorldSpaceAR(v));
             this.button["_onTouchBegan"] = function (event) {
+                let pos = this.node.convertToNodeSpaceAR(event.getLocation());
                 if (!this.interactable || !this.enabledInHierarchy) return;
-                if (cc.Intersection.pointInPolygon(event.getLocation(), points)) {
+                if (cc.Intersection.pointInPolygon(pos, polygon.points)) {
                     this._pressed = true;
                     this._updateState();
                     event.stopPropagation();
@@ -62,7 +64,7 @@ export default class ButtonAssist extends cc.Component {
 
     onClick() {
         if (this.disableDefault && this.audioClip) {
-            console.log("playCustomEffect");
+            AudioMgr.Inst.playEffect(this.audioClip);
         }
         this.button.interactable = false;
         this.scheduleOnce(() => {
@@ -79,7 +81,7 @@ export default class ButtonAssist extends cc.Component {
             if (!this.interactable || !this.enabledInHierarchy) return;
             if (this._pressed) {
                 if (!this.disableDefault) {//默认音效是否被禁用
-                    console.log("playDefaultEffect");
+                    AudioMgr.Inst.playEffect(EAudio.E_CLICK);
                 }
                 cc.Component.EventHandler.emitEvents(this.clickEvents, event);
                 this.node.emit('click', this);

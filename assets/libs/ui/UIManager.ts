@@ -64,6 +64,7 @@ export class UIManager {
     public async showUI<T extends UIBase>(name: EUIName, obj?: { args?: any, preload?: boolean }): Promise<T> {
         if (this.cooldown) { console.warn(`打开UI${name}失败`); return; }
         this.cooldown = true;
+        EventMgr.emit(GameEvent.OnUIInitBegin, name);
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
         if (obj?.preload && this.topUI) {//预加载在最下层
@@ -85,7 +86,6 @@ export class UIManager {
             this.cooldown = false;
             ui.onShow();
             EventMgr.emit(GameEvent.OnUIShow, name, ui);
-
         }
         return ui as T;
     }
@@ -107,7 +107,7 @@ export class UIManager {
             if (ui.destroyNode) {
                 ui.node.destroy();
                 this.uiDict[name] = undefined;
-            }else{
+            } else {
                 ui.node.parent = null;
             }
         }
@@ -147,9 +147,7 @@ export class UIManager {
     }
 
     public isTopUI(name: EUIName) {
-        let ui = this.uiDict[name];
-        if(!ui) return false;
-        return this.topUI == ui;
+        return this.topUI == this.uiDict[name];
     }
 
     public getUI(name: EUIName) {
@@ -161,23 +159,10 @@ export class UIManager {
 
     /** 获取UI在栈中的层级，从0开始表示从顶到底，不在栈中为-1 */
     public getUILevel(name: EUIName) {
-        if (this.uiStack.length == 0) return -1;
         let ui = this.uiDict[name];
         if (!ui) return -1;
         let index = this.uiStack.indexOf(ui);
         return this.uiStack.length - 1 - index;
-    }
-
-    private setShade() {
-        for (let i = this.uiStack.length - 1; i >= 0; i--) {
-            let ui = this.uiStack[i];
-            if (ui?.showShade) {
-                this.shade.active = true;
-                this.shade.zIndex = ui.node.zIndex - 1;
-                return;
-            }
-        }
-        this.shade.active = false;
     }
 
     private setUIVisible() {
@@ -191,6 +176,18 @@ export class UIManager {
                 isCover = ui.cover;
             }
         }
+    }
+
+    private setShade() {
+        for (let i = this.uiStack.length - 1; i >= 0; i--) {
+            let ui = this.uiStack[i];
+            if (ui?.showShade) {
+                this.shade.active = true;
+                this.shade.zIndex = ui.node.zIndex - 1;
+                return;
+            }
+        }
+        this.shade.active = false;
     }
 
     /** 切换场景后清除资源 */

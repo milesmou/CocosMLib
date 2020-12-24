@@ -1,13 +1,14 @@
-/** 音频加载路径枚举 */
+
+/** 音频加载路径枚举 */
 export enum EAudio {
     //音乐
-    M_BGM = "sound/bgm",
+    M_BGM = "Random",
+    M_BGM1 = "BGM1",
     //音效
-    E_CLICK = "sound/click"
+    E_CLICK = "sound/effect/btn"
 }
 
-
-/** 音频管理工具类 */
+/** 音频管理工具类 */
 export class AudioMgr {
     private static inst: AudioMgr = null;
     public static get Inst() { return this.inst || (this.inst = new this()) }
@@ -28,33 +29,37 @@ export class AudioMgr {
     }
 
     onShow() {
-        if (cc.audioEngine.getState(this.music) == cc.audioEngine.AudioState.PAUSED) {
+        if (this.bMusic && cc.audioEngine.getState(this.music) == cc.audioEngine.AudioState.PAUSED) {
             cc.audioEngine.resume(this.music);
         }
-        this.effect.forEach(v => {
-            if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PAUSED) {
-                cc.audioEngine.resume(v);
-            }
-        });
+        if (this.bEffect) {
+            this.effect.forEach(v => {
+                if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PAUSED) {
+                    cc.audioEngine.resume(v);
+                }
+            });
+        }
     }
 
     onHide() {
-        if (cc.audioEngine.getState(this.music) == cc.audioEngine.AudioState.PLAYING) {
+        if (this.bMusic && cc.audioEngine.getState(this.music) == cc.audioEngine.AudioState.PLAYING) {
             cc.audioEngine.pause(this.music);
         }
-        this.effect.forEach(v => {
-            if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PLAYING) {
-                cc.audioEngine.pause(v);
-            }
-        });
+        if (this.bEffect) {
+            this.effect.forEach(v => {
+                if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PLAYING) {
+                    cc.audioEngine.pause(v);
+                }
+            });
+        }
     }
 
-    /** 播放背景音乐 */
+    /** 播放背景音乐 */
     playMusic(path: string) {
         this.nowMusicPath = path;
         if (this.bMusic) {
             this.stopMusic();
-            cc.loader.loadRes(path, cc.AudioClip, (err, clip: cc.AudioClip) => {
+            cc.resources.load(path, cc.AudioClip, (err, clip: cc.AudioClip) => {
                 if (err) {
                     console.log(err);
                     return;
@@ -64,14 +69,10 @@ export class AudioMgr {
         }
     }
 
-    /** 播放音效 */
-    playEffect(path: string, onFinished?: Function) {
+    /** 播放音效 */
+    playEffect(audio: string | cc.AudioClip, onFinished?: Function) {
         if (this.bEffect) {
-            cc.loader.loadRes(path, cc.AudioClip, (err, clip: cc.AudioClip) => {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
+            let play = clip => {
                 let audioId = cc.audioEngine.play(clip, false, 1);
                 this.effect.push(audioId);
                 cc.audioEngine.setFinishCallback(audioId, () => {
@@ -79,17 +80,35 @@ export class AudioMgr {
                     index > -1 && this.effect.splice(index, 1);
                     onFinished && onFinished();
                 });
-            });
+            }
+            if (typeof audio === "string") {
+                let onComplete=(err,clip:cc.AudioClip)=>{
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    play(clip);
+                }
+                if(audio.startsWith("http")){
+                    cc.assetManager.loadRemote(audio, cc.AudioClip, onComplete);
+                }else{
+                    cc.resources.load(audio, cc.AudioClip, onComplete);
+                }
+            } else {
+                play(audio);
+            }
+        }else{
+            onFinished && onFinished();
         }
     }
 
-    /** 停止播放音乐 */
+    /**?停止播放音乐?*/
     stopMusic() {
         cc.audioEngine.stop(this.music);
         this.music = -1;
     }
 
-    /** 停止播放所有音效 */
+    /**?停止播放所有音效?*/
     stopEffect() {
         this.effect.forEach(v => {
             cc.audioEngine.stop(v);
@@ -97,8 +116,7 @@ export class AudioMgr {
         this.effect = [];
     }
 
-
-    /** 设置音乐开关 */
+    /** 设置音乐开关 */
     openMusic(open: boolean) {
         if (this.bMusic == open) return;
         this.bMusic = open;
@@ -114,7 +132,7 @@ export class AudioMgr {
         cc.sys.localStorage.setItem(this.sMusicKey, this.bMusic);
     }
 
-    /** 设置音效开关 */
+    /** 设置音效开关 */
     openEffect(open: boolean) {
         if (this.bEffect == open) return;
         this.bEffect = open;
@@ -123,4 +141,19 @@ export class AudioMgr {
         }
         cc.sys.localStorage.setItem(this.sEffectKey, this.bEffect);
     }
+
+    setMusicVolume(volume: number) {
+        if (this.music != -1) {
+            volume = cc.misc.clamp01(volume);
+            cc.audioEngine.setVolume(this.music, volume);
+        }
+    }
+
+    setEffectVolume(volume: number) {
+        volume = cc.misc.clamp01(volume);
+        this.effect.forEach(v => {
+            cc.audioEngine.setVolume(v, volume);
+        });
+    }
+
 }

@@ -49,10 +49,12 @@ export interface GlobalVal  {
 export interface Guide  {
     ID: number;
     GuideID: number;
+    OpenOption: number;
     UIName: string;
     NodePath: string;
     ShowBtnNode: boolean;
     ShowShade: boolean;
+    BlockEvent: boolean;
     FingerDir: number;
     FingerOffset: number[];
     TipText: number;

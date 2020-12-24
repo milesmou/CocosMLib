@@ -16,11 +16,7 @@ export default class Switch extends cc.Component {
     /** 更新显示状态 */
     private updateContent() {
         this.node.children.forEach(v => {
-            if (v == this.checkNode) {
-                v.active = true;
-            } else {
-                v.active = false;
-            }
+            v.active = v == this.checkNode
         });
     }
 

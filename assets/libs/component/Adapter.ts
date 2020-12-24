@@ -6,7 +6,7 @@ let EFitType = cc.Enum({
     FitHeight: 2
 })
 
-/** Canvas、背景、widget(针对全面屏)适配工具 */
+/** Canvas、Node 适配工具 */
 @ccclass
 export default class Adapter extends cc.Component {
     @property({
@@ -15,6 +15,7 @@ export default class Adapter extends cc.Component {
         visible: function () { return this.getComponent(cc.Canvas) }
     })
     fitCanvas = true;
+
     @property({
         tooltip: "当前节点Size是否需要适配屏幕(等比缩放)",
     })
@@ -28,7 +29,7 @@ export default class Adapter extends cc.Component {
 
     onLoad() {
         //Canvas适配优先显示全部内容
-        if (this.node.name == "Canvas") {
+        if (this.getComponent(cc.Canvas)) {
             let size = cc.view.getFrameSize();
             let canvas = this.getComponent(cc.Canvas);
             if (Math.max(size.width, size.height) / Math.min(size.width, size.height) < 1.77) {//平板比例
@@ -39,22 +40,43 @@ export default class Adapter extends cc.Component {
                 canvas.fitHeight = size.width > size.height;//横屏适配高度
             }
         }
+    }
 
+    start() {
         //节点适配根据所选适配方式，默认自动适配去除黑边
-        if (this.fitSize) {
+        if (this.fitSize && mm.safeArea) {
             let wRatio = mm.safeArea.width / this.node.width;
             let hRatio = mm.safeArea.height / this.node.height;
-            switch (this.fitType) {
-                case EFitType.Auto:
-                    this.node.scale = Math.max(wRatio, hRatio);
-                    break;
-                case EFitType.FitWidth:
-                    this.node.scale = wRatio;
-                    break;
-                case EFitType.FitHeight:
-                    this.node.scale = hRatio;
-                    break;
+            let sprite = this.node.getComponent(cc.Sprite);
+            if (sprite?.sizeMode == cc.Sprite.SizeMode.CUSTOM) {
+                switch (this.fitType) {
+                    case EFitType.Auto:
+                        this.node.width *= Math.max(wRatio, hRatio);
+                        this.node.height *= Math.max(wRatio, hRatio);
+                        break;
+                    case EFitType.FitWidth:
+                        this.node.width *= wRatio;
+                        this.node.height *= wRatio;
+                        break;
+                    case EFitType.FitHeight:
+                        this.node.width *= hRatio;
+                        this.node.height *= hRatio;
+                        break;
+                }
+            } else {
+                switch (this.fitType) {
+                    case EFitType.Auto:
+                        this.node.scale = Math.max(wRatio, hRatio);
+                        break;
+                    case EFitType.FitWidth:
+                        this.node.scale = wRatio;
+                        break;
+                    case EFitType.FitHeight:
+                        this.node.scale = hRatio;
+                        break;
+                }
             }
+
         }
     }
 }

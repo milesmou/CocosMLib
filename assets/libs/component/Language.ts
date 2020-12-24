@@ -16,15 +16,30 @@ export default class Language extends cc.Component {
     })
     Tip = true;
     @property({
-        tooltip: "显示内容在语言表中的ID"
+        tooltip: "内容在语言表中的ID",
+        visible: function () {
+            return this.getComponent(cc.Label)
+                || this.getComponent(cc.RichText);
+        }
     })
     ID = 0;
+    @property({
+        tooltip: "图片名字",
+        visible: function () {
+            return this.getComponent(cc.Sprite);
+        }
+    })
+    Name = "";
 
     private args: any[] = null;
 
     onLoad() {
-        this.updateContent();
-        Language.list.push(this);
+        if (this.ID || this.Name) {
+            this.updateContent();
+            Language.list.push(this);
+        } else {
+            console.warn(`${this.node.name} ID=${this.ID} PicName=${this.Name}`);
+        }
     }
 
     onDestroy() {
@@ -40,16 +55,15 @@ export default class Language extends cc.Component {
         this.updateContent();
     }
 
-    private updateContent() {
+    updateContent() {
         let comps: cc.Component[] = this.node["_components"];
         for (let i = 0, len = comps.length; i < len; i++) {
             let comp = comps[i];
             if (comp instanceof cc.Label || comp instanceof cc.RichText) {
-                let content = this.args ? Language.getStringByID(this.ID, ...this.args) : Language.getStringByID(this.ID);
-                comp.string = content || comp.string;
+                this.args ? Language.setStringByID(comp, this.ID, ...this.args) : Language.setStringByID(comp, this.ID);
                 break;
             } else if (comp instanceof cc.Sprite) {
-                Language.getSpriteFrameByID(this.ID, comp);
+                Language.setSpriteFrameByName(comp, this.Name);
                 break;
             }
         }
@@ -57,10 +71,9 @@ export default class Language extends cc.Component {
 
     static list: Language[] = [];
     static dict: { [ID: number]: any } = null;
-    static atlas: cc.SpriteAtlas = null;
-    static init(dict: { [ID: number]: any }, atlas: cc.SpriteAtlas) {
+    static picPath = "language/";
+    static init(dict: { [ID: number]: any }) {
         this.dict = this.dict || dict;
-        this.atlas = this.atlas || atlas;
     }
 
     static reload() {
@@ -69,22 +82,23 @@ export default class Language extends cc.Component {
         })
     }
 
+    static setStringByID(label: cc.Label | cc.RichText, ID: number, ...args) {
+        label.string = this.getStringByID(ID, ...args) || label.string;
+    }
+
+    static setSpriteFrameByName(sprite: cc.Sprite, name: string) {
+        Utils.loadLocalPic(sprite, `${this.picPath}${mm.lang}/${name}`)
+    }
+
     static getStringByID(ID: number, ...args): string {
-        if (!this.dict) return;
+        if (!this.dict) {
+            console.warn(`未初始化语言表`);
+            return;
+        };
         if (!this.dict[ID] || !this.dict[ID][mm.lang]) {
             console.warn(`ID=${ID} Lang=${mm.lang}  在语言表中无对应内容`);
-            return "";
+            return;
         }
         return Utils.formatString(this.dict[ID][mm.lang], ...args);
     }
-
-    static getSpriteFrameByID(ID: number, sprite: cc.Sprite) {
-        if (!this.dict || !this.atlas) return;
-        let name = this.getStringByID(ID);
-        let spriteFrame = this.atlas.getSpriteFrame(name);
-        if (spriteFrame) {
-            sprite.spriteFrame = spriteFrame;
-        }
-    }
-
 }
