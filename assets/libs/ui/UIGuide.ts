@@ -23,7 +23,7 @@ export default class UIGUide extends UIBase {
     @property(cc.Node)
     btnScreen: cc.Node = null;
 
-    wait = false;//打开页面时延迟触发引导
+    wait = false;
     guideId: number = 0;
     guideData: Guide[] = [];
     cbFinish: Function = null;
@@ -47,6 +47,7 @@ export default class UIGUide extends UIBase {
     }
 
     public startGuide(guideId: number, cbFinish?: Function, stepFunc?: ((ui: UIBase) => cc.Node)[]) {
+        if (DataManager.Inst.config.AuditMode) return;
         if (this.guideId != 0) {
             console.warn("正在进引导: ", this.guideId, " 想要开始引导: ", guideId);
             return;
@@ -92,12 +93,16 @@ export default class UIGUide extends UIBase {
             let cloneButton = cloneBtnNode.getComponent(cc.Button);
             cloneBtnNode.parent = this.node;
             cloneBtnNode.position = cc.v3(pos);
-            cloneBtnNode.off("click");
+            if(!cloneButton){
+                console.error("引导节点上无Button组件");
+                return;
+            }
             if (cloneButton instanceof cc.Toggle) {
                 cloneButton.checkEvents = [];
             } else {
                 cloneButton.clickEvents = [];
             }
+            cloneBtnNode.off("click");
             cloneBtnNode.once("click", () => {
                 this.onClickGuideBtn(index, originButton, cloneButton);
             });
@@ -158,7 +163,7 @@ export default class UIGUide extends UIBase {
             })
         } else {
             let func = () => {
-                EventMgr.once(GameEvent.OnUIShow, (name: EUIName, uiData: UIBase) => {
+                EventMgr.once(GameEvent.OnUIShow, (uiData: UIBase) => {
                     if (name == EUIName[guide.UIName]) {
                         if (this.wait) {
                             func();

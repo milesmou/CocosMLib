@@ -2,7 +2,7 @@ const { ccclass, property } = cc._decorator;
 
 /** Toggle选中时隐藏背景 */
 @ccclass
-export default class ToggleAssist extends cc.Component {
+export default class Togglehelper extends cc.Component {
     @property({
         type: cc.Node,
         displayName: "背景节点",

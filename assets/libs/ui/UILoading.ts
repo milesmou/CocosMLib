@@ -102,13 +102,8 @@ export default class UILoading extends UIBase {
     complete(code?: HotUpdateCode) {
         console.log("HotUpdate ResultCode = ", code);
         if (code == HotUpdateCode.Success) {
-            UIManager.Inst.tipMseeage.showTipBox(
-                "版本更新完成，需要重啟遊戲！", 1,
-                () => {
-                    cc.audioEngine.stopAll();
-                    cc.game.restart();
-                }
-            );
+            cc.audioEngine.stopAll();
+            cc.game.restart();
         } else if (code == HotUpdateCode.Fail) {
             UIManager.Inst.tipMseeage.showTipBox(
                 "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", 1,

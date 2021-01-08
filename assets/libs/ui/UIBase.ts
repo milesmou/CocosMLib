@@ -1,4 +1,5 @@
 import { EventMgr, GameEvent } from "../utils/EventMgr";
+import { Utils } from "../utils/Utils";
 
 const { property, ccclass } = cc._decorator;
 
@@ -7,7 +8,7 @@ const EAction = cc.Enum({
     OPEN: 1,
     CLOSE: 2,
     BOTH: 3
-})
+}) 
 
 @ccclass
 export default class UIBase extends cc.Component {
@@ -35,16 +36,9 @@ export default class UIBase extends cc.Component {
     @property({
         type: EAction,
         displayName: "动画",
-        tooltip: "启用UI打开和关闭动画"
+        tooltip: "是否启用UI打开和关闭动画"
     })
     action = EAction.NONE;
-    @property({
-        type: cc.Animation,
-        displayName: "动画组件",
-        tooltip: "UI打开关闭时播放指定动画(0:OPEN 1:CLOSE)，组件不存在时播放默认动画",
-        visible: function () { return this.action > 0 }
-    })
-    animation: cc.Animation = null;
     @property({
         type: cc.Button,
         displayName: "关闭按钮",
@@ -52,24 +46,25 @@ export default class UIBase extends cc.Component {
     })
     closeBtn: cc.Button = null;
 
-    protected block: cc.Node = null;
+    public block: cc.Node = null;
+    protected animation: cc.Animation = null;
     protected args: any = null;
-    protected uiName: string = null;
+    protected uiName: any = null;
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     init(name: string) {
         this.uiName = name;
-        this.node.setContentSize(mm.safeArea);
+        this.node.setContentSize(cc.winSize);
         this.initBlock();
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
-        this.animation && (this.animation.playOnLoad = false);
+        this.animation = Utils.getComponentInChildren(this.node, cc.Animation);
     }
 
     /** 初始化一个遮罩 在UI执行动画时 拦截用户操作 */
     private initBlock() {
         this.block = new cc.Node("block");
-        this.block.setContentSize(mm.safeArea);
+        this.block.setContentSize(cc.winSize);
         this.block.addComponent(cc.BlockInputEvents);
         this.block.zIndex = cc.macro.MAX_ZINDEX;
         this.block.parent = this.node;
@@ -113,7 +108,7 @@ export default class UIBase extends cc.Component {
                     let clip = this.animation.getClips()[0];
                     if (clip) {
                         this.animation.once("finished", callback);
-                        this.animation.play(clip.name);
+                        this.animation.play(clip.name, 0);
                     } else {
                         console.warn(this.node.name, "无UI打开动画文件");
                         callback();
@@ -150,7 +145,7 @@ export default class UIBase extends cc.Component {
                     let clip = this.animation.getClips()[1];
                     if (clip) {
                         this.animation.once("finished", callback);
-                        this.animation.play(clip.name);
+                        this.animation.play(clip.name, 0);
                     } else {
                         console.warn(this.node.name, "无UI关闭动画文件");
                         callback();

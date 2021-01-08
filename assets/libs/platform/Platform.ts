@@ -1,12 +1,26 @@
+import { UIManager } from "../ui/UIManager";
+
 class PlatformTest implements IPlatform {
 
-    adUintId = {};
+    adCfg = {};
     login(obj?) { return "mouhong"; }
     showBanner() { }
-    showRewardedVideo(params?) { }
+    showRewardedVideo(params?) {
+        UIManager.Inst.tipMseeage.showTips("测试：视频观看完成");
+        params?.success && params.success();
+        params?.complete && params.complete();
+    }
     showInterstitial() { }
-    reqInternalPay(skuid: string, params) {}
+    reqInternalPay(skuid: string, params) {
+        UIManager.Inst.tipMseeage.showTips("测试：支付成功 \n" + skuid);
+        params?.success && params.success();
+        params?.complete && params.complete();
+    }
     reportCustomEvent(event, args) { }
+}
+
+if (cc.sys.isBrowser) {
+    cc.macro.ENABLE_TRANSPARENT_CANVAS = true;
 }
 
 export enum EPlatformName {
@@ -17,9 +31,11 @@ export enum EPlatformName {
 /** 获取对应平台实例 */
 let getPlatformInst = () => {
     console.log("Runtime", mm.config.platformName);
-    if (cc.sys.platform == cc.sys.ANDROID && mm.config.platformName == EPlatformName.Test) {
-        return new PlatformTest();
-    }
+    if (cc.sys.platform == cc.sys.ANDROID && mm.config.platformName == EPlatformName.GooglePlay) {
+        // return new GooglePlay();
+    }/*  else if (cc.sys.platform == cc.sys.ANDROID && mm.config.platformName == EPlatformName.Test) {
+        return new GooglePlay();
+    } */
     return new PlatformTest();
 }
 
@@ -42,7 +58,7 @@ let getLanguage = () => {
 window.mm = {} as any;
 mm.config = {} as any;
 mm.config.platformName = EPlatformName.Test;
-mm.config.version = "1.0.0";
-mm.config.url = `http://127.0.0.1/${mm.config.platformName}/`;
+mm.config.version = "1.0.8";
+mm.config.url = `https://127.0.0.1/${mm.config.platformName}/`;
 mm.lang = getLanguage();
 mm.platform = getPlatformInst();

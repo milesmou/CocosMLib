@@ -2,43 +2,51 @@
  * 常用的一些方法集合
  */
 export class Utils {
+
     /**
-    * 加载远程图片
-    * @param sprite 目标Sprite组件 
-    * @param url 远程图片路径（带扩展名）
-    */
-    static loadRemotePic(sprite: cc.Sprite, url: string) {
+     * 加载图片到Sprite
+     * @param sprite 目标Sprite组件
+     * @param url 路径（本地路径不带扩展名 远程路径带扩展名）
+     */
+    static loadPicture(sprite: cc.Sprite, url: string) {
         let p = new Promise<void>((resolve, reject) => {
-            cc.assetManager.loadRemote(url, (err, texture: any) => {
+            let onComplete = (err, res: cc.SpriteFrame | cc.Texture2D) => {
                 if (err) {
                     console.error(err);
+                    reject();
                 } else {
-                    let spFrame = new cc.SpriteFrame(texture);
-                    sprite.spriteFrame = spFrame;
+                    if (res instanceof cc.Texture2D) {
+                        res = new cc.SpriteFrame(res);
+                    }
+                    sprite.spriteFrame = res;
                     resolve();
                 }
-            });
+            };
+            if (url.startsWith("http")) {
+                if (cc.sys.isNative) {
+                    Utils.download(url).then(path => {
+                        cc.assetManager.loadRemote(path, onComplete);
+                    }).catch(() => {
+                        reject();
+                    })
+                } else {
+                    cc.assetManager.loadRemote(url, onComplete);
+                }
+            } else {
+                cc.resources.load(url, cc.SpriteFrame, onComplete);
+            }
         })
         return p;
     }
 
-    /**
-     * 加载本地图片
-     * @param sprite 目标Sprite组件
-     * @param url 本地图片路径（不带扩展名）
-     */
-    static loadLocalPic(sprite: cc.Sprite, url: string) {
-        let p = new Promise<void>((resolve, reject) => {
-            cc.resources.load(url, cc.SpriteFrame, (err, texture: any) => {
-                if (err) {
-                    console.error(err);
-                } else {
-                    sprite.spriteFrame = texture;
-                    resolve();
-                }
-            });
-        })
-        return p;
+    /** 从节点的一级子节点获取指定组件 */
+    static getComponentInChildren<T extends cc.Component>(obj: cc.Node, type: { prototype: T }): T {
+        for (let i = 0; i < obj.childrenCount; i++) {
+            let child = obj.children[i];
+            let comp = child.getComponent(type);
+            if (comp) return comp;
+        }
+        return null;
     }
 
     /** 
@@ -105,20 +113,12 @@ export class Utils {
     }
 
     /**
-     * arr1是否包含arr2所有元素
-     */
-    static isArrContained(arr1: any[], arr2: any[]) {
-        let arr = arr2.filter(v => arr1.includes(v));
-        return arr.length == arr2.length;
-    }
-
-    /**
-     * 获取一个随机数
+     * 获取一个随机数，区间[min,max]
      * @param min 最小值
      * @param max 最大值
      * @param isInteger 是否是整数 默认true
      */
-    static getRandomNum(min: number, max: number, isInteger = true) {
+    static randomNum(min: number, max: number, isInteger = true) {
         let delta = max - min;
         let value = Math.random() * delta + min;
         if (isInteger) {
@@ -135,7 +135,6 @@ export class Utils {
             str = str.replace(`{${i}}`, v);
         });
         return str;
-        Promise
     }
 
     /**
@@ -144,6 +143,22 @@ export class Utils {
     static load(path: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number) => void): Promise<cc.Asset> {
         let p = new Promise<cc.Asset>((resolve, reject) => {
             cc.resources.load(path, type, onProgress, (err, asset) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(asset);
+                }
+            })
+        })
+        return p;
+    }
+
+    /**
+  * 将 cc.assetManager.loadRemote Promise化
+  */
+    static loadRemote(path: string): Promise<cc.Asset> {
+        let p = new Promise<cc.Asset>((resolve, reject) => {
+            cc.assetManager.loadRemote(path, (err, asset) => {
                 if (err) {
                     reject(err)
                 } else {
@@ -207,37 +222,34 @@ export class Utils {
         return p;
     }
 
-    /**
-   * 将 cc.assetManager.loadRemote Promise化
-   */
-    static loadRemote(path: string): Promise<cc.Asset> {
-        let p = new Promise<cc.Asset>((resolve, reject) => {
-            cc.assetManager.loadRemote(path, (err, asset) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve(asset);
-                }
-            })
-        })
-        return p;
-    }
 
-
+    static downloadProgress: Map<string, Function[]> = new Map();
     /**
      * 原生平台下载文件到本地
      * @param url 文件下载链接
+     * @param onFileProgress 文件下载进度回调(同一url仅第一次传入的回调有效)
      */
-    static download(url: string) {
-        if (!cc.sys.isNative) return;
+    static download(url: string, onFileProgress?: (loaded: number, total: number) => void) {
+        if (!cc.sys.isNative) return new Promise<void>((resolve, reject) => { resolve(); });
         let ext = url.substr(url.lastIndexOf("."));
+        if (!this.downloadProgress.get(url)) {
+            this.downloadProgress.set(url, []);
+        }
+        if (onFileProgress) {
+            this.downloadProgress.get(url).push(onFileProgress);
+        }
         let p = new Promise<any>((resolve, reject) => {
             cc.assetManager.downloader.download(
                 url, url, ext,
-                { onFileProgress: null },
+                {
+                    onFileProgress: (loaded: number, total: number) => {
+                        let arr = this.downloadProgress.get(url);
+                        arr.forEach(v => v(loaded, total));
+                    }
+                },
                 (err, res) => {
+                    this.downloadProgress.delete(url);
                     if (err) {
-                        console.error(err);
                         reject(err);
                     } else {
                         resolve(res);

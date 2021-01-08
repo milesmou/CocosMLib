@@ -3,7 +3,7 @@ import { AudioMgr, EAudio } from "../utils/AudioMgr";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class ButtonAssist extends cc.Component {
+export default class ButtonHelper extends cc.Component {
     @property({
         displayName: "禁用默认音效",
         tooltip: "选中时，点击按钮不会播放默认音效"
@@ -55,10 +55,10 @@ export default class ButtonAssist extends cc.Component {
         }
     }
 
-    start() {
+    onEnable() {
         //多边形按钮关闭触摸吞噬 当触摸点不在多边形内继续冒泡触摸事件
         if (this.polygonButton) {
-            this.node['_touchListener'].swallowTouches = false;
+            this.node['_touchListener'].swallowTouches = false;//每次激活都要设置一次
         }
     }
 
@@ -71,27 +71,26 @@ export default class ButtonAssist extends cc.Component {
             this.button.interactable = true;
         }, this.cooldown);
     }
+}
 
-    /**
-     * 修改原型，针对所有按钮，不需要将该组件挂在Button节点上同样有效
-     * 为按钮增加播放点击音效，button["disableDefault"]=true时不会播放默认音效
-     */
-    public static enableDefaultEffect() {
-        cc.Button.prototype["_onTouchEnded"] = function (event) {
-            if (!this.interactable || !this.enabledInHierarchy) return;
-            if (this._pressed) {
-                if (!this.disableDefault) {//默认音效是否被禁用
-                    AudioMgr.Inst.playEffect(EAudio.E_CLICK);
-                }
-                cc.Component.EventHandler.emitEvents(this.clickEvents, event);
-                this.node.emit('click', this);
+/**
+ * 修改原型，针对所有按钮，不需要将该组件挂在Button节点上同样有效
+ * 为按钮增加播放点击音效，button["disableDefault"]=true时不会播放默认音效
+ */
+(function enableDefaultEffect() {
+    cc.Button.prototype["_onTouchEnded"] = function (event) {
+        if (!this.interactable || !this.enabledInHierarchy) return;
+        if (this._pressed) {
+            if (!this.disableDefault) {//默认音效是否被禁用
+                AudioMgr.Inst.playEffect(EAudio.E_CLICK);
             }
-            this._pressed = false;
-            this._updateState();
-            if (!this.outOfPolygon) {//触摸点不在多边形内继续冒泡触摸事件
-                event.stopPropagation();
-            }
+            cc.Component.EventHandler.emitEvents(this.clickEvents, event);
+            this.node.emit('click', this);
+        }
+        this._pressed = false;
+        this._updateState();
+        if (!this.outOfPolygon) {//触摸点不在多边形内继续冒泡触摸事件
+            event.stopPropagation();
         }
     }
-}
-ButtonAssist.enableDefaultEffect();//引擎加载后立即执行
+})();

@@ -36,20 +36,14 @@ export class UIManager {
 
         let canvas = cc.find("Canvas");
         this.NormalLayer = new cc.Node("NormalLayer");
-        this.NormalLayer.setContentSize(mm.safeArea);
-        let NWidget = this.NormalLayer.addComponent(cc.Widget);
-        NWidget.isAlignHorizontalCenter = true;
-        NWidget.isAlignVerticalCenter = true;
+        this.NormalLayer.setContentSize(cc.winSize);
         this.NormalLayer.parent = canvas;
         this.HigherLayer = new cc.Node("HigherLayer");
-        this.HigherLayer.setContentSize(mm.safeArea);
-        let HWidget = this.HigherLayer.addComponent(cc.Widget);
-        HWidget.isAlignHorizontalCenter = true;
-        HWidget.isAlignVerticalCenter = true;
+        this.HigherLayer.setContentSize(cc.winSize);
         this.HigherLayer.parent = canvas;
 
         this.shade = await this.instNode(EUIName.UIShade);
-        this.shade.setContentSize(mm.safeArea);
+        this.shade.setContentSize(cc.winSize);
         this.shade.parent = this.NormalLayer;
         this.shade.active = false;
 
@@ -64,7 +58,7 @@ export class UIManager {
     public async showUI<T extends UIBase>(name: EUIName, obj?: { args?: any, preload?: boolean }): Promise<T> {
         if (this.cooldown) { console.warn(`打开UI${name}失败`); return; }
         this.cooldown = true;
-        EventMgr.emit(GameEvent.OnUIInitBegin, name);
+        EventMgr.emit(GameEvent.onUIInitBegin, name);
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
         if (obj?.preload && this.topUI) {//预加载在最下层
@@ -80,7 +74,7 @@ export class UIManager {
             this.uiStack.push(ui);
             this.setShade();
             ui.onShowBegin();
-            EventMgr.emit(GameEvent.OnUIShowBegin, name, ui);
+            EventMgr.emit(GameEvent.onUIShowBegin, name, ui);
             await ui.showAction();
             this.setUIVisible();
             this.cooldown = false;

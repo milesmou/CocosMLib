@@ -66,12 +66,13 @@ export class EventMgr {
 export enum GameEvent {
     ShowUI,
     HideUI,
-    OnUIInitBegin,
-    OnUIShowBegin,
+    onUIInitBegin,
+    onUIShowBegin,
     OnUIHideBegin,
     OnUIShow,
     OnUIHide,
     EnterGameScene,
+    
     Test3 = 10000,
     Test4,
     Test5,

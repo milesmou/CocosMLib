@@ -157,7 +157,7 @@ export class HotUpdate {
             console.log(this.TAG, "搜索路径:?" + JSON.stringify(newPaths));
             Array.prototype.unshift.apply(searchPaths, newPaths);//追加脚本搜索路径
 
-            //?!!!?在main.js中添加脚本搜索路径，否则热更的脚本不会生效
+            //在main.js中添加脚本搜索路径，否则热更的脚本不会生效
             cc.sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));
             jsb.fileUtils.setSearchPaths(searchPaths);
         }

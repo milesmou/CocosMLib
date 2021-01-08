@@ -2,8 +2,7 @@
 /** 音频加载路径枚举 */
 export enum EAudio {
     //音乐
-    M_BGM = "Random",
-    M_BGM1 = "BGM1",
+    M_BGM = "sound/bg/bgm",
     //音效
     E_CLICK = "sound/effect/btn"
 }
@@ -70,10 +69,10 @@ export class AudioMgr {
     }
 
     /** 播放音效 */
-    playEffect(audio: string | cc.AudioClip, onFinished?: Function) {
+    playEffect(audio: string | cc.AudioClip, loop = false, onFinished? : Function) {
         if (this.bEffect) {
             let play = clip => {
-                let audioId = cc.audioEngine.play(clip, false, 1);
+                let audioId = cc.audioEngine.play(clip, loop, 1);
                 this.effect.push(audioId);
                 cc.audioEngine.setFinishCallback(audioId, () => {
                     let index = this.effect.indexOf(audioId);
@@ -82,33 +81,33 @@ export class AudioMgr {
                 });
             }
             if (typeof audio === "string") {
-                let onComplete=(err,clip:cc.AudioClip)=>{
+                let onComplete = (err, clip: cc.AudioClip) => {
                     if (err) {
                         console.log(err);
                         return;
                     }
                     play(clip);
                 }
-                if(audio.startsWith("http")){
+                if (audio.startsWith("http")) {
                     cc.assetManager.loadRemote(audio, cc.AudioClip, onComplete);
-                }else{
+                } else {
                     cc.resources.load(audio, cc.AudioClip, onComplete);
                 }
             } else {
                 play(audio);
             }
-        }else{
+        } else {
             onFinished && onFinished();
         }
     }
 
-    /**?停止播放音乐?*/
+    /** 停止播放音乐 */
     stopMusic() {
         cc.audioEngine.stop(this.music);
         this.music = -1;
     }
 
-    /**?停止播放所有音效?*/
+    /** 停止播放所有音效 */
     stopEffect() {
         this.effect.forEach(v => {
             cc.audioEngine.stop(v);
@@ -142,10 +141,21 @@ export class AudioMgr {
         cc.sys.localStorage.setItem(this.sEffectKey, this.bEffect);
     }
 
-    setMusicVolume(volume: number) {
+    setMusicVolume(volume: number, tweenDur = 0) {
         if (this.music != -1) {
             volume = cc.misc.clamp01(volume);
-            cc.audioEngine.setVolume(this.music, volume);
+            if (tweenDur == 0) {
+                cc.audioEngine.setVolume(this.music, volume);
+            } else {
+                let obj = { v: cc.audioEngine.getVolume(this.music) };
+                cc.tween(obj).to(tweenDur, { v: volume }, {
+                    progress: (start, end, current, ratio) => {
+                        let v = start + (end - start) * ratio;
+                        cc.audioEngine.setVolume(this.music, v);
+                        return v;
+                    }
+                }).start();
+            }
         }
     }
 

@@ -7,7 +7,6 @@ const { ccclass, property } = cc._decorator;
 export default class TestUIManager extends cc.Component {
 
     start() {
-        mm.safeArea = this.node.getContentSize();
         UIManager.Inst.init();
         AudioMgr.Inst.playMusic(EAudio.M_BGM);
     }
