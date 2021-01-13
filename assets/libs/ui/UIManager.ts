@@ -58,7 +58,7 @@ export class UIManager {
     public async showUI<T extends UIBase>(name: EUIName, obj?: { args?: any, preload?: boolean }): Promise<T> {
         if (this.cooldown) { console.warn(`打开UI${name}失败`); return; }
         this.cooldown = true;
-        EventMgr.emit(GameEvent.onUIInitBegin, name);
+        EventMgr.emit(GameEvent.OnUIInitBegin, name);
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
         if (obj?.preload && this.topUI) {//预加载在最下层
@@ -74,12 +74,12 @@ export class UIManager {
             this.uiStack.push(ui);
             this.setShade();
             ui.onShowBegin();
-            EventMgr.emit(GameEvent.onUIShowBegin, name, ui);
+            EventMgr.emit(GameEvent.OnUIShowBegin, ui);
             await ui.showAction();
             this.setUIVisible();
             this.cooldown = false;
             ui.onShow();
-            EventMgr.emit(GameEvent.OnUIShow, name, ui);
+            EventMgr.emit(GameEvent.OnUIShow, ui);
         }
         return ui as T;
     }
@@ -93,10 +93,10 @@ export class UIManager {
             this.setUIVisible();
             if (index == this.uiStack.length) {
                 ui.onHideBegin();
-                EventMgr.emit(GameEvent.OnUIHideBegin, name, ui);
+                EventMgr.emit(GameEvent.OnUIHideBegin, ui);
                 await ui.hideAction();
                 ui.onHide();
-                EventMgr.emit(GameEvent.OnUIHide, name, ui);
+                EventMgr.emit(GameEvent.OnUIHide, ui);
             }
             if (ui.destroyNode) {
                 ui.node.destroy();
@@ -149,14 +149,6 @@ export class UIManager {
         if (ui && ui.isValid) {
             return ui;
         }
-    }
-
-    /** 获取UI在栈中的层级，从0开始表示从顶到底，不在栈中为-1 */
-    public getUILevel(name: EUIName) {
-        let ui = this.uiDict[name];
-        if (!ui) return -1;
-        let index = this.uiStack.indexOf(ui);
-        return this.uiStack.length - 1 - index;
     }
 
     private setUIVisible() {

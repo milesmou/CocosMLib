@@ -164,7 +164,7 @@ export default class UIGUide extends UIBase {
         } else {
             let func = () => {
                 EventMgr.once(GameEvent.OnUIShow, (uiData: UIBase) => {
-                    if (name == EUIName[guide.UIName]) {
+                    if (uiData.uiName == EUIName[guide.UIName]) {
                         if (this.wait) {
                             func();
                         } else {

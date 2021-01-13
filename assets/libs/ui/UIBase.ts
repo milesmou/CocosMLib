@@ -46,10 +46,10 @@ export default class UIBase extends cc.Component {
     })
     closeBtn: cc.Button = null;
 
+    public uiName: any = null;
     public block: cc.Node = null;
     protected animation: cc.Animation = null;
     protected args: any = null;
-    protected uiName: any = null;
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     init(name: string) {
