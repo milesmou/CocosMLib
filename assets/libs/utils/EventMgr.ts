@@ -34,7 +34,7 @@ export class EventMgr {
         if (events && events.length > 0) {
             if (callback) {
                 let delIndex = events.findIndex(v => v.callback == callback && v.thisObj == thisObj);
-                events.splice(delIndex, 1);
+                delIndex > -1 && events.splice(delIndex, 1);
             } else {
                 this.eventMap.delete(name);
             }
@@ -72,7 +72,7 @@ export enum GameEvent {
     OnUIShow,
     OnUIHide,
     EnterGameScene,
-    
+
     Test3 = 10000,
     Test4,
     Test5,

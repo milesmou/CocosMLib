@@ -6,8 +6,8 @@ declare var mm: {
     lang: string;
     /** 平台兼容抽象对象，根据对运行环境的检测，创建对应平台类的实例 */
     platform: IPlatform;
-    /** 设备安全区域到屏幕四边的间距 */
-    safeSize: { top: number, bottom: number, left: number, right: number };
+    /** 设备安全区域到屏幕四边的间距和安全区域大小 */
+    safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
 }
 
 interface IConfig {

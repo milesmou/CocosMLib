@@ -87,7 +87,7 @@ export default class Language extends cc.Component {
     }
 
     static setSpriteFrameByName(sprite: cc.Sprite, name: string) {
-        Utils.loadLocalPic(sprite, `${this.picPath}${mm.lang}/${name}`)
+        Utils.loadPicture(sprite, `${this.picPath}${mm.lang}/${name}`)
     }
 
     static getStringByID(ID: number, ...args): string {

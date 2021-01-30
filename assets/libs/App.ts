@@ -13,12 +13,14 @@ export default class App extends cc.Component {
 
     start() {
         {
-            mm.safeSize = { top: 0, bottom: 0, left: 0, right: 0 };
+            mm.safeSize = { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 };
             let safeArea = cc.sys.getSafeAreaRect();
             mm.safeSize.top = cc.winSize.height - safeArea.height - safeArea.y;
             mm.safeSize.bottom = safeArea.y;
             mm.safeSize.left = safeArea.x;
             mm.safeSize.right = cc.winSize.width - safeArea.width - safeArea.x;
+            mm.safeSize.width = safeArea.width;
+            mm.safeSize.height = safeArea.height;
         }
         UIManager.Inst.init().then(() => {
             UIManager.Inst.showUI(EUIName.UILoading);
