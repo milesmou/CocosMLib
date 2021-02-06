@@ -6,7 +6,7 @@ export class PlatformWX implements IPlatform {
     shareTitle = "默认分享标题";//默认分享标题
     shareImageUrl = "默认分享图片地址";//默认分享图片
 
-    adUintId: {
+    adCfg: {
         video: { 1: "asdfgh" }
     }
 
@@ -234,7 +234,7 @@ export class PlatformWX implements IPlatform {
      */
     addBanner(obj: { id: number, posNode?: cc.Node, width?: number, sCnt?: number, preload?: number }) {
         let { id, posNode, width, sCnt, preload } = obj;
-        let adUnitId = this.adUintId["Banner"][id];
+        let adUnitId = this.adCfg["Banner"][id];
         width = cc.misc.clampf(width, 300, this.systemInfo.screenHeight);
         sCnt = obj.sCnt || 2;
         this.hideAllBanner();
@@ -287,7 +287,7 @@ export class PlatformWX implements IPlatform {
      * 添加插屏广告   
      */
     addInterstitial(id) {
-        let adUnitId = this.adUintId["Interstitial"][id];
+        let adUnitId = this.adCfg["Interstitial"][id];
         if (this.compareVersion("2.6.0")) {
             if (!this.interstitial) {
                 this.interstitial = wx.createInterstitialAd({ adUnitId: adUnitId });
@@ -317,7 +317,7 @@ export class PlatformWX implements IPlatform {
      */
     watchVideo(obj: { id: number, success?: Function, fail?: Function, error?: Function }) {
         let video = wx.createRewardedVideoAd({
-            adUnitId: this.adUintId["Video"][obj.id]
+            adUnitId: this.adCfg["Video"][obj.id]
         });
         if (video) {
             video.offClose();

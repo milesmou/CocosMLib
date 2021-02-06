@@ -1,13 +1,10 @@
 const { ccclass, property } = cc._decorator;
-/** 所在节点的子节点做开关处理，当CheckNode显示时隐藏它所有兄弟节点 */
+/** 对组件所在节点的子节点做显隐处理，子节点索引在checkIndex中的显示，其余的隐藏 */
 @ccclass
 export default class Switch extends cc.Component {
 
-    @property({
-        type: cc.Node,
-        tooltip: "默认显示的节点"
-    })
-    private checkNode: cc.Node = null;
+    @property
+    private checkIndex: number[] = [];
 
     onLoad() {
         this.updateContent();
@@ -15,14 +12,14 @@ export default class Switch extends cc.Component {
 
     /** 更新显示状态 */
     private updateContent() {
-        this.node.children.forEach(v => {
-            v.active = v == this.checkNode
+        this.node.children.forEach((v, i) => {
+            v.active = this.checkIndex.includes(i);
         });
     }
 
     /** 更新CheckNode */
-    updateCheck(childIndex: number) {
-        this.checkNode = this.node.children[childIndex];
+    updateCheck(...childIndex: number[]) {
+        this.checkIndex = childIndex;
         this.updateContent();
     }
 
