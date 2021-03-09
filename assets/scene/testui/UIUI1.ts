@@ -1,6 +1,6 @@
 const {ccclass,property} = cc._decorator;
-import  UIBase from "../../libs/ui/UIBase";
-import { UIManager,EUIName } from "../../libs/ui/UIManager";
+import  UIBase from "../../mm/ui/UIBase";
+import UIMgr,{ UIKey } from "../../mm/manager/UIMgr";
 
 
 @ccclass
@@ -29,7 +29,7 @@ export default class UIUI1 extends UIBase {
     onclick(){
         console.log("onclick");
         
-        UIManager.Inst.showUI(EUIName.UI2);
+        UIMgr.Inst.show(UIKey.UI2);
     }
 
 }

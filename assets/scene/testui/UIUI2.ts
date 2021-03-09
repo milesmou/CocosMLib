@@ -1,6 +1,6 @@
 const {ccclass,property} = cc._decorator;
-import  UIBase from "../../libs/ui/UIBase";
-import { EUIName, UIManager } from "../../libs/ui/UIManager";
+import  UIBase from "../../mm/ui/UIBase";
+import UIMgr,{ UIKey  } from "../../mm/manager/UIMgr";
 
 
 @ccclass
@@ -19,7 +19,7 @@ export default class UIUI2 extends UIBase {
     }
 
     close1(){
-        UIManager.Inst.hideUI(EUIName.UI1);
+        UIMgr.Inst.hide(UIKey.UI1);
     }
 
 }

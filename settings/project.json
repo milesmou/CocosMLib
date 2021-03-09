@@ -37,5 +37,6 @@
     "cloud-function"
   ],
   "preview-port": 7456,
-  "clear-simulator-cache": true
+  "clear-simulator-cache": true,
+  "start-scene": "2a6f65ef-7a9c-408d-8f88-9f7a021e4c4b"
 }
