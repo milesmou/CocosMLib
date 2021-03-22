@@ -1,4 +1,4 @@
-import mm from "../../mm/mm";
+import app from "../../mm/app";
 
 const { ccclass, property } = cc._decorator;
 
@@ -6,32 +6,32 @@ const { ccclass, property } = cc._decorator;
 export default class TestUI extends cc.Component {
 
     start() {
-        mm.audio.playMusic(mm.audioKey.M_BGM);
+        app.audio.playMusic(app.audioKey.M_BGM);
     }
 
     openUI() {
-        mm.ui.show(mm.uiKey.UI1);
+        app.ui.show(app.uiKey.UI1);
     }
 
     showTip() {
 
-        mm.ui.tipMsg.showTip("hello world singleTip");
+        app.ui.tipMsg.showTip("hello world singleTip");
     }
 
     showTips() {
 
-        mm.ui.tipMsg.showTips("hello world tips");
+        app.ui.tipMsg.showTips("hello world tips");
         // UIManager.inst.tipMseeage.showTips("hello world tips 2");
     }
 
     showTipBox() {
 
-        mm.ui.tipMsg.showTipBox("hello world 666", 2,
+        app.ui.tipMsg.showTipBox("hello world 666", 2,
             () => {
-                mm.ui.tipMsg.showTips("ok");
+                app.ui.tipMsg.showTips("ok");
             },
             () => {
-                mm.ui.tipMsg.showTips("cancel");
+                app.ui.tipMsg.showTips("cancel");
             }
         );
     }

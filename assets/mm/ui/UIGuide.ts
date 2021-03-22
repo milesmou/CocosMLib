@@ -3,7 +3,7 @@ import UIMgr, { UIKey } from "../manager/UIMgr";
 import { Guide } from "../../script/game/DataEntity";
 import DataManager from "../../script/game/DataManager";
 import Language from "../component/Language";
-import mm from "../mm";
+import app from "../app";
 
 const { ccclass, property } = cc._decorator;
 
@@ -163,7 +163,7 @@ export default class UIGUide extends UIBase {
             })
         } else {
             let func = () => {
-                mm.event.emit(mm.eventKey.OnUIShow, (uiData: UIBase) => {
+                app.event.emit(app.eventKey.OnUIShow, (uiData: UIBase) => {
                     if (uiData.uiName == UIKey[guide.UIName]) {
                         if (this.wait) {
                             func();

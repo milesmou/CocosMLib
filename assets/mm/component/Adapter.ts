@@ -1,4 +1,4 @@
-import mm from "../mm";
+import app from "../app";
 
 const { ccclass, property } = cc._decorator;
 
@@ -39,23 +39,23 @@ export default class Adapter extends cc.Component {
             if (!widget) return;
             if (widget.isAlignTop) {
                 if (cc.sys.platform == cc.sys.IPHONE) {
-                    widget.top += mm.safeSize.top * 0.7;
+                    widget.top += app.safeSize.top * 0.7;
                 } else {
-                    widget.top += mm.safeSize.top;
+                    widget.top += app.safeSize.top;
                 }
             }
             if (widget.isAlignBottom) {
                 if (cc.sys.platform == cc.sys.IPHONE) {
-                    widget.bottom += mm.safeSize.bottom * 0.6;
+                    widget.bottom += app.safeSize.bottom * 0.6;
                 } else {
-                    widget.bottom += mm.safeSize.bottom;
+                    widget.bottom += app.safeSize.bottom;
                 }
             }
             if (widget.isAlignLeft) {
-                widget.left += mm.safeSize.left;
+                widget.left += app.safeSize.left;
             }
             if (widget.isAlignRight) {
-                widget.right += mm.safeSize.right;
+                widget.right += app.safeSize.right;
             }
             widget.updateAlignment();
         }

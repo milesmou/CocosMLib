@@ -1,4 +1,4 @@
-import mm from "../mm";
+import app from "../app";
 import { Utils } from "../utils/Utils";
 
 const { ccclass, property } = cc._decorator;
@@ -88,7 +88,7 @@ export default class Language extends cc.Component {
     }
 
     static setSpriteFrameByName(sprite: cc.Sprite, name: string) {
-        Utils.loadPicture(sprite, `${this.picPath}${mm.lang}/${name}`)
+        Utils.loadPicture(sprite, `${this.picPath}${app.lang}/${name}`)
     }
 
     static getStringByID(ID: number, ...args): string {
@@ -96,10 +96,10 @@ export default class Language extends cc.Component {
             console.warn(`未初始化语言表`);
             return;
         };
-        if (!this.dict[ID] || !this.dict[ID][mm.lang]) {
-            console.warn(`ID=${ID} Lang=${mm.lang}  在语言表中无对应内容`);
+        if (!this.dict[ID] || !this.dict[ID][app.lang]) {
+            console.warn(`ID=${ID} Lang=${app.lang}  在语言表中无对应内容`);
             return;
         }
-        return Utils.formatString(this.dict[ID][mm.lang], ...args);
+        return Utils.formatString(this.dict[ID][app.lang], ...args);
     }
 }

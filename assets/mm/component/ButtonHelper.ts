@@ -1,4 +1,4 @@
-import mm from "../mm";
+import app from "../app";
 
 const { ccclass, property } = cc._decorator;
 
@@ -64,7 +64,7 @@ export default class ButtonHelper extends cc.Component {
 
     onClick() {
         if (this.disableDefault && this.audioClip) {
-            mm.audio.playEffect(this.audioClip);
+            app.audio.playEffect(this.audioClip);
         }
         this.button.interactable = false;
         this.scheduleOnce(() => {
@@ -81,7 +81,7 @@ export default class ButtonHelper extends cc.Component {
             if (!this.interactable || !this.enabledInHierarchy) return;
             if (this._pressed) {
                 if (!this.disableDefault) {//默认音效是否被禁用
-                    mm.audio.playEffect(mm.audioKey.E_CLICK);
+                    app.audio.playEffect(app.audioKey.E_CLICK);
                 }
                 cc.Component.EventHandler.emitEvents(this.clickEvents, event);
                 this.node.emit('click', this);

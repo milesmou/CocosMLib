@@ -1,4 +1,4 @@
-import mm from "../mm";
+import app from "../app";
 import { Utils } from "../utils/Utils";
 
 const { property, ccclass } = cc._decorator;
@@ -129,7 +129,7 @@ export default class UIBase extends cc.Component {
 
     /** 关闭UI时调用此方法 */
     safeClose() {
-        mm.ui.hide(this.uiName);
+        app.ui.hide(this.uiName);
     }
 
     hideAction() {

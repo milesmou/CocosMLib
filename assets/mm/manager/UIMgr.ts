@@ -3,13 +3,12 @@ const { ccclass, property } = cc._decorator;
 import UIBase from "../ui/UIBase";
 import UITipMsg from "../ui/UITipMsg";
 import UIGUide from "../ui/UIGuide";
-import mm from "../mm";
+import app from "../app";
 
 export enum UIKey {
     Shade = "ui/Shade",
     UIGuide = "ui/UIGuide",
     UITipMsg = "ui/UITipMsg",
-    UILoading = "ui/UILoading",
     //testui
     UI1 = "testui/ui1",
     UI2 = "testui/ui2",
@@ -70,7 +69,7 @@ export default class UIMgr extends cc.Component {
     public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, preload?: boolean }): Promise<T> {
         if (this.cooldown && !obj?.preload) { return; }
         if (!obj?.preload) this.cooldown = true;
-        mm.event.emit(mm.eventKey.OnUIInitBegin, name);
+        app.event.emit(app.eventKey.OnUIInitBegin, name);
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
         if (obj?.preload) {//预加载在最下层
@@ -85,11 +84,11 @@ export default class UIMgr extends cc.Component {
             this.uiStack.push(ui);
             this.setShade();
             ui.onShowBegin();
-            mm.event.emit(mm.eventKey.OnUIShowBegin, ui);
+            app.event.emit(app.eventKey.OnUIShowBegin, ui);
             await ui.showAction();
             ui.onShow();
             this.cooldown = false;
-            mm.event.emit(mm.eventKey.OnUIShow, ui);
+            app.event.emit(app.eventKey.OnUIShow, ui);
         }
         return ui as T;
     }
@@ -102,10 +101,10 @@ export default class UIMgr extends cc.Component {
             this.setShade();
             if (index == this.uiStack.length) {
                 ui.onHideBegin();
-                mm.event.emit(mm.eventKey.OnUIHideBegin, ui);
+                app.event.emit(app.eventKey.OnUIHideBegin, ui);
                 await ui.hideAction();
                 ui.onHide();
-                mm.event.emit(mm.eventKey.OnUIHide, ui);
+                app.event.emit(app.eventKey.OnUIHide, ui);
             }
             if (ui.destroyNode) {
                 ui.node.destroy();

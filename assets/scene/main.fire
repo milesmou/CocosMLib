@@ -65,7 +65,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "MM",
+    "_name": "app",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -133,7 +133,7 @@
       "__id__": 2
     },
     "_enabled": true,
-    "languageId": 3,
+    "languageId": 0,
     "platformId": 0,
     "version": "1.0.0",
     "_id": "28mT48xEJOn6KNNx3YyXWh"

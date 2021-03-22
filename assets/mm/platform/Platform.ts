@@ -1,5 +1,5 @@
 export const EPlatform = cc.Enum({
-    Test: 0,
+    Debug: 0,
     GooglePlay: 1,
 });
 
@@ -28,7 +28,6 @@ export class Platform implements IPlatform {
     reportCustomEvent(event, args) { }
 
     public static getPlatformInst(platformId: number): IPlatform {
-        console.log("Runtime", EPlatform[platformId]);
         if (cc.sys.platform == cc.sys.ANDROID && platformId == EPlatform.GooglePlay) {
             // return new GooglePlay();
         }

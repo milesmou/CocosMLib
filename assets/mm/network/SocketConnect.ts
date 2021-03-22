@@ -1,5 +1,5 @@
 import { EventMgr } from "../manager/EventMgr";
-import mm from "../mm";
+import app from "../app";
 
 export class SocketConnect extends cc.Component {
     public constructor(url: string) {
@@ -67,7 +67,7 @@ export class SocketConnect extends cc.Component {
         let obj = JSON.parse(data);
         let msgId = obj.msgId;
         let content = obj.content;
-        mm.event.emit(msgId, content);
+        app.event.emit(msgId, content);
     }
 
     public sendMessage(msgId, content) {
