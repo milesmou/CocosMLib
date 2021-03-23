@@ -1,4 +1,4 @@
-import app from "../app";
+import { app } from "../App";
 
 const { ccclass, property } = cc._decorator;
 
@@ -65,6 +65,7 @@ export default class ButtonHelper extends cc.Component {
     onClick() {
         if (this.disableDefault && this.audioClip) {
             app.audio.playEffect(this.audioClip);
+            app
         }
         this.button.interactable = false;
         this.scheduleOnce(() => {

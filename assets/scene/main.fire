@@ -65,7 +65,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "app",
+    "_name": "App",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1

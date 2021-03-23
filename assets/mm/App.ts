@@ -16,7 +16,7 @@ export const ELanguage = cc.Enum({
 
 /** 应用程序启动入口 */
 @ccclass
-export default class app extends cc.Component {
+export default class App extends cc.Component {
 
     @property({
         type: ELanguage,
@@ -52,18 +52,19 @@ export default class app extends cc.Component {
 
     onLoad() {
         cc.game.addPersistRootNode(this.node);
-        app.config = { platformName: EPlatform[this.platformId], version: this.version };
-        app.platform = Platform.getPlatformInst(this.platformId);
     }
 
     start() {
-        app.safeSize = this.getSafeArea();
         app.stroage = new StroageMgr();
         app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
         app.ui = UIMgr.Inst;
+
+        app.config = { platformName: EPlatform[this.platformId], version: this.version };
         app.lang = this.getLanguage();
+        app.platform = Platform.getPlatformInst(this.platformId);
+        app.safeSize = this.getSafeArea();
         console.log(`Platform = ${app.config.platformName} Version = ${app.config.version} Language = ${app.lang}`);
     }
 
@@ -102,7 +103,6 @@ export default class app extends cc.Component {
         safeSize.height = safeArea.height;
         return safeSize;
     }
-
 }
 
-
+export const app = App;

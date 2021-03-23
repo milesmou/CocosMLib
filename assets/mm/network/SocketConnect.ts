@@ -1,5 +1,4 @@
-import { EventMgr } from "../manager/EventMgr";
-import app from "../app";
+import { app } from "../App";
 
 export class SocketConnect extends cc.Component {
     public constructor(url: string) {

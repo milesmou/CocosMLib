@@ -3,7 +3,7 @@ const { ccclass, property } = cc._decorator;
 import UIBase from "../ui/UIBase";
 import UITipMsg from "../ui/UITipMsg";
 import UIGUide from "../ui/UIGuide";
-import app from "../app";
+import { app } from "../App";
 
 export enum UIKey {
     Shade = "ui/Shade",

@@ -1,4 +1,4 @@
-import app from "../app";
+import { app } from "../App";
 import { Utils } from "../utils/Utils";
 
 const { property, ccclass } = cc._decorator;

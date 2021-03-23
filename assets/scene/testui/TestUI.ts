@@ -1,4 +1,4 @@
-import app from "../../mm/app";
+import app from "../../mm/App";
 
 const { ccclass, property } = cc._decorator;
 

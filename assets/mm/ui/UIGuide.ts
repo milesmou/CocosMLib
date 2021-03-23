@@ -3,7 +3,7 @@ import UIMgr, { UIKey } from "../manager/UIMgr";
 import { Guide } from "../../script/game/DataEntity";
 import DataManager from "../../script/game/DataManager";
 import Language from "../component/Language";
-import app from "../app";
+import { app } from "../App";
 
 const { ccclass, property } = cc._decorator;
 
