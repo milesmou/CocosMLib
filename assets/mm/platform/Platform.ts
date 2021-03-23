@@ -4,8 +4,6 @@ export const EPlatform = cc.Enum({
 });
 
 export interface IPlatform {
-    adCfg: { [type: string]: { [id: number]: string } };
-    login(obj?);
     showRewardedVideo(params?: { id?: number, success?: Function, fail?: Function, error?: Function, show?: Function, complete?: Function });
     showBanner(params?: { id?: number, pos: cc.Vec2, success?: Function, fail?: Function, error?: Function });
     showInterstitial(params?: { id?: number, success?: Function, fail?: Function, error?: Function });
@@ -15,8 +13,6 @@ export interface IPlatform {
 
 
 export class Platform implements IPlatform {
-    adCfg = {};
-    login(obj?) { return "mouhong"; }
     showBanner() { }
     showRewardedVideo(params?) {
         console.log("测试：视频观看完成");

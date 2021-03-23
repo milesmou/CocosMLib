@@ -106,3 +106,8 @@ export default class App extends cc.Component {
 }
 
 export const app = App;
+
+export const app2 = App;
+export const App2 = App;
+
+

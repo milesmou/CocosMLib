@@ -2,13 +2,12 @@ import { IPlatform } from "./Platform";
 
 const wx = {} as any;
 /** 微信小游戏平台相关方法的实现 */
-export class PlatformWX implements IPlatform {
+export class WeChatMini implements IPlatform {
 
     systemInfo = null;//系统信息
     launchInfo = null;//启动游戏信息
     shareTitle = "默认分享标题";//默认分享标题
     shareImageUrl = "默认分享图片地址";//默认分享图片
-    wx = {} as any;
 
     adCfg: {
         video: { 1: "asdfgh" }
@@ -21,10 +20,6 @@ export class PlatformWX implements IPlatform {
         this.showShareMenu({});
         this.checkUpdate();
         cc.game.on(cc.game.EVENT_HIDE, this.shareResult, this);
-    }
-
-    getPlatform() {
-        return "wx";
     }
 
     /**

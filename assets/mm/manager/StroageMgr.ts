@@ -5,7 +5,6 @@ export enum StroageKey {
     SysLanguage,
     LastResetDate,
     Test1
-
 }
 /**
  * 本地存储工具类
