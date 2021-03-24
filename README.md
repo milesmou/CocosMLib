@@ -8,5 +8,5 @@ assets/mm/network 网络
 assets/mm/platform 平台兼容  
 assets/mm/ui ui管理  
 assets/mm/utils 常用工具类  
-assets/mm/app.ts 应用程序入口脚本  
+assets/mm/App.ts 应用程序入口脚本  
 assets/resources/ui 通用的ui预制体   
