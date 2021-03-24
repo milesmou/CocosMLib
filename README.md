@@ -9,4 +9,4 @@ assets/mm/platform 平台兼容
 assets/mm/ui 通用ui脚本  
 assets/mm/utils 常用工具类  
 assets/mm/App.ts 应用程序入口脚本  
-assets/resources/ui 通用的ui预制体   
+assets/resources/ui ui预制体   
