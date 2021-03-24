@@ -40,6 +40,7 @@ export default class UIMgr extends cc.Component {
 
     /** UI的半透明遮罩 */
     public shade: cc.Node = null;
+    private shadeOpacity = 0;
 
     //常驻高层UI
     public guide: UIGUide = null;
@@ -56,7 +57,8 @@ export default class UIMgr extends cc.Component {
         this.shade = await this.instNode(UIKey.Shade);
         this.shade.setContentSize(cc.winSize);
         this.shade.parent = this.normal;
-        this.shade.active = false;
+        this.shadeOpacity = this.shade.opacity;
+        this.shade.opacity = 0;
 
         //添加上层ui
         this.guide = await this.initUI(UIKey.UIGuide) as UIGUide;
@@ -163,11 +165,11 @@ export default class UIMgr extends cc.Component {
         for (let i = this.uiStack.length - 1; i >= 0; i--) {
             let ui = this.uiStack[i];
             if (ui?.showShade) {
-                this.shade.active = true;
                 this.shade.zIndex = ui.node.zIndex - 1;
+                cc.tween(this.shade).to(0.15, { opacity: this.shadeOpacity }).start();
                 return;
             }
         }
-        this.shade.active = false;
+        cc.tween(this.shade).to(0.15, { opacity: 0 }).start();
     }
 }
