@@ -1,6 +1,6 @@
 # CocosCreator-Utils
 
-## 重制中ing
+## 说明 
 
 assets/mm/component 功能性组件  
 assets/mm/manager 常用的管理类  
