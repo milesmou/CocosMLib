@@ -1,4 +1,7 @@
-# CocosCreator-Utils
+# CocosCreator-Utils 
+
+master分支 2.x版本
+3.0分支 3.x版本
 
 ## 说明 
 
