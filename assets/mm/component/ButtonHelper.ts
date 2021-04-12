@@ -28,6 +28,7 @@ export default class ButtonHelper extends cc.Component {
         visible: function () { return this.getComponent(cc.PolygonCollider) }
     })
     polygonButton = false;
+
     button: cc.Button = null;
 
     onLoad() {
@@ -65,12 +66,13 @@ export default class ButtonHelper extends cc.Component {
     onClick() {
         if (this.disableDefault && this.audioClip) {
             app.audio.playEffect(this.audioClip);
-            app
         }
-        this.button.interactable = false;
-        this.scheduleOnce(() => {
-            this.button.interactable = true;
-        }, this.cooldown);
+        if (this.cooldown > 0 && !this.button["isCooldown"]) {
+            this.button["isCooldown"] = true;
+            this.scheduleOnce(() => {
+                this.button["isCooldown"] = false;
+            }, this.cooldown);
+        }
     }
 
     /**
@@ -84,8 +86,10 @@ export default class ButtonHelper extends cc.Component {
                 if (!this.disableDefault) {//默认音效是否被禁用
                     app.audio.playEffect(app.audioKey.E_CLICK);
                 }
-                cc.Component.EventHandler.emitEvents(this.clickEvents, event);
-                this.node.emit('click', this);
+                if (!this.isCooldown) {
+                    cc.Component.EventHandler.emitEvents(this.clickEvents, event);
+                    this.node.emit('click', this);
+                }
             }
             this._pressed = false;
             this._updateState();
