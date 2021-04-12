@@ -3,44 +3,81 @@ import { Utils } from "../utils/Utils";
 
 const { ccclass, property } = cc._decorator;
 
+@ccclass("LanguageText")
+class LanguageText {
+    @property({
+        displayName: "简体"
+    })
+    zh = "";
+    @property({
+        displayName: "繁体"
+    })
+    zh_ft = "";
+    @property({
+        displayName: "英文"
+    })
+    english = "";
+}
+
+@ccclass("LanguageFont")
+class LanguageFont {
+    @property({
+        type: cc.Font,
+        displayName: "简体"
+    })
+    zh: cc.Font = null;
+    @property({
+        type: cc.Font,
+        displayName: "繁体"
+    })
+    zh_ft: cc.Font = null;
+    @property({
+        type: cc.Font,
+        displayName: "英文"
+    })
+    english: cc.Font = null;
+}
+
 @ccclass
 export default class Language extends cc.Component {
     @property({
-        readonly: true,
-        displayName: "警告",
-        tooltip: "节点上必须有Label、RichText、Sprite其中一个组件",
-        visible: function () {
-            return !this.getComponent(cc.Label)
-                && !this.getComponent(cc.RichText)
-                && !this.getComponent(cc.Sprite);
-        }
-    })
-    Tip = true;
-    @property({
-        tooltip: "内容在语言表中的ID",
+        type: LanguageText,
+        tooltip: "不同语言显示的内容",
         visible: function () {
             return this.getComponent(cc.Label)
                 || this.getComponent(cc.RichText);
         }
     })
-    ID = 0;
+    text: LanguageText = null;
+    @property({
+        tooltip: "不同语言使用不同的字体",
+        visible: function () {
+            return this.getComponent(cc.Label)
+                || this.getComponent(cc.RichText);
+        }
+    })
+    useMultipleFont = false;
+    @property({
+        type: LanguageFont,
+        tooltip: "不同语言的字体配置",
+        visible: function () {
+            return this.useMultipleFont;
+        }
+    })
+    font: LanguageFont = null;
     @property({
         tooltip: "图片名字",
         visible: function () {
             return this.getComponent(cc.Sprite);
         }
     })
-    Name = "";
+    spriteName = "";
 
     private args: any[] = null;
 
     onLoad() {
-        if (this.ID || this.Name) {
-            this.updateContent();
-            Language.list.push(this);
-        } else {
-            console.warn(`${this.node.name} ID=${this.ID} PicName=${this.Name}`);
-        }
+        this.updateContent();
+        Language.list.push(this);
     }
 
     onDestroy() {
@@ -50,8 +87,8 @@ export default class Language extends cc.Component {
         }
     }
 
-    /** 设置参数并刷新内容(主要针对文本中有动态内容) */
-    setArgs(...args) {
+    /** 设置文本参数并刷新内容(针对文本中有动态内容,便于切换语言环境自动刷新内容) */
+    setTextArgs(...args) {
         this.args = args;
         this.updateContent();
     }
@@ -61,10 +98,17 @@ export default class Language extends cc.Component {
         for (let i = 0, len = comps.length; i < len; i++) {
             let comp = comps[i];
             if (comp instanceof cc.Label || comp instanceof cc.RichText) {
-                this.args ? Language.setStringByID(comp, this.ID, ...this.args) : Language.setStringByID(comp, this.ID);
+                if (this.useMultipleFont) {
+                    comp.font = this.font[app.lang];
+                }
+                let context = this.text[app.lang];
+                if (this.args) {
+                    context = Utils.formatString(context, ...this.args);
+                }
+                comp.string = context;
                 break;
             } else if (comp instanceof cc.Sprite) {
-                Language.setSpriteFrameByName(comp, this.Name);
+                Language.setSpriteFrameByName(comp, this.spriteName);
                 break;
             }
         }
@@ -72,7 +116,6 @@ export default class Language extends cc.Component {
 
     static list: Language[] = [];
     static dict: { [ID: number]: any } = null;
-    static picPath = "language/";
     static init(dict: { [ID: number]: any }) {
         this.dict = this.dict || dict;
     }
@@ -80,7 +123,7 @@ export default class Language extends cc.Component {
     static reload() {
         this.list.forEach(v => {
             v.isValid && v.updateContent();
-        })
+        });
     }
 
     static setStringByID(label: cc.Label | cc.RichText, ID: number, ...args) {
@@ -88,7 +131,7 @@ export default class Language extends cc.Component {
     }
 
     static setSpriteFrameByName(sprite: cc.Sprite, name: string) {
-        Utils.loadPicture(sprite, `${this.picPath}${app.lang}/${name}`)
+        Utils.loadPicture(sprite, `language/${app.lang}/${name}`)
     }
 
     static getStringByID(ID: number, ...args): string {
