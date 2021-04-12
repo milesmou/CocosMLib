@@ -65,6 +65,7 @@ export default class App extends cc.Component {
         app.lang = this.getLanguage();
         app.platform = Platform.getPlatformInst(this.platformId);
         app.safeSize = this.getSafeArea();
+        
         console.log(`Platform = ${app.config.platformName} Version = ${app.config.version} Language = ${app.lang}`);
     }
 

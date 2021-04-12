@@ -16,7 +16,7 @@ class LanguageText {
     @property({
         displayName: "英文"
     })
-    english = "";
+    en = "";
 }
 
 @ccclass("LanguageFont")
@@ -35,7 +35,7 @@ class LanguageFont {
         type: cc.Font,
         displayName: "英文"
     })
-    english: cc.Font = null;
+    en: cc.Font = null;
 }
 
 @ccclass
