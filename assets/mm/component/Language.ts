@@ -1,7 +1,13 @@
 import { app } from "../App";
+import { BundleKey } from "../manager/BundleMgr";
 import { Utils } from "../utils/Utils";
 
 const { ccclass, property } = cc._decorator;
+
+const EMode = cc.Enum({
+    ID: 0,
+    Manual: 1
+})
 
 @ccclass("LanguageText")
 class LanguageText {
@@ -41,19 +47,39 @@ class LanguageFont {
 @ccclass
 export default class Language extends cc.Component {
     @property({
-        type: LanguageText,
-        tooltip: "不同语言显示的内容",
+        type: EMode,
+        tooltip: "ID: 通过ID从语言表加载内容\nManual: 手动配置内容",
         visible: function () {
             return this.getComponent(cc.Label)
                 || this.getComponent(cc.RichText);
+        }
+    })
+    mode = EMode.Manual;
+    @property({
+        tooltip: "语言表中的ID",
+        visible: function () {
+            return this.mode == EMode.ID &&
+                (this.getComponent(cc.Label)
+                    || this.getComponent(cc.RichText));
+        }
+    })
+    ID = 0;
+    @property({
+        type: LanguageText,
+        tooltip: "不同语言显示的内容",
+        visible: function () {
+            return this.mode == EMode.Manual &&
+                (this.getComponent(cc.Label)
+                    || this.getComponent(cc.RichText));
         }
     })
     text: LanguageText = null;
     @property({
         tooltip: "不同语言使用不同的字体",
         visible: function () {
-            return this.getComponent(cc.Label)
-                || this.getComponent(cc.RichText);
+            return this.mode == EMode.Manual &&
+                (this.getComponent(cc.Label)
+                    || this.getComponent(cc.RichText));
         }
     })
     useMultipleFont = false;
@@ -61,7 +87,7 @@ export default class Language extends cc.Component {
         type: LanguageFont,
         tooltip: "不同语言的字体配置",
         visible: function () {
-            return this.useMultipleFont;
+            return this.mode == EMode.Manual && this.useMultipleFont;
         }
     })
     font: LanguageFont = null;
@@ -98,16 +124,28 @@ export default class Language extends cc.Component {
         for (let i = 0, len = comps.length; i < len; i++) {
             let comp = comps[i];
             if (comp instanceof cc.Label || comp instanceof cc.RichText) {
-                if (this.useMultipleFont) {
-                    comp.font = this.font[app.lang];
+                if (this.mode == EMode.ID) {
+                    if (this.args) {
+                        Language.setStringByID(comp, this.ID, ...this.args);
+                    } else {
+                        Language.setStringByID(comp, this.ID);
+                    }
+                } else {
+                    if (this.useMultipleFont && this.font) {
+                        comp.font = this.font[app.lang];
+                    }
+                    if (this.text) {
+                        let context: string = this.text[app.lang];
+                        context = context.replace(/\\n/g, "\n");
+                        if (this.args) {
+                            context = Utils.formatString(context, ...this.args);
+                        }
+                        comp.string = context;
+                    }
                 }
-                let context = this.text[app.lang];
-                if (this.args) {
-                    context = Utils.formatString(context, ...this.args);
-                }
-                comp.string = context;
                 break;
             } else if (comp instanceof cc.Sprite) {
+                comp.spriteFrame = null;
                 Language.setSpriteFrameByName(comp, this.spriteName);
                 break;
             }
@@ -127,11 +165,12 @@ export default class Language extends cc.Component {
     }
 
     static setStringByID(label: cc.Label | cc.RichText, ID: number, ...args) {
+        this.setFontByID(label, ID);
         label.string = this.getStringByID(ID, ...args) || label.string;
     }
 
     static setSpriteFrameByName(sprite: cc.Sprite, name: string) {
-        Utils.loadPicture(sprite, `language/${app.lang}/${name}`)
+        Utils.loadPicture(sprite, `language/${app.lang}/${name}`, BundleKey.HUD);
     }
 
     static getStringByID(ID: number, ...args): string {
@@ -144,5 +183,24 @@ export default class Language extends cc.Component {
             return;
         }
         return Utils.formatString(this.dict[ID][app.lang], ...args);
+    }
+
+    static setFontByID(label: cc.Label | cc.RichText, ID: number) {
+        if (!this.dict) {
+            console.warn(`未初始化语言表`);
+            return;
+        }
+        if (!this.dict[ID]) {
+            console.warn(`ID=${ID} Lang=${app.lang}  在语言表中无对应内容`);
+            return;
+        }
+        let fontName = this.dict[ID][app.lang + "_font"];
+        if (!fontName) {
+            label.font == null;
+        } else {
+            Utils.load("font/" + fontName, cc.Font).then(v => {
+                label.font = v;
+            })
+        }
     }
 }

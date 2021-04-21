@@ -1,7 +1,6 @@
 export enum BundleKey {
-    bundle1,
-    bundle2,
-    count
+    HUD = "hud",
+    Map = "map"
 }
 
 export class BundleMgr {
@@ -9,7 +8,11 @@ export class BundleMgr {
     private static inst: BundleMgr = null;
     public static get Inst() { return this.inst || (this.inst = new BundleMgr()) }
 
-    public bundle: Map<BundleKey, cc.AssetManager.Bundle> = new Map();
+    private bundle: Map<BundleKey, cc.AssetManager.Bundle> = new Map();
+
+    public getBundle(bundleKey: BundleKey) {
+        return this.bundle.get(bundleKey);
+    }
 
     public loadBundle(bundleKey: BundleKey, onFileProgress?: (loaded: number, total: number) => void) {
         let p = new Promise<cc.AssetManager.Bundle>((resolve, reject) => {
@@ -31,19 +34,25 @@ export class BundleMgr {
 
     public loadAllBundle(onFileProgress?: (loaded: number, total: number) => void) {
         let p = new Promise<cc.AssetManager.Bundle[]>((resolve, reject) => {
-            let progress = [];
+            let bundleCount = 0;
+            let progress = {};
             let bundleArr = [];
-            for (let i = 0; i < BundleKey.count; i++) {
-                cc.assetManager.loadBundle(BundleKey[i],
+            for (const key in BundleKey) {
+                progress[key] = 0;
+                bundleCount++;
+            }
+            for (const key in BundleKey) {
+                let bundleName = BundleKey[key];
+                cc.assetManager.loadBundle(bundleName,
                     {
                         onFileProgress: (loaded: number, total: number) => {
                             if (onFileProgress) {
-                                progress[i] = loaded / total;
+                                progress[key] = loaded / total;
                                 let totalProgress = 0;
-                                for (let i = 0; i < BundleKey.count; i++) {
-                                    totalProgress += (progress[i] || 0);
+                                for (const k in progress) {
+                                    totalProgress += progress[k];
                                 }
-                                onFileProgress(totalProgress / BundleKey.count, 1);
+                                onFileProgress(totalProgress / bundleCount, 1);
                             }
                         }
                     },
@@ -53,8 +62,8 @@ export class BundleMgr {
                             reject(err)
                         } else {
                             bundleArr.push(bundle);
-                            this.bundle.set(i, bundle);
-                            if (bundleArr.length == BundleKey.count) {
+                            this.bundle.set(bundleName, bundle);
+                            if (bundleArr.length == bundleCount) {
                                 resolve(bundleArr);
                             }
                         }
