@@ -14,12 +14,6 @@ export const ELanguage = cc.Enum({
     "English": 3,
 })
 
-class A {
-    a = 1;
-    b = 2;
-    c_dayreset = 5;
-}
-
 /** 应用程序启动入口 */
 @ccclass
 export default class App extends cc.Component {
@@ -59,6 +53,10 @@ export default class App extends cc.Component {
         cc.game.addPersistRootNode(this.node);
     }
 
+    onEnable(){
+        app.ui = UIMgr.Inst;
+    }
+
     start() {
         app.stroage = StroageMgr.Inst;
         app.audio = new AudioMgr();
@@ -70,9 +68,6 @@ export default class App extends cc.Component {
         app.lang = this.getLanguage();
         app.platform = Platform.getPlatformInst(this.platformId);
         app.safeSize = this.getSafeArea();
-
-        let v = app.stroage.getProxy(new A());    
-        console.log(v);
         
         console.log(`Platform=${app.config.platformName} Version=${app.config.version} Language=${app.lang}`);
     }
@@ -81,7 +76,7 @@ export default class App extends cc.Component {
     getLanguage = () => {
         let v = "";
         if (this.languageId == ELanguage.Auto) {
-            v = StroageMgr.Inst.getString("SysLanguage", cc.sys.languageCode);
+            v = app.stroage.getValue("SysLanguage", cc.sys.languageCode);
             if (v.includes("-")) {
                 if (v == "zh-cn") {
                     v = "zh";

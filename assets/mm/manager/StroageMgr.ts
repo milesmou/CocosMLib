@@ -9,20 +9,19 @@ export class StroageMgr {
 
     private prefix = "GameName_";
     private lastResetDateKey = "lastResetDate";
-    private lastResetDate = 0;
-    private dayresetSuffix = "_dayreset";
+    private dayresetSuffix = "_dayreset";//代理对象中变量名以此结尾到会被每日重置
 
-    private constructor() {
-        this.lastResetDate = this.getNumber(this.lastResetDateKey, 0);
-    }
-
-    /* 使用代理自动序列化存储数据 */
-
+    /** 
+     * 为对象创建一个代理对象 修改对象属性值时保存数据到本地
+     * 
+     * 使用对象类名为键保存数据，所以类名不能重复和使用大括号创建对象
+     */
     getProxy<T extends object>(inst: T): T {
         inst = this.deserialize(inst);
+        this.serialize(inst);
         return new Proxy(inst, {
             set: (target, prop, value, receiver) => {
-                let result = Reflect.set(target, prop, value, receiver)
+                let result = Reflect.set(target, prop, value, receiver);
                 if (result) this.serialize(target);
                 return result;
             }
@@ -32,19 +31,20 @@ export class StroageMgr {
     serialize<T extends object>(inst: T) {
         let name = inst.constructor.name;
         let jsonStr = JSON.stringify(inst);
-        cc.sys.localStorage.setItem(this.prefix + name, jsonStr)
+        this.setValue(name, jsonStr);
         return jsonStr;
     }
 
     deserialize<T extends object>(inst: T): T {
+        let today = Utils.getToday();
         let name = inst.constructor.name;
-        let jsonStr = cc.sys.localStorage.getItem(this.prefix + name);
+        let jsonStr = this.getValue(name, "");
         if (jsonStr) {
             try {
                 let obj = JSON.parse(jsonStr);
                 for (const key in obj) {
                     if (Reflect.has(inst, key)) {
-                        if (key.endsWith(this.dayresetSuffix) && Utils.getToday() > this.lastResetDate) {
+                        if (key.endsWith(this.dayresetSuffix) && today > obj[this.lastResetDateKey]) {
                             continue;//使用默认值
                         } else {
                             if (Object.prototype.toString.call(inst[key]) === "[object Object]") {
@@ -59,88 +59,39 @@ export class StroageMgr {
                 console.error(err);
             }
         }
+        inst[this.lastResetDateKey] = today;
         return inst;
-    }
-
-    /**
-     * 完成今日的每日变量重置
-     * 
-     * 请在所有需要序列化和反序列化的类初始化完成后调用
-     */
-    finishDayReset() {
-        this.setValue(this.lastResetDateKey, Utils.getToday());
     }
 
     /* 手动存储数据 */
 
     /**
-    * 从本地存储中获取数字类型的值
-    * @param stroageKey 键
-    * @param defaultV 默认值
-    */
-    getNumber(stroageKey: string, defaultV: number): number {
-        return this.getValue<number>("number", stroageKey, defaultV);
-    }
-
-    /**
-    * 从本地存储中获取字符串类型的值
-    * @param stroageKey 键
-    * @param defaultV 默认值
-    */
-    getString(stroageKey: string, defaultV: string): string {
-        return this.getValue<string>("string", stroageKey, defaultV);
-    }
-
-    /**
-    * 从本地存储中获取布尔类型的值
-    * @param stroageKey 键
-    * @param defaultV 默认值
-    */
-    getBoolean(stroageKey: string, defaultV: boolean): boolean {
-        return this.getValue<boolean>("boolean", stroageKey, defaultV);
-    }
-
-    /**
-     * 从本地存储中获取对象类型的值
-     * @param stroageKey 键
-     * @param defaultV 默认值
-     */
-    getObject(stroageKey: string, defaultV: object): object {
-        return this.getValue<object>("object", stroageKey, defaultV);
-    }
-
-    /**
      * 从本地存储中获取缓存的值
-     * @param type 数据类型 number|string|boolean|object
      * @param stroageKey StroageKey键枚举
      * @param defaultV 默认值
      */
-    getValue<T>(type: "number" | "string" | "boolean" | "object", stroageKey: string, defaultV: T): T {
+    getValue<T>(stroageKey: string, defaultV: T): T {
         let key = this.prefix + stroageKey;
         let value = cc.sys.localStorage.getItem(key);
-        if (!value) {
-            return defaultV;
-        } else {
-            if (type === "number") {
-                let v = parseFloat(value);
-                if (isNaN(v)) {
-                    console.error(key, ": 转化为数字类型错误 ", value);
-                    value = defaultV;
-                } else {
-                    value = v;
-                }
-            } else if (type === "string") {
-                return value;
-            } else if (type === "boolean") {
-                return (value !== "true") as any;
+        if (!value) return defaultV;
+        if (typeof defaultV === "number") {
+            let v = parseFloat(value);
+            if (isNaN(v)) {
+                console.error(key, ": 转化为数字类型错误 ", value);
+                value = defaultV;
             } else {
-                try {
-                    value = JSON.parse(value);
-                } catch (err) {
-                    console.error(key, ": 转化对象类型错误 ", value);
-                    value = defaultV;
-                }
-
+                value = v;
+            }
+        } else if (typeof defaultV === "string") {
+            return value;
+        } else if (typeof defaultV === "boolean") {
+            return (value !== "true") as any;
+        } else {
+            try {
+                value = JSON.parse(value);
+            } catch (err) {
+                console.error(key, ": 转化对象类型错误 ", value);
+                value = defaultV;
             }
         }
         return value;
