@@ -1,7 +1,7 @@
 import { AudioKey, AudioMgr } from "./manager/AudioMgr";
 import { EventKey, EventMgr } from "./manager/EventMgr";
 import { PoolKey, PoolMgr } from "./manager/PoolMgr";
-import { StroageKey, StroageMgr } from "./manager/StroageMgr";
+import { StroageMgr } from "./manager/StroageMgr";
 import UIMgr, { UIKey } from "./manager/UIMgr";
 import { EPlatform, IPlatform, Platform } from "./platform/Platform";
 
@@ -13,6 +13,12 @@ export const ELanguage = cc.Enum({
     "ChineseTraditional": 2,
     "English": 3,
 })
+
+class A {
+    a = 1;
+    b = 2;
+    c_dayreset = 5;
+}
 
 /** 应用程序启动入口 */
 @ccclass
@@ -40,7 +46,6 @@ export default class App extends cc.Component {
     public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
     //manager
     public static stroage: StroageMgr;
-    public static stroageKey = StroageKey;
     public static audio: AudioMgr;
     public static audioKey = AudioKey;
     public static event: EventMgr;
@@ -55,7 +60,7 @@ export default class App extends cc.Component {
     }
 
     start() {
-        app.stroage = new StroageMgr();
+        app.stroage = StroageMgr.Inst;
         app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
@@ -65,6 +70,9 @@ export default class App extends cc.Component {
         app.lang = this.getLanguage();
         app.platform = Platform.getPlatformInst(this.platformId);
         app.safeSize = this.getSafeArea();
+
+        let v = app.stroage.getProxy(new A());    
+        console.log(v);
         
         console.log(`Platform=${app.config.platformName} Version=${app.config.version} Language=${app.lang}`);
     }
@@ -73,7 +81,7 @@ export default class App extends cc.Component {
     getLanguage = () => {
         let v = "";
         if (this.languageId == ELanguage.Auto) {
-            v = app.stroage.getString(app.stroageKey.SysLanguage, cc.sys.languageCode);
+            v = StroageMgr.Inst.getString("SysLanguage", cc.sys.languageCode);
             if (v.includes("-")) {
                 if (v == "zh-cn") {
                     v = "zh";

@@ -1,31 +1,84 @@
 import { Utils } from "../utils/Utils";
 
-/** 本地存储枚举 */
-export enum StroageKey {
-    SysLanguage,
-    LastResetDate,
-    Test1
-}
 /**
  * 本地存储工具类
  */
 export class StroageMgr {
+    private static _inst: StroageMgr = null;
+    public static get Inst() { return this._inst || (this._inst = new StroageMgr()) }
 
-    public prefix = "GameName_";
+    private prefix = "GameName_";
+    private lastResetDateKey = "lastResetDate";
+    private lastResetDate = 0;
+    private dayresetSuffix = "_dayreset";
 
-    constructor() {
-        if (Utils.getToday() > this.getNumber(StroageKey.LastResetDate)) {
-            this.setValue(StroageKey.LastResetDate, Utils.getToday());
-            //在这里重置一些需要每日重置的值
-        }
+    private constructor() {
+        this.lastResetDate = this.getNumber(this.lastResetDateKey, 0);
     }
+
+    /* 使用代理自动序列化存储数据 */
+
+    getProxy<T extends object>(inst: T): T {
+        inst = this.deserialize(inst);
+        return new Proxy(inst, {
+            set: (target, prop, value, receiver) => {
+                let result = Reflect.set(target, prop, value, receiver)
+                if (result) this.serialize(target);
+                return result;
+            }
+        })
+    }
+
+    serialize<T extends object>(inst: T) {
+        let name = inst.constructor.name;
+        let jsonStr = JSON.stringify(inst);
+        cc.sys.localStorage.setItem(this.prefix + name, jsonStr)
+        return jsonStr;
+    }
+
+    deserialize<T extends object>(inst: T): T {
+        let name = inst.constructor.name;
+        let jsonStr = cc.sys.localStorage.getItem(this.prefix + name);
+        if (jsonStr) {
+            try {
+                let obj = JSON.parse(jsonStr);
+                for (const key in obj) {
+                    if (Reflect.has(inst, key)) {
+                        if (key.endsWith(this.dayresetSuffix) && Utils.getToday() > this.lastResetDate) {
+                            continue;//使用默认值
+                        } else {
+                            if (Object.prototype.toString.call(inst[key]) === "[object Object]") {
+                                inst[key] = Object.assign(inst[key], obj[key]);//赋值二级字段
+                            } else {
+                                inst[key] = obj[key];//赋值一级字段
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        return inst;
+    }
+
+    /**
+     * 完成今日的每日变量重置
+     * 
+     * 请在所有需要序列化和反序列化的类初始化完成后调用
+     */
+    finishDayReset() {
+        this.setValue(this.lastResetDateKey, Utils.getToday());
+    }
+
+    /* 手动存储数据 */
 
     /**
     * 从本地存储中获取数字类型的值
     * @param stroageKey 键
     * @param defaultV 默认值
     */
-    getNumber(stroageKey: StroageKey, defaultV?: number): number {
+    getNumber(stroageKey: string, defaultV: number): number {
         return this.getValue<number>("number", stroageKey, defaultV);
     }
 
@@ -34,7 +87,7 @@ export class StroageMgr {
     * @param stroageKey 键
     * @param defaultV 默认值
     */
-    getString(stroageKey: StroageKey, defaultV?: string): string {
+    getString(stroageKey: string, defaultV: string): string {
         return this.getValue<string>("string", stroageKey, defaultV);
     }
 
@@ -43,7 +96,7 @@ export class StroageMgr {
     * @param stroageKey 键
     * @param defaultV 默认值
     */
-    getBoolean(stroageKey: StroageKey, defaultV?: boolean): boolean {
+    getBoolean(stroageKey: string, defaultV: boolean): boolean {
         return this.getValue<boolean>("boolean", stroageKey, defaultV);
     }
 
@@ -52,7 +105,7 @@ export class StroageMgr {
      * @param stroageKey 键
      * @param defaultV 默认值
      */
-    getObject(stroageKey: StroageKey, defaultV?: object): object {
+    getObject(stroageKey: string, defaultV: object): object {
         return this.getValue<object>("object", stroageKey, defaultV);
     }
 
@@ -62,8 +115,8 @@ export class StroageMgr {
      * @param stroageKey StroageKey键枚举
      * @param defaultV 默认值
      */
-    private getValue<T>(type: "number" | "string" | "boolean" | "object", stroageKey: StroageKey, defaultV: T): T {
-        let key = this.prefix + StroageKey[stroageKey];
+    getValue<T>(type: "number" | "string" | "boolean" | "object", stroageKey: string, defaultV: T): T {
+        let key = this.prefix + stroageKey;
         let value = cc.sys.localStorage.getItem(key);
         if (!value) {
             return defaultV;
@@ -96,8 +149,8 @@ export class StroageMgr {
     /**
      * 设置本地存储值
      */
-    setValue(stroageKey: StroageKey, value: any) {
-        let key = this.prefix + StroageKey[stroageKey];
+    setValue(stroageKey: string, value: any) {
+        let key = this.prefix + stroageKey;
         if (typeof value === "object") {
             value = JSON.stringify(value);
         }
