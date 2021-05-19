@@ -14,9 +14,9 @@ export class StroageMgr {
     /** 
      * 为对象创建一个代理对象 修改对象属性值时保存数据到本地
      * 
-     * 对象中的值
+     * 对象中的属性值不能为object嵌套object
      * 
-     * 使用对象类名为键保存数据，所以类名不能重复和使用大括号创建对象
+     * 使用对象类名为键保存数据，所以类名不能重复和使用大括号创建匿名对象
      */
     getProxy<T extends object>(inst: T): T {
         inst = this.deserialize(inst);
