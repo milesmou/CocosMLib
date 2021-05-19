@@ -14,6 +14,8 @@ export class StroageMgr {
     /** 
      * 为对象创建一个代理对象 修改对象属性值时保存数据到本地
      * 
+     * 对象中的值
+     * 
      * 使用对象类名为键保存数据，所以类名不能重复和使用大括号创建对象
      */
     getProxy<T extends object>(inst: T): T {
@@ -47,10 +49,23 @@ export class StroageMgr {
                         if (key.endsWith(this.dayresetSuffix) && today > obj[this.lastResetDateKey]) {
                             continue;//使用默认值
                         } else {
-                            if (Object.prototype.toString.call(inst[key]) === "[object Object]") {
-                                inst[key] = Object.assign(inst[key], obj[key]);//赋值二级字段
+                            if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {
+                                for (const k in obj[key]) {//赋值二级字段
+                                    if (Reflect.has(inst[key], k)) {
+                                        inst[key][k] = obj[key][k];
+                                    }
+                                }
                             } else {
                                 inst[key] = obj[key];//赋值一级字段
+                            }
+                            if (typeof inst[key] === "object") {
+                                inst[key] = new Proxy(inst[key], {
+                                    set: (target, prop, value, receiver) => {
+                                        let result = Reflect.set(target, prop, value, receiver);
+                                        if (result) this.serialize(inst);
+                                        return result;
+                                    }
+                                });
                             }
                         }
                     }
