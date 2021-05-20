@@ -12,9 +12,7 @@ export class StroageMgr {
     private dayresetSuffix = "_dayreset";//代理对象中变量名以此结尾到会被每日重置
 
     /** 
-     * 为对象创建一个代理对象 修改对象属性值时保存数据到本地
-     * 
-     * 对象中的属性值不能为object嵌套object
+     * 为对象创建一个代理对象 修改对象属性值时保存数据到本地 对象内部不能有循环引用
      * 
      * 使用对象类名为键保存数据，所以类名不能重复和使用大括号创建匿名对象
      */
@@ -24,7 +22,7 @@ export class StroageMgr {
         return new Proxy(inst, {
             set: (target, prop, value, receiver) => {
                 let result = Reflect.set(target, prop, value, receiver);
-                if (result) this.serialize(target);
+                if (result) this.serialize(inst);
                 return result;
             }
         })
@@ -50,23 +48,13 @@ export class StroageMgr {
                             continue;//使用默认值
                         } else {
                             if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {
-                                for (const k in obj[key]) {//赋值二级字段
-                                    if (Reflect.has(inst[key], k)) {
-                                        inst[key][k] = obj[key][k];
-                                    }
-                                }
+                                inst[key] = this.mergeValue(inst[key], obj[key]);
                             } else {
                                 inst[key] = obj[key];//赋值一级字段
                             }
-                            if (typeof inst[key] === "object") {
-                                inst[key] = new Proxy(inst[key], {
-                                    set: (target, prop, value, receiver) => {
-                                        let result = Reflect.set(target, prop, value, receiver);
-                                        if (result) this.serialize(inst);
-                                        return result;
-                                    }
-                                });
-                            }
+                        }
+                        if (typeof inst[key] === "object") {
+                            inst[key] = this.createProxy(inst[key], inst);
                         }
                     }
                 }
@@ -76,6 +64,41 @@ export class StroageMgr {
         }
         inst[this.lastResetDateKey] = today;
         return inst;
+    }
+
+    /** 递归合并target和source中的值,使用source中的值覆盖target中的值,忽略target中没有的属性 */
+    private mergeValue(target: object, source: object) {
+        for (const key in target) {
+            if (Reflect.has(target, key) && Reflect.has(source, key)) {
+                if (typeof target[key] !== typeof source[key]) continue;
+                if (typeof target[key] === "object" && Object.prototype.toString.call(target[key]) !== Object.prototype.toString.call(source[key])) continue;
+                if (Object.prototype.toString.call(target[key]) === "[object Object]") {
+                    this.mergeValue(target[key], source[key]);
+                } else {
+                    target[key] = source[key];
+                }
+            }
+        }
+        return target;
+    }
+
+    /** 递归为对象内部的所有对象创建代理 */
+    private createProxy<T extends object>(obj: T, root: object): T {
+        for (const key in obj) {
+            if (Reflect.has(obj, key)) {
+                if (typeof obj[key] === "object") {
+                    obj[key] = this.createProxy(obj[key] as any, root);
+                }
+            }
+        }
+        obj = new Proxy(obj, {
+            set: (target, prop, value, receiver) => {
+                let result = Reflect.set(target, prop, value, receiver);
+                if (result) this.serialize(root);
+                return result;
+            }
+        })
+        return obj;
     }
 
     /* 手动存储数据 */
