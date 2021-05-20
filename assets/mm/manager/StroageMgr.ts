@@ -12,9 +12,9 @@ export class StroageMgr {
     private dayresetSuffix = "_dayreset";//代理对象中变量名以此结尾到会被每日重置
 
     /** 
-     * 为对象创建一个代理对象 修改对象属性值时保存数据到本地 对象内部不能有循环引用
+     * 为对象创建一个代理对象 修改属性值时缓存数据到本地 对象内部不能有循环引用
      * 
-     * 使用对象类名为键保存数据，所以类名不能重复和使用大括号创建匿名对象
+     * 优先使用name字段作为对象缓存的key 否则会使用类名 请确保和其它对象不重复
      */
     getProxy<T extends object>(inst: T): T {
         inst = this.deserialize(inst);
@@ -29,7 +29,7 @@ export class StroageMgr {
     }
 
     serialize<T extends object>(inst: T) {
-        let name = inst.constructor.name;
+        let name = inst["name"] || inst.constructor.name;
         let jsonStr = JSON.stringify(inst);
         this.setValue(name, jsonStr);
         return jsonStr;
@@ -37,7 +37,7 @@ export class StroageMgr {
 
     deserialize<T extends object>(inst: T): T {
         let today = Utils.getToday();
-        let name = inst.constructor.name;
+        let name = inst["name"] || inst.constructor.name;
         let jsonStr = this.getValue(name, "");
         if (jsonStr) {
             try {
