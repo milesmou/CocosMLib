@@ -4,8 +4,6 @@ import { Utils } from "../utils/Utils";
  * 本地存储工具类
  */
 export class StroageMgr {
-    private static _inst: StroageMgr = null;
-    public static get Inst() { return this._inst || (this._inst = new StroageMgr()) }
 
     private prefix = "GameName_";
     private lastResetDateKey = "lastResetDate";
@@ -19,17 +17,15 @@ export class StroageMgr {
     getProxy<T extends object>(inst: T): T {
         inst = this.deserialize(inst);
         this.serialize(inst);
-        return new Proxy(inst, {
-            set: (target, prop, value, receiver) => {
-                let result = Reflect.set(target, prop, value, receiver);
-                if (result) this.serialize(inst);
-                return result;
-            }
-        })
+        return this.createProxy(inst, inst);
     }
 
     serialize<T extends object>(inst: T) {
         let name = inst["name"] || inst.constructor.name;
+        if (!name) {
+            console.error("未知的类名", inst);
+            return;
+        }
         let jsonStr = JSON.stringify(inst);
         this.setValue(name, jsonStr);
         return jsonStr;
@@ -38,6 +34,10 @@ export class StroageMgr {
     deserialize<T extends object>(inst: T): T {
         let today = Utils.getToday();
         let name = inst["name"] || inst.constructor.name;
+        if (!name) {
+            console.error("未知的类名", inst);
+            return;
+        }
         let jsonStr = this.getValue(name, "");
         if (jsonStr) {
             try {
@@ -47,14 +47,11 @@ export class StroageMgr {
                         if (key.endsWith(this.dayresetSuffix) && today > obj[this.lastResetDateKey]) {
                             continue;//使用默认值
                         } else {
-                            if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {
+                            if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {//对象拷贝
                                 inst[key] = this.mergeValue(inst[key], obj[key]);
                             } else {
                                 inst[key] = obj[key];//赋值一级字段
                             }
-                        }
-                        if (typeof inst[key] === "object") {
-                            inst[key] = this.createProxy(inst[key], inst);
                         }
                     }
                 }
@@ -82,7 +79,7 @@ export class StroageMgr {
         return target;
     }
 
-    /** 递归为对象内部的所有对象创建代理 */
+    /** 递归为对象及其内部的对象创建代理 */
     private createProxy<T extends object>(obj: T, root: object): T {
         for (const key in obj) {
             if (Reflect.has(obj, key)) {
