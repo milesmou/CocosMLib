@@ -49,26 +49,22 @@ export default class App extends cc.Component {
     public static ui: UIMgr;
     public static uiKey = UIKey;
 
+
     onLoad() {
-        cc.game.addPersistRootNode(this.node);
-    }
-
-    onEnable(){
-        app.ui = UIMgr.Inst;
-    }
-
-    start() {
-        app.stroage = StroageMgr.Inst;
+        app.stroage = new StroageMgr();
         app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
-        app.ui = UIMgr.Inst;
 
         app.config = { platformName: EPlatform[this.platformId], version: this.version };
         app.lang = this.getLanguage();
         app.platform = Platform.getPlatformInst(this.platformId);
+    }
+
+    start() {
+        app.ui = UIMgr.Inst;
         app.safeSize = this.getSafeArea();
-        
+
         console.log(`Platform=${app.config.platformName} Version=${app.config.version} Language=${app.lang}`);
     }
 
