@@ -14,13 +14,13 @@ export class StroageMgr {
      * 
      * 优先使用name字段作为对象缓存的key 否则会使用类名 请确保和其它对象不重复
      */
-    getProxy<T extends object>(inst: T): T {
+    public getProxy<T extends object>(inst: T): T {
         inst = this.deserialize(inst);
         this.serialize(inst);
         return this.createProxy(inst, inst);
     }
 
-    serialize<T extends object>(inst: T) {
+    private serialize<T extends object>(inst: T) {
         let name = inst["name"] || inst.constructor.name;
         if (!name) {
             console.error("未知的类名", inst);
@@ -31,7 +31,7 @@ export class StroageMgr {
         return jsonStr;
     }
 
-    deserialize<T extends object>(inst: T): T {
+    private deserialize<T extends object>(inst: T): T {
         let today = Utils.getToday();
         let name = inst["name"] || inst.constructor.name;
         if (!name) {
@@ -105,7 +105,7 @@ export class StroageMgr {
      * @param stroageKey StroageKey键枚举
      * @param defaultV 默认值
      */
-    getValue<T>(stroageKey: string, defaultV: T): T {
+    public getValue<T>(stroageKey: string, defaultV: T): T {
         let key = this.prefix + stroageKey;
         let value = cc.sys.localStorage.getItem(key);
         if (!value) return defaultV;
@@ -135,7 +135,7 @@ export class StroageMgr {
     /**
      * 设置本地存储值
      */
-    setValue(stroageKey: string, value: any) {
+    public setValue(stroageKey: string, value: any) {
         let key = this.prefix + stroageKey;
         if (typeof value === "object") {
             value = JSON.stringify(value);
