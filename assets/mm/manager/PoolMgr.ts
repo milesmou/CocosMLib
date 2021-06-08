@@ -74,9 +74,9 @@ export class PoolMgr {
         if (this.pools.has(poolName)) {
             let pool = this.pools.get(poolName);
             if (nodeRes instanceof Array) {
-                nodeRes.forEach(node => {
-                    pool.put(node);
-                })
+                while (nodeRes.length > 0) {
+                    pool.put(nodeRes[0]);
+                }
             } else {
                 pool.put(nodeRes);
             }
