@@ -1,8 +1,9 @@
 import { app } from "../App";
 
-const { ccclass, property } = cc._decorator;
+const { ccclass, property, requireComponent } = cc._decorator;
 
 @ccclass
+@requireComponent(cc.Button)
 export default class ButtonHelper extends cc.Component {
     @property({
         displayName: "禁用默认音效",
@@ -34,13 +35,11 @@ export default class ButtonHelper extends cc.Component {
     onLoad() {
         this.button = this.getComponent(cc.Button);
         let polygon = this.getComponent(cc.PolygonCollider);
-        if (this.button) {
-            this.button["disableDefault"] = this.disableDefault;
-            this.node.on("click", this.onClick, this);
-        } else {
-            console.warn(`节点${this.node.name}上没有Button组件`);
-        }
-        if (this.button && this.polygonButton && polygon) {
+
+        this.button["disableDefault"] = this.disableDefault;
+        this.node.on("click", this.onClick, this);
+
+        if (this.polygonButton && polygon) {
             this.button["_onTouchBegan"] = function (event) {
                 let pos = this.node.convertToNodeSpaceAR(event.getLocation());
                 if (!this.interactable || !this.enabledInHierarchy) return;
@@ -99,4 +98,4 @@ export default class ButtonHelper extends cc.Component {
         }
     }
 }
-// ButtonHelper.enableDefaultEffect();
+ButtonHelper.enableDefaultEffect();
