@@ -132,7 +132,7 @@ export default class ButtonHelper extends cc.Component {
             }
             this._pressed = false;
             this._updateState();
-            if (!this.inPolygonArea) {//触摸点不在多边形内继续冒泡触摸事件
+            if (this.inPolygonArea) {//触摸点在多边形内停止冒泡触摸事件
                 event.stopPropagation();
             }
         }
