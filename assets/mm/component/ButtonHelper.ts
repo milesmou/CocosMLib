@@ -86,14 +86,28 @@ export default class ButtonHelper extends cc.Component {
         }
     }
 
+    update(dt) {
+        if (this.button["longPress"] && this.button["isPressing"]) {
+            this.button["pressDur"] += dt;
+            if (this.button["pressDur"] > this.button["longPressDur"]) {//长按
+                this.button["isPressing"] = false;
+                cc.Component.EventHandler.emitEvents(this.button["longPressEvents"], this.button["longPressEvt"]);
+                this.node.emit('longPress', this);
+                this.button["_pressed"] = false;
+                this.button["_updateState"]();
+            }
+        }
+    }
+
     /**
      * 修改原型，针对所有按钮，不需要将该组件挂在Button节点上同样有效
      */
     static modifyButtonPrototype() {
-
         cc.Button.prototype["_onTouchBegan"] = function (event) {
             if (!this.interactable || !this.enabledInHierarchy) return;
-            this._touchBeganTime = Date.now();
+            this.isPressing = true;//press开始
+            this.pressDur = 0;//统计press时间
+            this.longPressEvt = event;
             if (this.polygonButton && this.polygon) {//多边形按钮
                 let pos = this.node.convertToNodeSpaceAR(event.getLocation());
                 if (cc.Intersection.pointInPolygon(pos, this.polygon.points)) {
@@ -113,17 +127,14 @@ export default class ButtonHelper extends cc.Component {
 
         cc.Button.prototype["_onTouchEnded"] = function (event) {
             if (!this.interactable || !this.enabledInHierarchy) return;
-            let _touchEndTime = Date.now();
             if (this._pressed) {
                 if (this.defaultEffect) {//默认音效
                     app.audio.playEffect(app.audioKey.E_CLICK);
                 }
                 if (!this.isCooldown) {
                     if (!this.polygonButton || (this.polygonButton && this.inPolygonArea)) {
-                        if (this.longPress && _touchEndTime - this._touchBeganTime > this.longPressDur * 1000) {//长按
-                            cc.Component.EventHandler.emitEvents(this.longPressEvents, event);
-                            this.node.emit('longPress', this);
-                        } else {//点击
+                        if (this.isPressing) {//本次press未结束
+                            this.isPressing = false;
                             cc.Component.EventHandler.emitEvents(this.clickEvents, event);
                             this.node.emit('click', this);
                         }
