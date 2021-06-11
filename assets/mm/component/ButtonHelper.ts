@@ -91,6 +91,9 @@ export default class ButtonHelper extends cc.Component {
             this.button["pressDur"] += dt;
             if (this.button["pressDur"] > this.button["longPressDur"]) {//长按
                 this.button["isPressing"] = false;
+                if (this.button["defaultEffect"]) {//默认音效
+                    app.audio.playEffect(app.audioKey.E_CLICK);
+                }
                 cc.Component.EventHandler.emitEvents(this.button["longPressEvents"], this.button["longPressEvt"]);
                 this.node.emit('longPress', this);
                 this.button["_pressed"] = false;
