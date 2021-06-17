@@ -1,5 +1,12 @@
 import { Utils } from "../utils/Utils";
 
+export abstract class SerializableObject {
+    abstract name: string;
+    serialize = () => {
+        this.name = this.name;
+    }
+}
+
 /**
  * 本地存储工具类
  */
@@ -12,32 +19,25 @@ export class StroageMgr {
     /** 
      * 为对象创建一个代理对象 修改属性值时缓存数据到本地 对象内部不能有循环引用
      * 
-     * 优先使用name字段作为对象缓存的key 否则会使用类名 请确保和其它对象不重复
+     * 优先使用name字段作为对象缓存的key 请确保和其它对象不重复
      */
-    public getProxy<T extends object>(inst: T): T {
+    public getProxy<T extends SerializableObject>(inst: T): T {
         inst = this.deserialize(inst);
-        this.serialize(inst);
+        inst.serialize = () => { this.serialize(inst); };
+        inst.serialize();
         return this.createProxy(inst, inst);
     }
 
-    private serialize<T extends object>(inst: T) {
-        let name = inst["name"] || inst.constructor.name;
-        if (!name) {
-            console.error("未知的类名", inst);
-            return;
-        }
+    private serialize<T extends SerializableObject>(inst: T) {
+        let name = inst.name;
         let jsonStr = JSON.stringify(inst);
         this.setValue(name, jsonStr);
         return jsonStr;
     }
 
-    private deserialize<T extends object>(inst: T): T {
+    private deserialize<T extends SerializableObject>(inst: T): T {
         let today = Utils.getToday();
-        let name = inst["name"] || inst.constructor.name;
-        if (!name) {
-            console.error("未知的类名", inst);
-            return;
-        }
+        let name = inst.name;
         let jsonStr = this.getValue(name, "");
         if (jsonStr) {
             try {
@@ -48,7 +48,11 @@ export class StroageMgr {
                             continue;//使用默认值
                         } else {
                             if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {//对象拷贝
-                                inst[key] = this.mergeValue(inst[key], obj[key]);
+                                if (JSON.stringify(inst[key]) === "{}") {//使用字典存储,直接完整赋值
+                                    inst[key] = obj[key];
+                                } else {
+                                    inst[key] = this.mergeValue(inst[key], obj[key]);
+                                }
                             } else {
                                 inst[key] = obj[key];//赋值一级字段
                             }
@@ -80,11 +84,13 @@ export class StroageMgr {
     }
 
     /** 递归为对象及其内部的对象创建代理 */
-    private createProxy<T extends object>(obj: T, root: object): T {
-        for (const key in obj) {
-            if (Reflect.has(obj, key)) {
-                if (typeof obj[key] === "object") {
-                    obj[key] = this.createProxy(obj[key] as any, root);
+    private createProxy<T extends SerializableObject>(obj: T, root: T): T {
+        if (Object.prototype.toString.call(obj) === "[object Object]") {
+            for (const key in obj) {
+                if (Reflect.has(obj, key)) {
+                    if (obj[key] && typeof obj[key] === "object") {
+                        obj[key] = this.createProxy(obj[key] as any, root);
+                    }
                 }
             }
         }
