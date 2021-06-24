@@ -14,18 +14,20 @@ export class StroageMgr {
 
     private prefix = "GameName_";
     private lastResetDateKey = "lastResetDate";
-    private dayresetSuffix = "_dayreset";//代理对象中变量名以此结尾到会被每日重置
+    private dayresetSuffix = "_dayreset";//代理对象中变量名以此结尾的一级字段会被每日重置
 
     /** 
-     * 为对象创建一个代理对象 修改属性值时缓存数据到本地 对象内部不能有循环引用
+     * 为对象创建一个代理对象 修改属性值时自动缓存数据到本地
      * 
-     * 优先使用name字段作为对象缓存的key 请确保和其它对象不重复
+     * 使用name字段作为对象缓存的key 请确保和其它对象不重复
+     * 
+     * 注意:使用字典({})或数组([])存储数据,非直接操作集合而是修改内部对象数据时,请手动调用serialize方法
      */
     public getProxy<T extends SerializableObject>(inst: T): T {
+        inst = this.createProxy(inst, inst);
         inst = this.deserialize(inst);
-        inst.serialize = () => { this.serialize(inst); };
         inst.serialize();
-        return this.createProxy(inst, inst);
+        return inst;
     }
 
     private serialize<T extends SerializableObject>(inst: T) {
