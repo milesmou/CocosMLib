@@ -32,6 +32,9 @@ export class Utils {
                 url = Utils.formatString(url, app.lang);
                 let bundle = bundleKey ? BundleMgr.Inst.getBundle(bundleKey) : cc.resources;
                 if (bundle) {
+                    if (!bundle.get(url, cc.SpriteFrame)) {
+                        sprite.spriteFrame = null;
+                    }
                     bundle.load(url, cc.SpriteFrame, onComplete);
                 } else {
                     console.error();
@@ -52,9 +55,9 @@ export class Utils {
         return null;
     }
 
-      /**
-     * 返回今天的日期,格式20200101
-     */
+    /**
+   * 返回今天的日期,格式20200101
+   */
     static getToday() {
         let lt10 = v => {
             return v < 10 ? "0" + v : "" + v;
@@ -63,14 +66,14 @@ export class Utils {
         let str = date.getFullYear() + lt10(date.getMonth() + 1) + lt10(date.getDate());
         return parseInt(str);
     }
-    
+
     /**
      * 计算两个日期的天数差 日期格式20200101
      */
     static deltaDay(date1: number, date2: number) {
         let str1 = date1.toString();
         let str2 = date2.toString();
-        if (str1.length == 8 && str2.length==8) {
+        if (str1.length == 8 && str2.length == 8) {
             let d1 = new Date(str1.substr(4, 2) + "/" + str1.substr(6, 2) + "/" + str1.substr(0, 4));
             let d2 = new Date(str2.substr(4, 2) + "/" + str2.substr(6, 2) + "/" + str2.substr(0, 4));
             let days = Math.abs(d1.getTime() - d2.getTime()) / (24 * 60 * 60 * 1000);
@@ -129,6 +132,32 @@ export class Utils {
     }
 
     /**
+     *  修正小数位数
+     * @param fractionDigits 保留小数位数
+     * @param canEndWithZero 是否需要用0填补小数位数 默认为true
+     */
+    static fixFloat(value: number, fractionDigits: number, canEndWithZero = true) {
+        if (fractionDigits < 0) fractionDigits = 0;
+        let str = value.toFixed(fractionDigits);
+        if (canEndWithZero) {
+            return str;
+        } else {
+            while (true) {
+                if (str.length > 1) {
+                    if (str.endsWith("0") || str.endsWith(".")) {
+                        str = str.substring(0, str.length - 1);
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        return str;
+    }
+
+    /**
      * 格式化字符串,用args的内容替换str中的{i},i从0开始
      */
     static formatString(str: string, ...args) {
@@ -139,10 +168,66 @@ export class Utils {
     }
 
     /**
+     * 分帧加载
+     * @param gen 迭代器
+     * @param target 执行分帧加载的组件
+     * @param dt 每帧耗时(毫秒)
+     */
+    static frameLoad<T extends cc.Component>(gen: Generator, target?: T, dt = 8) {
+        let p = new Promise<void>((resolve, reject) => {
+            let execute = () => {
+                let d1 = Date.now();
+                for (let e = gen.next(); ; e = gen.next()) {
+                    if (!e || e.done) {
+                        resolve();
+                        break;
+                    }
+                    if (typeof e.value == "function") {
+                        e.value();
+                    }
+                    let d2 = Date.now();
+                    if (d2 - d1 >= dt) {
+                        if (target) {
+                            target.scheduleOnce(execute);
+                        } else {
+                            new cc.Component().scheduleOnce(execute);
+                        }
+                        break;
+                    }
+                }
+            }
+            execute();
+        });
+        return p;
+    }
+
+    /**
      * 将 AssetBundle load Promise化
      */
     static load(path: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number) => void, bundleKey?: BundleKey): Promise<cc.Asset> {
         let p = new Promise<cc.Asset>((resolve, reject) => {
+            let bundle = bundleKey ? BundleMgr.Inst.getBundle(bundleKey) : cc.resources;
+            if (bundle) {
+                bundle.load(path, type, onProgress, (err, asset) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(asset);
+                    }
+                })
+            } else {
+                console.error();
+                reject(bundleKey + " bundle不存在");
+            }
+        })
+        return p;
+    }
+
+    /**
+     * 将 AssetBundle load Promise化
+     */
+    static loadArray(path: string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number) => void, bundleKey?: BundleKey): Promise<cc.Asset[]> {
+        let p = new Promise<cc.Asset[]>((resolve, reject) => {
             let bundle = bundleKey ? BundleMgr.Inst.getBundle(bundleKey) : cc.resources;
             if (bundle) {
                 bundle.load(path, type, onProgress, (err, asset) => {
@@ -237,5 +322,23 @@ export class Utils {
             })
             return p;
         }
+    }
+
+    static removeItemFromArray<T>(arr: T[], ...item: T[]) {
+        if (item.length > 0) {
+            item.forEach(v => {
+                let index = arr.indexOf(v);
+                if (index > -1) {
+                    arr.splice(index, 1);
+                }
+            })
+        }
+    }
+
+    static genUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
 }

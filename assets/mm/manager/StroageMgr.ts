@@ -2,9 +2,7 @@ import { Utils } from "../utils/Utils";
 
 export abstract class SerializableObject {
     abstract name: string;
-    serialize = () => {
-        this.name = this.name;
-    }
+    serialize: () => void;
 }
 
 /**
@@ -26,6 +24,7 @@ export class StroageMgr {
     public getProxy<T extends SerializableObject>(inst: T): T {
         inst = this.createProxy(inst, inst);
         inst = this.deserialize(inst);
+        inst.serialize = () => { this.serialize(inst) };
         inst.serialize();
         return inst;
     }
@@ -99,7 +98,7 @@ export class StroageMgr {
         obj = new Proxy(obj, {
             set: (target, prop, value, receiver) => {
                 let result = Reflect.set(target, prop, value, receiver);
-                if (result) this.serialize(root);
+                if (result && root.serialize) root.serialize();
                 return result;
             }
         })
