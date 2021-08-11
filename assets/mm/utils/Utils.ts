@@ -131,6 +131,12 @@ export class Utils {
         return value;
     }
 
+    /** 从数组中随机获取一个值 */
+    static randomValue<T>(arr: T[]) {
+        let index = this.randomNum(0, arr.length - 1);
+        return arr[index];
+    }
+
     /**
      *  修正小数位数
      * @param fractionDigits 保留小数位数
@@ -165,6 +171,24 @@ export class Utils {
             str = str.replace(`{${i}}`, v);
         });
         return str;
+    }
+
+    /**
+     * 简单的数字缓动
+     * 从start缓动end
+     */
+    static tweenTo(start: number, end: number, dur: number, onProgress?: (value: number) => void, onEnded?: () => void) {
+        let obj = { x: start };
+        cc.tween(obj)
+            .to(dur, { x: end }, {
+                progress: (start, end, current, ratio) => {
+                    let v = start + (end - start) * ratio;
+                    onProgress && onProgress(v);
+                    return v;
+                }
+            })
+            .call(onEnded)
+            .start();
     }
 
     /**
@@ -288,7 +312,7 @@ export class Utils {
     /**
      * 下载文件  原生平台下载文件到本地 浏览器加载资源
      * @param url 文件下载链接
-     * @param onFileProgress 文件下载进度回调(原生平台同一url仅第一次传入的回调有效)
+     * @param onFileProgress 文件下载进度回调
      */
     static download(url: string, onFileProgress?: (loaded: number, total: number) => void) {
         if (cc.sys.isBrowser) {
@@ -324,7 +348,7 @@ export class Utils {
         }
     }
 
-    static removeItemFromArray<T>(arr: T[], ...item: T[]) {
+    static delItemFromArray<T>(arr: T[], ...item: T[]) {
         if (item.length > 0) {
             item.forEach(v => {
                 let index = arr.indexOf(v);
