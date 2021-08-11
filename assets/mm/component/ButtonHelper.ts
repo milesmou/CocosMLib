@@ -1,9 +1,11 @@
 import { app } from "../App";
 
-const { ccclass, property, requireComponent } = cc._decorator;
+const { ccclass, property, requireComponent,menu,disallowMultiple } = cc._decorator;
 
 @ccclass
+@menu("MM/ButtonHelper")
 @requireComponent(cc.Button)
+@disallowMultiple
 export default class ButtonHelper extends cc.Component {
     @property({
         displayName: "默认音效",
@@ -37,7 +39,7 @@ export default class ButtonHelper extends cc.Component {
     @property({
         displayName: "长按时长",
         tooltip: "按压多长时间判断为长按(单位:秒)",
-        range: [0.1, 10],
+        range: [0.2, 10],
         slide: true,
         visible: function () { return this.longPress }
     })
@@ -92,7 +94,7 @@ export default class ButtonHelper extends cc.Component {
             if (this.button["pressDur"] > this.button["longPressDur"]) {//长按
                 this.button["isPressing"] = false;
                 if (this.button["defaultEffect"]) {//默认音效
-                    app.audio.playEffect(app.audioKey.E_CLICK);
+                    // app.audio.playEffect(app.audioKey.E_CLICK);
                 }
                 cc.Component.EventHandler.emitEvents(this.button["longPressEvents"], this.button["longPressEvt"]);
                 this.node.emit('longPress', this);
@@ -132,7 +134,7 @@ export default class ButtonHelper extends cc.Component {
             if (!this.interactable || !this.enabledInHierarchy) return;
             if (this._pressed) {
                 if (this.defaultEffect) {//默认音效
-                    app.audio.playEffect(app.audioKey.E_CLICK);
+                    // app.audio.playEffect(app.audioKey.E_CLICK);
                 }
                 if (!this.isCooldown) {
                     if (!this.polygonButton || (this.polygonButton && this.inPolygonArea)) {

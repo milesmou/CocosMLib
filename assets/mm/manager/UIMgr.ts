@@ -61,10 +61,8 @@ export default class UIMgr extends cc.Component {
         this.shade.opacity = 0;
 
         //添加上层ui
-        this.guide = await this.initUI(UIKey.UIGuide) as UIGUide;
-        this.guide.node.parent = this.higher;
-        this.tipMsg = await this.initUI(UIKey.UITipMsg) as UITipMsg;
-        this.tipMsg.node.parent = this.higher;
+        this.guide = await this.showHigher(UIKey.UIGuide) as UIGUide;
+        this.tipMsg = await this.showHigher(UIKey.UITipMsg) as UITipMsg;
     }
 
 
@@ -76,12 +74,12 @@ export default class UIMgr extends cc.Component {
         ui.setArgs(obj?.args);
         if (obj?.preload) {//预加载在最下层
             ui.setVisible(false);
-            ui.node.zIndex = this.botUI?.node.zIndex < 0 ? this.botUI.node.zIndex - 2 : -10;
+            ui.node.zIndex = this.botUI?.node?.zIndex < 0 ? this.botUI.node.zIndex - 2 : -10;
             ui.node.parent = this.normal;
             this.uiStack.unshift(ui);
         } else {//展示在最上层
             ui.setVisible(true);
-            ui.node.zIndex = this.topUI?.node.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
+            ui.node.zIndex = this.topUI?.node?.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
             ui.node.parent = this.normal;
             this.uiStack.push(ui);
             this.setShade();
@@ -114,6 +112,22 @@ export default class UIMgr extends cc.Component {
             } else {
                 ui.node.parent = null;
             }
+        }
+    }
+
+    public async showHigher<T extends UIBase>(name: UIKey) {
+        let ui = await this.initUI(name);
+        ui.node.parent = this.higher;
+        return ui;
+    }
+
+    public hideHigher(name: UIKey) {
+        let ui = this.uiDict[name];
+        if (ui.destroyNode) {
+            ui.node.destroy();
+            this.uiDict[name] = undefined;
+        } else {
+            ui.node.parent = null;
         }
     }
 
@@ -152,6 +166,25 @@ export default class UIMgr extends cc.Component {
 
     public isTopUI(name: UIKey) {
         return this.topUI == this.uiDict[name];
+    }
+
+    /** UI是否被其它全屏UI覆盖 */
+    public isUIBeCover(name?: UIKey) {
+        if (name === undefined) {//非UI,在UI下层
+            for (const ui of this.uiStack) {
+                if (ui.isFullScreen) return true;
+            }
+        } else {
+            let ui = this.uiDict[name];
+            let index = this.uiStack.indexOf(ui);
+            if (index > -1) {
+                for (let i = index + 1; i < this.uiStack.length; i++) {
+                    const element = this.uiStack[i];
+                    if (ui.isFullScreen) return true;
+                }
+            }
+        }
+        return false;
     }
 
     public getUI<T extends UIBase>(name: UIKey) {

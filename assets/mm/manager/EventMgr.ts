@@ -13,9 +13,6 @@ export enum EventKey {
 /** 全局事件管理工具 */
 export class EventMgr {
 
-    /** 事件枚举 */
-    public key = Event;
-
     private eventMap: Map<string | number, { callback: Function, thisObj?: object, once?: boolean }[]> = new Map();
 
     /** 为事件注册一个回调,重复注册只保留第一次的事件 */
@@ -61,6 +58,7 @@ export class EventMgr {
     public emit(name: number | string, ...args) {
         let events = this.eventMap.get(name);
         if (events && events.length > 0) {
+            events = events.concat();//避免Callback影响events的长度,出现bug
             let toDelArr: number[] = [];
             events.forEach((v, i) => {
                 let { callback, thisObj, once } = v;

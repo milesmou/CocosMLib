@@ -24,10 +24,10 @@ export default class UIBase extends cc.Component {
     })
     showShade = false;
     @property({
-        displayName: "是否弹窗",
-        tooltip: "有时需要根据是否是弹窗还是全屏UI来判断是否执行UI动画"
+        displayName: "全屏",
+        tooltip: "有时需要根据是弹窗还是全屏UI来判断是否执行UI动画"
     })
-    popUp = false;
+    isFullScreen = false;
     @property({
         displayName: "阻塞输入事件",
         tooltip: "是否阻塞所有的输入事件向下层传递"
