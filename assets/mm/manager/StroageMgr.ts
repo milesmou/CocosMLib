@@ -19,7 +19,7 @@ export class StroageMgr {
      * 
      * 使用name字段作为对象缓存的key 请确保和其它对象不重复
      * 
-     * 注意:使用字典({})或数组([])存储数据,非直接操作集合而是修改内部对象数据时,请手动调用serialize方法
+     * 注意:使用字典({})或数组([])存储数据,非直接操作集合而是修改其内部对象数据时,请手动调用serialize方法
      */
     public getProxy<T extends SerializableObject>(inst: T): T {
         inst = this.createProxy(inst, inst);
@@ -42,18 +42,20 @@ export class StroageMgr {
         let jsonStr = this.getValue(name, "");
         if (jsonStr) {
             try {
-                let obj = JSON.parse(jsonStr);
+                let obj = JSON.parse(jsonStr) || {};
                 for (const key in obj) {
                     if (Reflect.has(inst, key)) {
                         if (key.endsWith(this.dayresetSuffix) && today > obj[this.lastResetDateKey]) {
                             continue;//使用默认值
                         } else {
                             if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {//对象拷贝
-                                if (JSON.stringify(inst[key]) === "{}") {//使用字典存储,直接完整赋值
-                                    inst[key] = obj[key];
+                                if (JSON.stringify(inst[key]) === "{}") {//使用字典存储,完整赋值
+                                    Object.assign(inst[key], obj[key]);
                                 } else {
-                                    inst[key] = this.mergeValue(inst[key], obj[key]);
+                                    this.mergeValue(inst[key], obj[key]);//递归赋值
                                 }
+                            } else if (inst[key] instanceof Array) {//使用数组存储,完整赋值
+                                inst[key].push(...obj[key]);
                             } else {
                                 inst[key] = obj[key];//赋值一级字段
                             }
@@ -81,7 +83,6 @@ export class StroageMgr {
                 }
             }
         }
-        return target;
     }
 
     /** 递归为对象及其内部的对象创建代理 */
