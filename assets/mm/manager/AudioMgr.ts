@@ -72,8 +72,8 @@ export class AudioMgr {
      * @param fadeIn 当前音乐渐入时间
      * @param fadeOut 上一个音乐渐出时间
      */
-    playMusic(audio: string, params?: { isMainMusic?: boolean, mode?: "Replace" | "Additive", fadeIn?: number, fadeOut?: number }) {
-        let { isMainMusic, mode, fadeIn, fadeOut } = params || {};
+    playMusic(audio: string, params?: { isMainMusic?: boolean, mode?: "Replace" | "Additive", fadeIn?: number, fadeOut?: number, onStart?: (audioId: number) => void }) {
+        let { isMainMusic, mode, fadeIn, fadeOut, onStart } = params || {};
         isMainMusic = isMainMusic !== undefined ? isMainMusic : false;
         mode = mode || "Replace";
         fadeIn = fadeIn || 0;
@@ -111,16 +111,18 @@ export class AudioMgr {
                 console.log(err);
                 return;
             }
+            let audioId = -1;
             if (fadeIn > 0) {
-                this.music.push(cc.audioEngine.play(clip, true, this.mVolume));
+                audioId = cc.audioEngine.play(clip, true, this.mVolume);
             } else {
-                let audioId = cc.audioEngine.play(clip, true, 0);
-                this.music.push(audioId);
+                audioId = cc.audioEngine.play(clip, true, 0);
                 Utils.tweenTo(0, this.mVolume, fadeOut,
                     (v) => {
                         cc.audioEngine.setVolume(audioId, v);
                     });
             }
+            this.music.push(audioId);
+            onStart && onStart(audioId);
         });
     }
 

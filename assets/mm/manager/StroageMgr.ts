@@ -49,12 +49,13 @@ export class StroageMgr {
                             continue;//使用默认值
                         } else {
                             if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {//对象拷贝
-                                if (JSON.stringify(inst[key]) === "{}") {//使用字典存储,完整赋值
+                                if (JSON.stringify(inst[key]) === "{}") {//使用空字典存储,完整赋值
                                     Object.assign(inst[key], obj[key]);
                                 } else {
                                     this.mergeValue(inst[key], obj[key]);//递归赋值
                                 }
-                            } else if (inst[key] instanceof Array) {//使用数组存储,完整赋值
+                            } else if (inst[key] instanceof Array) {//使用数组存储,置空后完整赋值
+                                inst[key].length = 0;
                                 inst[key].push(...obj[key]);
                             } else {
                                 inst[key] = obj[key];//赋值一级字段
