@@ -85,7 +85,7 @@ export default class UIMgr extends cc.Component {
             this.setShade();
             ui.onShowBegin();
             app.event.emit(app.eventKey.OnUIShowBegin, ui);
-            await ui.showAction();
+            await ui.playShowAnim();
             ui.onShow();
             this.cooldown = false;
             app.event.emit(app.eventKey.OnUIShow, ui);
@@ -102,7 +102,7 @@ export default class UIMgr extends cc.Component {
             if (index == this.uiStack.length) {
                 ui.onHideBegin();
                 app.event.emit(app.eventKey.OnUIHideBegin, ui);
-                await ui.hideAction();
+                await ui.playHideAnim();
                 ui.onHide();
                 app.event.emit(app.eventKey.OnUIHide, ui);
             }

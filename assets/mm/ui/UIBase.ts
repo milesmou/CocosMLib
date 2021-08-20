@@ -1,5 +1,4 @@
 import { app } from "../App";
-import { Utils } from "../utils/Utils";
 
 const { property, ccclass } = cc._decorator;
 
@@ -25,9 +24,14 @@ export default class UIBase extends cc.Component {
     showShade = false;
     @property({
         displayName: "全屏",
-        tooltip: "有时需要根据是弹窗还是全屏UI来判断是否执行UI动画"
+        tooltip: "有时需要根据是弹窗还是全屏UI来判断是否执行UI动画或者隐藏下层UI"
     })
     isFullScreen = false;
+    @property({
+        displayName: "自动隐藏",
+        tooltip: "被全屏UI覆盖时,是否将透明度设置为0,降低DC"
+    })
+    autoHide = false;
     @property({
         displayName: "阻塞输入事件",
         tooltip: "是否阻塞所有的输入事件向下层传递"
@@ -56,9 +60,10 @@ export default class UIBase extends cc.Component {
         this.uiName = name;
         this.node.setContentSize(cc.winSize);
         this.initBlock();
-        this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
+        this.autoHide && this.enableAutoHide();
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
-        this.animation = Utils.getComponentInChildren(this.node, cc.Animation);
+        this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
+        this.animation = this.getComponent(cc.Animation);
     }
 
     /** 初始化一个遮罩 在UI执行动画时 拦截用户操作 */
@@ -83,10 +88,6 @@ export default class UIBase extends cc.Component {
         }
     }
 
-    setPosition(pos: cc.Vec3) {
-        this.node.position = pos;
-    }
-
     setOpacity(value: number) {
         this.node.opacity = value;
     }
@@ -95,7 +96,21 @@ export default class UIBase extends cc.Component {
         this.node.active = value;
     }
 
-    showAction() {
+    /** 被全屏UI挡住时 将地图透明度设置为0 降低dc */
+    enableAutoHide() {
+        app.event.on(app.eventKey.OnUIShow, (ui: UIBase) => {
+            if (ui.isFullScreen) {
+                this.node.opacity = 0;
+            }
+        })
+        app.event.on(app.eventKey.OnUIHideBegin, () => {
+            if (!app.ui.isUIBeCover()) {
+                this.node.opacity = 255;
+            }
+        })
+    }
+
+    playShowAnim() {
         let bAction = Boolean(this.action & EAction.OPEN);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
@@ -127,12 +142,7 @@ export default class UIBase extends cc.Component {
         return p;
     }
 
-    /** 关闭UI时调用此方法 */
-    safeClose() {
-        app.ui.hide(this.uiName);
-    }
-
-    hideAction() {
+    playHideAnim() {
         let bAction = Boolean(this.action & EAction.CLOSE);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
@@ -161,6 +171,11 @@ export default class UIBase extends cc.Component {
             }
         });
         return p;
+    }
+
+    /** 关闭UI时调用此方法 */
+    safeClose() {
+        app.ui.hide(this.uiName);
     }
 
     /** UI准备打开时触发 (UI打开动画播放前) */
