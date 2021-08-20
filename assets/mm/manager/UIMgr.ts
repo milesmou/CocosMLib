@@ -118,7 +118,7 @@ export default class UIMgr extends cc.Component {
     public async showHigher<T extends UIBase>(name: UIKey) {
         let ui = await this.initUI(name);
         ui.node.parent = this.higher;
-        return ui;
+        return ui as T;
     }
 
     public hideHigher(name: UIKey) {
@@ -169,13 +169,12 @@ export default class UIMgr extends cc.Component {
     }
 
     /** UI是否被其它全屏UI覆盖 */
-    public isUIBeCover(name?: UIKey) {
-        if (name === undefined) {//非UI,在UI下层
+    public isUIBeCover(ui?: UIBase) {
+        if (ui === undefined) {//非UI,在UI下层
             for (const ui of this.uiStack) {
                 if (ui.isFullScreen) return true;
             }
         } else {
-            let ui = this.uiDict[name];
             let index = this.uiStack.indexOf(ui);
             if (index > -1) {
                 for (let i = index + 1; i < this.uiStack.length; i++) {
