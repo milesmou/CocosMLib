@@ -1,8 +1,22 @@
 import { Utils } from "../utils/Utils";
 
 export abstract class SerializableObject {
-    abstract name: string;
-    serialize: () => void;
+    public abstract name: string;
+    private readySave = false;
+    /** 立即存档 */
+    save() {
+        StroageMgr.serialize(this);
+    }
+    /** 延迟存档 */
+    delaySave() {
+        if (!this.readySave) {
+            this.readySave = true;
+            cc.tween({}).delay(0.01).call(() => {
+                this.readySave = false;
+                this.save();
+            }).start();
+        }
+    };
 }
 
 /**
@@ -10,33 +24,11 @@ export abstract class SerializableObject {
  */
 export class StroageMgr {
 
-    private prefix = "GameName_";
-    private lastResetDateKey = "lastResetDate";
-    private dayresetSuffix = "_dayreset";//代理对象中变量名以此结尾的一级字段会被每日重置
+    private static lastResetDateKey = "lastResetDate";
+    private static dayresetSuffix = "_dayreset";//代理对象中变量名以此结尾的一级字段会被每日重置
 
-    /** 
-     * 为对象创建一个代理对象 修改属性值时自动缓存数据到本地
-     * 
-     * 使用name字段作为对象缓存的key 请确保和其它对象不重复
-     * 
-     * 注意:使用字典({})或数组([])存储数据,非直接操作集合而是修改其内部对象数据时,请手动调用serialize方法
-     */
-    public getProxy<T extends SerializableObject>(inst: T): T {
-        inst = this.createProxy(inst, inst);
-        inst = this.deserialize(inst);
-        inst.serialize = () => { this.serialize(inst) };
-        inst.serialize();
-        return inst;
-    }
-
-    private serialize<T extends SerializableObject>(inst: T) {
-        let name = inst.name;
-        let jsonStr = JSON.stringify(inst);
-        this.setValue(name, jsonStr);
-        return jsonStr;
-    }
-
-    private deserialize<T extends SerializableObject>(inst: T): T {
+    /** 从本地缓存读取存档 */
+    public static deserialize<T extends SerializableObject>(inst: T): T {
         let today = Utils.getToday();
         let name = inst.name;
         let jsonStr = this.getValue(name, "");
@@ -68,11 +60,21 @@ export class StroageMgr {
             }
         }
         inst[this.lastResetDateKey] = today;
+        Reflect.defineProperty(inst, "name", { enumerable: false });
+        Reflect.defineProperty(inst, "readySave", { enumerable: false });
         return inst;
     }
 
+    /** 将数据写入到本地存档中 */
+    public static serialize<T extends SerializableObject>(inst: T) {
+        let name = inst.name;
+        let jsonStr = JSON.stringify(inst);
+        this.setValue(name, jsonStr);
+        return jsonStr;
+    }
+
     /** 递归合并target和source中的值,使用source中的值覆盖target中的值,忽略target中没有的属性 */
-    private mergeValue(target: object, source: object) {
+    private static mergeValue(target: object, source: object) {
         for (const key in target) {
             if (Reflect.has(target, key) && Reflect.has(source, key)) {
                 if (typeof target[key] !== typeof source[key]) continue;
@@ -86,27 +88,6 @@ export class StroageMgr {
         }
     }
 
-    /** 递归为对象及其内部的对象创建代理 */
-    private createProxy<T extends SerializableObject>(obj: T, root: T): T {
-        if (Object.prototype.toString.call(obj) === "[object Object]") {
-            for (const key in obj) {
-                if (Reflect.has(obj, key)) {
-                    if (obj[key] && typeof obj[key] === "object") {
-                        obj[key] = this.createProxy(obj[key] as any, root);
-                    }
-                }
-            }
-        }
-        obj = new Proxy(obj, {
-            set: (target, prop, value, receiver) => {
-                let result = Reflect.set(target, prop, value, receiver);
-                if (result && root.serialize) root.serialize();
-                return result;
-            }
-        })
-        return obj;
-    }
-
     /* 手动存储数据 */
 
     /**
@@ -114,14 +95,13 @@ export class StroageMgr {
      * @param stroageKey StroageKey键枚举
      * @param defaultV 默认值
      */
-    public getValue<T>(stroageKey: string, defaultV: T): T {
-        let key = this.prefix + stroageKey;
-        let value = cc.sys.localStorage.getItem(key);
+    public static getValue<T>(stroageKey: string, defaultV: T): T {
+        let value = cc.sys.localStorage.getItem(stroageKey);
         if (!value) return defaultV;
         if (typeof defaultV === "number") {
             let v = parseFloat(value);
             if (isNaN(v)) {
-                console.error(key, ": 转化为数字类型错误 ", value);
+                console.error(stroageKey, ": 转化为数字类型错误 ", value);
                 value = defaultV;
             } else {
                 value = v;
@@ -134,7 +114,7 @@ export class StroageMgr {
             try {
                 value = JSON.parse(value);
             } catch (err) {
-                console.error(key, ": 转化对象类型错误 ", value);
+                console.error(stroageKey, ": 转化对象类型错误 ", value);
                 value = defaultV;
             }
         }
@@ -144,11 +124,12 @@ export class StroageMgr {
     /**
      * 设置本地存储值
      */
-    public setValue(stroageKey: string, value: any) {
-        let key = this.prefix + stroageKey;
+    public static setValue(stroageKey: string, value: any) {
         if (typeof value === "object") {
             value = JSON.stringify(value);
         }
-        cc.sys.localStorage.setItem(key, String(value));
+        cc.sys.localStorage.setItem(stroageKey, String(value));
     }
 }
+
+

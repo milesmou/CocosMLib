@@ -39,7 +39,7 @@ export default class App extends cc.Component {
     public static platform: IPlatform;
     public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
     //manager
-    public static stroage: StroageMgr;
+    public static stroage = StroageMgr;
     public static audio: AudioMgr;
     public static audioKey = AudioKey;
     public static event: EventMgr;
@@ -51,7 +51,6 @@ export default class App extends cc.Component {
 
 
     onLoad() {
-        app.stroage = new StroageMgr();
         app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
