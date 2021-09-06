@@ -2,7 +2,14 @@ import { Utils } from "../utils/Utils";
 
 export abstract class SerializableObject {
     public abstract name: string;
+
+    /** 字段会被每日重置,即使用默认值 */
+    public dayreset: { [key: string]: any };
+    /** 上一次重置dayreset字段日期 */
+    public lastResetDate: number;
+    /** 准备延迟存档,忽略其它存档请求 */
     private readySave = false;
+
     /** 立即存档 */
     save() {
         StroageMgr.serialize(this);
@@ -24,9 +31,6 @@ export abstract class SerializableObject {
  */
 export class StroageMgr {
 
-    private static lastResetDateKey = "lastResetDate";
-    private static dayresetKey = "dayreset";//对象中变量名为此的一级字段会被每日重置,即使用默认值
-
     /** 从本地缓存读取存档 */
     public static deserialize<T extends SerializableObject>(inst: T): T {
         Reflect.defineProperty(inst, "name", { enumerable: false });
@@ -39,7 +43,7 @@ export class StroageMgr {
                 let obj = JSON.parse(jsonStr);
                 for (const key in obj) {
                     if (Reflect.has(inst, key)) {
-                        if (key == this.dayresetKey && today > obj[this.lastResetDateKey]) {
+                        if (key == "dayreset" && today > obj["lastResetDate"]) {
                             continue;//使用默认值
                         } else {
                             if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {//对象拷贝
@@ -58,7 +62,7 @@ export class StroageMgr {
                 console.error(err);
             }
         }
-        inst[this.lastResetDateKey] = today;
+        inst.lastResetDate = today;
         return inst;
     }
 
@@ -126,5 +130,3 @@ export class StroageMgr {
         cc.sys.localStorage.setItem(stroageKey, String(value));
     }
 }
-
-
