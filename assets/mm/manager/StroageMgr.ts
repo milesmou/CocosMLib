@@ -25,32 +25,31 @@ export abstract class SerializableObject {
 export class StroageMgr {
 
     private static lastResetDateKey = "lastResetDate";
-    private static dayresetSuffix = "_dayreset";//代理对象中变量名以此结尾的一级字段会被每日重置
+    private static dayresetKey = "dayreset";//对象中变量名为此的一级字段会被每日重置,即使用默认值
 
     /** 从本地缓存读取存档 */
     public static deserialize<T extends SerializableObject>(inst: T): T {
+        Reflect.defineProperty(inst, "name", { enumerable: false });
+        Reflect.defineProperty(inst, "readySave", { enumerable: false });
         let today = Utils.getToday();
         let name = inst.name;
         let jsonStr = this.getValue(name, "");
         if (jsonStr) {
             try {
-                let obj = JSON.parse(jsonStr) || {};
+                let obj = JSON.parse(jsonStr);
                 for (const key in obj) {
                     if (Reflect.has(inst, key)) {
-                        if (key.endsWith(this.dayresetSuffix) && today > obj[this.lastResetDateKey]) {
+                        if (key == this.dayresetKey && today > obj[this.lastResetDateKey]) {
                             continue;//使用默认值
                         } else {
                             if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {//对象拷贝
                                 if (JSON.stringify(inst[key]) === "{}") {//使用空字典存储,完整赋值
-                                    Object.assign(inst[key], obj[key]);
-                                } else {
-                                    this.mergeValue(inst[key], obj[key]);//递归赋值
+                                    inst[key] = obj[key];
+                                } else {//递归赋值
+                                    this.mergeValue(inst[key], obj[key]);
                                 }
-                            } else if (inst[key] instanceof Array) {//使用数组存储,置空后完整赋值
-                                inst[key].length = 0;
-                                inst[key].push(...obj[key]);
-                            } else {
-                                inst[key] = obj[key];//赋值一级字段
+                            } else {//直接完整赋值
+                                inst[key] = obj[key];
                             }
                         }
                     }
@@ -60,8 +59,6 @@ export class StroageMgr {
             }
         }
         inst[this.lastResetDateKey] = today;
-        Reflect.defineProperty(inst, "name", { enumerable: false });
-        Reflect.defineProperty(inst, "readySave", { enumerable: false });
         return inst;
     }
 
@@ -87,8 +84,6 @@ export class StroageMgr {
             }
         }
     }
-
-    /* 手动存储数据 */
 
     /**
      * 从本地存储中获取缓存的值
