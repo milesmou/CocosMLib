@@ -177,7 +177,7 @@ export class Utils {
      * 简单的数字缓动
      * 从start缓动end
      */
-    static tweenTo(start: number, end: number, dur: number, onProgress?: (value: number) => void, onEnded?: () => void) {
+    static tweenTo(start: number, end: number, dur: number, onProgress?: (value: number) => void, onEnd?: () => void) {
         let obj = { x: start };
         cc.tween(obj)
             .to(dur, { x: end }, {
@@ -187,8 +187,58 @@ export class Utils {
                     return v;
                 }
             })
-            .call(onEnded)
+            .call(onEnd)
             .start();
+    }
+
+    /** 分帧加载一个列表 默认以content的第一个子节点为模版 否则需要传入instFunc,返回一个item节点
+     * @param params 对content下多余的item的处理 type:1=隐藏(默认) 2=销毁 3=手动回收(需传入recycleFunc进行回收)
+     */
+    static loadItemList<T>(dataList: T[], content: cc.Node, execute: (data: T, item: cc.Node) => void, params?: { type?: 1 | 2 | 3, instFunc?: () => cc.Node, recycleFunc?: (item: cc.Node) => void, onComplete?: () => void }) {
+        if (!content) return;
+        if (content.childrenCount == 0 && !params?.instFunc) {
+            console.error("Content下无默认子节点且没有传入instFunc");
+            return;
+        }
+        dataList = dataList || [];
+        if (content.childrenCount > dataList.length) {
+            let toDeal = content.children.slice(dataList.length);
+            let { type, recycleFunc } = params || {};
+            type = type || 1;
+            if (type == 1 || type == 2 || (type == 3 && recycleFunc)) {
+                toDeal.forEach(v => {
+                    if (type == 1) {
+                        v.active = false;
+                    } else if (type == 2) {
+                        v.destroy();
+                    } else {
+                        recycleFunc(v);
+                    }
+                })
+            }
+        }
+        let gen = function* () {
+            for (let i = 0; i < dataList.length; i++) {
+                const v = dataList[i];
+                let func = () => {
+                    let itemNode = content.children[i];
+                    if (!itemNode) {
+                        if (params?.instFunc) {
+                            itemNode = params.instFunc();
+                        } else {
+                            itemNode = cc.instantiate(content.children[0]);
+                        }
+                        itemNode.parent = content;
+                    }
+                    itemNode.active = true;
+                    execute && execute(v, itemNode);
+                }
+                yield func;
+            }
+        }();
+        this.frameLoad(gen).then(() => {
+            params?.onComplete && params.onComplete();
+        });
     }
 
     /**
@@ -197,7 +247,7 @@ export class Utils {
      * @param target 执行分帧加载的组件
      * @param dt 每帧耗时(毫秒)
      */
-    static frameLoad<T extends cc.Component>(gen: Generator, target?: T, dt = 8) {
+    static frameLoad(gen: Generator, dt = 6) {
         let p = new Promise<void>((resolve, reject) => {
             let execute = () => {
                 let d1 = Date.now();
@@ -211,11 +261,7 @@ export class Utils {
                     }
                     let d2 = Date.now();
                     if (d2 - d1 >= dt) {
-                        if (target) {
-                            target.scheduleOnce(execute);
-                        } else {
-                            new cc.Component().scheduleOnce(execute);
-                        }
+                        new cc.Component().scheduleOnce(execute);
                         break;
                     }
                 }
@@ -357,6 +403,17 @@ export class Utils {
                 }
             })
         }
+    }
+
+    /** 统计元素在数组中出现次数 */
+    static countValueTimes<T>(arr: T[], value: T, predicate: (value: T) => boolean) {
+        let times = 0;
+        arr.forEach(v => {
+            if (predicate(v)) {
+                times++;
+            }
+        })
+        return times;
     }
 
     static genUUID() {

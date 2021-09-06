@@ -8,6 +8,7 @@ export enum AudioKey {
     E_CLICK = "btn",
 }
 
+
 /** 音频管理工具类 */
 export class AudioMgr {
 
@@ -25,44 +26,10 @@ export class AudioMgr {
     private effect: number[] = [];
 
     constructor() {
-        cc.game.on(cc.game.EVENT_SHOW, this.onShow, this);
-        cc.game.on(cc.game.EVENT_HIDE, this.onHide, this);
         let mVolume = parseFloat(cc.sys.localStorage.getItem(this.sMusicVolume));
         this.mVolume = !isNaN(mVolume) ? mVolume : 1;
         let eVolume = parseFloat(cc.sys.localStorage.getItem(this.sEffectVolume));
         this.eVolume = !isNaN(eVolume) ? eVolume : 1;
-    }
-
-    onShow() {
-        if (this.music.length > 0) {
-            let audioId = this.music[this.music.length - 1];
-            if (cc.audioEngine.getState(audioId) == cc.audioEngine.AudioState.PAUSED) {
-                cc.audioEngine.resume(audioId);
-            }
-        }
-        if (this.effect.length > 0) {
-            this.effect.forEach(v => {
-                if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PAUSED) {
-                    cc.audioEngine.resume(v);
-                }
-            });
-        }
-    }
-
-    onHide() {
-        if (this.music.length > 0) {
-            let audioId = this.music[this.music.length - 1];
-            if (cc.audioEngine.getState(audioId) == cc.audioEngine.AudioState.PLAYING) {
-                cc.audioEngine.pause(audioId);
-            }
-        }
-        if (this.effect.length > 0) {
-            this.effect.forEach(v => {
-                if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PLAYING) {
-                    cc.audioEngine.pause(v);
-                }
-            });
-        }
     }
 
     /** 
