@@ -1,7 +1,7 @@
 import { app } from "../App";
 import { Utils } from "../utils/Utils";
 
-const { ccclass, property } = cc._decorator;
+const { ccclass, property, requireComponent, menu } = cc._decorator;
 
 const EMode = cc.Enum({
     ID: 0,
@@ -41,6 +41,7 @@ class LangConfig {
 }
 
 @ccclass
+@menu("MM/Language")
 export default class Language extends cc.Component {
     @property({
         type: EMode,
@@ -59,7 +60,7 @@ export default class Language extends cc.Component {
                     || this.getComponent(cc.RichText));
         }
     })
-    ID = 0;
+    ID = "0";
     @property({
         tooltip: "不同语言的文本和字体",
         type: LangConfig,
@@ -137,8 +138,8 @@ export default class Language extends cc.Component {
     }
 
     static list: Language[] = [];
-    static dict: { [ID: number]: any } = null;
-    static init(dict: { [ID: number]: any }) {
+    static dict: { [key: string]: { [ID: string]: { text: string, font: string } } } = null;
+    static init(dict: {}) {
         this.dict = this.dict || dict;
     }
 
@@ -148,7 +149,7 @@ export default class Language extends cc.Component {
         });
     }
 
-    static setStringByID(label: cc.Label | cc.RichText, ID: number, ...args) {
+    static setStringByID(label: cc.Label | cc.RichText, ID: string, ...args) {
         label.useSystemFont && this.setFontByID(label, ID);
         label.string = this.getStringByID(ID, ...args) || label.string;
     }
@@ -157,28 +158,45 @@ export default class Language extends cc.Component {
         Utils.loadPicture(sprite, `language/${app.lang}/${name}`);
     }
 
-    static getStringByID(ID: number, ...args): string {
+    static getStringByID(ID: string, ...args): string {
+        if (isNaN(parseInt(ID))) return ID;
         if (!this.dict) {
             console.warn(`未初始化语言表`);
             return;
         };
-        if (!this.dict[ID] || !this.dict[ID][app.lang]) {
+        let value: { text: string, font: string } = null;
+        for (const key in this.dict) {
+            const v = this.dict[key];
+            if (v[ID]) {
+                value = v[ID];
+                break;
+            }
+        }
+        if (!value) {
             console.warn(`ID=${ID} Lang=${app.lang}  在语言表中无对应内容`);
             return;
         }
-        return Utils.formatString(this.dict[ID][app.lang], ...args);
+        return Utils.formatString(value.text, ...args);
     }
 
-    static setFontByID(label: cc.Label | cc.RichText, ID: number) {
+    static setFontByID(label: cc.Label | cc.RichText, ID: string) {
         if (!this.dict) {
             console.warn(`未初始化语言表`);
             return;
         }
-        if (!this.dict[ID]) {
-            console.warn(`ID=${ID} Lang=${app.lang} 语言表中无对应内容`);
+        let value: { text: string, font: string } = null;
+        for (const key in this.dict) {
+            const v = this.dict[key];
+            if (v[ID]) {
+                value = v[ID];
+                break;
+            }
+        }
+        if (!value) {
+            console.warn(`ID=${ID} Lang=${app.lang}  在语言表中无对应内容`);
             return;
         }
-        let fontName = this.dict[ID][app.lang + "_font"];
+        let fontName = value.font;
         if (!fontName) {
             label.font == null;
         } else {
