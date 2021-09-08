@@ -38,6 +38,13 @@ export default class UIBase extends cc.Component {
     })
     listenBack = false;
     @property({
+        type: cc.Integer,
+        displayName: "返回动画延迟",
+        tooltip: "回到当前界面(onShowBegin)时,延迟多久播放UI的打开动画(小于0表示不播放动画)",
+        visible: function () { return this.listenBack && (this.action & EAction.OPEN) != 0 }
+    })
+    backAnimDur = -1;
+    @property({
         displayName: "阻塞输入事件",
         tooltip: "是否阻塞所有的输入事件向下层传递"
     })
@@ -134,6 +141,11 @@ export default class UIBase extends cc.Component {
                 return;
             }
             if (app.ui.isTopUI(this.uiName)) {
+                if (this.backAnimDur > 0 && (this.action & EAction.OPEN) != 0) {
+                    this.scheduleOnce(() => {
+                        this.playShowAnim();
+                    }, this.backAnimDur)
+                }
                 this.onShowBegin();
             }
         }
