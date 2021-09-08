@@ -164,8 +164,15 @@ export default class UIMgr extends cc.Component {
         return p;
     }
 
-    public isTopUI(name: UIKey) {
+    public isTopUI(name: UIKey | string) {
         return this.topUI == this.uiDict[name];
+    }
+
+    public getUI<T extends UIBase>(name: UIKey | string) {
+        let ui = this.uiDict[name];
+        if (ui && ui.isValid) {
+            return ui as T;
+        }
     }
 
     /** UI是否被其它全屏UI覆盖 */
@@ -184,13 +191,6 @@ export default class UIMgr extends cc.Component {
             }
         }
         return false;
-    }
-
-    public getUI<T extends UIBase>(name: UIKey) {
-        let ui = this.uiDict[name];
-        if (ui && ui.isValid) {
-            return ui as T;
-        }
     }
 
     private setShade() {

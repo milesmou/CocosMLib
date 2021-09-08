@@ -33,6 +33,11 @@ export default class UIBase extends cc.Component {
     })
     autoHide = false;
     @property({
+        displayName: "监听返回",
+        tooltip: "监听回到当前界面,当关闭它的上层UI界面回到此界面时,会触发onShowBegin、onShow方法"
+    })
+    listenBack = false;
+    @property({
         displayName: "阻塞输入事件",
         tooltip: "是否阻塞所有的输入事件向下层传递"
     })
@@ -56,11 +61,12 @@ export default class UIBase extends cc.Component {
     protected args: any = null;
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
-    init(name: string) {
-        this.uiName = name;
+    init(uiName: string) {
+        this.uiName = uiName;
         this.node.setContentSize(cc.winSize);
         this.initBlock();
         this.autoHide && this.enableAutoHide();
+        this.listenBack && this.enableListenBack();
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.animation = this.getComponent(cc.Animation);
@@ -96,19 +102,54 @@ export default class UIBase extends cc.Component {
         this.node.active = value;
     }
 
-    /** 被全屏UI挡住时 将地图透明度设置为0 降低dc */
+    /** 被全屏UI挡住时 将UI透明度设置为0 降低dc */
     enableAutoHide() {
-        app.event.on(app.eventKey.OnUIShow, (ui: UIBase) => {
-            if (ui.isFullScreen) {
+        let onUIShow = (ui: UIBase) => {
+            if (!this?.isValid) {
+                app.event.off(app.eventKey.OnUIShow, onUIShow)
+                return;
+            }
+            if (ui != this && ui.isFullScreen) {
                 this.node.opacity = 0;
             }
-        })
-        app.event.on(app.eventKey.OnUIHideBegin, () => {
-            if (!app.ui.isUIBeCover()) {
+        }
+        app.event.on(app.eventKey.OnUIShow, onUIShow)
+        let onUIHideBegin = () => {
+            if (!this?.isValid) {
+                app.event.off(app.eventKey.OnUIHideBegin, onUIHideBegin)
+                return;
+            }
+            if (!app.ui.isUIBeCover(this)) {
                 this.node.opacity = 255;
             }
-        })
+        }
+        app.event.on(app.eventKey.OnUIHideBegin, onUIHideBegin);
     }
+
+    /** 监听回到当前界面,当关闭它的上层UI界面回到此界面时,会触发onShowBegin、onShow方法 */
+    enableListenBack() {
+        let onUIHideBegin = (ui: UIBase) => {
+            if (!this?.isValid) {
+                app.event.off(app.eventKey.OnUIHideBegin, onUIHideBegin)
+                return;
+            }
+            if (app.ui.isTopUI(this.uiName)) {
+                this.onShowBegin();
+            }
+        }
+        app.event.on(app.eventKey.OnUIHideBegin, onUIHideBegin);
+        let onUIHide = (ui: UIBase) => {
+            if (!this?.isValid) {
+                app.event.off(app.eventKey.OnUIShow, onUIHide)
+                return;
+            }
+            if (app.ui.isTopUI(this.uiName)) {
+                this.onShow();
+            }
+        }
+        app.event.on(app.eventKey.OnUIHide, onUIHide)
+    }
+
 
     playShowAnim() {
         let bAction = Boolean(this.action & EAction.OPEN);
