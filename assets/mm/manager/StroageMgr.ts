@@ -35,34 +35,17 @@ export class StroageMgr {
     public static deserialize<T extends SerializableObject>(inst: T): T {
         Reflect.defineProperty(inst, "name", { enumerable: false });
         Reflect.defineProperty(inst, "readySave", { enumerable: false });
-        let today = Utils.getToday();
         let name = inst.name;
         let jsonStr = this.getValue(name, "");
         if (jsonStr) {
             try {
                 let obj = JSON.parse(jsonStr);
-                for (const key in obj) {
-                    if (Reflect.has(inst, key)) {
-                        if (key == "dayreset" && today > obj["lastResetDate"]) {
-                            continue;//使用默认值
-                        } else {
-                            if (Object.prototype.toString.call(inst[key]) === "[object Object]" && Object.prototype.toString.call(obj[key]) === "[object Object]") {//对象拷贝
-                                if (JSON.stringify(inst[key]) === "{}") {//使用空字典存储,完整赋值
-                                    inst[key] = obj[key];
-                                } else {//递归赋值
-                                    this.mergeValue(inst[key], obj[key]);
-                                }
-                            } else {//直接完整赋值
-                                inst[key] = obj[key];
-                            }
-                        }
-                    }
-                }
+                this.mergeValue(inst, obj, true);
             } catch (err) {
                 console.error(err);
             }
         }
-        inst.lastResetDate = today;
+        inst.lastResetDate = Utils.getToday();
         return inst;
     }
 
@@ -74,15 +57,20 @@ export class StroageMgr {
         return jsonStr;
     }
 
-    /** 递归合并target和source中的值,使用source中的值覆盖target中的值,忽略target中没有的属性 */
-    private static mergeValue(target: object, source: object) {
+    /** 合并存档默认数据和本地数据 */
+    private static mergeValue(target: object, source: object, isRootObj = false) {
         for (const key in target) {
-            if (Reflect.has(target, key) && Reflect.has(source, key)) {
-                if (typeof target[key] !== typeof source[key]) continue;
-                if (typeof target[key] === "object" && Object.prototype.toString.call(target[key]) !== Object.prototype.toString.call(source[key])) continue;
-                if (Object.prototype.toString.call(target[key]) === "[object Object]") {
-                    this.mergeValue(target[key], source[key]);
-                } else {
+            if (Reflect.has(source, key)) {
+                if (isRootObj && key == "dayreset") {//根对象的dayreset会被每日重置
+                    if (Utils.getToday() > source["lastResetDate"]) continue;//使用默认值
+                }
+                if (Object.prototype.toString.call(target[key]) === "[object Object]" && Object.prototype.toString.call(source[key]) === "[object Object]") {//对象拷贝
+                    if (JSON.stringify(target[key]) === "{}") {//使用空字典存储,完整赋值
+                        target[key] = source[key];
+                    } else {//递归赋值
+                        this.mergeValue(target[key], source[key]);
+                    }
+                } else {//直接完整赋值
                     target[key] = source[key];
                 }
             }
