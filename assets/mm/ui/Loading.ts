@@ -1,5 +1,8 @@
 import { HotUpdate, HotUpdateCode } from "../utils/HotUpdate";
 import UIMgr from "../manager/UIMgr";
+import { app } from "../App";
+import { Utils } from "../utils/Utils";
+import DataManager from "../../script/game/DataManager";
 
 const { ccclass, property } = cc._decorator;
 
@@ -62,19 +65,7 @@ export default class Loading extends cc.Component {
     async loadRes() {
         //加载游戏数据
         this.setTips("Loading Game Data")
-        // let gameDatas = await Utils.loadDir("data", this.onProgress.bind(this));
-        // for (const v of gameDatas) {
-        //     if (v.name == "GameData") {
-        //         DataManager.Inst.initData((v as cc.JsonAsset).json);
-        //     } else if (v.name == "Language") {
-        //         Language.init((v as cc.JsonAsset).json["Language"], null);
-        //     }
-        // }
-        //加载ui
-        // if (cc.sys.isBrowser) {
-        //     this.setTips("Loading Game Scene")
-        //     await Utils.loadDir("ui", this.onProgress.bind(this));
-        // }
+        await this.loadGameData("data");
         let obj = { x: 0 };
         cc.tween(obj).to(1.5, { x: 1 }, {
             progress: (start, end, curent, ratio) => {
@@ -124,6 +115,23 @@ export default class Loading extends cc.Component {
         } else {//最新版本或manifest文件异常 跳过更新
             this.loadRes()
         }
+    }
+
+    async loadGameData(dir: string) {
+        let paths: string[] = [];
+        let fileInfos = cc.resources.getDirWithPath(dir);
+        fileInfos.forEach((v: { uuid: string, path: string }) => {
+            let fileName = v.path.substr(v.path.lastIndexOf("/") + 1);
+            if (fileName.startsWith("Language")) {
+                if (fileName.endsWith(app.lang)) {
+                    paths.push(v.path);
+                }
+            } else {
+                paths.push(v.path);
+            }
+        });
+        let gameDatas = await Utils.loadArray(paths, cc.JsonAsset, this.onProgress.bind(this));
+        DataManager.Inst.initData(gameDatas as any);
     }
 
 }

@@ -1,4 +1,5 @@
-import { GameData, GlobalVal,  Config, Guide } from "./DataEntity";
+import Language from "../../mm/component/Language";
+import { GlobalVal, Config, Guide } from "./DataEntity";
 
 
 export default class DataManager {
@@ -8,12 +9,25 @@ export default class DataManager {
 
     globalVal: GlobalVal;
     config: Config;
-  
+
+    public Data: Guide & GlobalVal;
+
     private guides: { [id: number]: Guide };
 
-
-    initData(data: GameData) {
-        this.guides = data.Guide;
+    initData(data: cc.JsonAsset[]) {
+        this.Data = {} as any;
+        for (const jsonAsset of data) {
+            let obj = jsonAsset.json;
+            if (jsonAsset.name.startsWith("Language")) {
+                Language.init(obj);
+            } else if (jsonAsset.name == "GameConfig") {
+                this.config = obj["Config"]["1"];
+            } else {
+                for (const k in obj) {
+                    this.Data[k] = obj[k];
+                }
+            }
+        }
     }
 
     getGuideData(guideId: number) {
