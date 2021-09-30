@@ -9,6 +9,7 @@ export enum AudioKey {
 }
 
 export enum AudioTrack {
+    Main,
     Quest = 10000,
     AVG,
     Battle,
@@ -79,13 +80,12 @@ export class AudioMgr {
 
     /** 
      * 播放背景音乐
-     * @param track 音乐所属轨道,默认为0,表示为主BGM (每个音轨对应一个AudioClip)
+     * @param track 音乐所属轨道,0表示为主BGM (每个音轨对应一个AudioClip)
      * @param fadeIn 当前音乐渐入时间
      * @param fadeOut 上一个音乐渐出时间
      */
-    playMusic(audio: string, params?: { track?: number, fadeIn?: number, fadeOut?: number, onStart?: (audioId: number) => void }) {
-        let { track, fadeIn, fadeOut, onStart } = params || {};
-        track = track || 0;
+    playMusic(audio: string, params: { track: number, fadeIn?: number, fadeOut?: number, onStart?: (audioId: number) => void }) {
+        let { track, fadeIn, fadeOut, onStart } = params;
         fadeIn = fadeIn || 0;
         fadeOut = fadeOut || 0;
         if (track == this.track[this.track.length - 1] && this.trackAudio[track] == audio) return;//播放同样的音乐
@@ -133,8 +133,6 @@ export class AudioMgr {
             this.music[track] = audioId;
             onStart && onStart(audioId);
         });
-        // console.log("play",this.track);
-
     }
 
     /**
@@ -256,14 +254,13 @@ export class AudioMgr {
 
     /**
      *  停止播放当前音乐
-     * @param track 停止指定音轨的音乐(默认停止最后一轨)
+     * @param track 停止指定音轨的音乐
      * @param autoPlay 是否自动播放上一个音乐 默认为true
      * @param fadeIn 上一个音乐渐入时间
      * @param fadeOut 当前音乐渐出时间
      */
-    stopMusic(params?: { track?: number, autoPlay?: boolean, fadeIn?: number, fadeOut?: number }) {
-        let { track, autoPlay, fadeOut, fadeIn } = params || {};
-        track = track || this.track[this.track.length - 1];
+    stopMusic(params: { track: number, autoPlay?: boolean, fadeIn?: number, fadeOut?: number }) {
+        let { track, autoPlay, fadeOut, fadeIn } = params;
         autoPlay = autoPlay === undefined ? true : autoPlay;
         fadeOut = fadeOut || 0;
         fadeIn = fadeIn || 0;
