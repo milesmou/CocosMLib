@@ -8,6 +8,11 @@ export enum AudioKey {
     E_CLICK = "btn",
 }
 
+export enum AudioTrack {
+    Quest = 10000,
+    AVG,
+    Battle,
+}
 
 /** 音频管理工具类 */
 export class AudioMgr {
@@ -20,62 +25,99 @@ export class AudioMgr {
 
     private pathSuffix = "audio/";
 
-    /** 背景音乐栈 第一个元素是主BGM会特殊处理 */
-    private music: number[] = [];
+    /** 音乐的音轨栈 */
+    private track: number[] = [];
+    /** 音轨的音频文件名 */
+    private trackAudio: { [track: number]: string } = {};
+    /** 音轨的音乐播放状态 */
+    private music: { [track: number]: number } = {};
     /** 正在播放的音效 */
     private effect: number[] = [];
 
     constructor() {
+        cc.game.on(cc.game.EVENT_SHOW, this.onShow, this);
+        cc.game.on(cc.game.EVENT_HIDE, this.onHide, this);
         let mVolume = parseFloat(cc.sys.localStorage.getItem(this.sMusicVolume));
         this.mVolume = !isNaN(mVolume) ? mVolume : 1;
         let eVolume = parseFloat(cc.sys.localStorage.getItem(this.sEffectVolume));
         this.eVolume = !isNaN(eVolume) ? eVolume : 1;
     }
 
+    onShow() {
+        let keys = Object.keys(this.music);
+        if (keys.length > 0) {
+            let audioId = this.music[keys[keys.length - 1]];
+            if (cc.audioEngine.getState(audioId) == cc.audioEngine.AudioState.PAUSED) {
+                cc.audioEngine.resume(audioId);
+            }
+        }
+        if (this.effect.length > 0) {
+            this.effect.forEach(v => {
+                if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PAUSED) {
+                    cc.audioEngine.resume(v);
+                }
+            });
+        }
+    }
+
+    onHide() {
+        let keys = Object.keys(this.music);
+        if (keys.length > 0) {
+            let audioId = this.music[keys[keys.length - 1]];
+            if (cc.audioEngine.getState(audioId) == cc.audioEngine.AudioState.PLAYING) {
+                cc.audioEngine.pause(audioId);
+            }
+        }
+        if (this.effect.length > 0) {
+            this.effect.forEach(v => {
+                if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PLAYING) {
+                    cc.audioEngine.pause(v);
+                }
+            });
+        }
+    }
+
     /** 
      * 播放背景音乐
-     * @param isMainMusic isMainMusic=true时会清空所有音乐,然后将当前音乐设为主BGM 
-     * @param mode (isMainMusic=true时,此字段无效) Replace:停止上一个音乐 Additive:暂停上一个音乐,等当前音乐停止后,自动播放上一个音乐 
+     * @param track 音乐所属轨道,默认为0,表示为主BGM (每个音轨对应一个AudioClip)
      * @param fadeIn 当前音乐渐入时间
      * @param fadeOut 上一个音乐渐出时间
      */
-    playMusic(audio: string, params?: { isMainMusic?: boolean, mode?: "Replace" | "Additive", fadeIn?: number, fadeOut?: number, onStart?: (audioId: number) => void }) {
-        let { isMainMusic, mode, fadeIn, fadeOut, onStart } = params || {};
-        isMainMusic = isMainMusic !== undefined ? isMainMusic : false;
-        mode = mode || "Replace";
+    playMusic(audio: string, params?: { track?: number, fadeIn?: number, fadeOut?: number, onStart?: (audioId: number) => void }) {
+        let { track, fadeIn, fadeOut, onStart } = params || {};
+        track = track || 0;
         fadeIn = fadeIn || 0;
         fadeOut = fadeOut || 0;
-        //播放主BGM,清空原来的
-        if (isMainMusic) {
+        if (track == this.track[this.track.length - 1] && this.trackAudio[track] == audio) return;//播放同样的音乐
+        //播放主BGM,清空所有
+        if (track == 0) {
             this.stopAllMusic(fadeOut);
         }
-        //处理上一个音乐
-        if (this.music.length > 0) {
-            let audioId = this.music[this.music.length - 1];
-            if (mode == "Replace") { this.music.pop(); }
-            let func = () => {
-                if (mode == "Replace") {
-                    cc.audioEngine.stop(audioId);
-                } else {
-                    cc.audioEngine.pause(audioId)
-                }
+        if (this.track.length > 0) {//正在播放音乐
+            let stop = false;//停止同一音轨播放的音乐
+            let nowPlayAudioId = this.music[this.track[this.track.length - 1]];
+            if (this.track.includes(track)) {
+                stop = true;
+                Utils.delItemFromArray(this.track, track);
             }
             if (fadeOut > 0) {
                 Utils.tweenTo(this.mVolume, 0, fadeOut,
                     (v) => {
-                        cc.audioEngine.setVolume(audioId, v);
+                        cc.audioEngine.setVolume(nowPlayAudioId, v);
                     },
                     () => {
-                        func();
+                        stop ? cc.audioEngine.stop(nowPlayAudioId) : cc.audioEngine.pause(nowPlayAudioId);
                     });
             } else {
-                func();
+                stop ? cc.audioEngine.stop(nowPlayAudioId) : cc.audioEngine.pause(nowPlayAudioId);
             }
         }
         //播放当前音乐
+        this.track.push(track);
+        this.trackAudio[track] = audio;
         cc.resources.load(this.pathSuffix + audio, cc.AudioClip, (err, clip: cc.AudioClip) => {
             if (err) {
-                console.log(err);
+                cc.log(err);
                 return;
             }
             let audioId = -1;
@@ -88,9 +130,11 @@ export class AudioMgr {
                         cc.audioEngine.setVolume(audioId, v);
                     });
             }
-            this.music.push(audioId);
+            this.music[track] = audioId;
             onStart && onStart(audioId);
         });
+        // console.log("play",this.track);
+
     }
 
     /**
@@ -115,7 +159,7 @@ export class AudioMgr {
         if (typeof audio === "string") {
             let onComplete = (err, clip: cc.AudioClip) => {
                 if (err) {
-                    console.log(err);
+                    cc.log(err);
                     return;
                 }
                 play(clip);
@@ -136,9 +180,10 @@ export class AudioMgr {
      * @param dur 渐变时间
      */
     pauseMusic(pause: boolean, dur = 0) {
-        if (this.music.length > 0) {
-            let audioId = this.music[this.music.length - 1];
+        if (this.track.length > 0) {
+            let audioId = this.music[this.track[this.track.length - 1]];
             if (pause) {
+                if (cc.audioEngine.getVolume(audioId) == 0) return;
                 if (dur > 0) {
                     Utils.tweenTo(this.mVolume, 0, dur,
                         v => {
@@ -150,6 +195,7 @@ export class AudioMgr {
                     cc.audioEngine.pause(audioId);
                 }
             } else {
+                if (cc.audioEngine.getVolume(audioId) == this.mVolume) return;
                 if (dur > 0) {
                     cc.audioEngine.setVolume(audioId, 0);
                     cc.audioEngine.resume(audioId);
@@ -163,6 +209,7 @@ export class AudioMgr {
             }
 
         }
+        console.log("pause", pause);
     }
 
     /** 
@@ -174,10 +221,10 @@ export class AudioMgr {
         let { fadeIn, fadeOut } = params || {};
         fadeIn = fadeIn || 0;
         fadeOut = fadeOut || 0;
-
-        if (this.music.length > 0) {
-            this.music.forEach((v, i) => {
-                if (i == 0) {//主BGM
+        if (this.track.length > 0) {
+            for (const track in this.music) {
+                const v = this.music[track];
+                if (track == "0") {//主BGM
                     if (fadeIn > 0) {
                         cc.audioEngine.setVolume(v, 0);
                         cc.audioEngine.resume(v);
@@ -200,26 +247,33 @@ export class AudioMgr {
                         cc.audioEngine.stop(v);
                     }
                 }
-            });
-            this.music = [this.music[0]];
+            }
+
+            this.track = [this.track[0]];
+            this.music = { 0: this.music[0] };
         }
     }
 
     /**
      *  停止播放当前音乐
+     * @param track 停止指定音轨的音乐(默认停止最后一轨)
      * @param autoPlay 是否自动播放上一个音乐 默认为true
      * @param fadeIn 上一个音乐渐入时间
      * @param fadeOut 当前音乐渐出时间
      */
-    stopMusic(params?: { autoPlay?: boolean, fadeIn?: number, fadeOut?: number }) {
-        let { autoPlay, fadeOut, fadeIn } = params || {};
+    stopMusic(params?: { track?: number, autoPlay?: boolean, fadeIn?: number, fadeOut?: number }) {
+        let { track, autoPlay, fadeOut, fadeIn } = params || {};
+        track = track || this.track[this.track.length - 1];
         autoPlay = autoPlay === undefined ? true : autoPlay;
         fadeOut = fadeOut || 0;
         fadeIn = fadeIn || 0;
-
         //停止当前音乐
-        if (this.music.length > 0) {
-            let audioId = this.music.pop();
+        if (this.track.length > 0) {
+            let audioId = this.music[track];
+            if (isNaN(audioId)) return;
+            Utils.delItemFromArray(this.track, track);
+            delete this.trackAudio[track];
+            delete this.music[track];
             if (fadeOut > 0) {
                 Utils.tweenTo(this.mVolume, 0, fadeOut,
                     (v) => {
@@ -234,12 +288,12 @@ export class AudioMgr {
             }
         }
         //恢复上一个音乐
-        if (autoPlay && this.music.length > 0) {
-            let audioId = this.music[this.music.length - 1];
+        if (autoPlay && this.track.length > 0) {
+            let audioId = this.music[this.track[this.track.length - 1]];
             if (fadeIn > 0) {
                 cc.audioEngine.setVolume(audioId, 0);
                 cc.audioEngine.resume(audioId);
-                Utils.tweenTo(0, this.mVolume, fadeOut,
+                Utils.tweenTo(0, this.mVolume, fadeIn,
                     (v) => {
                         cc.audioEngine.setVolume(audioId, v);
                     }
@@ -248,6 +302,7 @@ export class AudioMgr {
                 cc.audioEngine.resume(audioId);
             }
         }
+        console.log("stop", this.track);
     }
 
     /**
@@ -255,9 +310,10 @@ export class AudioMgr {
      *  fadeOut 音乐渐出时间
      */
     stopAllMusic(fadeOut = 0) {
-        if (this.music.length > 0) {
+        if (this.track.length > 0) {
             if (fadeOut > 0) {
-                this.music.forEach(id => {
+                for (const track in this.music) {
+                    let id = this.music[track];
                     Utils.tweenTo(this.mVolume, 0, fadeOut,
                         (v) => {
                             cc.audioEngine.setVolume(id, v);
@@ -265,13 +321,16 @@ export class AudioMgr {
                         () => {
                             cc.audioEngine.stop(id);
                         });
-                })
+                }
             } else {
-                this.music.forEach(id => {
+                for (const track in this.music) {
+                    let id = this.music[track];
                     cc.audioEngine.stop(id);
-                })
+                }
             }
-            this.music.length = 0;
+            this.track.length = 0;
+            this.trackAudio = {};
+            this.music = {};
         }
     }
 
@@ -297,15 +356,17 @@ export class AudioMgr {
     /** 设置音乐音量 */
     setMusicVolume(volume: number, dur = 0) {
         volume = cc.misc.clamp01(volume);
-        if (this.music.length > 0) {
+        if (this.track.length > 0) {
             if (dur > 0) {
-                this.music.forEach(id => {
+                this.track.forEach(trackId => {
+                    let id = this.music[trackId];
                     Utils.tweenTo(this.mVolume, volume, dur, (v) => {
                         cc.audioEngine.setVolume(id, v);
                     });
                 })
             } else {
-                this.music.forEach(id => {
+                this.track.forEach(trackId => {
+                    let id = this.music[trackId];
                     cc.audioEngine.setVolume(id, volume);
                 })
             }

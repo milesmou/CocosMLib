@@ -51,11 +51,10 @@ export default class UIMgr extends cc.Component {
         this.init();
     }
 
-    /** 初始化 */
-    public async init() {
+      /** 初始化 */
+      public async init() {
 
         this.shade = await this.instNode(UIKey.Shade);
-        this.shade.setContentSize(cc.winSize);
         this.shade.parent = this.normal;
         this.shadeOpacity = this.shade.opacity;
         this.shade.opacity = 0;
@@ -115,19 +114,30 @@ export default class UIMgr extends cc.Component {
         }
     }
 
-    public async showHigher<T extends UIBase>(name: UIKey) {
+    public async showHigher<T extends UIBase>(name: UIKey, args?: any) {
         let ui = await this.initUI(name);
+        ui.setArgs(args);
         ui.node.parent = this.higher;
         return ui as T;
     }
 
     public hideHigher(name: UIKey) {
         let ui = this.uiDict[name];
+        if (!ui?.isValid) return;
         if (ui.destroyNode) {
             ui.node.destroy();
             this.uiDict[name] = undefined;
         } else {
             ui.node.parent = null;
+        }
+    }
+
+    /** 关闭除指定UI外其它所有UI */
+    public hideOther(exclude: UIKey[]) {
+        let len = this.uiStack.filter(v => exclude.includes(v.uiName)).length;
+        while (this.uiStack.length > len) {
+            let ui = this.uiStack.find(v => !exclude.includes(v.uiName));
+            this.hide(ui.uiName);
         }
     }
 
@@ -156,6 +166,7 @@ export default class UIMgr extends cc.Component {
                     reject();
                 } else {
                     let node: cc.Node = cc.instantiate(prefab);
+                    node.setContentSize(cc.winSize);
                     node.position = cc.v3(0, 0);
                     resolve(node);
                 }
@@ -172,6 +183,17 @@ export default class UIMgr extends cc.Component {
         let ui = this.uiDict[name];
         if (ui && ui.isValid) {
             return ui as T;
+        }
+    }
+
+    /** 获取UI在栈中的层级,栈顶为0,向下依次递增 */
+    public getUIIndex(name: UIKey | string) {
+        let ui = this.uiDict[name];
+        let index = this.uiStack.indexOf(ui);
+        if (index > -1) {
+            return this.uiStack.length - 1 - index;
+        } else {
+            return -1;
         }
     }
 

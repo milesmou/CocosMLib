@@ -24,7 +24,7 @@ export default class UIBase extends cc.Component {
     showShade = false;
     @property({
         displayName: "全屏",
-        tooltip: "有时需要根据是弹窗还是全屏UI来判断是否执行UI动画或者隐藏下层UI"
+        tooltip: "有时需要根据是弹窗还是全屏UI来判断是否隐藏下层UI"
     })
     isFullScreen = false;
     @property({
@@ -33,17 +33,24 @@ export default class UIBase extends cc.Component {
     })
     autoHide = false;
     @property({
-        displayName: "监听返回",
-        tooltip: "监听回到当前界面,当关闭它的上层UI界面回到此界面时,会触发onShowBegin、onShow方法"
+        displayName: "监听显隐",
+        tooltip: "监听界面因其它界面的打开关闭造成的显隐情况\n\n从当前界面打开新的UI界面时,会触发onHideBegin、onHide方法\n\n关闭它的上层UI界面回到此界面时,会触发onShowBegin、onShow方法"
     })
-    listenBack = false;
+    listenVisible = false;
     @property({
         type: cc.Integer,
-        displayName: "返回动画延迟",
-        tooltip: "回到当前界面(onShowBegin)时,延迟多久播放UI的打开动画(小于0表示不播放动画)",
-        visible: function () { return this.listenBack && (this.action & EAction.OPEN) != 0 }
+        displayName: "显示动画延迟",
+        tooltip: "关闭其它回到当前界面(onShowBegin)时,延迟多久播放UI的打开动画(小于0表示不播放动画)",
+        visible: function () { return this.listenVisible && (this.action & EAction.OPEN) != 0 }
     })
-    backAnimDur = -1;
+    showAnimDur = -1;
+    @property({
+        type: cc.Integer,
+        displayName: "隐藏动画延迟",
+        tooltip: "从当前界面打开新的UI界面时,此界面被覆盖(onHideBegin)时,延迟多久播放UI的关闭动画(小于0表示不播放动画)",
+        visible: function () { return this.listenVisible && (this.action & EAction.CLOSE) != 0 }
+    })
+    hideAnimDur = -1;
     @property({
         displayName: "阻塞输入事件",
         tooltip: "是否阻塞所有的输入事件向下层传递"
@@ -70,10 +77,9 @@ export default class UIBase extends cc.Component {
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     init(uiName: string) {
         this.uiName = uiName;
-        this.node.setContentSize(cc.winSize);
         this.initBlock();
         this.autoHide && this.enableAutoHide();
-        this.listenBack && this.enableListenBack();
+        this.listenVisible && this.enableListenVisible();
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.animation = this.getComponent(cc.Animation);
@@ -133,18 +139,19 @@ export default class UIBase extends cc.Component {
         app.event.on(app.eventKey.OnUIHideBegin, onUIHideBegin);
     }
 
-    /** 监听回到当前界面,当关闭它的上层UI界面回到此界面时,会触发onShowBegin、onShow方法 */
-    enableListenBack() {
+    /** 监听因其它界面的打开关闭而影响界面的显隐情况 */
+    enableListenVisible() {
+        //监听显示
         let onUIHideBegin = (ui: UIBase) => {
             if (!this?.isValid) {
                 app.event.off(app.eventKey.OnUIHideBegin, onUIHideBegin)
                 return;
             }
             if (app.ui.isTopUI(this.uiName)) {
-                if (this.backAnimDur > 0 && (this.action & EAction.OPEN) != 0) {
+                if (this.showAnimDur > 0 && (this.action & EAction.OPEN) != 0) {
                     this.scheduleOnce(() => {
                         this.playShowAnim();
-                    }, this.backAnimDur)
+                    }, this.showAnimDur)
                 }
                 this.onShowBegin();
             }
@@ -160,6 +167,32 @@ export default class UIBase extends cc.Component {
             }
         }
         app.event.on(app.eventKey.OnUIHide, onUIHide)
+        //监听隐藏
+        let onUIShowBegin = (ui: UIBase) => {
+            if (!this?.isValid) {
+                app.event.off(app.eventKey.OnUIShowBegin, onUIShowBegin)
+                return;
+            }
+            if (app.ui.getUIIndex(this.uiName) == 1) {
+                if (this.hideAnimDur > 0 && (this.action & EAction.CLOSE) != 0) {
+                    this.scheduleOnce(() => {
+                        this.playHideAnim();
+                    }, this.hideAnimDur)
+                }
+                this.onHideBegin();
+            }
+        }
+        app.event.on(app.eventKey.OnUIShowBegin, onUIShowBegin);
+        let onUIShow = (ui: UIBase) => {
+            if (!this?.isValid) {
+                app.event.off(app.eventKey.OnUIShow, onUIShow)
+                return;
+            }
+            if (app.ui.getUIIndex(this.uiName) == 1) {
+                this.onHide();
+            }
+        }
+        app.event.on(app.eventKey.OnUIShow, onUIShow)
     }
 
 
