@@ -64,7 +64,6 @@ export default class UIMgr extends cc.Component {
         this.tipMsg = await this.showHigher(UIKey.UITipMsg) as UITipMsg;
     }
 
-
     public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, preload?: boolean }): Promise<T> {
         if (this.cooldown && !obj?.preload) { return; }
         if (!obj?.preload) this.cooldown = true;
@@ -72,15 +71,15 @@ export default class UIMgr extends cc.Component {
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
         if (obj?.preload) {//预加载在最下层
+            this.uiStack.unshift(ui);
             ui.setVisible(false);
             ui.node.zIndex = this.botUI?.node?.zIndex < 0 ? this.botUI.node.zIndex - 2 : -10;
             ui.node.parent = this.normal;
-            this.uiStack.unshift(ui);
         } else {//展示在最上层
+            this.uiStack.push(ui);
             ui.setVisible(true);
             ui.node.zIndex = this.topUI?.node?.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
             ui.node.parent = this.normal;
-            this.uiStack.push(ui);
             this.setShade();
             ui.onShowBegin();
             app.event.emit(app.eventKey.OnUIShowBegin, ui);

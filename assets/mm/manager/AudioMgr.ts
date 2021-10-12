@@ -94,45 +94,49 @@ export class AudioMgr {
             this.stopAllMusic(fadeOut);
         }
         if (this.track.length > 0) {//正在播放音乐
-            let stop = false;//停止同一音轨播放的音乐
             let nowPlayAudioId = this.music[this.track[this.track.length - 1]];
-            if (this.track.includes(track)) {
-                stop = true;
+            if (this.track.includes(track) && this.trackAudio[track] != audio) {//音轨播放新的音乐,清除音轨旧的信息
+                let trackAudioId = this.music[track];
                 Utils.delItemFromArray(this.track, track);
-            }
-            if (fadeOut > 0) {
-                Utils.tweenTo(this.mVolume, 0, fadeOut,
-                    (v) => {
-                        cc.audioEngine.setVolume(nowPlayAudioId, v);
-                    },
-                    () => {
-                        stop ? cc.audioEngine.stop(nowPlayAudioId) : cc.audioEngine.pause(nowPlayAudioId);
-                    });
+                delete this.music[track];
+                if (nowPlayAudioId != trackAudioId) {
+                    cc.audioEngine.stop(trackAudioId);
+                } else {
+                    this.fadeOutMusic(fadeOut, nowPlayAudioId, true);
+                }
             } else {
-                stop ? cc.audioEngine.stop(nowPlayAudioId) : cc.audioEngine.pause(nowPlayAudioId);
+                this.fadeOutMusic(fadeOut, nowPlayAudioId);
             }
         }
         //播放当前音乐
-        this.track.push(track);
-        this.trackAudio[track] = audio;
-        cc.resources.load(this.pathSuffix + audio, cc.AudioClip, (err, clip: cc.AudioClip) => {
-            if (err) {
-                cc.log(err);
-                return;
-            }
-            let audioId = -1;
-            if (fadeIn > 0) {
-                audioId = cc.audioEngine.play(clip, true, this.mVolume);
-            } else {
-                audioId = cc.audioEngine.play(clip, true, 0);
-                Utils.tweenTo(0, this.mVolume, fadeOut,
-                    (v) => {
-                        cc.audioEngine.setVolume(audioId, v);
-                    });
-            }
-            this.music[track] = audioId;
+        if (this.track.includes(track)) {//恢复音轨上的音乐
+            Utils.delItemFromArray(this.track, track);
+            this.track.push(track);
+            let audioId = this.music[track];
+            this.fadeInMusic(fadeIn, audioId);
             onStart && onStart(audioId);
-        });
+        } else {//重新播放音乐
+            this.track.push(track);
+            this.trackAudio[track] = audio;
+            cc.resources.load(this.pathSuffix + audio, cc.AudioClip, (err, clip: cc.AudioClip) => {
+                if (err) {
+                    cc.log(err);
+                    return;
+                }
+                let audioId = -1;
+                if (fadeIn > 0) {
+                    audioId = cc.audioEngine.play(clip, true, 0);
+                    Utils.tweenTo(0, this.mVolume, fadeIn,
+                        (v) => {
+                            cc.audioEngine.setVolume(audioId, v);
+                        });
+                } else {
+                    audioId = cc.audioEngine.play(clip, true, this.mVolume);
+                }
+                this.music[track] = audioId;
+                onStart && onStart(audioId);
+            });
+        }
     }
 
     /**
@@ -182,32 +186,12 @@ export class AudioMgr {
             let audioId = this.music[this.track[this.track.length - 1]];
             if (pause) {
                 if (cc.audioEngine.getVolume(audioId) == 0) return;
-                if (dur > 0) {
-                    Utils.tweenTo(this.mVolume, 0, dur,
-                        v => {
-                            cc.audioEngine.setVolume(audioId, v);
-                        }, () => {
-                            cc.audioEngine.pause(audioId);
-                        })
-                } else {
-                    cc.audioEngine.pause(audioId);
-                }
+                this.fadeOutMusic(dur, audioId);
             } else {
                 if (cc.audioEngine.getVolume(audioId) == this.mVolume) return;
-                if (dur > 0) {
-                    cc.audioEngine.setVolume(audioId, 0);
-                    cc.audioEngine.resume(audioId);
-                    Utils.tweenTo(0, this.mVolume, dur,
-                        v => {
-                            cc.audioEngine.setVolume(audioId, v);
-                        });
-                } else {
-                    cc.audioEngine.resume(audioId);
-                }
+                this.fadeInMusic(dur, audioId);
             }
-
         }
-        console.log("pause", pause);
     }
 
     /** 
@@ -223,30 +207,11 @@ export class AudioMgr {
             for (const track in this.music) {
                 const v = this.music[track];
                 if (track == "0") {//主BGM
-                    if (fadeIn > 0) {
-                        cc.audioEngine.setVolume(v, 0);
-                        cc.audioEngine.resume(v);
-                        Utils.tweenTo(this.mVolume, 0, fadeOut,
-                            volume => {
-                                cc.audioEngine.setVolume(v, volume);
-                            });
-                    } else {
-                        cc.audioEngine.resume(v);
-                    }
+                    this.fadeInMusic(fadeIn, v);
                 } else {
-                    if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PLAYING && fadeOut > 0) {
-                        Utils.tweenTo(this.mVolume, 0, fadeOut,
-                            volume => {
-                                cc.audioEngine.setVolume(v, volume);
-                            }, () => {
-                                cc.audioEngine.stop(v);
-                            });
-                    } else {
-                        cc.audioEngine.stop(v);
-                    }
+                    this.fadeOutMusic(fadeOut, v, true);
                 }
             }
-
             this.track = [this.track[0]];
             this.music = { 0: this.music[0] };
         }
@@ -271,35 +236,13 @@ export class AudioMgr {
             Utils.delItemFromArray(this.track, track);
             delete this.trackAudio[track];
             delete this.music[track];
-            if (fadeOut > 0) {
-                Utils.tweenTo(this.mVolume, 0, fadeOut,
-                    (v) => {
-                        cc.audioEngine.setVolume(audioId, v);
-                    },
-                    () => {
-                        cc.audioEngine.stop(audioId);
-                    }
-                )
-            } else {
-                cc.audioEngine.stop(audioId);
-            }
+            this.fadeOutMusic(fadeOut, audioId);
         }
         //恢复上一个音乐
         if (autoPlay && this.track.length > 0) {
             let audioId = this.music[this.track[this.track.length - 1]];
-            if (fadeIn > 0) {
-                cc.audioEngine.setVolume(audioId, 0);
-                cc.audioEngine.resume(audioId);
-                Utils.tweenTo(0, this.mVolume, fadeIn,
-                    (v) => {
-                        cc.audioEngine.setVolume(audioId, v);
-                    }
-                )
-            } else {
-                cc.audioEngine.resume(audioId);
-            }
+            this.fadeInMusic(fadeIn, audioId);
         }
-        console.log("stop", this.track);
     }
 
     /**
@@ -308,22 +251,9 @@ export class AudioMgr {
      */
     stopAllMusic(fadeOut = 0) {
         if (this.track.length > 0) {
-            if (fadeOut > 0) {
-                for (const track in this.music) {
-                    let id = this.music[track];
-                    Utils.tweenTo(this.mVolume, 0, fadeOut,
-                        (v) => {
-                            cc.audioEngine.setVolume(id, v);
-                        },
-                        () => {
-                            cc.audioEngine.stop(id);
-                        });
-                }
-            } else {
-                for (const track in this.music) {
-                    let id = this.music[track];
-                    cc.audioEngine.stop(id);
-                }
+            for (const track in this.music) {
+                let id = this.music[track];
+                this.fadeOutMusic(fadeOut, id, true);
             }
             this.track.length = 0;
             this.trackAudio = {};
@@ -380,6 +310,33 @@ export class AudioMgr {
         });
         this.eVolume = volume;
         cc.sys.localStorage.setItem(this.sEffectVolume, volume);
+    }
+
+    private fadeInMusic(dur: number, audioId: number) {
+        if (dur > 0) {
+            cc.audioEngine.setVolume(audioId, 0);
+            cc.audioEngine.resume(audioId);
+            Utils.tweenTo(0, this.mVolume, dur,
+                v => {
+                    cc.audioEngine.setVolume(audioId, v);
+                });
+        } else {
+            cc.audioEngine.resume(audioId);
+        }
+    }
+
+    private fadeOutMusic(dur: number, audioId: number, stop = false) {
+        if (dur > 0) {
+            Utils.tweenTo(this.mVolume, 0, dur,
+                (v) => {
+                    cc.audioEngine.setVolume(audioId, v);
+                },
+                () => {
+                    stop ? cc.audioEngine.stop(audioId) : cc.audioEngine.pause(audioId);
+                });
+        } else {
+            stop ? cc.audioEngine.stop(audioId) : cc.audioEngine.pause(audioId);
+        }
     }
 
 }
