@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "ImageSharpen",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "6802c5d2-faf1-449e-bec0-49aefe18f44d"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 3
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

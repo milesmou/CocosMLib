@@ -1,0 +1,21 @@
+{
+    "__type__": "cc.Material",
+    "_name": "SandStyle",
+    "_objFlags": 0,
+    "_native": "",
+    "_effectAsset": {
+        "__uuid__": "4b6c0827-c68d-4b71-8d87-96475ebcdc2b"
+    },
+    "_techniqueIndex": 0,
+    "_techniqueData": {
+        "0": {
+            "props": {
+                "uNoiseIntensity": 0.4,
+                "uSandIntensity": 1
+            },
+            "defines": {
+                "USE_TEXTURE": true
+            }
+        }
+    }
+}

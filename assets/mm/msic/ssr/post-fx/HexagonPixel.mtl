@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "HexagonPixel",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "e7941c35-16fb-44ba-b2c2-a7aa1e4f096c"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 1
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

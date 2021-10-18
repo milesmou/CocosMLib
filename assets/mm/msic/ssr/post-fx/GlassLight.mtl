@@ -1,0 +1,26 @@
+{
+  "__type__": "cc.Material",
+  "_name": "GlassLight",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "8cd71b9a-20e8-42a3-92d2-9fd3282fb030"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 0.3,
+        "uBrightness": 1.6
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

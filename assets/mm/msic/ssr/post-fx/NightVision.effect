@@ -1,0 +1,84 @@
+
+CCEffect %{
+techniques: 
+  - passes: 
+      - vert: vs
+        frag: fs
+        blendState: 
+          targets: 
+            - blend: true
+        rasterizerState: 
+          cullMode: none
+        properties: 
+          texture: 
+            value: white
+}%
+        
+CCProgram vs %{
+    precision highp float;
+    #include <cc-global>
+    #include <cc-local>
+
+    in vec3 a_position;
+    #if USE_TEXTURE
+        in vec2 a_uv0;
+        out vec2 v_uv0;
+    #endif  
+    in vec4 a_color;
+    out vec4 v_color;
+
+    void main () {
+        mat4 mvp;
+        #if CC_USE_MODEL
+            mvp = cc_matViewProj * cc_matWorld;
+        #else
+            mvp = cc_matViewProj;
+        #endif
+
+        #if USE_TEXTURE
+            v_uv0 = a_uv0;
+        #endif
+
+        #if USE_TINT
+            // clear warning for spine
+        #endif
+
+        v_color = a_color;
+        gl_Position = mvp * vec4(a_position, 1);
+    }
+}%
+        
+CCProgram fs %{
+    precision highp float;
+    #include <cc-global>
+    #if USE_TEXTURE
+        in vec2 v_uv0;
+        uniform sampler2D texture;
+    #endif
+    in vec4 v_color;
+    uniform Constant {
+	};
+	uniform sampler2D uTex;
+
+    float hash(float n) 
+	{ 
+	    return fract(sin(n)*43758.5453123); 
+	}
+	vec4 NightVision_main(sampler2D Tex, vec2 UV, float Seed) 
+	{
+	    vec2 n = UV * 2. - 1.;
+	    vec3 c = texture2D(Tex, UV).rgb;
+	    c += sin(hash(Seed)) * 0.01;
+	    c += hash((hash(n.x) + n.y) * Seed) * 0.5;
+	    c *= smoothstep(length(n * n * n * vec2(0.075, 0.4)), 1.0, 0.4);
+	    c *= smoothstep(0.001, 3.5, Seed) * 1.5;
+	    c = dot(c, vec3(0.2126, 0.7152, 0.0722)) * vec3(0.2, 1.5 - hash(Seed) * 0.1, 0.4);
+	    return vec4(c, 1.0);
+	}
+	    
+	void main () {
+	    gl_FragColor = NightVision_main(texture, v_uv0, cc_time[0]);
+	} 
+	
+}%
+        

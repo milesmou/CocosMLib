@@ -1,0 +1,32 @@
+{
+  "__type__": "cc.Material",
+  "_name": "CircularFog",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "e4211e6d-40a6-46bc-ab97-4fc60cc1735c"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uCenter": {
+          "__type__": "cc.Vec2",
+          "x": 0.5,
+          "y": 0.5
+        },
+        "uInensity": 1,
+        "uFogColor": {
+          "__type__": "cc.Color",
+          "r": 255,
+          "g": 0,
+          "b": 87,
+          "a": 255
+        }
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

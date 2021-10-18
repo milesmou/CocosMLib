@@ -1,0 +1,26 @@
+{
+  "__type__": "cc.Material",
+  "_name": "OilPaint",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "4449f861-ee05-4f02-843e-09e95f767076"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 1,
+        "uBrightness": 1
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "Emboss",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "f82bbe35-6e21-4300-89f6-23b5a0961f11"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 1.6
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

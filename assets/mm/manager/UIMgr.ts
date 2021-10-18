@@ -7,6 +7,7 @@ import { app } from "../App";
 
 export enum UIKey {
     Shade = "ui/Shade",
+    Block = "ui/Block",
     UIGuide = "ui/UIGuide",
     UITipMsg = "ui/UITipMsg",
     //testui
@@ -38,6 +39,17 @@ export default class UIMgr extends cc.Component {
     /** 最下层的UI */
     private get botUI() { return this.uiStack[0]; }
 
+    private block: cc.Node = null;
+    public get Block() {
+        return this.block?.active;
+    }
+    /** 是否拦截所有的UI事件 */
+    public set Block(value) {
+        if (this.block) {
+            this.block.active = value;
+        }
+    }
+
     /** UI的半透明遮罩 */
     public shade: cc.Node = null;
     private shadeOpacity = 0;
@@ -51,8 +63,12 @@ export default class UIMgr extends cc.Component {
         this.init();
     }
 
-      /** 初始化 */
-      public async init() {
+    /** 初始化 */
+    public async init() {
+
+        this.block = await this.instNode(UIKey.Block);
+        this.block.parent = this.node;
+        this.Block = false;
 
         this.shade = await this.instNode(UIKey.Shade);
         this.shade.parent = this.normal;
@@ -64,6 +80,7 @@ export default class UIMgr extends cc.Component {
         this.tipMsg = await this.showHigher(UIKey.UITipMsg) as UITipMsg;
     }
 
+
     public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, preload?: boolean }): Promise<T> {
         if (this.cooldown && !obj?.preload) { return; }
         if (!obj?.preload) this.cooldown = true;
@@ -71,14 +88,14 @@ export default class UIMgr extends cc.Component {
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
         if (obj?.preload) {//预加载在最下层
+            ui.node.zIndex = this.botUI?.node?.zIndex < 0 ? this.botUI.node.zIndex - 2 : -10;
             this.uiStack.unshift(ui);
             ui.setVisible(false);
-            ui.node.zIndex = this.botUI?.node?.zIndex < 0 ? this.botUI.node.zIndex - 2 : -10;
             ui.node.parent = this.normal;
         } else {//展示在最上层
+            ui.node.zIndex = this.topUI?.node?.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
             this.uiStack.push(ui);
             ui.setVisible(true);
-            ui.node.zIndex = this.topUI?.node?.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
             ui.node.parent = this.normal;
             this.setShade();
             ui.onShowBegin();

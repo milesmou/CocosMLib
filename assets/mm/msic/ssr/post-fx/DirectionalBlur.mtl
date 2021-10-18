@@ -1,0 +1,29 @@
+{
+    "__type__": "cc.Material",
+    "_name": "DirectionalBlur",
+    "_objFlags": 0,
+    "_native": "",
+    "_effectAsset": {
+        "__uuid__": "d7e2d51c-b411-4207-8348-3f1c3e1b1937"
+    },
+    "_techniqueIndex": 0,
+    "_techniqueData": {
+        "0": {
+            "props": {
+                "uSize": {
+                    "__type__": "cc.Vec2",
+                    "x": 300,
+                    "y": 300
+                },
+                "uDirection": {
+                    "__type__": "cc.Vec2",
+                    "x": 2,
+                    "y": 2
+                }
+            },
+            "defines": {
+                "USE_TEXTURE": true
+            }
+        }
+    }
+}

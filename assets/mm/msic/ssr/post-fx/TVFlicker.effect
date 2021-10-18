@@ -1,0 +1,122 @@
+
+CCEffect %{
+techniques: 
+  - passes: 
+      - vert: vs
+        frag: fs
+        blendState: 
+          targets: 
+            - blend: true
+        rasterizerState: 
+          cullMode: none
+        properties: 
+          texture: 
+            value: white
+          uLineCount: 
+            value: 1.0
+}%
+        
+CCProgram vs %{
+    precision highp float;
+    #include <cc-global>
+    #include <cc-local>
+
+    in vec3 a_position;
+    #if USE_TEXTURE
+        in vec2 a_uv0;
+        out vec2 v_uv0;
+    #endif  
+    in vec4 a_color;
+    out vec4 v_color;
+
+    void main () {
+        mat4 mvp;
+        #if CC_USE_MODEL
+            mvp = cc_matViewProj * cc_matWorld;
+        #else
+            mvp = cc_matViewProj;
+        #endif
+
+        #if USE_TEXTURE
+            v_uv0 = a_uv0;
+        #endif
+
+        #if USE_TINT
+            // clear warning for spine
+        #endif
+
+        v_color = a_color;
+        gl_Position = mvp * vec4(a_position, 1);
+    }
+}%
+        
+CCProgram fs %{
+    precision highp float;
+    #include <cc-global>
+    #if USE_TEXTURE
+        in vec2 v_uv0;
+        uniform sampler2D texture;
+    #endif
+    in vec4 v_color;
+    uniform Constant {
+		float uLineCount;
+	};
+
+    float noiseSimpleRandomValue(vec2 uv) 
+	{ 
+	    return fract(sin(dot(uv, vec2(12.9898, 78.233)))*43758.5453); 
+	}
+	float noiseSimpleInterpolate(float a, float b, float t) 
+	{ 
+	    return (1.0 - t) * a + (t * b);
+	}
+	float noiseSimpleNoise(vec2 uv) 
+	{ 
+	    vec2 i = floor(uv); 
+	    vec2 f = fract(uv); 
+	    f = f * f * (3.0 - 2.0 * f); 
+	    uv = abs(fract(uv) - 0.5); 
+	    vec2 c0 = i + vec2(0.0, 0.0); 
+	    vec2 c1 = i + vec2(1.0, 0.0); 
+	    vec2 c2 = i + vec2(0.0, 1.0); 
+	    vec2 c3 = i + vec2(1.0, 1.0); 
+	    float r0 = noiseSimpleRandomValue(c0); 
+	    float r1 = noiseSimpleRandomValue(c1); 
+	    float r2 = noiseSimpleRandomValue(c2); 
+	    float r3 = noiseSimpleRandomValue(c3); 
+	    float bottomOfGrid = noiseSimpleInterpolate(r0, r1, f.x); 
+	    float topOfGrid = noiseSimpleInterpolate(r2, r3, f.x); 
+	    float t = noiseSimpleInterpolate(bottomOfGrid, topOfGrid, f.y); 
+	    return t; 
+	}
+	float noiseSimple(vec2 uv, float scale) {
+	   float t = 0.0;
+	   float freq = pow(2.0, 0.0);
+	   float amp = pow(0.5, 3.0);
+	   t += noiseSimpleNoise(vec2(uv.x * scale / freq, uv.y * scale / freq)) * amp;
+	   freq = pow(2.0, 1.0);
+	   amp = pow(0.5, 2.0);
+	   t += noiseSimpleNoise(vec2(uv.x * scale / freq, uv.y * scale / freq)) * amp;
+	   freq = pow(2.0, 2.0);
+	   amp = pow(0.5, 1.0);
+	   t += noiseSimpleNoise(vec2(uv.x * scale / freq, uv.y * scale / freq)) * amp;
+	   return t;
+	}
+	vec4 remap(vec4 value, vec2 inMinMax, vec2 outMinMax)
+	{
+	    return (outMinMax.x + (value - inMinMax.x) * (outMinMax.y - outMinMax.x) / (inMinMax.y - inMinMax.x));
+	}
+	vec4 TVFlicker_main(vec4 MainColor, vec2 UV, float Seed, float LineCount) 
+	{
+	    float noiseSimpleValue = noiseSimple(vec2(Seed), 2.0);
+	    float noiseSimpleValue2 = noiseSimple(vec2(0.0, UV.y + Seed * LineCount), 40.0);
+	    vec4 remapValue = remap(vec4(noiseSimpleValue2), vec2(0.0, 1.0), vec2(-0.50, 0.50));
+	    vec2 cuv = vec2(remapValue.x * pow(noiseSimpleValue, 2.320) + UV.x, UV.y);
+	    return texture2D(texture, cuv);
+	}
+	void main () {
+	    gl_FragColor = TVFlicker_main(texture2D(texture, v_uv0), v_uv0, cc_time[0], uLineCount);
+	} 
+	
+}%
+        

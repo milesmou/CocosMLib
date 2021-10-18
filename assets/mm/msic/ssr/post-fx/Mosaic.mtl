@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "Mosaic",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "7ed79243-dde8-4d7c-a2c9-753816fbd5a3"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 6
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "ColorBurn",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "01488ec2-25b2-4e7a-b7a9-1ac6f058bae8"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uIntensity": 1
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

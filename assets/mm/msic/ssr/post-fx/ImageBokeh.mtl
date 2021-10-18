@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "ImageBokeh",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "cd59affc-8f4d-4a29-a709-37aa7c03985f"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uRadius": 0.6
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

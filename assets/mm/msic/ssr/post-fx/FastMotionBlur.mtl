@@ -1,0 +1,21 @@
+{
+  "__type__": "cc.Material",
+  "_name": "FastMotionBlur",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "e89085a3-ab6b-4f63-9703-f9afca88972d"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uAngle": 1,
+        "uDist": 1.4
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

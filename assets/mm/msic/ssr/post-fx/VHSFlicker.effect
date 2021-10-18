@@ -1,0 +1,94 @@
+
+CCEffect %{
+techniques: 
+  - passes: 
+      - vert: vs
+        frag: fs
+        blendState: 
+          targets: 
+            - blend: true
+        rasterizerState: 
+          cullMode: none
+        properties: 
+          texture: 
+            value: white
+          uIntensity: 
+            value: 1.0
+          uDistort: 
+            value: 2.9
+}%
+        
+CCProgram vs %{
+    precision highp float;
+    #include <cc-global>
+    #include <cc-local>
+
+    in vec3 a_position;
+    #if USE_TEXTURE
+        in vec2 a_uv0;
+        out vec2 v_uv0;
+    #endif  
+    in vec4 a_color;
+    out vec4 v_color;
+
+    void main () {
+        mat4 mvp;
+        #if CC_USE_MODEL
+            mvp = cc_matViewProj * cc_matWorld;
+        #else
+            mvp = cc_matViewProj;
+        #endif
+
+        #if USE_TEXTURE
+            v_uv0 = a_uv0;
+        #endif
+
+        #if USE_TINT
+            // clear warning for spine
+        #endif
+
+        v_color = a_color;
+        gl_Position = mvp * vec4(a_position, 1);
+    }
+}%
+        
+CCProgram fs %{
+    precision highp float;
+    #include <cc-global>
+    #if USE_TEXTURE
+        in vec2 v_uv0;
+        uniform sampler2D texture;
+    #endif
+    in vec4 v_color;
+    uniform Constant {
+		float uIntensity;
+		float uDistort;
+	};
+	uniform sampler2D uTex;
+
+    float rand(vec2 co)
+	{
+	    return fract(sin(dot(co.xy ,vec2(12.9898, 78.233))) * 43758.5453);
+	}
+	vec4 VHSFlicker_main(sampler2D Tex, vec2 UV, float Seed, float Intensity, float Distort) 
+	{
+	    Distort = Distort / 100.0;
+	    vec4 col = texture2D(Tex, UV);
+	    float y = floor(UV.y);
+	    float disf = 0.01 * (cos(UV.y) + sin(UV.y));
+	    float parity = 0.0;
+	    if(mod(y, 2.0) > 0.5)
+	        parity = 1.0;
+	    else 
+	        parity = -1.0;
+	    float a = smoothstep(0.0, 1.0, 0.7);
+	    UV.x = 	Distort * a * (y * 0.3 + disf) + UV.x + Distort * 0.5 * parity * smoothstep(0.6, 0.65, 0.7) * (sin(UV.y * (12.0 + 40.0 * rand(vec2(Seed, -Seed))) + smoothstep(0.64, 0.65, 0.7)));
+	    vec4 colorInput = texture2D(Tex, UV);
+	    return mix(col, colorInput, Intensity);
+	}
+	void main () {
+	    gl_FragColor = VHSFlicker_main(texture, v_uv0, cc_time[0], uIntensity, uDistort);
+	} 
+	
+}%
+        

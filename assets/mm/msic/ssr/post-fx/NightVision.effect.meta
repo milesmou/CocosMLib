@@ -1,0 +1,18 @@
+{
+  "ver": "1.0.27",
+  "uuid": "094bf08a-869d-48c9-8929-bc41aca91ce3",
+  "importer": "effect",
+  "compiledShaders": [
+    {
+      "glsl1": {
+        "vert": "\nprecision highp float;\nuniform mat4 cc_matViewProj;\nuniform mat4 cc_matWorld;\nattribute vec3 a_position;\n#if USE_TEXTURE\n    attribute vec2 a_uv0;\n    varying vec2 v_uv0;\n#endif\nattribute vec4 a_color;\nvarying vec4 v_color;\nvoid main () {\n    mat4 mvp;\n    #if CC_USE_MODEL\n        mvp = cc_matViewProj * cc_matWorld;\n    #else\n        mvp = cc_matViewProj;\n    #endif\n    #if USE_TEXTURE\n        v_uv0 = a_uv0;\n    #endif\n    #if USE_TINT\n    #endif\n    v_color = a_color;\n    gl_Position = mvp * vec4(a_position, 1);\n}",
+        "frag": "\n  precision highp float;\nuniform vec4 cc_time;\n  #if USE_TEXTURE\n      varying vec2 v_uv0;\n      uniform sampler2D texture;\n  #endif\n  varying vec4 v_color;\nuniform sampler2D uTex;\n  float hash(float n)\n{\n    return fract(sin(n)*43758.5453123);\n}\nvec4 NightVision_main(sampler2D Tex, vec2 UV, float Seed)\n{\n    vec2 n = UV * 2. - 1.;\n    vec3 c = texture2D(Tex, UV).rgb;\n    c += sin(hash(Seed)) * 0.01;\n    c += hash((hash(n.x) + n.y) * Seed) * 0.5;\n    c *= smoothstep(length(n * n * n * vec2(0.075, 0.4)), 1.0, 0.4);\n    c *= smoothstep(0.001, 3.5, Seed) * 1.5;\n    c = dot(c, vec3(0.2126, 0.7152, 0.0722)) * vec3(0.2, 1.5 - hash(Seed) * 0.1, 0.4);\n    return vec4(c, 1.0);\n}\nvoid main () {\n    gl_FragColor = NightVision_main(texture, v_uv0, cc_time[0]);\n}"
+      },
+      "glsl3": {
+        "vert": "\nprecision highp float;\nuniform CCGlobal {\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n};\nuniform CCLocal {\n  mat4 cc_matWorld;\n  mat4 cc_matWorldIT;\n};\nin vec3 a_position;\n#if USE_TEXTURE\n    in vec2 a_uv0;\n    out vec2 v_uv0;\n#endif\nin vec4 a_color;\nout vec4 v_color;\nvoid main () {\n    mat4 mvp;\n    #if CC_USE_MODEL\n        mvp = cc_matViewProj * cc_matWorld;\n    #else\n        mvp = cc_matViewProj;\n    #endif\n    #if USE_TEXTURE\n        v_uv0 = a_uv0;\n    #endif\n    #if USE_TINT\n    #endif\n    v_color = a_color;\n    gl_Position = mvp * vec4(a_position, 1);\n}",
+        "frag": "\n  precision highp float;\nuniform CCGlobal {\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n};\n  #if USE_TEXTURE\n      in vec2 v_uv0;\n      uniform sampler2D texture;\n  #endif\n  in vec4 v_color;\n  uniform Constant {\n};\nuniform sampler2D uTex;\n  float hash(float n)\n{\n    return fract(sin(n)*43758.5453123);\n}\nvec4 NightVision_main(sampler2D Tex, vec2 UV, float Seed)\n{\n    vec2 n = UV * 2. - 1.;\n    vec3 c = texture2D(Tex, UV).rgb;\n    c += sin(hash(Seed)) * 0.01;\n    c += hash((hash(n.x) + n.y) * Seed) * 0.5;\n    c *= smoothstep(length(n * n * n * vec2(0.075, 0.4)), 1.0, 0.4);\n    c *= smoothstep(0.001, 3.5, Seed) * 1.5;\n    c = dot(c, vec3(0.2126, 0.7152, 0.0722)) * vec3(0.2, 1.5 - hash(Seed) * 0.1, 0.4);\n    return vec4(c, 1.0);\n}\nvoid main () {\n    gl_FragColor = NightVision_main(texture, v_uv0, cc_time[0]);\n}"
+      }
+    }
+  ],
+  "subMetas": {}
+}

@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "CyberpunkStyle",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "003aa2d3-1850-44dd-8f1f-f15b9a2083e1"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uIntensity": 2
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

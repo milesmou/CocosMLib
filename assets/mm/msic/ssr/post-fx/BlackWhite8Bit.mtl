@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "BlackWhite8Bit",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "bc2f41de-1144-4f50-8f81-44513c7d59c5"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 2
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

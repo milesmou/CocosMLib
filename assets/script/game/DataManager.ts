@@ -1,27 +1,25 @@
 import Language from "../../mm/component/Language";
-import { GlobalVal, Config, Guide } from "./DataEntity";
+import { SingletonFactory } from "../../mm/utils/SingletonFactory";
+import { GlobalVal, Config, Guide, GameData, GameConfig } from "./DataEntity";
 
 
-export default class DataManager {
-    private static inst: DataManager = null;
-    public static get Inst() { return this.inst || (this.inst = new this()) }
-    private constructor() { }
+export class DataManager {
+    public static get Inst() { return SingletonFactory.getInstance<DataManager>(DataManager) };
 
-    globalVal: GlobalVal;
-    config: Config;
+    /** 远程配置 */
+    public config: Config;
+    /** 本地配置 */
+    public get GlobalVal() { return /* this.Data.GlobalVal[1] */; };
 
-    public Data: Guide & GlobalVal;
+    public Data: GameData & GameConfig;
 
-    private guides: { [id: number]: Guide };
-
-    initData(data: cc.JsonAsset[]) {
+    /** 初始化数据表 */
+    public initData(data: cc.JsonAsset[]) {
         this.Data = {} as any;
         for (const jsonAsset of data) {
             let obj = jsonAsset.json;
             if (jsonAsset.name.startsWith("Language")) {
                 Language.init(obj);
-            } else if (jsonAsset.name == "GameConfig") {
-                this.config = obj["Config"]["1"];
             } else {
                 for (const k in obj) {
                     this.Data[k] = obj[k];
@@ -30,15 +28,20 @@ export default class DataManager {
         }
     }
 
-    getGuideData(guideId: number) {
-        let arr = [];
-        for (const key in this.guides) {
-            let v = this.guides[key];
-            if (v.GuideID == guideId) {
-                arr.push(v);
+    private _guideDict: { [guideId: number]: Guide[] };
+    /** 引导ID:引导步骤数组 */
+    public get GuideDict() {
+        if (!this._guideDict) {
+            this._guideDict = {};
+            for (const key in this.Data.Guide) {
+                const element = this.Data.Guide[key];
+                if (!this._guideDict[element.GuideID]) {
+                    this._guideDict[element.GuideID] = [];
+                }
+                this._guideDict[element.GuideID].push(element);
             }
         }
-        return arr;
-    }
+        return this._guideDict;
+    };
 
 }

@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "EdgeDilate",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "ec13b6ac-7507-41e8-8dcc-7fc51ecddc27"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 0.6
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

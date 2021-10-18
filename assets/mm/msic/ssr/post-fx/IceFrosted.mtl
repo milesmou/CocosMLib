@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "IceFrosted",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "b6878077-b1f1-447d-b3f7-856544393556"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uIntensity": 1
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

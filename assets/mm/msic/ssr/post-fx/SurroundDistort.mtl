@@ -1,0 +1,20 @@
+{
+    "__type__": "cc.Material",
+    "_name": "SurroundDistort",
+    "_objFlags": 0,
+    "_native": "",
+    "_effectAsset": {
+        "__uuid__": "92883e9a-3015-441d-ad2f-1e6d9e45c0c1"
+    },
+    "_techniqueIndex": 0,
+    "_techniqueData": {
+        "0": {
+            "props": {
+                "uIntensity": 0.6
+            },
+            "defines": {
+                "USE_TEXTURE": true
+            }
+        }
+    }
+}

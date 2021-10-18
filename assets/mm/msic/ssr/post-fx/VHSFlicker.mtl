@@ -1,0 +1,21 @@
+{
+  "__type__": "cc.Material",
+  "_name": "VHSFlicker",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "75a60973-7921-4d01-a108-c116d16e7496"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uIntensity": 0.3,
+        "uDistort": 3
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

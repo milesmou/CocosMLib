@@ -1,0 +1,21 @@
+{
+    "__type__": "cc.Material",
+    "_name": "PoisonGreen",
+    "_objFlags": 0,
+    "_native": "",
+    "_effectAsset": {
+        "__uuid__": "9aa66a73-11cf-456d-8ecf-6c984f89d5f1"
+    },
+    "_techniqueIndex": 0,
+    "_techniqueData": {
+        "0": {
+            "props": {
+                "uIntensity": 0.6,
+                "uBrightness": 1.6
+            },
+            "defines": {
+                "USE_TEXTURE": true
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "EdgeErode",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "28be410f-b359-4d50-b82f-da23b7dd2887"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 0.6
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

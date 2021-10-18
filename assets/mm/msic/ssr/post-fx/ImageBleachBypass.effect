@@ -1,0 +1,85 @@
+
+CCEffect %{
+techniques: 
+  - passes: 
+      - vert: vs
+        frag: fs
+        blendState: 
+          targets: 
+            - blend: true
+        rasterizerState: 
+          cullMode: none
+        properties: 
+          texture: 
+            value: white
+          uIntensity: 
+            value: 1.0
+}%
+        
+CCProgram vs %{
+    precision highp float;
+    #include <cc-global>
+    #include <cc-local>
+
+    in vec3 a_position;
+    #if USE_TEXTURE
+        in vec2 a_uv0;
+        out vec2 v_uv0;
+    #endif  
+    in vec4 a_color;
+    out vec4 v_color;
+
+    void main () {
+        mat4 mvp;
+        #if CC_USE_MODEL
+            mvp = cc_matViewProj * cc_matWorld;
+        #else
+            mvp = cc_matViewProj;
+        #endif
+
+        #if USE_TEXTURE
+            v_uv0 = a_uv0;
+        #endif
+
+        #if USE_TINT
+            // clear warning for spine
+        #endif
+
+        v_color = a_color;
+        gl_Position = mvp * vec4(a_position, 1);
+    }
+}%
+        
+CCProgram fs %{
+    precision highp float;
+    #include <cc-global>
+    #if USE_TEXTURE
+        in vec2 v_uv0;
+        uniform sampler2D texture;
+    #endif
+    in vec4 v_color;
+    uniform Constant {
+		float uIntensity;
+	};
+
+    
+	vec4 ImageBleachBypass_main(vec4 MainColor, float Intensity) 
+	{
+	    float lum = dot(MainColor.rgb, vec3(0.25, 0.65, 0.1));
+	    vec3 blend = vec3(lum);
+	    float L = min(1.0, max(0.0, 10.0 * (lum - 0.45)));
+	    vec3 result1 = 2.0 * MainColor.rgb * blend;
+	    vec3 result2 = 1.0 - 2.0 * (1.0 - blend) * (1.0 - MainColor.rgb);
+	    vec3 newColor = mix(result1, result2, L);
+	    float A2 = Intensity * MainColor.a;
+	    vec3 lerpRGB = A2 * newColor.rgb;
+	    lerpRGB += ((1.0 - A2) * MainColor.rgb);
+	    return vec4(lerpRGB, MainColor.a);
+	}
+	    
+	void main () {
+	    gl_FragColor = ImageBleachBypass_main(texture2D(texture, v_uv0), uIntensity);
+	} 
+	
+}%
+        

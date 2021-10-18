@@ -1,0 +1,21 @@
+{
+    "__type__": "cc.Material",
+    "_name": "IcedStyle",
+    "_objFlags": 0,
+    "_native": "",
+    "_effectAsset": {
+        "__uuid__": "a8432010-c02e-4d38-b758-fabec7b16cf5"
+    },
+    "_techniqueIndex": 0,
+    "_techniqueData": {
+        "0": {
+            "props": {
+                "uIntensity": 0.45,
+                "uDeepness": 0.25
+            },
+            "defines": {
+                "USE_TEXTURE": true
+            }
+        }
+    }
+}

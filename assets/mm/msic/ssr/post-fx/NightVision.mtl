@@ -1,0 +1,18 @@
+{
+    "__type__": "cc.Material",
+    "_name": "NightVision",
+    "_objFlags": 0,
+    "_native": "",
+    "_effectAsset": {
+        "__uuid__": "094bf08a-869d-48c9-8929-bc41aca91ce3"
+    },
+    "_techniqueIndex": 0,
+    "_techniqueData": {
+        "0": {
+            "props": {},
+            "defines": {
+                "USE_TEXTURE": true
+            }
+        }
+    }
+}

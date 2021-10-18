@@ -1,0 +1,21 @@
+{
+  "__type__": "cc.Material",
+  "_name": "GoldenStyle",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "ebfd9839-a5c2-440e-b234-91c615cbc56b"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uIntensity": 0.36,
+        "uDeepness": 0.18
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

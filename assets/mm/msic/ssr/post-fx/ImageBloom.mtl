@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "ImageBloom",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "b02b8b03-4bf5-4440-8b65-5a8566e6570f"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uSize": {
+          "__type__": "cc.Vec2",
+          "x": 1136,
+          "y": 640
+        },
+        "uIntensity": 0.3
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

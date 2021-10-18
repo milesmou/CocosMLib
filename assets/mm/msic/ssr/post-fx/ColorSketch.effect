@@ -1,0 +1,109 @@
+
+CCEffect %{
+techniques: 
+  - passes: 
+      - vert: vs
+        frag: fs
+        blendState: 
+          targets: 
+            - blend: true
+        rasterizerState: 
+          cullMode: none
+        properties: 
+          texture: 
+            value: white
+          uIntensity: 
+            value: 0.5
+          uEdge: 
+            value: 0.1
+          uBgColor: 
+            value: 
+              - 0.000
+              - 1.000
+              - 1.000
+              - 1.000
+            inspector: 
+              type: color
+          uLineColor: 
+            value: 
+              - 1.000
+              - 0.000
+              - 1.000
+              - 1.000
+            inspector: 
+              type: color
+}%
+        
+CCProgram vs %{
+    precision highp float;
+    #include <cc-global>
+    #include <cc-local>
+
+    in vec3 a_position;
+    #if USE_TEXTURE
+        in vec2 a_uv0;
+        out vec2 v_uv0;
+    #endif  
+    in vec4 a_color;
+    out vec4 v_color;
+
+    void main () {
+        mat4 mvp;
+        #if CC_USE_MODEL
+            mvp = cc_matViewProj * cc_matWorld;
+        #else
+            mvp = cc_matViewProj;
+        #endif
+
+        #if USE_TEXTURE
+            v_uv0 = a_uv0;
+        #endif
+
+        #if USE_TINT
+            // clear warning for spine
+        #endif
+
+        v_color = a_color;
+        gl_Position = mvp * vec4(a_position, 1);
+    }
+}%
+        
+CCProgram fs %{
+    precision highp float;
+    #include <cc-global>
+    #if USE_TEXTURE
+        in vec2 v_uv0;
+        uniform sampler2D texture;
+    #endif
+    in vec4 v_color;
+    uniform Constant {
+		vec4 uBgColor;
+		vec4 uLineColor;
+		float uIntensity;
+		float uEdge;
+	};
+	uniform sampler2D uTex;
+
+    
+	vec4 ColorSketch_main(sampler2D Tex, vec2 UV, float Intensity, float Edge, vec4 BgColor, vec4 LineColor) 
+	{
+	    vec2 step = vec2(Edge / 1000.0);
+	    vec4 texColor = texture2D(Tex, UV);
+	    vec3 texA = texture2D(Tex, UV + vec2(-step.x, -step.y) * Intensity).rgb;
+	    vec3 texB = texture2D(Tex, UV + vec2( step.x, -step.y) * Intensity).rgb;
+	    vec3 texC = texture2D(Tex, UV + vec2(-step.x,  step.y) * Intensity).rgb;
+	    vec3 texD = texture2D(Tex, UV + vec2( step.x,  step.y) * Intensity).rgb;
+	    float shadeA = dot(texA, vec3(0.333333, 0.333333, 0.333333));
+	    float shadeB = dot(texB, vec3(0.333333, 0.333333, 0.333333));
+	    float shadeC = dot(texC, vec3(0.333333, 0.333333, 0.333333));
+	    float shadeD = dot(texD, vec3(0.333333, 0.333333, 0.333333));
+	    float shade = 15.0 * pow(max(abs(shadeA - shadeD), abs(shadeB - shadeC)), 0.5);
+	    vec3 col = mix(BgColor.rgb, LineColor.rgb, shade);
+	    return vec4(col, texColor.a);
+	}
+	void main () {
+	    gl_FragColor = ColorSketch_main(texture, v_uv0, uIntensity, uEdge, uBgColor, uLineColor);
+	} 
+	
+}%
+        

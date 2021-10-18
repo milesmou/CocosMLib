@@ -132,9 +132,14 @@ export class Utils {
     }
 
     /** 从数组中随机获取一个值 */
-    static randomValue<T>(arr: T[]) {
-        let index = this.randomNum(0, arr.length - 1);
-        return arr[index];
+    static randomValue<T>(arr: T[], exclude?: T[]) {
+        if (!arr) return;
+        let newArr = arr.concat();
+        if (exclude) {
+            this.delItemFromArray(newArr, ...exclude)
+        }
+        let index = this.randomNum(0, newArr.length - 1);
+        return newArr[index];
     }
 
     /**
@@ -192,10 +197,13 @@ export class Utils {
     }
 
     /** 分帧加载一个列表 默认以content的第一个子节点为模版 否则需要传入instFunc,返回一个item节点
-     * @param params 对content下多余的item的处理 type:1=隐藏(默认) 2=销毁 3=手动回收(需传入recycleFunc进行回收)
+     * @param params 对content下多余的item的处理 type:1=隐藏(默认) 2=销毁 3=手动回收(需传入recycleFunc进行回收) dt分帧加载每帧耗时(毫秒)
      */
-    static loadItemList<T>(dataList: T[], content: cc.Node, execute: (data: T, item: cc.Node) => void, params?: { type?: 1 | 2 | 3, instFunc?: () => cc.Node, recycleFunc?: (item: cc.Node) => void, onComplete?: () => void }) {
-        if (!content) return;
+    static loadItemList<T>(dataList: T[], content: cc.Node, execute: (data: T, item: cc.Node, index?: number) => void, params?: { type?: 1 | 2 | 3, dt?: number, instFunc?: () => cc.Node, recycleFunc?: (item: cc.Node) => void, onComplete?: () => void }) {
+        if (!content) {
+            console.error("content节点为null");
+            return;
+        }
         if (content.childrenCount == 0 && !params?.instFunc) {
             console.error("Content下无默认子节点且没有传入instFunc");
             return;
@@ -221,6 +229,7 @@ export class Utils {
             for (let i = 0; i < dataList.length; i++) {
                 const v = dataList[i];
                 let func = () => {
+                    if (!content?.isValid) return;
                     let itemNode = content.children[i];
                     if (!itemNode) {
                         if (params?.instFunc) {
@@ -231,12 +240,12 @@ export class Utils {
                         itemNode.parent = content;
                     }
                     itemNode.active = true;
-                    execute && execute(v, itemNode);
+                    execute && execute(v, itemNode, i);
                 }
                 yield func;
             }
         }();
-        this.frameLoad(gen).then(() => {
+        this.frameLoad(gen, params?.dt || 4).then(() => {
             params?.onComplete && params.onComplete();
         });
     }
@@ -247,7 +256,7 @@ export class Utils {
      * @param target 执行分帧加载的组件
      * @param dt 每帧耗时(毫秒)
      */
-    static frameLoad(gen: Generator, dt = 6) {
+    static frameLoad(gen: Generator, dt = 4) {
         let p = new Promise<void>((resolve, reject) => {
             let execute = () => {
                 let d1 = Date.now();
@@ -274,11 +283,11 @@ export class Utils {
     /**
      * 将 AssetBundle load Promise化
      */
-    static load(path: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number) => void, bundleKey?: BundleKey): Promise<cc.Asset> {
-        let p = new Promise<cc.Asset>((resolve, reject) => {
+    static load<T extends cc.Asset>(path: string, type?: { new(): T }, onProgress?: (finish: number, total: number) => void, bundleKey?: BundleKey): Promise<T> {
+        let p = new Promise<T>((resolve, reject) => {
             let bundle = bundleKey ? BundleMgr.Inst.getBundle(bundleKey) : cc.resources;
             if (bundle) {
-                bundle.load(path, type, onProgress, (err, asset) => {
+                bundle.load(path, type as any, onProgress, (err, asset: any) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -416,10 +425,25 @@ export class Utils {
         return times;
     }
 
+    /** 生成UUID */
     static genUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
+    }
+
+    /** 设置spine各动画之间的融合时间 */
+    static setSpineCommonMix(spine: sp.Skeleton, dur: number) {
+        if (!spine) return;
+        let anims: any[] = spine["_skeleton"]["data"]["animations"];
+        if (anims?.length) {
+            for (let i = 0; i < anims.length - 1; i++) {
+                for (let j = i + 1; j < anims.length; j++) {
+                    spine.setMix(anims[i].name, anims[j].name, dur);
+                    spine.setMix(anims[j].name, anims[i].name, dur);
+                }
+            }
+        }
     }
 }

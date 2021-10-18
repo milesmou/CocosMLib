@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "LateralChromaticAberration",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "dbda7fc8-ceed-4dcd-9b0a-c6685f3baa00"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "uIntensity": 1
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}
