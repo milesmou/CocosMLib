@@ -82,7 +82,7 @@ export default class UIMgr extends cc.Component {
     }
 
 
-    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, preload?: boolean }): Promise<T> {
+    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, preload?: boolean, onShow?: (ui: T) => void }) {
         if (this.uiLock.has(name)) {
             this.scheduleOnce(() => {
                 this.show(name, obj);
@@ -100,6 +100,7 @@ export default class UIMgr extends cc.Component {
             this.uiStack.unshift(ui);
             ui.setVisible(false);
             ui.node.parent = this.normal;
+            this.uiLock.delete(name);
         } else {//展示在最上层
             ui.node.zIndex = this.topUI?.node?.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
             this.uiStack.push(ui);
@@ -114,7 +115,7 @@ export default class UIMgr extends cc.Component {
             this.uiLock.delete(name);
             app.event.emit(app.eventKey.OnUIShow, ui);
         }
-        return ui as T;
+        obj?.onShow && obj.onShow(ui as T);
     }
 
     public async hide(name: UIKey): Promise<void> {
