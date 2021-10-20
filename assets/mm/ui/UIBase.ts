@@ -70,29 +70,17 @@ export default class UIBase extends cc.Component {
     closeBtn: cc.Button = null;
 
     public uiName: any = null;
-    public block: cc.Node = null;
     protected animation: cc.Animation = null;
     protected args: any = null;
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     init(uiName: string) {
         this.uiName = uiName;
-        this.initBlock();
         this.autoHide && this.enableAutoHide();
         this.listenVisible && this.enableListenVisible();
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.animation = this.getComponent(cc.Animation);
-    }
-
-    /** 初始化一个遮罩 在UI执行动画时 拦截用户操作 */
-    private initBlock() {
-        this.block = new cc.Node("block");
-        this.block.setContentSize(cc.winSize);
-        this.block.addComponent(cc.BlockInputEvents);
-        this.block.zIndex = cc.macro.MAX_ZINDEX;
-        this.block.parent = this.node;
-        this.block.active = false;
     }
 
     setArgs(args: any) {
@@ -200,18 +188,18 @@ export default class UIBase extends cc.Component {
         let bAction = Boolean(this.action & EAction.OPEN);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
-                this.block.active = false;
+                app.ui.block = false;
                 resovle(true);
             };
             if (bAction) {
-                this.block.active = true;
+                app.ui.block = true;
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.getClips()[0];
                     if (clip) {
                         this.animation.once("finished", callback);
                         this.animation.play(clip.name, 0);
                     } else {
-                        console.warn(this.node.name, "无UI打开动画文件");
+                        cc.warn(this.node.name, "无UI打开动画文件");
                         callback();
                     }
                 } else {//播放默认动画
@@ -232,18 +220,18 @@ export default class UIBase extends cc.Component {
         let bAction = Boolean(this.action & EAction.CLOSE);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
-                this.block.active = false;
+                app.ui.block = false;
                 resovle(true);
             };
             if (bAction) {
-                this.block.active = true;
+                app.ui.block = true;
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.getClips()[1];
                     if (clip) {
                         this.animation.once("finished", callback);
                         this.animation.play(clip.name, 0);
                     } else {
-                        console.warn(this.node.name, "无UI关闭动画文件");
+                        cc.warn(this.node.name, "无UI关闭动画文件");
                         callback();
                     }
                 } else {//播放默认动画

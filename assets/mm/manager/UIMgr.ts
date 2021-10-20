@@ -6,8 +6,8 @@ import UIGUide from "../ui/UIGuide";
 import { app } from "../App";
 
 export enum UIKey {
-    Shade = "ui/Shade",
     Block = "ui/Block",
+    Shade = "ui/Shade",
     UIGuide = "ui/UIGuide",
     UITipMsg = "ui/UITipMsg",
     //testui
@@ -32,27 +32,29 @@ export default class UIMgr extends cc.Component {
 
     private uiDict: { [name: string]: UIBase } = {};
     private uiStack: UIBase[] = [];
-    private cooldown = false;//ui打开时进入冷却
+    /** UI打开时进入冷却(无法同时打开多个UI) */
+    private cooldown = false;
+    /** 打开关闭ui时标记是否正在被操作,避免同时打开和关闭同一个UI */
+    private uiLock = new Set<UIKey>();
 
     /** 最上层的UI */
     private get topUI() { return this.uiStack[this.uiStack.length - 1]; }
     /** 最下层的UI */
     private get botUI() { return this.uiStack[0]; }
 
-    private block: cc.Node = null;
-    public get Block() {
-        return this.block?.active;
+    private blockNode: cc.Node = null;
+    public get block() {
+        return this.blockNode?.active;
     }
     /** 是否拦截所有的UI事件 */
-    public set Block(value) {
-        if (this.block) {
-            this.block.active = value;
+    public set block(value) {
+        if (this.blockNode) {
+            this.blockNode.active = value;
         }
     }
 
     /** UI的半透明遮罩 */
     public shade: cc.Node = null;
-    private shadeOpacity = 0;
 
     //常驻高层UI
     public guide: UIGUide = null;
@@ -66,13 +68,12 @@ export default class UIMgr extends cc.Component {
     /** 初始化 */
     public async init() {
 
-        this.block = await this.instNode(UIKey.Block);
-        this.block.parent = this.node;
-        this.Block = false;
+        this.blockNode = await this.instNode(UIKey.Block);
+        this.blockNode.parent = this.node;
+        this.block = false;
 
         this.shade = await this.instNode(UIKey.Shade);
         this.shade.parent = this.normal;
-        this.shadeOpacity = this.shade.opacity;
         this.shade.opacity = 0;
 
         //添加上层ui
@@ -82,8 +83,15 @@ export default class UIMgr extends cc.Component {
 
 
     public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, preload?: boolean }): Promise<T> {
+        if (this.uiLock.has(name)) {
+            this.scheduleOnce(() => {
+                this.show(name, obj);
+            })
+            return;
+        }
         if (this.cooldown && !obj?.preload) { return; }
         if (!obj?.preload) this.cooldown = true;
+        this.uiLock.add(name);
         app.event.emit(app.eventKey.OnUIInitBegin, name);
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
@@ -103,12 +111,20 @@ export default class UIMgr extends cc.Component {
             await ui.playShowAnim();
             ui.onShow();
             this.cooldown = false;
+            this.uiLock.delete(name);
             app.event.emit(app.eventKey.OnUIShow, ui);
         }
         return ui as T;
     }
 
     public async hide(name: UIKey): Promise<void> {
+        if (this.uiLock.has(name)) {
+            this.scheduleOnce(() => {
+                this.hide(name);
+            })
+            return;
+        }
+        this.uiLock.add(name);
         let ui = this.uiDict[name];
         let index = this.uiStack.indexOf(ui)
         if (index != -1) {
@@ -128,6 +144,7 @@ export default class UIMgr extends cc.Component {
                 ui.node.parent = null;
             }
         }
+        this.uiLock.delete(name);
     }
 
     public async showHigher<T extends UIBase>(name: UIKey, args?: any) {
@@ -178,7 +195,7 @@ export default class UIMgr extends cc.Component {
         let p = new Promise<cc.Node>((resolve, reject) => {
             cc.resources.load(name, cc.Prefab, (err, prefab: any) => {
                 if (err) {
-                    console.error(name, err);
+                    cc.error(name, err);
                     reject();
                 } else {
                     let node: cc.Node = cc.instantiate(prefab);
@@ -236,10 +253,11 @@ export default class UIMgr extends cc.Component {
             let ui = this.uiStack[i];
             if (ui?.showShade) {
                 this.shade.zIndex = ui.node.zIndex - 1;
-                cc.tween(this.shade).to(0.15, { opacity: this.shadeOpacity }).start();
+                cc.tween(this.shade).to(0.15, { opacity: 255 }).start();
                 return;
             }
         }
         cc.tween(this.shade).to(0.15, { opacity: 0 }).start();
     }
+    
 }

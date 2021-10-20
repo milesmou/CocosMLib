@@ -52,8 +52,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1280,
-      "height": 720
+      "width": 720,
+      "height": 1280
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -64,8 +64,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        640,
         360,
+        640,
         0,
         0,
         0,
@@ -122,8 +122,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1280,
-      "height": 720
+      "width": 720,
+      "height": 1280
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -813,8 +813,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1280,
-      "height": 720
+      "width": 720,
+      "height": 1280
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -925,27 +925,14 @@
     "_enabled": true,
     "destroyNode": false,
     "showShade": false,
-    "cover": false,
+    "isFullScreen": false,
+    "autoHide": false,
+    "listenVisible": false,
+    "showAnimDur": -1,
+    "hideAnimDur": -1,
     "blockInputEvent": false,
-    "activeAction": 0,
-    "passiveAction": 0,
-    "animation": null,
+    "action": 0,
     "closeBtn": null,
-    "shade": {
-      "__id__": 2
-    },
-    "finger": {
-      "__id__": 14
-    },
-    "tip": {
-      "__id__": 7
-    },
-    "lblTip": {
-      "__id__": 9
-    },
-    "btnScreen": {
-      "__id__": 22
-    },
     "_id": ""
   },
   {
