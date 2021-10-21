@@ -6,15 +6,16 @@ import UIGUide from "../ui/UIGuide";
 import { app } from "../App";
 
 export enum UIKey {
-    Block = "ui/Block",
-    Shade = "ui/Shade",
     UIGuide = "ui/UIGuide",
     UITipMsg = "ui/UITipMsg",
     //testui
+    UIMenu = "testui/UIMenu",
+    UIUITest = "testui/UIUITest",
     UI1 = "testui/ui1",
     UI2 = "testui/ui2",
     UI3 = "testui/ui3",
     UI4 = "testui/ui4",
+    UIAudio = "testui/UIAudio",
 }
 
 
@@ -29,6 +30,12 @@ export default class UIMgr extends cc.Component {
     /** 比较上层的UI界面(如提示信息、引导等等)不参与UI堆栈 */
     @property(cc.Node)
     private higher: cc.Node = null;
+    /** 弹窗UI的半透明遮罩 */
+    @property(cc.Node)
+    private shade: cc.Node = null;
+    /** 拦截所有UI事件的组件 */
+    @property(cc.BlockInputEvents)
+    private blockInput: cc.BlockInputEvents = null;
 
     private uiDict: { [name: string]: UIBase } = {};
     private uiStack: UIBase[] = [];
@@ -42,19 +49,15 @@ export default class UIMgr extends cc.Component {
     /** 最下层的UI */
     private get botUI() { return this.uiStack[0]; }
 
-    private blockNode: cc.Node = null;
+    private blockCnt = 0;
     public get block() {
-        return this.blockNode?.active;
+        return this.blockInput?.enabled;
     }
-    /** 是否拦截所有的UI事件 */
+    /** 是否拦截所有的UI事件(采用计数的方式,启用后一定要关闭) */
     public set block(value) {
-        if (this.blockNode) {
-            this.blockNode.active = value;
-        }
+        this.blockCnt += (value ? 1 : -1);
+        this.blockInput.enabled = this.blockCnt > 0 ? true : false;
     }
-
-    /** UI的半透明遮罩 */
-    public shade: cc.Node = null;
 
     //常驻高层UI
     public guide: UIGUide = null;
@@ -67,14 +70,6 @@ export default class UIMgr extends cc.Component {
 
     /** 初始化 */
     public async init() {
-
-        this.blockNode = await this.instNode(UIKey.Block);
-        this.blockNode.parent = this.node;
-        this.block = false;
-
-        this.shade = await this.instNode(UIKey.Shade);
-        this.shade.parent = this.normal;
-        this.shade.opacity = 0;
 
         //添加上层ui
         this.guide = await this.showHigher(UIKey.UIGuide) as UIGUide;
@@ -92,6 +87,7 @@ export default class UIMgr extends cc.Component {
         if (this.cooldown && !obj?.preload) { return; }
         if (!obj?.preload) this.cooldown = true;
         this.uiLock.add(name);
+        this.block = true;
         app.event.emit(app.eventKey.OnUIInitBegin, name);
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
@@ -100,7 +96,6 @@ export default class UIMgr extends cc.Component {
             this.uiStack.unshift(ui);
             ui.setVisible(false);
             ui.node.parent = this.normal;
-            this.uiLock.delete(name);
         } else {//展示在最上层
             ui.node.zIndex = this.topUI?.node?.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
             this.uiStack.push(ui);
@@ -110,11 +105,12 @@ export default class UIMgr extends cc.Component {
             ui.onShowBegin();
             app.event.emit(app.eventKey.OnUIShowBegin, ui);
             await ui.playShowAnim();
-            ui.onShow();
             this.cooldown = false;
-            this.uiLock.delete(name);
+            ui.onShow();
             app.event.emit(app.eventKey.OnUIShow, ui);
         }
+        this.uiLock.delete(name);
+        this.block = false;
         obj?.onShow && obj.onShow(ui as T);
     }
 
@@ -126,6 +122,7 @@ export default class UIMgr extends cc.Component {
             return;
         }
         this.uiLock.add(name);
+        this.block = true;
         let ui = this.uiDict[name];
         let index = this.uiStack.indexOf(ui)
         if (index != -1) {
@@ -146,6 +143,7 @@ export default class UIMgr extends cc.Component {
             }
         }
         this.uiLock.delete(name);
+        this.block = false;
     }
 
     public async showHigher<T extends UIBase>(name: UIKey, args?: any) {
@@ -260,5 +258,5 @@ export default class UIMgr extends cc.Component {
         }
         cc.tween(this.shade).to(0.15, { opacity: 0 }).start();
     }
-    
+
 }

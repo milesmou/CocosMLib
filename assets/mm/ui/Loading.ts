@@ -2,7 +2,7 @@ import { HotUpdate, HotUpdateCode } from "../utils/HotUpdate";
 import UIMgr from "../manager/UIMgr";
 import { app } from "../App";
 import { Utils } from "../utils/Utils";
-import DataManager from "../../script/game/DataManager";
+import { DataManager } from "../../script/game/DataManager";
 
 const { ccclass, property } = cc._decorator;
 
@@ -28,7 +28,6 @@ export default class Loading extends cc.Component {
 
     start() {
         this.node.opacity = 255;
-        this.node.zIndex = 10000;
         this.loadCfg();
     }
 
@@ -76,8 +75,11 @@ export default class Loading extends cc.Component {
             }
         })
             .call(() => {
-                this.node.destroy();
-                cc.director.loadScene("TestUI");
+                app.ui.show(app.uiKey.UIMenu, {
+                    onShow: () => {
+                        this.node.destroy();
+                    }
+                });
             })
             .start();
     }
@@ -106,11 +108,14 @@ export default class Loading extends cc.Component {
             cc.game.restart();
         } else if (code == HotUpdateCode.Fail) {
             UIMgr.Inst.tipMsg.showTipBox(
-                "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", 1,
-                () => {
+                "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", {
+                boxType: 1,
+                cbConfirm: () => {
                     cc.audioEngine.stopAll();
                     cc.game.restart();
                 }
+            }
+
             );
         } else {//最新版本或manifest文件异常 跳过更新
             this.loadRes()

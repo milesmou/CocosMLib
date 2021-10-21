@@ -1,27 +1,28 @@
 /** 对象池枚举 */
 export enum PoolKey {
-    Miles,
-    Mou,
+    ToastItem,
 }
 
 /** 对象池工具类 */
 export class PoolMgr {
 
-    private prefabs: Map<number, cc.Prefab> = new Map();
+    private prefabs: Map<number, cc.Prefab | cc.Node> = new Map();
     private pools: Map<number, cc.NodePool> = new Map();
 
     /**
      * 初始化一个对象池
      * @param poolName 对象池名字
-     * @param prefab 预制体
+     * @param item 预制体或模板Node
      * @param num 初始化节点数量
+     * @param dt 每帧消耗时间(毫秒)
      */
-    initPool(poolName: number, prefab: cc.Prefab, itemNum: number) {
+    initPool(poolName: number, item: cc.Prefab | cc.Node, itemNum: number, dt = 5) {
         if (!this.pools.has(poolName)) {
             let pool = new cc.NodePool();
-            this.prefabs.set(poolName, prefab);
+            this.prefabs.set(poolName, item);
             this.pools.set(poolName, pool);
-            let gen = this.itemGen(pool, prefab, itemNum);
+            if (itemNum <= 0) return;
+            let gen = this.itemGen(pool, item, itemNum);
             let p = new Promise<void>((resolve, reject) => {
                 let execute = () => {
                     let d1 = Date.now();
@@ -34,7 +35,7 @@ export class PoolMgr {
                             e.value();
                         }
                         let d2 = Date.now();
-                        if (d2 - d1 >= 3) {
+                        if (d2 - d1 >= dt) {
                             new cc.Component().scheduleOnce(execute);
                             break;
                         }
@@ -43,8 +44,6 @@ export class PoolMgr {
                 execute();
             });
             return p;
-        } else {
-            console.warn("请勿重复创建对象池!");
         }
     }
 
@@ -58,10 +57,10 @@ export class PoolMgr {
             if (pool.size() > 0) {
                 return pool.get();
             } else {
-                return cc.instantiate(this.prefabs.get(poolName));
+                return cc.instantiate(this.prefabs.get(poolName)) as cc.Node;
             }
         } else {
-            console.error("对象池不存在!");
+            cc.error("对象池不存在!");
         }
     }
 
@@ -81,14 +80,25 @@ export class PoolMgr {
                 pool.put(nodeRes);
             }
         } else {
-            console.error("对象池不存在!");
+            cc.error("对象池不存在!");
         }
     }
 
-    *itemGen(pool: cc.NodePool, prefab: cc.Prefab, itemNum: number) {
+    /** 清空对象池 */
+    clearPool(poolName: number) {
+        if (this.pools.has(poolName)) {
+            let pool = this.pools.get(poolName);
+            pool.clear();
+            this.pools.delete(poolName);
+        } else {
+            cc.error("对象池不存在!");
+        }
+    }
+
+    *itemGen(pool: cc.NodePool, item: cc.Prefab | cc.Node, itemNum: number) {
         for (let i = 0; i < itemNum; i++) {
             let func = () => {
-                pool.put(cc.instantiate(prefab))
+                pool.put(cc.instantiate(item as cc.Node));
             }
             yield func;
         }

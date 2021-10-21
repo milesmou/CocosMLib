@@ -1,3 +1,5 @@
+import { app } from "../App";
+import Language from "../component/Language";
 import UIBase from "./UIBase";
 
 const { ccclass, property } = cc._decorator;
@@ -7,18 +9,17 @@ export default class UITipMsg extends UIBase {
 
     @property(cc.Node)
     singleTip: cc.Node = null;
-    @property(cc.Label)
-    singleTipContent: cc.Label = null;
+    @property(cc.RichText)
+    singleTipContent: cc.RichText = null;
 
     @property(cc.Node)
     tipGroup: cc.Node = null;
-    tipItem: cc.Node = null;
-    tipPool: cc.NodePool = null;
+    tipGroupSpaceY = 50;
 
     @property(cc.Node)
     tipBox: cc.Node = null;
-    @property(cc.Label)
-    tipBoxContent: cc.Label = null;
+    @property(cc.RichText)
+    tipBoxContent: cc.RichText = null;
     @property(cc.Button)
     btnConfirm: cc.Button = null;
     @property(cc.Button)
@@ -31,15 +32,9 @@ export default class UITipMsg extends UIBase {
         this.singleTip.opacity = 0;
 
         this.tipGroup.active = true;
-        this.tipItem = this.tipGroup.children[0];
-        this.tipPool = new cc.NodePool();
-        for (let i = 0, len = 10; i < len; i++) {
-            let tip: cc.Node = cc.instantiate(this.tipItem);
-            tip["Miles_Content"] = tip.getComponentInChildren(cc.Label);
-            this.tipPool.put(tip);
-        }
-        this.tipGroup.removeAllChildren();
-        
+        app.pool.initPool(app.poolKey.ToastItem, this.tipGroup.children[0], 5);
+
+        this.tipGroup.removeAllChildren(true);
         this.tipBox.active = false;
     }
 
@@ -48,6 +43,10 @@ export default class UITipMsg extends UIBase {
      * @param content 提示内容
      */
     showTip(content: string) {
+        content = Language.getStringByID(content);
+        if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
+            content = "<color=#00ffff>" + content + "</c>";
+        }
         this.singleTip.stopAllActions();
         this.singleTip.opacity = 255;
         this.singleTipContent.string = content;
@@ -62,44 +61,33 @@ export default class UITipMsg extends UIBase {
      * @param content 提示内容
      */
     showTips(content: string) {
-        let tip = this.tipPool.get();
-        if (!tip) {
-            tip = cc.instantiate(this.tipItem);
-            tip["Miles_Content"] = tip.getComponentInChildren(cc.Label);
+        let tip = app.pool.get(app.poolKey.ToastItem);
+        content = Language.getStringByID(content);
+        if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
+            content = "<color=#00ffff>" + content + "</c>";
         }
-        (tip["Miles_Content"] as cc.Label).string = content;
-        tip["Miles_Move"] = true;
+        tip.getComponentInChildren(cc.RichText).string = content;
         tip.opacity = 255;
-        tip.y = 0;
         tip.parent = this.tipGroup;
-        let count = this.tipGroup.childrenCount;
-        if (count > 1 && this.tipGroup.children[count - 2].y < 45) {
-            let deltaY = 45 - this.tipGroup.children[count - 2].y;
-            for (let i = count - 2; i >= 0; i--) {
-                let y = this.tipGroup.children[i].y + deltaY;
-                this.tipGroup.children[i].y = y <= this.tipGroup.height ? y : this.tipGroup.height;
+        for (let i = this.tipGroup.childrenCount - 1; i >= 0; i--) {
+            let v = this.tipGroup.children[i];
+            let posY = (this.tipGroup.childrenCount - 2 - i) * this.tipGroupSpaceY;
+            v.y = posY;
+        }
+        cc.tween(tip).delay(1.5).to(0.3, { opacity: 0 }).call(() => {
+            app.pool.put(app.poolKey.ToastItem, tip);
+        }).start();
+    }
+
+    update(dt: number) {
+        for (let i = this.tipGroup.childrenCount - 1; i >= 0; i--) {
+            let v = this.tipGroup.children[i];
+            let posY = (this.tipGroup.childrenCount - 1 - i) * this.tipGroupSpaceY;
+            if (v.y < posY) {
+                v.y += 200 * dt;
             }
         }
     }
-
-    update(dt) {
-        for (let i = 0, len = this.tipGroup.childrenCount; i < len; i++) {
-            let tip = this.tipGroup.children[i];
-            if (tip["Miles_Move"]) {
-                tip.y += 200 * dt;
-                if (tip.y >= this.tipGroup.height) {
-                    tip["Miles_Move"] = false;
-                    cc.tween(tip)
-                        .to(0.2, { opacity: 0 })
-                        .call(() => {
-                            this.tipPool.put(tip)
-                        })
-                        .start();
-                }
-            }
-        }
-    }
-
 
     /**
      * 显示提示框
@@ -107,14 +95,14 @@ export default class UITipMsg extends UIBase {
      * @param boxType 提示框类型 1：一个确认按钮 2：确认和取消按钮
      * @param opts 确认和取消按钮回调
      */
-    showTipBox(content: string, boxType = 2,  cbConfirm?: Function, cbCancel?: Function ) {
+    showTipBox(content: string, params: { boxType: 1 | 2, cbConfirm?: Function, cbCancel?: Function }) {
         this.tipBox.active = true;
         this.tipBoxContent.string = content;
         this.btnConfirm.node.once("click", this.Confirm, this);
         this.btnCancel.node.once("click", this.Cancel, this);
-        this.btnCancel.node.active = boxType == 2;
-        this.cbConfirm = cbConfirm;
-        this.cbCancel = cbCancel;
+        this.btnCancel.node.active = params.boxType == 2;
+        this.cbConfirm = params.cbConfirm;
+        this.cbCancel = params.cbCancel;
     }
 
     Confirm() {

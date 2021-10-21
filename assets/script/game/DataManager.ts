@@ -1,6 +1,6 @@
 import Language from "../../mm/component/Language";
 import { SingletonFactory } from "../../mm/utils/SingletonFactory";
-import { GlobalVal, Config, Guide, GameData, GameConfig } from "./DataEntity";
+import {  Config, Guide, GameConfig, GameGuide } from "./DataEntity";
 
 
 export class DataManager {
@@ -11,7 +11,7 @@ export class DataManager {
     /** 本地配置 */
     public get GlobalVal() { return /* this.Data.GlobalVal[1] */; };
 
-    public Data: GameData & GameConfig;
+    public Data: GameGuide & GameConfig;
 
     /** 初始化数据表 */
     public initData(data: cc.JsonAsset[]) {

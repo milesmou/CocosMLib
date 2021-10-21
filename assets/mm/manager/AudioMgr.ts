@@ -1,3 +1,4 @@
+import { app } from "../App";
 import { BiArray } from "../collection/BiArray";
 import { Utils } from "../utils/Utils";
 
@@ -88,7 +89,7 @@ export class AudioMgr {
                     if (this.trackAudio[track] != audio) {
                         delete this.music[track];
                         delete this.trackAudio[track];
-                        cc.audioEngine.stop(trackAudioId);
+                        this.fadeOutMusic(0, trackAudioId, true);
                     }
                 }
                 this.stack.delItem(track);
@@ -106,8 +107,8 @@ export class AudioMgr {
         } else {//重新播放音乐
             this.trackAudio[track] = audio;
             Utils.load(this.pathSuffix + audio, cc.AudioClip).then(clip => {
-                console.log(clip);
-                
+                if (clip.name != this.trackAudio[track]) return;//前一个BGM未加载成功，就已播放另一个BGM
+                if (this.music[track] > -1) return//重复播放相同的音频
                 let audioId = -1;
                 if (fadeIn > 0) {
                     audioId = cc.audioEngine.play(clip, true, 0);
@@ -122,7 +123,6 @@ export class AudioMgr {
                         cc.audioEngine.pause(audioId);
                     }
                 }
-                cc.audioEngine.stop(this.music[track]);
                 this.music[track] = audioId;
             });
         }

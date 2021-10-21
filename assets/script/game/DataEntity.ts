@@ -6,8 +6,8 @@ export interface GameConfig   {
     Config: { [id: number]: Config };
 }
 
-export interface GameData   {
-    Guide: { [id: number]: Guide };
+export interface GameGuide   {
+    Guide: { [id: string]: Guide };
 }
 
 export interface Language  {
@@ -46,20 +46,30 @@ export interface GlobalVal  {
 
 
 
-export interface Guide  {
+export class Guide  {
+    /** 主键 */
     ID: number;
+    /** 引导ID */
     GuideID: number;
-    OpenOption: number;
+    /** 节点所在UI名字 */
     UIName: string;
+    /** 节点在UI中的路径 */
     NodePath: string;
-    ShowBtnNode: boolean;
-    ShowShade: boolean;
-    BlockEvent: boolean;
-    FingerDir: number;
-    FingerOffset: number[];
-    TipText: number;
-    TipPos: number[];
+    /** 是否点击屏幕即完成本步引导 */
     ClickScreen: boolean;
+    /** 遮罩透明度 */
+    ShadeOpacity: number;
+    /** 挖孔类型 */
+    HollowType: number[];
+    /** 挖孔处响应区域大小 */
+    ReactArea: number[];
+    /** 手指方向 */
+    FingerDir: number;
+    /** 手指相对挖孔偏移 */
+    FingerOffset: number[];
+    /** 提示文字 */
+    TipText: string;
+    /** 提示文字位置 */
+    TipPos: number[];
 }
-
 
