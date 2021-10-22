@@ -37,12 +37,12 @@ export default class UIMgr extends cc.Component {
     @property(cc.BlockInputEvents)
     private blockInput: cc.BlockInputEvents = null;
 
-    private uiDict: { [name: string]: UIBase } = {};
+    private uiMap: Map<UIKey, UIBase> = new Map();
     private uiStack: UIBase[] = [];
-    /** UI打开时进入冷却(无法同时打开多个UI) */
-    private cooldown = false;
     /** 打开关闭ui时标记是否正在被操作,避免同时打开和关闭同一个UI */
     private uiLock = new Set<UIKey>();
+    /** UI打开时进入冷却(无法同时打开多个UI) */
+    private cooldown = false;
 
     /** 最上层的UI */
     private get topUI() { return this.uiStack[this.uiStack.length - 1]; }
@@ -70,7 +70,6 @@ export default class UIMgr extends cc.Component {
 
     /** 初始化 */
     public async init() {
-
         //添加上层ui
         this.guide = await this.showHigher(UIKey.UIGuide) as UIGUide;
         this.tipMsg = await this.showHigher(UIKey.UITipMsg) as UITipMsg;
@@ -78,15 +77,14 @@ export default class UIMgr extends cc.Component {
 
 
     public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, preload?: boolean, onShow?: (ui: T) => void }) {
-        if (this.uiLock.has(name)) {
+        if (this.uiLock.has(name) || this.cooldown) {
             this.scheduleOnce(() => {
                 this.show(name, obj);
             })
             return;
         }
-        if (this.cooldown && !obj?.preload) { return; }
-        if (!obj?.preload) this.cooldown = true;
         this.uiLock.add(name);
+        this.cooldown = true
         this.block = true;
         app.event.emit(app.eventKey.OnUIInitBegin, name);
         let ui = await this.initUI(name);
@@ -96,6 +94,8 @@ export default class UIMgr extends cc.Component {
             this.uiStack.unshift(ui);
             ui.setVisible(false);
             ui.node.parent = this.normal;
+            this.uiLock.delete(name);
+            this.cooldown = false;
         } else {//展示在最上层
             ui.node.zIndex = this.topUI?.node?.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
             this.uiStack.push(ui);
@@ -105,11 +105,11 @@ export default class UIMgr extends cc.Component {
             ui.onShowBegin();
             app.event.emit(app.eventKey.OnUIShowBegin, ui);
             await ui.playShowAnim();
+            this.uiLock.delete(name);
             this.cooldown = false;
             ui.onShow();
             app.event.emit(app.eventKey.OnUIShow, ui);
         }
-        this.uiLock.delete(name);
         this.block = false;
         obj?.onShow && obj.onShow(ui as T);
     }
@@ -123,7 +123,7 @@ export default class UIMgr extends cc.Component {
         }
         this.uiLock.add(name);
         this.block = true;
-        let ui = this.uiDict[name];
+        let ui = this.uiMap.get(name);
         let index = this.uiStack.indexOf(ui)
         if (index != -1) {
             this.uiStack.splice(index, 1);
@@ -137,7 +137,7 @@ export default class UIMgr extends cc.Component {
             }
             if (ui.destroyNode) {
                 ui.node.destroy();
-                this.uiDict[name] = undefined;
+                this.uiMap.delete(name);
             } else {
                 ui.node.parent = null;
             }
@@ -154,11 +154,11 @@ export default class UIMgr extends cc.Component {
     }
 
     public hideHigher(name: UIKey) {
-        let ui = this.uiDict[name];
+        let ui = this.uiMap.get(name);
         if (!ui?.isValid) return;
         if (ui.destroyNode) {
             ui.node.destroy();
-            this.uiDict[name] = undefined;
+            this.uiMap.delete(name);
         } else {
             ui.node.parent = null;
         }
@@ -174,7 +174,7 @@ export default class UIMgr extends cc.Component {
     }
 
     public async initUI(name: UIKey): Promise<UIBase> {
-        let ui = this.uiDict[name];
+        let ui = this.uiMap.get(name);
         if (ui?.isValid) {
             let index = this.uiStack.indexOf(ui);
             if (index > -1) {
@@ -184,13 +184,13 @@ export default class UIMgr extends cc.Component {
             let node = await this.instNode(name);
             ui = node.getComponent(UIBase);
             ui.init(name);
-            this.uiDict[name] = ui;
+            this.uiMap.set(name, ui);
         }
         ui.setActive(true);
         return ui;
     }
 
-    private async instNode(name: string): Promise<cc.Node> {
+    private async instNode(name: UIKey): Promise<cc.Node> {
         let p = new Promise<cc.Node>((resolve, reject) => {
             cc.resources.load(name, cc.Prefab, (err, prefab: any) => {
                 if (err) {
@@ -208,11 +208,11 @@ export default class UIMgr extends cc.Component {
     }
 
     public isTopUI(name: UIKey | string) {
-        return this.topUI == this.uiDict[name];
+        return this.topUI == this.uiMap.get(name as UIKey);
     }
 
     public getUI<T extends UIBase>(name: UIKey | string) {
-        let ui = this.uiDict[name];
+        let ui = this.uiMap.get(name as UIKey);
         if (ui && ui.isValid) {
             return ui as T;
         }
@@ -220,7 +220,7 @@ export default class UIMgr extends cc.Component {
 
     /** 获取UI在栈中的层级,栈顶为0,向下依次递增 */
     public getUIIndex(name: UIKey | string) {
-        let ui = this.uiDict[name];
+        let ui = this.uiMap.get(name as UIKey);
         let index = this.uiStack.indexOf(ui);
         if (index > -1) {
             return this.uiStack.length - 1 - index;
