@@ -1,4 +1,3 @@
-import { app } from "../App";
 import { BiArray } from "../collection/BiArray";
 import { Utils } from "../utils/Utils";
 
@@ -194,6 +193,7 @@ export class AudioMgr {
         autoPlay = autoPlay === undefined ? true : autoPlay;
         fadeOut = fadeOut || 0;
         fadeIn = fadeIn || 0;
+        let isTop = this.stack.top == track;
         //停止当前音乐
         if (this.stack.length > 0) {
             let audioId = this.music[track];
@@ -201,12 +201,11 @@ export class AudioMgr {
             this.stack.delItem(track);
             delete this.trackAudio[track];
             delete this.music[track];
-            this.fadeOutMusic(fadeOut, audioId);
+            this.fadeOutMusic(isTop ? fadeOut : 0, audioId, true);
         }
         //恢复上一个音乐
-        if (autoPlay && this.stack.length > 0) {
-            let audioId = this.music[this.stack.top];
-            this.fadeInMusic(fadeIn, audioId);
+        if (autoPlay && this.stack.length > 0 && isTop) {
+            this.pauseMusic(false, fadeIn)
         }
     }
 
