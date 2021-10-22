@@ -4,6 +4,7 @@ import UIBase from "../ui/UIBase";
 import UITipMsg from "../ui/UITipMsg";
 import UIGUide from "../ui/UIGuide";
 import { app } from "../App";
+import { Utils } from "../utils/Utils";
 
 export enum UIKey {
     UIGuide = "ui/UIGuide",
@@ -38,7 +39,10 @@ export default class UIMgr extends cc.Component {
     private blockInput: cc.BlockInputEvents = null;
 
     private uiMap: Map<UIKey, UIBase> = new Map();
+    /** 加载完成的UI栈 */
     private uiStack: UIBase[] = [];
+    /** UIKey的堆栈,这个栈是实时的,因为UI加载需要时间 */
+    private uiKeyStack: UIKey[] = [];
     /** 打开关闭ui时标记是否正在被操作,避免同时打开和关闭同一个UI */
     private uiLock = new Set<UIKey>();
     /** UI打开时进入冷却(无法同时打开多个UI) */
@@ -86,6 +90,10 @@ export default class UIMgr extends cc.Component {
         this.uiLock.add(name);
         this.cooldown = true
         this.block = true;
+        if (this.uiKeyStack.includes(name)) {
+            Utils.delItemFromArray(this.uiKeyStack, name);
+        }
+        obj?.preload ? this.uiKeyStack.unshift(name) : this.uiKeyStack.push(name);
         app.event.emit(app.eventKey.OnUIInitBegin, name);
         let ui = await this.initUI(name);
         ui.setArgs(obj?.args);
@@ -123,9 +131,10 @@ export default class UIMgr extends cc.Component {
         }
         this.uiLock.add(name);
         this.block = true;
+        Utils.delItemFromArray(this.uiKeyStack, name);
         let ui = this.uiMap.get(name);
         let index = this.uiStack.indexOf(ui)
-        if (index != -1) {
+        if (index > -1) {
             this.uiStack.splice(index, 1);
             this.setShade();
             if (index == this.uiStack.length) {
@@ -207,8 +216,14 @@ export default class UIMgr extends cc.Component {
         return p;
     }
 
-    public isTopUI(name: UIKey | string) {
-        return this.topUI == this.uiMap.get(name as UIKey);
+    /** 当前UI是否是栈顶的UI */
+    public isTopUI(name: UIKey | string, immediate = false) {
+        if (!name) return false;
+        if (!immediate) {
+            return this.topUI == this.uiMap.get(name as UIKey);
+        } else {
+            return this.uiKeyStack[this.uiKeyStack.length - 1] == name;
+        }
     }
 
     public getUI<T extends UIBase>(name: UIKey | string) {
@@ -219,9 +234,14 @@ export default class UIMgr extends cc.Component {
     }
 
     /** 获取UI在栈中的层级,栈顶为0,向下依次递增 */
-    public getUIIndex(name: UIKey | string) {
-        let ui = this.uiMap.get(name as UIKey);
-        let index = this.uiStack.indexOf(ui);
+    public getUIIndex(name: UIKey | string, immediate = false) {
+        let index = -1;
+        if (immediate) {
+            index = this.uiKeyStack.indexOf(name as UIKey);
+        } else {
+            let ui = this.uiMap.get(name as UIKey);
+            index = this.uiStack.indexOf(ui);
+        }
         if (index > -1) {
             return this.uiStack.length - 1 - index;
         } else {

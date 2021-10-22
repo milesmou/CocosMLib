@@ -1,4 +1,4 @@
-import { AudioKey, AudioMgr } from "./manager/AudioMgr";
+import { AudioKey, AudioMgr, AudioTrack } from "./manager/AudioMgr";
 import { EventKey, EventMgr } from "./manager/EventMgr";
 import { PoolKey, PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
@@ -14,9 +14,11 @@ export const ELanguage = cc.Enum({
     "English": 3,
 })
 
+
 /** 应用程序启动入口 */
 @ccclass
 export default class App extends cc.Component {
+    public static Inst: App;
 
     @property({
         type: ELanguage,
@@ -42,6 +44,7 @@ export default class App extends cc.Component {
     public static stroage = StroageMgr;
     public static audio: AudioMgr;
     public static audioKey = AudioKey;
+    public static audioTrack = AudioTrack;
     public static event: EventMgr;
     public static eventKey = EventKey;
     public static pool: PoolMgr;
@@ -51,6 +54,11 @@ export default class App extends cc.Component {
 
 
     onLoad() {
+        App.Inst = this;
+
+        cc.game.setFrameRate(60);
+
+
         app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
@@ -64,7 +72,7 @@ export default class App extends cc.Component {
         app.ui = UIMgr.Inst;
         app.safeSize = this.getSafeArea();
 
-        console.log(`Platform=${app.config.platformName} Version=${app.config.version} Language=${app.lang}`);
+        cc.log(`Platform=${app.config.platformName} Version=${app.config.version} Language=${app.lang}`);
     }
 
     /** 获取语言环境 */
@@ -72,21 +80,19 @@ export default class App extends cc.Component {
         let v = "";
         if (this.languageId == ELanguage.Auto) {
             v = app.stroage.getValue("SysLanguage", cc.sys.languageCode);
-            if (v.includes("-")) {
-                if (v == "zh-cn") {
-                    v = "zh";
-                } else if (v.startsWith("zh-")) {
-                    v = "zh_ft";
-                } else if (v.startsWith("en-")) {
-                    v = "en";
-                }
+            if (v.startsWith("zh-cn") || v.startsWith("zh_cn")) {
+                v = "SC";
+            } else if (v.startsWith("zh-") || v.startsWith("zh_")) {
+                v = "TS";
+            } else {
+                v = "EN";
             }
         } else if (this.languageId == ELanguage.ChineseSimplified) {
-            v = "zh";
+            v = "SC";
         } else if (this.languageId == ELanguage.ChineseTraditional) {
-            v = "zh_ft";
+            v = "TS";
         } else if (this.languageId == ELanguage.English) {
-            v = "en";
+            v = "EN";
         }
         return v;
     }

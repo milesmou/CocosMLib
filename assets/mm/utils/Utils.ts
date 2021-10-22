@@ -6,6 +6,10 @@ import { BundleKey, BundleMgr } from "../manager/BundleMgr";
  */
 export class Utils {
 
+    static delayToDo(callbck: () => void, dur = 0) {
+        app.Inst.scheduleOnce(callbck, dur)
+    }
+
     /**
      * 加载图片到Sprite
      * @param sprite 目标Sprite组件
@@ -16,7 +20,7 @@ export class Utils {
         let p = new Promise<void>((resolve, reject) => {
             let onComplete = (err, res: cc.SpriteFrame | cc.Texture2D) => {
                 if (err) {
-                    console.error(err);
+                    cc.error(err);
                     reject();
                 } else {
                     if (res instanceof cc.Texture2D) {
@@ -37,22 +41,12 @@ export class Utils {
                     }
                     bundle.load(url, cc.SpriteFrame, onComplete);
                 } else {
-                    console.error();
+                    cc.error(bundleKey + " bundle不存在");
                     reject(bundleKey + " bundle不存在");
                 }
             }
         })
         return p;
-    }
-
-    /** 从节点的一级子节点获取指定组件 */
-    static getComponentInChildren<T extends cc.Component>(obj: cc.Node, type: { prototype: T }): T {
-        for (let i = 0; i < obj.childrenCount; i++) {
-            let child = obj.children[i];
-            let comp = child.getComponent(type);
-            if (comp) return comp;
-        }
-        return null;
     }
 
     /**
@@ -79,7 +73,7 @@ export class Utils {
             let days = Math.abs(d1.getTime() - d2.getTime()) / (24 * 60 * 60 * 1000);
             return Math.floor(days);
         } else {
-            console.error("日期格式不正确");
+            cc.error("日期格式不正确");
             return -1;
         }
     }
@@ -201,11 +195,11 @@ export class Utils {
      */
     static loadItemList<T>(dataList: T[], content: cc.Node, execute: (data: T, item: cc.Node, index?: number) => void, params?: { type?: 1 | 2 | 3, dt?: number, instFunc?: () => cc.Node, recycleFunc?: (item: cc.Node) => void, onComplete?: () => void }) {
         if (!content) {
-            console.error("content节点为null");
+            cc.error("content节点为null");
             return;
         }
         if (content.childrenCount == 0 && !params?.instFunc) {
-            console.error("Content下无默认子节点且没有传入instFunc");
+            cc.error("Content下无默认子节点且没有传入instFunc");
             return;
         }
         dataList = dataList || [];
@@ -295,7 +289,7 @@ export class Utils {
                     }
                 })
             } else {
-                console.error();
+                cc.error(bundleKey + " bundle不存在");
                 reject(bundleKey + " bundle不存在");
             }
         })
@@ -317,7 +311,7 @@ export class Utils {
                     }
                 })
             } else {
-                console.error();
+                cc.error(bundleKey + " bundle不存在");
                 reject(bundleKey + " bundle不存在");
             }
         })
@@ -355,7 +349,7 @@ export class Utils {
                     }
                 })
             } else {
-                console.error();
+                cc.error(bundleKey + " bundle不存在");
                 reject(bundleKey + " bundle不存在")
             }
         })
@@ -404,7 +398,7 @@ export class Utils {
     }
 
     static delItemFromArray<T>(arr: T[], ...item: T[]) {
-        if (item.length > 0) {
+        if (arr.length > 0 && item.length > 0) {
             item.forEach(v => {
                 let index = arr.indexOf(v);
                 if (index > -1) {

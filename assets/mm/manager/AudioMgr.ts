@@ -42,27 +42,10 @@ export class AudioMgr {
     private effect: number[] = [];
 
     constructor() {
-        cc.game.on(cc.game.EVENT_SHOW, this.onShow, this);
-        cc.game.on(cc.game.EVENT_HIDE, this.onHide, this);
         let mVolume = parseFloat(cc.sys.localStorage.getItem(this.sMusicVolume));
         this.mVolume = !isNaN(mVolume) ? mVolume : 1;
         let eVolume = parseFloat(cc.sys.localStorage.getItem(this.sEffectVolume));
         this.eVolume = !isNaN(eVolume) ? eVolume : 1;
-    }
-
-    onShow() {
-        this.pauseMusic(false);
-        if (this.effect.length > 0) {
-            this.effect.forEach(v => {
-                if (cc.audioEngine.getState(v) == cc.audioEngine.AudioState.PAUSED) {
-                    cc.audioEngine.resume(v);
-                }
-            });
-        }
-    }
-
-    onHide() {
-        this.pauseMusic(true);
     }
 
     /** 
@@ -98,6 +81,7 @@ export class AudioMgr {
             }
         }
         this.stack.push(rowIndex, track);
+        this.pause = false;//主动播放音乐,解除暂停状态
         if (this.music[track]) {//恢复音乐
             let audioId = this.music[track];
             if (this.stack.top == track && !this.pause) {
@@ -112,14 +96,15 @@ export class AudioMgr {
                 if (fadeIn > 0) {
                     audioId = cc.audioEngine.play(clip, true, 0);
                     if (this.stack.top != track || this.pause) {
-                        cc.audioEngine.pause(audioId);
+                        Utils.delayToDo(()=>{cc.audioEngine.pause(audioId)},0.1) ;
                     } else {
                         this.fadeInMusic(fadeIn, audioId);
                     }
                 } else {
                     audioId = cc.audioEngine.play(clip, true, this.mVolume);
                     if (this.stack.top != track || this.pause) {
-                        cc.audioEngine.pause(audioId);
+
+                        Utils.delayToDo(()=>{cc.audioEngine.pause(audioId)},0.1) ;
                     }
                 }
                 this.music[track] = audioId;
