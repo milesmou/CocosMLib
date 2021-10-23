@@ -1,8 +1,8 @@
-import { AudioKey, AudioMgr, AudioTrack } from "./manager/AudioMgr";
+import AudioMgr, { AudioTrack } from "./manager/AudioMgr";
+import UIMgr, { UIKey } from "./manager/UIMgr";
 import { EventKey, EventMgr } from "./manager/EventMgr";
 import { PoolKey, PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
-import UIMgr, { UIKey } from "./manager/UIMgr";
 import { EPlatform, IPlatform, Platform } from "./platform/Platform";
 
 const { ccclass, property } = cc._decorator;
@@ -18,8 +18,6 @@ export const ELanguage = cc.Enum({
 /** 应用程序启动入口 */
 @ccclass
 export default class App extends cc.Component {
-    public static Inst: App;
-
     @property({
         type: ELanguage,
         displayName: "语言"
@@ -43,7 +41,6 @@ export default class App extends cc.Component {
     //manager
     public static stroage = StroageMgr;
     public static audio: AudioMgr;
-    public static audioKey = AudioKey;
     public static audioTrack = AudioTrack;
     public static event: EventMgr;
     public static eventKey = EventKey;
@@ -54,12 +51,8 @@ export default class App extends cc.Component {
 
 
     onLoad() {
-        App.Inst = this;
-
         cc.game.setFrameRate(60);
 
-
-        app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
 
@@ -70,6 +63,7 @@ export default class App extends cc.Component {
 
     start() {
         app.ui = UIMgr.Inst;
+        app.audio = AudioMgr.Inst;
         app.safeSize = this.getSafeArea();
 
         cc.log(`Platform=${app.config.platformName} Version=${app.config.version} Language=${app.lang}`);

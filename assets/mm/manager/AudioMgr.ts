@@ -1,12 +1,14 @@
-import { BiArray } from "../collection/BiArray";
+const { ccclass, property } = cc._decorator;
+import { BiStack } from "../collection/BiStack";
 import { Utils } from "../utils/Utils";
 
-/** 音频枚举 */
-export enum AudioKey {
-    //音乐
-    M_BGM = "bgm",
-    //音效
-    E_CLICK = "btn",
+interface AudioState {
+    /** 音源组件 */
+    audio: cc.AudioSource;
+    /** 在全局音量基础上的音量缩放 */
+    volume: number;
+    /** 音频文件名 */
+    clip: string;
 }
 
 /** 音轨ID */
@@ -19,7 +21,10 @@ export enum AudioTrack {
 }
 
 /** 音频管理工具类 */
-export class AudioMgr {
+@ccclass
+export default class AudioMgr extends cc.Component {
+
+    public static Inst: AudioMgr;
 
     public mVolume = 1;
     public eVolume = 1;
@@ -33,15 +38,14 @@ export class AudioMgr {
     private pause = false;
 
     /** 音乐的音轨栈 */
-    private stack = new BiArray<number>();
-    /** 音轨的音频文件名 */
-    private trackAudio: { [trackId: number]: string } = {};
+    private stack = new BiStack<number>();
     /** 音轨的音乐播放状态 */
-    private music: { [track: number]: number } = {};
+    private music: Map<number, AudioState> = new Map();
     /** 正在播放的音效 */
-    private effect: number[] = [];
+    private effect: AudioState[] = [];
 
-    constructor() {
+    onLoad() {
+        AudioMgr.Inst = this;
         let mVolume = parseFloat(cc.sys.localStorage.getItem(this.sMusicVolume));
         this.mVolume = !isNaN(mVolume) ? mVolume : 1;
         let eVolume = parseFloat(cc.sys.localStorage.getItem(this.sEffectVolume));
@@ -50,64 +54,72 @@ export class AudioMgr {
 
     /** 
      * 播放背景音乐
-     * @param track 音乐所属轨道,0表示为主BGM (每个音轨对应一个AudioClip)
+     * @param track 音乐所属轨道(每个音轨对应一个AudioClip)
      * @param fadeIn 当前音乐渐入时间
      * @param fadeOut 上一个音乐渐出时间
      */
-    playMusic(audio: string, params: { track: number, trackIndex?: number, fadeIn?: number, fadeOut?: number }) {
-        let { track, fadeIn, fadeOut } = params;
+    playMusic(audio: string, params: { track: number, volume?: number, fadeIn?: number, fadeOut?: number }) {
+        let { track, volume, fadeIn, fadeOut } = params;
+        volume = cc.misc.clamp01(volume == undefined ? 1 : volume);
         fadeIn = fadeIn || 0;
         fadeOut = fadeOut || 0;
-        if (this.stack.top == track && this.trackAudio[track] == audio) return;//播放同样的音乐
-        let rowIndex = Math.floor(track / 10000);
+        if (this.stack.top == track && this.music.get(track).clip == audio) return;//播放同样的音乐
+        let priority = Math.floor(track / 10000);
         if (this.stack.length > 0) {//处理正在播放的音乐
             if (this.stack.includes(track)) {
-                let trackAudioId = this.music[track];
+                let trackAudioState = this.music.get(track);
                 if (this.stack.top == track) {
-                    delete this.music[track];
-                    delete this.trackAudio[track];
-                    this.fadeOutMusic(fadeOut, trackAudioId, true);
+                    this.music.delete(track);
+                    this.fadeOutMusic(fadeOut, trackAudioState?.audio, true);
                 } else {
-                    if (this.trackAudio[track] != audio) {
-                        delete this.music[track];
-                        delete this.trackAudio[track];
-                        this.fadeOutMusic(0, trackAudioId, true);
+                    if (trackAudioState.clip != audio) {
+                        this.music.delete(track);
+                        this.fadeOutMusic(0, trackAudioState?.audio, true);
+                    }
+                    if (priority >= Math.floor(this.stack.top / 10000)) {//优先级大于等于当前播放的音乐
+                        let nowPlayingAudioState = this.music.get(this.stack.top);
+                        this.fadeOutMusic(fadeOut, nowPlayingAudioState?.audio);
                     }
                 }
                 this.stack.delItem(track);
             } else {
-                let nowPlayAudioId = this.music[this.stack.top];
-                nowPlayAudioId > -1 && this.fadeOutMusic(fadeOut, nowPlayAudioId);
+                if (priority >= Math.floor(this.stack.top / 10000)) {//优先级大于等于当前播放的音乐
+                    let nowPlayingAudioState = this.music.get(this.stack.top);
+                    this.fadeOutMusic(fadeOut, nowPlayingAudioState?.audio);
+                }
             }
         }
-        this.stack.push(rowIndex, track);
-        this.pause = false;//主动播放音乐,解除暂停状态
-        if (this.music[track]) {//恢复音乐
-            let audioId = this.music[track];
+        this.stack.push(priority, track);
+        /* -------播放或恢复音乐------ */
+        let audioState: AudioState = this.music.get(track) || { audio: null, volume: volume, clip: null };
+        audioState.clip = audio;
+        audioState.volume = volume;
+        this.music.set(track, audioState);
+        if (audioState.audio) {//恢复音乐
             if (this.stack.top == track && !this.pause) {
-                this.fadeInMusic(fadeIn, audioId);
+                this.fadeInMusic(fadeIn, audioState);
             }
         } else {//重新播放音乐
-            this.trackAudio[track] = audio;
             Utils.load(this.pathSuffix + audio, cc.AudioClip).then(clip => {
-                if (clip.name != this.trackAudio[track]) return;//前一个BGM未加载成功，就已播放另一个BGM
-                if (this.music[track] > -1) return//重复播放相同的音频
-                let audioId = -1;
+                let nowState = this.music.get(track);//当前的状态
+                if (!nowState) return;//前一个BGM未加载成功，就已停止播放
+                if (nowState.clip != audio) return;//前一个BGM未加载成功，就已播放另一个BGM
+                if (nowState.audio) return//重复播放相同的音频
+                nowState.audio = this.addComponent(cc.AudioSource);
+                nowState.audio.clip = clip;
+                nowState.audio.volume = this.mVolume * volume;
+                nowState.audio.loop = true;
                 if (fadeIn > 0) {
-                    audioId = cc.audioEngine.play(clip, true, 0);
-                    if (this.stack.top != track || this.pause) {
-                        Utils.delayToDo(()=>{cc.audioEngine.pause(audioId)},0.1) ;
-                    } else {
-                        this.fadeInMusic(fadeIn, audioId);
+                    if (this.stack.top == track && !this.pause) {
+                        nowState.audio.volume = 0;
+                        nowState.audio.play();
+                        this.fadeInMusic(fadeIn, nowState);
                     }
                 } else {
-                    audioId = cc.audioEngine.play(clip, true, this.mVolume);
-                    if (this.stack.top != track || this.pause) {
-
-                        Utils.delayToDo(()=>{cc.audioEngine.pause(audioId)},0.1) ;
+                    if (this.stack.top == track && !this.pause) {
+                        nowState.audio.play();
                     }
                 }
-                this.music[track] = audioId;
             });
         }
     }
@@ -116,52 +128,41 @@ export class AudioMgr {
      * 播放音效
      * loop=true时 不会触发onFinished
      */
-    playEffect(audio: string | cc.AudioClip, params?: { loop?: boolean, onStart?: (audioId: number) => void, onFinished?: () => void }) {
-        let { loop, onStart, onFinished } = params || {};
-        loop = loop != undefined ? loop : false;
-        let play = clip => {
-            let audioId = cc.audioEngine.play(clip, loop, this.eVolume);
-            onStart && onStart(audioId);
-            this.effect.push(audioId);
+    playEffect(audio: string, params?: { volume?: number, loop?: boolean, onStart?: (audioSource: cc.AudioSource) => void, onFinished?: () => void }) {
+        let { volume, loop, onStart, onFinished } = params || {};
+        volume = cc.misc.clamp01(volume == undefined ? 1 : volume);
+        loop = loop == undefined ? false : loop;
+        let audioState: AudioState = { audio: this.addComponent(cc.AudioSource), volume: volume, clip: audio };
+        this.effect.push(audioState);
+        Utils.load(this.pathSuffix + audio, cc.AudioClip).then(clip => {
+            if (!this.effect.includes(audioState)) return;//已被停止
+            audioState.audio.clip = clip;
+            audioState.audio.volume = this.eVolume * volume;
+            audioState.audio.loop = loop;
+            audioState.audio.play();
+            onStart && onStart(audioState.audio);
             if (!loop) {
-                cc.audioEngine.setFinishCallback(audioId, () => {
-                    let index = this.effect.indexOf(audioId);
-                    index > -1 && this.effect.splice(index, 1);
+                this.scheduleOnce(() => {
+                    this.stopEffect(audioState.audio);
                     onFinished && onFinished();
-                });
+                }, audioState.audio.getDuration() + 0.05);
             }
-        }
-        if (typeof audio === "string") {
-            let onComplete = (err, clip: cc.AudioClip) => {
-                if (err) {
-                    cc.log(err);
-                    return;
-                }
-                play(clip);
-            }
-            if (audio.startsWith("http")) {
-                cc.assetManager.loadRemote(audio, cc.AudioClip, onComplete);
-            } else {
-                cc.resources.load(this.pathSuffix + audio, cc.AudioClip, onComplete);
-            }
-        } else {
-            play(audio);
-        }
+        });
     }
 
     /** 
-     * 暂停或恢复当前音乐
+     * 暂停或恢复当前音乐(注:暂停后需要手动恢复音乐,否则后续不会再播放任何音乐)
      * @param pause true:暂停音乐 false:恢复音乐
      * @param dur 渐变时间
      */
     pauseMusic(pause: boolean, dur = 0) {
         this.pause = pause;
         if (this.stack.length > 0) {
-            let audioId = this.music[this.stack.top];
+            let audioState = this.music.get(this.stack.top);
             if (pause) {
-                this.fadeOutMusic(dur, audioId);
+                this.fadeOutMusic(dur, audioState?.audio);
             } else {
-                this.fadeInMusic(dur, audioId);
+                this.fadeInMusic(dur, audioState);
             }
         }
     }
@@ -179,17 +180,17 @@ export class AudioMgr {
         fadeOut = fadeOut || 0;
         fadeIn = fadeIn || 0;
         let isTop = this.stack.top == track;
-        //停止当前音乐
-        if (this.stack.length > 0) {
-            let audioId = this.music[track];
-            if (isNaN(audioId)) return;
+        //停止指定音轨音乐
+        if (this.stack.includes(track)) {
             this.stack.delItem(track);
-            delete this.trackAudio[track];
-            delete this.music[track];
-            this.fadeOutMusic(isTop ? fadeOut : 0, audioId, true);
+            let audioState = this.music.get(track);
+            if (audioState) {
+                this.fadeOutMusic(isTop ? fadeOut : 0, audioState.audio, true);
+                this.music.delete(track);
+            }
         }
         //恢复上一个音乐
-        if (autoPlay && this.stack.length > 0 && isTop) {
+        if (autoPlay && isTop && !this.pause) {
             this.pauseMusic(false, fadeIn)
         }
     }
@@ -200,23 +201,24 @@ export class AudioMgr {
      */
     stopAllMusic(fadeOut = 0) {
         if (this.stack.length > 0) {
-            for (const track in this.music) {
-                let id = this.music[track];
-                this.fadeOutMusic(fadeOut, id, true);
-            }
+            this.music.forEach((v, k) => {
+                this.fadeOutMusic(fadeOut, v.audio, true);
+            });
             this.stack.clear();
-            this.trackAudio = {};
-            this.music = {};
+            this.music = new Map();;
         }
     }
 
     /** 
      * 停止播放指定音效
      */
-    stopEffect(audioId: number) {
-        cc.audioEngine.stop(audioId);
-        let index = this.effect.indexOf(audioId);
-        index > -1 && this.effect.splice(index, 1);
+    stopEffect(audioSource: cc.AudioSource) {
+        if (audioSource?.isValid) {
+            audioSource.stop();
+            audioSource.destroy();
+            let index = this.effect.findIndex(v => v.audio == audioSource);
+            index > -1 && this.effect.splice(index, 1);
+        }
     }
 
     /** 
@@ -224,7 +226,10 @@ export class AudioMgr {
     */
     stopAllEffect() {
         this.effect.forEach(v => {
-            cc.audioEngine.stop(v);
+            if (v.audio?.isValid) {
+                v.audio.stop();
+                v.audio.destroy();
+            }
         });
         this.effect = [];
     }
@@ -255,36 +260,41 @@ export class AudioMgr {
     setEffectVolume(volume: number) {
         volume = cc.misc.clamp01(volume);
         this.effect.forEach(v => {
-            cc.audioEngine.setVolume(v, volume);
+            if (v.audio?.isValid) {
+                v.audio.volume = v.volume * volume;
+            }
         });
         this.eVolume = volume;
         cc.sys.localStorage.setItem(this.sEffectVolume, volume);
     }
 
-    private fadeInMusic(dur: number, audioId: number) {
+    private fadeInMusic(dur: number, audioState: AudioState) {
+        if (!audioState?.audio) return;
+        let currentTime = audioState.audio.getCurrentTime();
         if (dur > 0) {
-            cc.audioEngine.setVolume(audioId, 0);
-            cc.audioEngine.resume(audioId);
-            Utils.tweenTo(0, this.mVolume, dur,
+            currentTime == 0 ? audioState.audio.play() : audioState.audio.resume();
+            audioState.audio.volume = 0;
+            Utils.tweenTo(0, audioState.volume * this.mVolume, dur,
                 v => {
-                    cc.audioEngine.setVolume(audioId, v);
+                    audioState.audio.volume = v;
                 });
         } else {
-            cc.audioEngine.resume(audioId);
+            currentTime == 0 ? audioState.audio.play() : audioState.audio.resume();
         }
     }
 
-    private fadeOutMusic(dur: number, audioId: number, stop = false) {
+    private fadeOutMusic(dur: number, audioSource: cc.AudioSource, stop = false) {
+        if (!audioSource) return;
         if (dur > 0) {
-            Utils.tweenTo(this.mVolume, 0, dur,
+            Utils.tweenTo(audioSource.volume, 0, dur,
                 (v) => {
-                    cc.audioEngine.setVolume(audioId, v);
+                    audioSource.volume = v;
                 },
                 () => {
-                    stop ? cc.audioEngine.stop(audioId) : cc.audioEngine.pause(audioId);
+                    stop ? audioSource.destroy() : audioSource.pause();
                 });
         } else {
-            stop ? cc.audioEngine.stop(audioId) : cc.audioEngine.pause(audioId);
+            stop ? audioSource.destroy() : audioSource.pause();
         }
     }
 

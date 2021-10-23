@@ -7,7 +7,7 @@ import { BundleKey, BundleMgr } from "../manager/BundleMgr";
 export class Utils {
 
     static delayToDo(callbck: () => void, dur = 0) {
-        app.Inst.scheduleOnce(callbck, dur)
+        new cc.Component().scheduleOnce(callbck, dur)
     }
 
     /**

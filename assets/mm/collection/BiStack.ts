@@ -1,13 +1,17 @@
-/** 特殊的二维数组(可当作将子数组展开的一维数组使用) */
-export class BiArray<T>{
+/** 自定义的二维栈 (API使用可以理解为将子栈在自己所处位置展开的一维栈)*/
+export class BiStack<T>{
     private arr: T[][] = [];
-    /** 所有元素的总数 */
+    /** 栈内元素的总数 */
     get length() {
         let len = 0;
-        this.arr.forEach(v => len += v.length);
+        this.arr.forEach(v => {
+            if (v) {
+                len += v.length
+            }
+        });
         return len;
     }
-    /** 所有元素中的最后一个元素 */
+    /** 栈顶元素 */
     get top() {
         if (this.arr.length > 0) {
             for (let i = this.arr.length - 1; i >= 0; i--) {
@@ -19,18 +23,21 @@ export class BiArray<T>{
         }
         return null;
     }
-    /** 清空数组 */
+    /** 清空栈 */
     clear() {
         this.arr.length = 0;
     }
-    /** 向指定的子数组末尾添加一个元素 */
-    push(subArrayIndex: number, item: T) {
-        if (!this.arr[subArrayIndex]) {
-            this.arr[subArrayIndex] = [];
+    /** 
+     * 向指定的子栈中添加一个元素 
+     * @param priority 子栈的索引,从0开始
+     */
+    push(priority: number, item: T) {
+        if (!this.arr[priority]) {
+            this.arr[priority] = [];
         }
-        this.arr[subArrayIndex].push(item);
+        this.arr[priority].push(item);
     }
-    /** 返回并删除最后一个元素 */
+    /** 返回并删除栈顶元素 */
     pop(): T {
         if (this.arr.length > 0) {
             for (let i = this.arr.length - 1; i >= 0; i--) {
@@ -51,11 +58,11 @@ export class BiArray<T>{
         }
         return null;
     }
-    /** 数组中是否包含指定元素 */
+    /** 栈中是否包含指定元素 */
     includes(item: T) {
         return this.indexOf(item) > -1;
     }
-    /** 获取元素在数组中的索引 */
+    /** 获取元素在栈中的索引 */
     indexOf(item: T) {
         let preIndex = 0;
         for (let i = 0; i < this.arr.length; i++) {
@@ -88,7 +95,7 @@ export class BiArray<T>{
             }
         }
     }
-    /** 遍历数组 */
+    /** 遍历栈 */
     forEach(callbackfn: (item: T, index: number) => void) {
         let preIndex = 0;
         for (let i = 0; i < this.arr.length; i++) {
