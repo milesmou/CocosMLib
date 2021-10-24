@@ -142,11 +142,10 @@ export default class UIMgr extends cc.Component {
         }
     }
 
-    /** 关闭除指定UI外其它所有UI */
-    public hideOther(exclude: UIKey[]) {
-        let len = this.uiStack.filter(v => exclude.includes(v.uiName)).length;
+    public hideAll(exclude?: UIKey[]) {
+        let len = this.uiStack.filter(v => !exclude || exclude.includes(v.uiName)).length;
         while (this.uiStack.length > len) {
-            let ui = this.uiStack.find(v => !exclude.includes(v.uiName));
+            let ui = this.uiStack.find(v => !exclude || !exclude.includes(v.uiName));
             this.hide(ui.uiName);
         }
     }
