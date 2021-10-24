@@ -12,10 +12,9 @@ export enum UIKey {
     //testui
     UIMenu = "testui/UIMenu",
     UIUITest = "testui/UIUITest",
-    UI1 = "testui/ui1",
-    UI2 = "testui/ui2",
-    UI3 = "testui/ui3",
-    UI4 = "testui/ui4",
+    UIPopUp1 = "testui/UIPopUp1",
+    UIPopUp2 = "testui/UIPopUp2",
+
     UIAudio = "testui/UIAudio",
 }
 
@@ -38,20 +37,12 @@ export default class UIMgr extends cc.Component {
     @property(cc.BlockInputEvents)
     private blockInput: cc.BlockInputEvents = null;
 
+    /** UI的缓存Map */
     private uiMap: Map<UIKey, UIBase> = new Map();
     /** 加载完成的UI栈 */
     private uiStack: UIBase[] = [];
     /** UIKey的堆栈,这个栈是实时的,因为UI加载需要时间 */
     private uiKeyStack: UIKey[] = [];
-    /** 打开关闭ui时标记是否正在被操作,避免同时打开和关闭同一个UI */
-    private uiLock = new Set<UIKey>();
-    /** UI打开时进入冷却(无法同时打开多个UI) */
-    private cooldown = false;
-
-    /** 最上层的UI */
-    private get topUI() { return this.uiStack[this.uiStack.length - 1]; }
-    /** 最下层的UI */
-    private get botUI() { return this.uiStack[0]; }
 
     private blockCnt = 0;
     public get block() {
@@ -79,42 +70,28 @@ export default class UIMgr extends cc.Component {
         this.tipMsg = await this.showHigher(UIKey.UITipMsg) as UITipMsg;
     }
 
-
-    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, preload?: boolean, onShow?: (ui: T) => void }) {
-        if (this.uiLock.has(name) || this.cooldown) {
-            this.scheduleOnce(() => {
-                this.show(name, obj);
-            })
-            return;
-        }
-        this.uiLock.add(name);
-        this.cooldown = true
+    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, onShow?: (ui: T) => void }) {
+        let visible = obj?.visible == undefined ? true : obj.visible;
         this.block = true;
-        if (this.uiKeyStack.includes(name)) {
-            Utils.delItemFromArray(this.uiKeyStack, name);
-        }
-        obj?.preload ? this.uiKeyStack.unshift(name) : this.uiKeyStack.push(name);
+        Utils.delItemFromArray(this.uiKeyStack, name);
+        visible ? this.uiKeyStack.push(name) : this.uiKeyStack.unshift(name);
         app.event.emit(app.eventKey.OnUIInitBegin, name);
         let ui = await this.initUI(name);
+        if (!this.uiKeyStack.includes(name)) {//UI未加载成功就已被关闭
+            this.block = false;
+            return;
+        }
+        Utils.delItemFromArray(this.uiStack, ui);
+        visible ? this.uiStack.push(ui) : this.uiStack.unshift(ui);
         ui.setArgs(obj?.args);
-        if (obj?.preload) {//预加载在最下层
-            ui.node.zIndex = this.botUI?.node?.zIndex < 0 ? this.botUI.node.zIndex - 2 : -10;
-            this.uiStack.unshift(ui);
-            ui.setVisible(false);
-            ui.node.parent = this.normal;
-            this.uiLock.delete(name);
-            this.cooldown = false;
-        } else {//展示在最上层
-            ui.node.zIndex = this.topUI?.node?.zIndex > 0 ? this.topUI.node.zIndex + 2 : 10;
-            this.uiStack.push(ui);
-            ui.setVisible(true);
-            ui.node.parent = this.normal;
+        ui.setVisible(visible);
+        ui.node.parent = this.normal;
+        ui.node.setSiblingIndex(visible ? this.uiKeyStack.indexOf(name) + 1 : 0);
+        if (visible) {
             this.setShade();
             ui.onShowBegin();
             app.event.emit(app.eventKey.OnUIShowBegin, ui);
             await ui.playShowAnim();
-            this.uiLock.delete(name);
-            this.cooldown = false;
             ui.onShow();
             app.event.emit(app.eventKey.OnUIShow, ui);
         }
@@ -123,19 +100,12 @@ export default class UIMgr extends cc.Component {
     }
 
     public async hide(name: UIKey): Promise<void> {
-        if (this.uiLock.has(name)) {
-            this.scheduleOnce(() => {
-                this.hide(name);
-            })
-            return;
-        }
-        this.uiLock.add(name);
         this.block = true;
         Utils.delItemFromArray(this.uiKeyStack, name);
         let ui = this.uiMap.get(name);
         let index = this.uiStack.indexOf(ui)
         if (index > -1) {
-            this.uiStack.splice(index, 1);
+            Utils.delItemFromArray(this.uiStack, ui);
             this.setShade();
             if (index == this.uiStack.length) {
                 ui.onHideBegin();
@@ -151,7 +121,6 @@ export default class UIMgr extends cc.Component {
                 ui.node.parent = null;
             }
         }
-        this.uiLock.delete(name);
         this.block = false;
     }
 
@@ -195,7 +164,6 @@ export default class UIMgr extends cc.Component {
             ui.init(name);
             this.uiMap.set(name, ui);
         }
-        ui.setActive(true);
         return ui;
     }
 
@@ -206,10 +174,15 @@ export default class UIMgr extends cc.Component {
                     cc.error(name, err);
                     reject();
                 } else {
-                    let node: cc.Node = cc.instantiate(prefab);
-                    node.setContentSize(cc.winSize);
-                    node.position = cc.v3(0, 0);
-                    resolve(node);
+                    let ui = this.uiMap.get(name);
+                    if (ui?.isValid) {
+                        resolve(ui.node);
+                    } else {
+                        let node: cc.Node = cc.instantiate(prefab);
+                        node.setContentSize(cc.winSize);
+                        node.position = cc.v3(0, 0);
+                        resolve(node);
+                    }
                 }
             });
         });
@@ -220,7 +193,9 @@ export default class UIMgr extends cc.Component {
     public isTopUI(name: UIKey | string, immediate = false) {
         if (!name) return false;
         if (!immediate) {
-            return this.topUI == this.uiMap.get(name as UIKey);
+            let topUI = this.uiStack[this.uiStack.length - 1];
+            if (!topUI) return false;
+            return topUI == this.uiMap.get(name as UIKey);
         } else {
             return this.uiKeyStack[this.uiKeyStack.length - 1] == name;
         }
@@ -267,11 +242,13 @@ export default class UIMgr extends cc.Component {
         return false;
     }
 
+
     private setShade() {
         for (let i = this.uiStack.length - 1; i >= 0; i--) {
             let ui = this.uiStack[i];
             if (ui?.showShade) {
-                this.shade.zIndex = ui.node.zIndex - 1;
+                this.shade.setSiblingIndex(ui.node.getSiblingIndex());
+                ui.node.setSiblingIndex(ui.node.getSiblingIndex() + 1);
                 cc.tween(this.shade).to(0.15, { opacity: 255 }).start();
                 return;
             }

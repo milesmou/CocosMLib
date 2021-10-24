@@ -73,8 +73,9 @@ export default class UIBase extends cc.Component {
     protected animation: cc.Animation = null;
     protected args: any = null;
 
-    /** 初始化UI，在子类重写该方法时，必须调用super.init() */
+    /** 初始化UI,只会执行一次，在子类重写该方法时，必须调用super.init() */
     init(uiName: string) {
+        if(this.uiName) return;
         this.uiName = uiName;
         this.autoHide && this.enableAutoHide();
         this.listenVisible && this.enableListenVisible();
@@ -89,18 +90,11 @@ export default class UIBase extends cc.Component {
 
     setVisible(visible: boolean) {
         if (visible) {
-            this.setOpacity(255);
+            this.node.opacity = 255;
+            this.node.active = true;
         } else {
-            this.setOpacity(0);
+            this.node.opacity = 0;
         }
-    }
-
-    setOpacity(value: number) {
-        this.node.opacity = value;
-    }
-
-    setActive(value: boolean) {
-        this.node.active = value;
     }
 
     /** 被全屏UI挡住时 将UI透明度设置为0 降低dc */
@@ -188,11 +182,9 @@ export default class UIBase extends cc.Component {
         let bAction = Boolean(this.action & EAction.OPEN);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
-                app.ui.block = false;
                 resovle(true);
             };
             if (bAction) {
-                app.ui.block = true;
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.getClips()[0];
                     if (clip) {
@@ -220,11 +212,9 @@ export default class UIBase extends cc.Component {
         let bAction = Boolean(this.action & EAction.CLOSE);
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
-                app.ui.block = false;
                 resovle(true);
             };
             if (bAction) {
-                app.ui.block = true;
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.getClips()[1];
                     if (clip) {

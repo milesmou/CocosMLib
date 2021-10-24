@@ -6,8 +6,8 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class UIUITest extends UIBase {
 
-    openUI() {
-        app.ui.show(app.uiKey.UI1);
+    openUIPopUp1() {
+        app.ui.show(app.uiKey.UIPopUp1);
     }
 
     showTip() {

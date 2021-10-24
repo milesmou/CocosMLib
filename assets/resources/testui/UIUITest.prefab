@@ -850,7 +850,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "openUI",
+    "_name": "openPopUp1",
     "_objFlags": 0,
     "_parent": {
       "__id__": 20
@@ -1066,8 +1066,8 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_string": "openUI",
-    "_N$string": "openUI",
+    "_string": "打开弹窗1",
+    "_N$string": "打开弹窗1",
     "_fontSize": 20,
     "_lineHeight": 40,
     "_enableWrapText": false,
@@ -1258,7 +1258,7 @@
     },
     "component": "",
     "_componentId": "cd4bbLBAodAWoRLGQiDQO6d",
-    "handler": "openUI",
+    "handler": "openUIPopUp1",
     "customEventData": ""
   },
   {
