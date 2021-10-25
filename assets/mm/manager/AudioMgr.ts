@@ -269,14 +269,16 @@ export default class AudioMgr extends cc.Component {
     }
 
     private fadeInMusic(dur: number, audioState: AudioState) {
-        if (!audioState?.audio) return;
+        if (!audioState?.audio?.isValid) return;
         let currentTime = audioState.audio.getCurrentTime();
         if (dur > 0) {
             currentTime == 0 ? audioState.audio.play() : audioState.audio.resume();
             audioState.audio.volume = 0;
             Utils.tweenTo(0, audioState.volume * this.mVolume, dur,
                 v => {
-                    audioState.audio.volume = v;
+                    if (audioState.audio.isValid) {
+                        audioState.audio.volume = v;
+                    }
                 });
         } else {
             currentTime == 0 ? audioState.audio.play() : audioState.audio.resume();
@@ -284,14 +286,18 @@ export default class AudioMgr extends cc.Component {
     }
 
     private fadeOutMusic(dur: number, audioSource: cc.AudioSource, stop = false) {
-        if (!audioSource) return;
+        if (!audioSource?.isValid) return;
         if (dur > 0) {
             Utils.tweenTo(audioSource.volume, 0, dur,
                 (v) => {
-                    audioSource.volume = v;
+                    if (audioSource.isValid) {
+                        audioSource.volume = v;
+                    }
                 },
                 () => {
-                    stop ? audioSource.destroy() : audioSource.pause();
+                    if (audioSource.isValid) {
+                        stop ? audioSource.destroy() : audioSource.pause();
+                    }
                 });
         } else {
             stop ? audioSource.destroy() : audioSource.pause();
