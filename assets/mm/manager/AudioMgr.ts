@@ -13,7 +13,7 @@ interface AudioState {
 
 /** 音轨ID */
 export enum AudioTrack {
-    //相同优先级的音轨在同一个子栈中 优先级=Math.floor(ID)
+    //相同优先级的音轨在同一个子栈中 优先级=Math.floor(ID/10000)
     Main,
     Quest,
     AVG = 10000,
