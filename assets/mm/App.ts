@@ -1,10 +1,11 @@
 import AudioMgr, { AudioTrack } from "./manager/AudioMgr";
-import UIMgr, { UIKey } from "./manager/UIMgr";
 import { EventKey, EventMgr } from "./manager/EventMgr";
 import { PoolKey, PoolMgr } from "./manager/PoolMgr";
-import { StroageMgr } from "./manager/StroageMgr";
-import { EPlatform, IPlatform, Platform } from "./platform/Platform";
 import { ResMgr } from "./manager/ResMgr";
+import { StroageMgr } from "./manager/StroageMgr";
+import UIMgr, { UIKey } from "./manager/UIMgr";
+import { EPlatform, IPlatform, Platform } from "./platform/Platform";
+import { SingletonFactory } from "./utils/SingletonFactory";
 
 const { ccclass, property } = cc._decorator;
 
@@ -15,10 +16,11 @@ export const ELanguage = cc.Enum({
     "English": 3,
 })
 
-
 /** 应用程序启动入口 */
 @ccclass
 export default class App extends cc.Component {
+    public static Inst: App;
+
     @property({
         type: ELanguage,
         displayName: "语言"
@@ -51,10 +53,10 @@ export default class App extends cc.Component {
     public static ui: UIMgr;
     public static uiKey = UIKey;
 
-
     onLoad() {
-        cc.game.setFrameRate(60);
+        App.Inst = this;
 
+        app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
 
@@ -103,6 +105,10 @@ export default class App extends cc.Component {
         safeSize.width = safeArea.width;
         safeSize.height = safeArea.height;
         return safeSize;
+    }
+
+    onDestroy() {
+        SingletonFactory.clear();
     }
 }
 
