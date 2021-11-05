@@ -1,7 +1,5 @@
 # CocosCreator-Utils 
-
-master分支 2.x版本(low priority)  
-3.x分支 3.x版本(high priority)  
+ 
 
 ## 说明 
 
