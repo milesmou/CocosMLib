@@ -86,17 +86,18 @@ export default class UIMgr extends cc.Component {
         ui.setArgs(obj?.args);
         ui.setVisible(visible);
         ui.node.parent = this.normal;
-        ui.node.setSiblingIndex(visible ? this.uiKeyStack.indexOf(name) + 1 : 0);
+        ui.node.setSiblingIndex(visible ? this.uiKeyStack.length : 0);
         if (visible) {
             this.setShade();
             ui.onShowBegin();
             app.event.emit(app.eventKey.OnUIShowBegin, ui);
-            await ui.playShowAnim();
-            ui.onShow();
-            app.event.emit(app.eventKey.OnUIShow, ui);
+            ui.playShowAnim(() => {
+                ui.onShow();
+                app.event.emit(app.eventKey.OnUIShow, ui);
+                obj?.onShow && obj.onShow(ui as T);
+            });
         }
         this.block = false;
-        obj?.onShow && obj.onShow(ui as T);
     }
 
     public async hide(name: UIKey): Promise<void> {
@@ -107,18 +108,24 @@ export default class UIMgr extends cc.Component {
         if (index > -1) {
             Utils.delItemFromArray(this.uiStack, ui);
             this.setShade();
+            let hideUI = () => {
+                if (ui.destroyNode) {
+                    ui.node.destroy();
+                    this.uiMap.delete(name);
+                } else {
+                    ui.node.active = false;
+                }
+            }
             if (index == this.uiStack.length) {
                 ui.onHideBegin();
                 app.event.emit(app.eventKey.OnUIHideBegin, ui);
-                await ui.playHideAnim();
-                ui.onHide();
-                app.event.emit(app.eventKey.OnUIHide, ui);
-            }
-            if (ui.destroyNode) {
-                ui.node.destroy();
-                this.uiMap.delete(name);
+                ui.playHideAnim(() => {
+                    ui.onHide();
+                    app.event.emit(app.eventKey.OnUIHide, ui);
+                    hideUI();
+                });
             } else {
-                ui.node.parent = null;
+                hideUI();
             }
         }
         this.block = false;
@@ -168,22 +175,20 @@ export default class UIMgr extends cc.Component {
 
     private async instNode(name: UIKey): Promise<cc.Node> {
         let p = new Promise<cc.Node>((resolve, reject) => {
-            cc.resources.load(name, cc.Prefab, (err, prefab: any) => {
-                if (err) {
-                    cc.error(name, err);
-                    reject();
+            app.res.load(name, cc.Prefab).then(prefab => {
+                let ui = this.uiMap.get(name);
+                if (ui?.isValid) {
+                    resolve(ui.node);
                 } else {
-                    let ui = this.uiMap.get(name);
-                    if (ui?.isValid) {
-                        resolve(ui.node);
-                    } else {
-                        let node: cc.Node = cc.instantiate(prefab);
-                        node.setContentSize(cc.winSize);
-                        node.position = cc.v3(0, 0);
-                        resolve(node);
-                    }
+                    let node: cc.Node = cc.instantiate(prefab);
+                    node.width = this.normal.width;
+                    node.height = this.normal.height;
+                    node.position = cc.v3(0, 0);
+                    resolve(node);
                 }
-            });
+            }).catch(e => {
+                reject(e);
+            })
         });
         return p;
     }
@@ -246,8 +251,8 @@ export default class UIMgr extends cc.Component {
         for (let i = this.uiStack.length - 1; i >= 0; i--) {
             let ui = this.uiStack[i];
             if (ui?.showShade) {
-                this.shade.setSiblingIndex(ui.node.getSiblingIndex());
-                ui.node.setSiblingIndex(ui.node.getSiblingIndex() + 1);
+                this.shade.setSiblingIndex(this.uiKeyStack.indexOf(ui.uiName));
+                ui.node.setSiblingIndex(this.uiKeyStack.indexOf(ui.uiName) + 1);
                 cc.tween(this.shade).to(0.15, { opacity: 255 }).start();
                 return;
             }

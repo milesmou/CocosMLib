@@ -1,4 +1,5 @@
 const { ccclass, property } = cc._decorator;
+import { app } from "../App";
 import { BiStack } from "../collection/BiStack";
 import { Utils } from "../utils/Utils";
 
@@ -100,11 +101,12 @@ export default class AudioMgr extends cc.Component {
                 this.fadeInMusic(fadeIn, audioState);
             }
         } else {//重新播放音乐
-            Utils.load(this.pathSuffix + audio, cc.AudioClip).then(clip => {
+            app.res.load(this.pathSuffix + audio, cc.AudioClip).then(clip => {
                 let nowState = this.music.get(track);//当前的状态
                 if (!nowState) return;//前一个BGM未加载成功，就已停止播放
                 if (nowState.clip != audio) return;//前一个BGM未加载成功，就已播放另一个BGM
                 if (nowState.audio) return//重复播放相同的音频
+                clip.addRef();
                 nowState.audio = this.addComponent(cc.AudioSource);
                 nowState.audio.clip = clip;
                 nowState.audio.volume = this.mVolume * volume;
@@ -134,7 +136,7 @@ export default class AudioMgr extends cc.Component {
         loop = loop == undefined ? false : loop;
         let audioState: AudioState = { audio: this.addComponent(cc.AudioSource), volume: volume, clip: audio };
         this.effect.push(audioState);
-        Utils.load(this.pathSuffix + audio, cc.AudioClip).then(clip => {
+        app.res.load(this.pathSuffix + audio, cc.AudioClip).then(clip => {
             if (!this.effect.includes(audioState)) return;//已被停止
             audioState.audio.clip = clip;
             audioState.audio.volume = this.eVolume * volume;
@@ -240,15 +242,17 @@ export default class AudioMgr extends cc.Component {
         if (this.stack.length > 0) {
             if (dur > 0) {
                 this.stack.forEach(trackId => {
-                    let id = this.music[trackId];
+                    let state = this.music.get(trackId);
                     Utils.tweenTo(this.mVolume, volume, dur, (v) => {
-                        cc.audioEngine.setVolume(id, v);
+                        if (state.audio?.isValid) {
+                            state.audio.volume = state.volume * volume;
+                        }
                     });
                 })
             } else {
                 this.stack.forEach(trackId => {
-                    let id = this.music[trackId];
-                    cc.audioEngine.setVolume(id, volume);
+                    let state = this.music.get(trackId);
+                    state.audio.volume = state.volume * volume;
                 })
             }
         }
@@ -296,11 +300,21 @@ export default class AudioMgr extends cc.Component {
                 },
                 () => {
                     if (audioSource.isValid) {
-                        stop ? audioSource.destroy() : audioSource.pause();
+                        if (stop) {
+                            audioSource.clip.decRef();
+                            audioSource.destroy()
+                        } else {
+                            audioSource.pause();
+                        }
                     }
                 });
         } else {
-            stop ? audioSource.destroy() : audioSource.pause();
+            if (stop) {
+                audioSource.clip.decRef();
+                audioSource.destroy()
+            } else {
+                audioSource.pause();
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 import { app } from "../App";
+import IComponent from "../component/IComponent";
 
 const { property, ccclass } = cc._decorator;
 
@@ -10,8 +11,7 @@ const EAction = cc.Enum({
 })
 
 @ccclass
-export default class UIBase extends cc.Component {
-
+export default class UIBase extends IComponent {
     @property({
         displayName: "销毁",
         tooltip: "UI关闭时是否销毁"
@@ -70,18 +70,32 @@ export default class UIBase extends cc.Component {
     closeBtn: cc.Button = null;
 
     public uiName: any = null;
-    protected animation: cc.Animation = null;
+    protected uiAnim: cc.Animation = null;
     protected args: any = null;
+    private blockNode: cc.Node = null;
+    protected set block(value: boolean) {
+        this.blockNode.scale = value ? 1 : 0;
+    }
 
-    /** 初始化UI,只会执行一次，在子类重写该方法时，必须调用super.init() */
+    /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     init(uiName: string) {
-        if(this.uiName) return;
+        if (this.uiName) return;
         this.uiName = uiName;
         this.autoHide && this.enableAutoHide();
         this.listenVisible && this.enableListenVisible();
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
-        this.animation = this.getComponent(cc.Animation);
+        this.uiAnim = this.getComponent(cc.Animation);
+        this.initBlock();
+    }
+
+    private initBlock() {
+        this.blockNode = new cc.Node("block");
+        this.blockNode.width = this.node.width;
+        this.blockNode.height = this.node.height;;
+        this.blockNode.addComponent(cc.BlockInputEvents);
+        this.block = false;
+        this.blockNode.parent = this.node;
     }
 
     setArgs(args: any) {
@@ -90,11 +104,19 @@ export default class UIBase extends cc.Component {
 
     setVisible(visible: boolean) {
         if (visible) {
-            this.node.opacity = 255;
             this.node.active = true;
+            this.setOpacity(255);
         } else {
-            this.node.opacity = 0;
+            this.setOpacity(0);
         }
+    }
+
+    setOpacity(value: number) {
+        this.node.opacity = value;
+    }
+
+    setActive(value: boolean) {
+        this.node.active = value;
     }
 
     /** 被全屏UI挡住时 将UI透明度设置为0 降低dc */
@@ -178,63 +200,61 @@ export default class UIBase extends cc.Component {
     }
 
 
-    playShowAnim() {
+    playShowAnim(callback?: () => void) {
         let bAction = Boolean(this.action & EAction.OPEN);
-        let p = new Promise<boolean>((resovle, reject) => {
-            let callback = () => {
-                resovle(true);
-            };
-            if (bAction) {
-                if (this.animation) {//播放指定动画
-                    let clip = this.animation.getClips()[0];
-                    if (clip) {
-                        this.animation.once("finished", callback);
-                        this.animation.play(clip.name, 0);
-                    } else {
-                        cc.warn(this.node.name, "无UI打开动画文件");
-                        callback();
-                    }
-                } else {//播放默认动画
-                    this.node.scale = 0.85;
-                    cc.tween(this.node)
-                        .to(0.3, { scale: 1 }, { easing: "elasticOut" })
-                        .call(callback)
-                        .start();
+        if (bAction) {
+            if (this.uiAnim) {//播放指定动画
+                let clip = this.uiAnim.getClips()[0];
+                if (clip) {
+                    this.block = true;
+                    this.uiAnim.off("finished");
+                    this.uiAnim.once("finished", () => {
+                        this.block = false;
+                    });
+                    this.uiAnim.once("finished", callback);
+                    this.uiAnim.play(clip.name, 0);
+                } else {
+                    cc.warn(this.node.name, "无UI打开动画文件");
+                    callback && callback();
                 }
-            } else {
-                callback();
+            } else {//播放默认动画
+                this.node.scale = 0.85;
+                cc.tween(this.node)
+                    .to(0.3, { scale: 1 }, { easing: "elasticOut" })
+                    .call(callback)
+                    .start();
             }
-        })
-        return p;
+        } else {
+            callback && callback();
+        }
     }
 
-    playHideAnim() {
+    playHideAnim(callback?: () => void) {
         let bAction = Boolean(this.action & EAction.CLOSE);
-        let p = new Promise<boolean>((resovle, reject) => {
-            let callback = () => {
-                resovle(true);
-            };
-            if (bAction) {
-                if (this.animation) {//播放指定动画
-                    let clip = this.animation.getClips()[1];
-                    if (clip) {
-                        this.animation.once("finished", callback);
-                        this.animation.play(clip.name, 0);
-                    } else {
-                        cc.warn(this.node.name, "无UI关闭动画文件");
-                        callback();
-                    }
-                } else {//播放默认动画
-                    cc.tween(this.node)
-                        .to(0.2, { scale: 0.5 }, { easing: "backIn" })
-                        .call(callback)
-                        .start();
+        if (bAction) {
+            if (this.uiAnim) {//播放指定动画
+                let clip = this.uiAnim.getClips()[1];
+                if (clip) {
+                    this.block = true;
+                    this.uiAnim.off("finished");
+                    this.uiAnim.once("finished", () => {
+                        this.block = false;
+                    });
+                    this.uiAnim.once("finished", callback);
+                    this.uiAnim.play(clip.name, 0);
+                } else {
+                    cc.warn(this.node.name, "无UI关闭动画文件");
+                    callback && callback();
                 }
-            } else {
-                callback();
+            } else {//播放默认动画
+                cc.tween(this.node)
+                    .to(0.2, { scale: 0.5 }, { easing: "backIn" })
+                    .call(callback)
+                    .start();
             }
-        });
-        return p;
+        } else {
+            callback && callback();
+        }
     }
 
     /** 关闭UI时调用此方法 */

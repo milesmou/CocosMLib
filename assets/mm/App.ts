@@ -4,6 +4,7 @@ import { EventKey, EventMgr } from "./manager/EventMgr";
 import { PoolKey, PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
 import { EPlatform, IPlatform, Platform } from "./platform/Platform";
+import { ResMgr } from "./manager/ResMgr";
 
 const { ccclass, property } = cc._decorator;
 
@@ -39,6 +40,7 @@ export default class App extends cc.Component {
     public static platform: IPlatform;
     public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
     //manager
+    public static res = ResMgr;
     public static stroage = StroageMgr;
     public static audio: AudioMgr;
     public static audioTrack = AudioTrack;
