@@ -70,7 +70,11 @@ export default class UIMgr extends cc.Component {
         this.tipMsg = await this.showHigher(UIKey.UITipMsg) as UITipMsg;
     }
 
-    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, onShow?: (ui: T) => void }) {
+    /**
+     * 打开一个UI界面
+     * @param obj parent 允许自定义UI父节点,UI间的层级顺序只有父节点相同时有效(父节点所在UI关闭时,必须手动关闭父节点下所有UI)
+     */
+     public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, parent?: cc.Node, onShow?: (ui: T) => void }) {
         let visible = obj?.visible == undefined ? true : obj.visible;
         this.block = true;
         Utils.delItemFromArray(this.uiKeyStack, name);
@@ -85,7 +89,7 @@ export default class UIMgr extends cc.Component {
         visible ? this.uiStack.push(ui) : this.uiStack.unshift(ui);
         ui.setArgs(obj?.args);
         ui.setVisible(visible);
-        ui.node.parent = this.normal;
+        ui.node.parent = obj?.parent || this.normal;
         ui.node.setSiblingIndex(visible ? this.uiKeyStack.length : 0);
         if (visible) {
             this.setShade();
