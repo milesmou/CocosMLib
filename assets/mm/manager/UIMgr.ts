@@ -34,9 +34,8 @@ export default class UIMgr extends cc.Component {
     @property(cc.Node)
     private shade: cc.Node = null;
     /** 拦截所有UI事件的组件 */
-    @property(cc.BlockInputEvents)
-    private blockInput: cc.BlockInputEvents = null;
-
+    @property(cc.Node)
+    private blockNode: cc.Node = null;
     /** UI的缓存Map */
     private uiMap: Map<UIKey, UIBase> = new Map();
     /** 加载完成的UI栈 */
@@ -44,15 +43,17 @@ export default class UIMgr extends cc.Component {
     /** UIKey的堆栈,这个栈是实时的,因为UI加载需要时间 */
     private uiKeyStack: UIKey[] = [];
 
-    private blockCnt = 0;
-    public get block() {
-        return this.blockInput?.enabled;
+    private blockTime = 0;
+    /** 屏蔽用户输入事件时间,小于0表示立即停止屏蔽事件 */
+    public set BlockTime(value: number) {
+        if (value > this.blockTime) {
+            this.blockTime = value;
+        }
+        if (value < 0) {
+            this.blockTime = 0;
+        }
     }
-    /** 是否拦截所有的UI事件(采用计数的方式,启用后一定要关闭) */
-    public set block(value) {
-        this.blockCnt += (value ? 1 : -1);
-        this.blockInput.enabled = this.blockCnt > 0 ? true : false;
-    }
+
 
     //常驻高层UI
     public guide: UIGUide = null;
@@ -74,23 +75,21 @@ export default class UIMgr extends cc.Component {
      * 打开一个UI界面
      * @param obj parent 允许自定义UI父节点,UI间的层级顺序只有父节点相同时有效(父节点所在UI关闭时,必须手动关闭父节点下所有UI)
      */
-     public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, parent?: cc.Node, onShow?: (ui: T) => void }) {
+    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, parent?: cc.Node, onShow?: (ui: T) => void }) {
+        this.BlockTime = 0.5;
         let visible = obj?.visible == undefined ? true : obj.visible;
-        this.block = true;
         Utils.delItemFromArray(this.uiKeyStack, name);
         visible ? this.uiKeyStack.push(name) : this.uiKeyStack.unshift(name);
         app.event.emit(app.eventKey.OnUIInitBegin, name);
         let ui = await this.initUI(name);
-        if (!this.uiKeyStack.includes(name)) {//UI未加载成功就已被关闭
-            this.block = false;
-            return;
-        }
+        if (!this.uiKeyStack.includes(name)) return; //UI未加载成功就已被关闭 
+
         Utils.delItemFromArray(this.uiStack, ui);
         visible ? this.uiStack.push(ui) : this.uiStack.unshift(ui);
         ui.setArgs(obj?.args);
         ui.setVisible(visible);
         ui.node.parent = obj?.parent || this.normal;
-        ui.node.setSiblingIndex(visible ? this.uiKeyStack.length : 0);
+        ui.node.setSiblingIndex(visible ? 10000 : 0);
         if (visible) {
             this.setShade();
             ui.onShowBegin();
@@ -101,11 +100,10 @@ export default class UIMgr extends cc.Component {
                 obj?.onShow && obj.onShow(ui as T);
             });
         }
-        this.block = false;
     }
 
     public async hide(name: UIKey): Promise<void> {
-        this.block = true;
+        this.BlockTime = 0.25;
         Utils.delItemFromArray(this.uiKeyStack, name);
         let ui = this.uiMap.get(name);
         let index = this.uiStack.indexOf(ui)
@@ -115,8 +113,9 @@ export default class UIMgr extends cc.Component {
             let hideUI = () => {
                 if (ui.destroyNode) {
                     ui.node.destroy();
+                    ui.node.removeFromParent();
                     this.uiMap.delete(name);
-                } else {
+                } else if (ui.isValid) {
                     ui.node.active = false;
                 }
             }
@@ -132,7 +131,6 @@ export default class UIMgr extends cc.Component {
                 hideUI();
             }
         }
-        this.block = false;
     }
 
     public async showHigher<T extends UIBase>(name: UIKey, args?: any) {
@@ -250,13 +248,20 @@ export default class UIMgr extends cc.Component {
         return false;
     }
 
-
     private setShade() {
-        for (let i = this.uiStack.length - 1; i >= 0; i--) {
-            let ui = this.uiStack[i];
+        //筛选出UIRoot下的UI
+        let uiStack = this.uiStack.filter(v => this.normal.getChildByName(v.node.name));
+        let hideUICnt = 0;
+        this.normal.children.forEach(v => {
+            if (v.active == false) {
+                hideUICnt++;
+            }
+        })
+        for (let i = uiStack.length - 1; i >= 0; i--) {
+            let ui = uiStack[i];
             if (ui?.showShade) {
-                this.shade.setSiblingIndex(this.uiKeyStack.indexOf(ui.uiName));
-                ui.node.setSiblingIndex(this.uiKeyStack.indexOf(ui.uiName) + 1);
+                this.shade.setSiblingIndex(hideUICnt + i);
+                ui.node.setSiblingIndex(hideUICnt + i + 1);
                 cc.tween(this.shade).to(0.15, { opacity: 255 }).start();
                 return;
             }
@@ -264,4 +269,14 @@ export default class UIMgr extends cc.Component {
         cc.tween(this.shade).to(0.15, { opacity: 0 }).start();
     }
 
+    lateUpdate(dt: number) {
+        if (this.blockTime > 0) {
+            this.blockTime -= dt;
+        }
+        if (this.blockTime > 0) {
+            this.blockNode.active = true;
+        } else {
+            this.blockNode.active = false;
+        }
+    }
 }

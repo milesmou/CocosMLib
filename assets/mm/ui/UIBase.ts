@@ -72,10 +72,6 @@ export default class UIBase extends IComponent {
     public uiName: any = null;
     protected uiAnim: cc.Animation = null;
     protected args: any = null;
-    private blockNode: cc.Node = null;
-    protected set block(value: boolean) {
-        this.blockNode.scale = value ? 1 : 0;
-    }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     init(uiName: string) {
@@ -86,16 +82,7 @@ export default class UIBase extends IComponent {
         this.blockInputEvent && this.node.addComponent(cc.BlockInputEvents);
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.uiAnim = this.getComponent(cc.Animation);
-        this.initBlock();
-    }
-
-    private initBlock() {
-        this.blockNode = new cc.Node("block");
-        this.blockNode.width = this.node.width;
-        this.blockNode.height = this.node.height;;
-        this.blockNode.addComponent(cc.BlockInputEvents);
-        this.block = false;
-        this.blockNode.parent = this.node;
+        this.getComponentsInChildren(cc.Button).forEach(v => v.node.on("click", () => { this.onClickButton(v.node.name); }))
     }
 
     setArgs(args: any) {
@@ -206,10 +193,10 @@ export default class UIBase extends IComponent {
             if (this.uiAnim) {//播放指定动画
                 let clip = this.uiAnim.getClips()[0];
                 if (clip) {
-                    this.block = true;
+                    app.ui.BlockTime = 10;
                     this.uiAnim.off("finished");
                     this.uiAnim.once("finished", () => {
-                        this.block = false;
+                        app.ui.BlockTime = -1;
                     });
                     this.uiAnim.once("finished", callback);
                     this.uiAnim.play(clip.name, 0);
@@ -235,10 +222,10 @@ export default class UIBase extends IComponent {
             if (this.uiAnim) {//播放指定动画
                 let clip = this.uiAnim.getClips()[1];
                 if (clip) {
-                    this.block = true;
+                    app.ui.BlockTime = 10;
                     this.uiAnim.off("finished");
                     this.uiAnim.once("finished", () => {
-                        this.block = false;
+                        app.ui.BlockTime = -1;
                     });
                     this.uiAnim.once("finished", callback);
                     this.uiAnim.play(clip.name, 0);
@@ -273,4 +260,7 @@ export default class UIBase extends IComponent {
 
     /** UI完全关闭时触发 (UI关闭动画播放完) */
     onHide() { }
+
+    /** 点击UI中的按钮 */
+    onClickButton(btnName: string) { }
 }

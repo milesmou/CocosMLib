@@ -19,8 +19,6 @@ export const ELanguage = cc.Enum({
 /** 应用程序启动入口 */
 @ccclass
 export default class App extends cc.Component {
-    public static Inst: App;
-
     @property({
         type: ELanguage,
         displayName: "语言"
@@ -54,8 +52,6 @@ export default class App extends cc.Component {
     public static uiKey = UIKey;
 
     onLoad() {
-        App.Inst = this;
-
         app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
@@ -113,3 +109,4 @@ export default class App extends cc.Component {
 }
 
 export const app = App;
+window['mm'] = app;
