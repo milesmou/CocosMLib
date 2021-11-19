@@ -92,15 +92,18 @@ export default class UIGUide extends UIBase {
         let guide = this.guideData[this.nowIndex];
         let pos = this.node.convertToNodeSpaceAR(btnNode.convertToWorldSpaceAR(cc.v3(0, 0)));
         if (guide.HollowType.length) {
-            let dur = 0.5;
+            let dur = 0.25;
+            let scale = 2;
             if (guide.HollowType[0] == 1) {
-                this.hollow.circleTo(dur, cc.v2(pos), guide.HollowType[1], 2);
+                this.hollow.circle(cc.v2(pos), guide.HollowType[1] * scale, 0.3);
+                this.hollow.circleTo(dur, cc.v2(pos), guide.HollowType[1], 0.3);
             } else if (guide.HollowType[0] == 2) {
+                this.hollow.rect(cc.v2(pos), guide.HollowType[1] * scale, guide.HollowType[2] * scale, 5);
                 this.hollow.rectTo(dur, cc.v2(pos), guide.HollowType[1], guide.HollowType[2], 5, 2);
             }
             this.scheduleOnce(() => {
                 this.showFinger(guide.FingerDir, pos, guide.FingerOffset);
-                app.ui.block = false;
+                app.ui.BlockTime = -1;
             }, dur + 0.05);
         }
     }
@@ -130,7 +133,7 @@ export default class UIGUide extends UIBase {
             cc.error(`引导${this.guideId} 第${this.nowIndex}步 数据错误`);
             return;
         }
-        app.ui.block = true;
+        app.ui.BlockTime = 3;
         this.finger.active = false;
         let show = (uiData: UIBase) => {
             this.shade.opacity = guide.ShadeOpacity;
@@ -139,7 +142,7 @@ export default class UIGUide extends UIBase {
                 this.btnScreen.once(cc.Node.EventType.TOUCH_END, () => {
                     this.checkOver();
                 });
-                app.ui.block = false;
+                app.ui.BlockTime = -1;
             } else {
                 if (guide.UIName) {
                     this.findBtnNode(uiData);

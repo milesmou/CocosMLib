@@ -27,14 +27,17 @@ export default class UITipMsg extends UIBase {
     cbConfirm: Function = null;
     cbCancel: Function = null;
 
+
+    tipsPool: cc.NodePool = new cc.NodePool();
+
     onLoad() {
         this.singleTip.active = true;
         this.singleTip.opacity = 0;
 
         this.tipGroup.active = true;
-        app.pool.initPool(app.poolKey.ToastItem, this.tipGroup.children[0], 5);
+        app.pool.initPool(app.poolKey.ToastItem, this.tipGroup.children[0] as any, 5);
+        this.tipGroup.removeAllChildren(false);
 
-        this.tipGroup.removeAllChildren(true);
         this.tipBox.active = false;
     }
 
@@ -60,7 +63,7 @@ export default class UITipMsg extends UIBase {
      * 显示向上浮动提示
      * @param content 提示内容
      */
-    showTips(content: string) {
+    showToast(content: string) {
         let tip = app.pool.get(app.poolKey.ToastItem);
         content = Language.getStringByID(content);
         if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
@@ -90,19 +93,19 @@ export default class UITipMsg extends UIBase {
     }
 
     /**
-     * 显示提示框
+     * 显示确认框
      * @param content 提示内容
      * @param boxType 提示框类型 1：一个确认按钮 2：确认和取消按钮
      * @param opts 确认和取消按钮回调
      */
-    showTipBox(content: string, params: { boxType: 1 | 2, cbConfirm?: Function, cbCancel?: Function }) {
+    showConfirm(content: string, boxType = 2, cbConfirm?: Function, cbCancel?: Function) {
         this.tipBox.active = true;
         this.tipBoxContent.string = content;
         this.btnConfirm.node.once("click", this.Confirm, this);
         this.btnCancel.node.once("click", this.Cancel, this);
-        this.btnCancel.node.active = params.boxType == 2;
-        this.cbConfirm = params.cbConfirm;
-        this.cbCancel = params.cbCancel;
+        this.btnCancel.node.active = boxType == 2;
+        this.cbConfirm = cbConfirm;
+        this.cbCancel = cbCancel;
     }
 
     Confirm() {
@@ -114,6 +117,6 @@ export default class UITipMsg extends UIBase {
         this.cbCancel && this.cbCancel();
         this.tipBox.active = false;
     }
-
+    
 }
 

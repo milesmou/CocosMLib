@@ -75,8 +75,8 @@ export default class UIMgr extends cc.Component {
      * 打开一个UI界面
      * @param obj parent 允许自定义UI父节点,UI间的层级顺序只有父节点相同时有效(父节点所在UI关闭时,必须手动关闭父节点下所有UI)
      */
-    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, parent?: cc.Node, onShow?: (ui: T) => void }) {
-        this.BlockTime = 0.5;
+    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, blockTime?: number, parent?: cc.Node, onShow?: (ui: T) => void }) {
+        this.BlockTime = obj?.blockTime == undefined ? 0.5 : obj?.blockTime;
         let visible = obj?.visible == undefined ? true : obj.visible;
         Utils.delItemFromArray(this.uiKeyStack, name);
         visible ? this.uiKeyStack.push(name) : this.uiKeyStack.unshift(name);
@@ -279,4 +279,30 @@ export default class UIMgr extends cc.Component {
             this.blockNode.active = false;
         }
     }
+
+    //#region 提示信息
+    /** 显示单条提示 */
+    showTip(content: string) {
+        if (this.tipMsg) {
+            this.tipMsg.showTip(content);
+        }
+    }
+    /** 显示向上浮动提示 */
+    showToast(content: string) {
+        if (this.tipMsg) {
+            this.tipMsg.showToast(content);
+        }
+    }
+    /**
+     * 显示确认框
+     * @param content 提示内容
+     * @param boxType 提示框类型 1：一个确认按钮 2：确认和取消按钮
+     * @param opts 确认和取消按钮回调
+     */
+    showConfirm(content: string, boxType = 2, cbConfirm?: Function, cbCancel?: Function) {
+        if (this.tipMsg) {
+            this.tipMsg.showConfirm(content, boxType, cbConfirm, cbCancel);
+        }
+    }
+    //#endregion
 }
