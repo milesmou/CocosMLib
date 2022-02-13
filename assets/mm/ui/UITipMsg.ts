@@ -9,8 +9,8 @@ export default class UITipMsg extends UIBase {
 
     @property(cc.Node)
     singleTip: cc.Node = null;
-    @property(cc.RichText)
-    singleTipContent: cc.RichText = null;
+    @property(cc.Label)
+    singleTipContent: cc.Label = null;
 
     @property(cc.Node)
     tipGroup: cc.Node = null;
@@ -47,9 +47,10 @@ export default class UITipMsg extends UIBase {
      */
     showTip(content: string) {
         content = Language.getStringByID(content);
-        if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
-            content = "<color=#00ffff>" + content + "</c>";
-        }
+        //目前没需求提示富文本，所以我改成了LABER，否则颜色太丑，没法描边（KINHOM）
+        // if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
+        //     content = "<color=#00ffff>" + content + "</c>";
+        // }
         this.singleTip.stopAllActions();
         this.singleTip.opacity = 255;
         this.singleTipContent.string = content;
@@ -64,12 +65,14 @@ export default class UITipMsg extends UIBase {
      * @param content 提示内容
      */
     showToast(content: string) {
+        if (!content) return;
         let tip = app.pool.get(app.poolKey.ToastItem);
         content = Language.getStringByID(content);
-        if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
-            content = "<color=#00ffff>" + content + "</c>";
-        }
-        tip.getComponentInChildren(cc.RichText).string = content;
+        //目前没需求提示富文本，所以我改成了LABER，否则颜色太丑，没法描边（KINHOM）
+        // if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
+        //     content = "<color=#00ffff>" + content + "</c>";
+        // }
+        tip.getComponentInChildren(cc.Label).string = content;
         tip.opacity = 255;
         tip.parent = this.tipGroup;
         for (let i = this.tipGroup.childrenCount - 1; i >= 0; i--) {
@@ -77,7 +80,7 @@ export default class UITipMsg extends UIBase {
             let posY = (this.tipGroup.childrenCount - 2 - i) * this.tipGroupSpaceY;
             v.y = posY;
         }
-        cc.tween(tip).delay(1.5).to(0.3, { opacity: 0 }).call(() => {
+        cc.tween(tip).delay(2.5).to(0.3, { opacity: 0 }).call(() => {
             app.pool.put(app.poolKey.ToastItem, tip);
         }).start();
     }
@@ -96,16 +99,17 @@ export default class UITipMsg extends UIBase {
      * 显示确认框
      * @param content 提示内容
      * @param boxType 提示框类型 1：一个确认按钮 2：确认和取消按钮
-     * @param opts 确认和取消按钮回调
      */
-    showConfirm(content: string, boxType = 2, cbConfirm?: Function, cbCancel?: Function) {
+    showConfirm(content: string, args: { boxType: 1 | 2, confirmText?: string, cancelText?: string, cbConfirm?: Function, cbCancel?: Function }) {
         this.tipBox.active = true;
         this.tipBoxContent.string = content;
         this.btnConfirm.node.once("click", this.Confirm, this);
         this.btnCancel.node.once("click", this.Cancel, this);
-        this.btnCancel.node.active = boxType == 2;
-        this.cbConfirm = cbConfirm;
-        this.cbCancel = cbCancel;
+        this.btnCancel.node.active = args.boxType == 2;
+        this.cbConfirm = args.cbConfirm;
+        this.cbCancel = args.cbCancel;
+        this.btnConfirm.getComponentInChildren(cc.Label).string = args.confirmText || "确认";
+        this.btnCancel.getComponentInChildren(cc.Label).string = args.cancelText || "取消";
     }
 
     Confirm() {
@@ -117,6 +121,6 @@ export default class UITipMsg extends UIBase {
         this.cbCancel && this.cbCancel();
         this.tipBox.active = false;
     }
-    
+
 }
 

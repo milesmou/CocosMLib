@@ -9,6 +9,7 @@ import { SingletonFactory } from "./utils/SingletonFactory";
 
 const { ccclass, property } = cc._decorator;
 
+
 export const ELanguage = cc.Enum({
     "Auto": 0,
     "ChineseSimplified": 1,
@@ -33,7 +34,15 @@ export default class App extends cc.Component {
         displayName: "版本"
     })
     private version = "1.0.0";
+    @property({
+        displayName: "GM",
+        tooltip: "是否启动GM功能"
+    })
+    private enableGM = false;
 
+    public static GM = false;
+
+    public static winSize: cc.Size;
     //environment
     public static config: { platformName: string, version: string };
     public static lang: string;
@@ -52,6 +61,18 @@ export default class App extends cc.Component {
     public static uiKey = UIKey;
 
     onLoad() {
+        cc.game.setFrameRate(59);
+
+        if (CC_JSB) {
+            if (jsb['Device']) {
+                jsb['Device'].setKeepScreenOn(true)
+            }
+        }
+
+        App.GM = this.enableGM;
+
+        App.winSize = this.node.getContentSize();
+
         app.audio = new AudioMgr();
         app.event = new EventMgr();
         app.pool = new PoolMgr();
@@ -103,10 +124,11 @@ export default class App extends cc.Component {
         return safeSize;
     }
 
-    onDestroy() {
+    protected onDestroy(): void {
         SingletonFactory.clear();
     }
 }
 
 export const app = App;
+
 window['mm'] = app;

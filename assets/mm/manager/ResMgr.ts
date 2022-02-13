@@ -3,8 +3,23 @@ import IComponent from "../component/IComponent";
 import { PoolKey } from "./PoolMgr";
 import { app } from "../App";
 
-/*
+//#region 修改cc.instantiate方法 为通过预制体实例化的节点增加mm_prefab字段 指向预制体的引用
 
+const ccInstantiate = cc.instantiate;
+const ccInstantiate_clone = cc.instantiate['_clone'];
+const newInstantiate = function (original) {
+    let newObj = ccInstantiate(original);
+    if (original && original instanceof cc.Prefab) {
+        newObj['mm_prefab'] = original;
+    }
+    return newObj;
+}
+newInstantiate._clone = ccInstantiate_clone;
+cc.instantiate = newInstantiate;
+
+//#endregion
+
+/*
 cocos creator 2.4.x 资源释放问题
 
 cc.assetManager.releaseAsset  释放指定资源及其依赖资源的引用计数为-1,同时会释放其依赖的引用计数为0的贴图、音频等
@@ -22,6 +37,10 @@ cc.resources.release  在指定的Bundle找到对应的Asset,然后调用cc.asse
 6. 通过ResMgr其它接口(load、loadDir、loadArray、loadRemote)加载的资源需要手动管理引用计数
 */
 
+//#region 修改cc.instantiate方法 使通过预制体创建的节点都带有该预制体的引用
+
+//#endregion
+
 /** 资源加载工具类,替代引擎的资源加载,方便控制资源释放 */
 export class ResMgr {
 
@@ -31,30 +50,40 @@ export class ResMgr {
     * @param url 路径（本地路径不带扩展名 远程路径带扩展名）
     * @param lifeRef 生命周期依赖节点的脚本(管理动态加载图片的引用计数)
     * @param decRefOld 是否立即decRef精灵原来的图片
+    * @param resetBeforeLoad 若加载的新的图片,在加载之前先清空旧的资源
     * @param bundleKey 从哪个AssetBundle加载本地图片 默认为resources
     */
-    static loadPicture(sprite: cc.Sprite, url: string, lifeRef: IComponent, decRefOld = true, bundleKey?: BundleKey) {
+    static loadPicture(sprite: cc.Sprite, url: string, lifeRef: IComponent, decRefOld = true, resetBeforeLoad = true, bundleKey?: BundleKey) {
+        if (!sprite?.isValid || !url) return;
+        if (!lifeRef) return;
+        let bundle = bundleKey ? BundleMgr.Inst.getBundle(bundleKey) : cc.resources;
+        if (!bundle) {
+            cc.error(bundleKey + " bundle不存在");
+            return;
+        }
+        let spFrame = sprite.spriteFrame;
+        let name = url.substring(url.lastIndexOf("/") + 1);
+        if (resetBeforeLoad) {
+            if (spFrame?.name != name) {
+                if (resetBeforeLoad && decRefOld) {
+                    sprite.spriteFrame = null;
+                    lifeRef.removeDynamicAsset(spFrame);
+                }
+            }
+        }
         let p = new Promise<void>((resolve, reject) => {
             let onComplete = (err, res: cc.SpriteFrame | cc.Texture2D) => {
-                if (!sprite?.isValid) return;
                 if (err) {
                     cc.error(err);
                     reject();
                 } else {
-                    let oldAsset = sprite.spriteFrame;
                     if (res instanceof cc.Texture2D) {
-                        let spFrame = new cc.SpriteFrame(res);
-                        if (oldAsset?.name != spFrame.name) {
-                            lifeRef?.addDynamicAsset(spFrame);
-                            sprite.spriteFrame = spFrame;
-                            decRefOld && lifeRef?.removeDynamicAsset(oldAsset);
-                        }
-                    } else {
-                        if (oldAsset?.name != res.name) {
-                            lifeRef?.addDynamicAsset(res);
-                            sprite.spriteFrame = res;
-                            decRefOld && lifeRef?.removeDynamicAsset(oldAsset);
-                        }
+                        res = new cc.SpriteFrame(res);
+                    }
+                    if (spFrame?.name != res.name) {
+                        lifeRef.addDynamicAsset(res);
+                        sprite.spriteFrame = res;
+                        !resetBeforeLoad && decRefOld && lifeRef.removeDynamicAsset(spFrame);
                     }
                     resolve();
                 }
@@ -62,15 +91,8 @@ export class ResMgr {
             if (url.startsWith("http")) {
                 cc.assetManager.loadRemote(url, onComplete);
             } else {
-                let bundle = bundleKey ? BundleMgr.Inst.getBundle(bundleKey) : cc.resources;
-                if (bundle) {
-                    bundle.load(url, cc.SpriteFrame, onComplete);
-                } else {
-                    cc.error(bundleKey + " bundle不存在");
-                    reject(bundleKey + " bundle不存在");
-                }
+                bundle.load(url, cc.SpriteFrame, onComplete);
             }
-
         })
         return p;
     }
@@ -80,31 +102,39 @@ export class ResMgr {
      * @param parent 预制体的父节点(默认应该是没有任何子节点的空节点)
      * @param prefab 预制体加载路径
      * @param lifeRef 生命周期依赖节点的脚本(管理动态加载节点的引用计数)
+     * @param decRefOld 是否立即decRef原来的节点
      * @param bundleKey 从哪个AssetBundle加载预制体
      */
-    static loadNode(parent: cc.Node, prefab: string, lifeRef: IComponent, bundleKey?: BundleKey) {
+    static loadNode(parent: cc.Node, prefab: string, lifeRef: IComponent, decRefOld = true, bundleKey?: BundleKey) {
+        if (!parent?.isValid || !prefab) return;
+        if (!lifeRef) return;
         let bundle = bundleKey ? BundleMgr.Inst.getBundle(bundleKey) : cc.resources;
         if (!bundle) {
             cc.error(bundleKey + " bundle不存在");
             return;
         }
-        let oldNode = parent.children[0];
-        let oldAsset = (oldNode as any)?._prefab?.asset;
-        let _uuid = bundle.getInfoWithPath(prefab)?.uuid;
-        if (oldAsset?._uuid == _uuid) return;
-        oldNode?.destroy();
         let p = new Promise<cc.Node>((resolve, reject) => {
+            let oldNode = parent.children[0];
+            let oldAsset = (oldNode as any)?.mm_prefab;
+            let _uuid = bundle.getInfoWithPath(prefab)?.uuid;
+            if (oldAsset?._uuid == _uuid) {
+                resolve(oldNode);
+                return;
+            }
             bundle.load(prefab, cc.Prefab, (err, asset: cc.Prefab) => {
                 if (err) {
                     cc.error(err);
                     reject(err);
                 } else {
                     let newNode = cc.instantiate(asset);
-                    lifeRef && lifeRef.addDynamicAsset(asset);
-                    !lifeRef && asset.addRef();
+                    lifeRef.addDynamicNode(newNode);
                     newNode.parent = parent;
-                    !lifeRef && oldAsset?.decRef();
-                    lifeRef && lifeRef.removeDynamicAsset(oldAsset);
+                    if (decRefOld) {
+                        lifeRef.removeDynamicNode(newNode);
+                    } else if (oldNode?.isValid) {
+                        oldNode.destroy();
+                        oldNode.removeFromParent();
+                    }
                     resolve(newNode);
                 }
             });
@@ -113,12 +143,13 @@ export class ResMgr {
     }
 
     /**
-     * 分帧加载一个列表
-     * @param params prefab:预制体加载路径、对象池key、传空值表示克隆第一个子节点;  对content下多余的item的处理  dt分帧加载每帧耗时(毫秒)
+     * 加载一个列表
+     * @param params prefab:预制体加载路径、对象池key、空值表示克隆第一个子节点;  对content下多余的item的处理  dt>0分帧加载每帧耗时(默认为6) dt=0一次性加载完
      */
-    static async loadItemList<T>(dataList: T[], content: cc.Node, execute: (data: T, item: cc.Node, index?: number) => void, params: { prefab: string | PoolKey, dt?: number, onComplete?: () => void }) {
+    static async loadItemList<T>(dataList: T[], content: cc.Node, execute: (data: T, item: cc.Node, index?: number) => void, params?: { prefab?: string | PoolKey, dt?: number, onComplete?: () => void }) {
         dataList = dataList || [];
         let { prefab, dt, onComplete } = params || {};
+        dt = dt == undefined ? 6 : dt;
         if (content.childrenCount > dataList.length) {
             let toDeal = content.children.slice(dataList.length);
             if (!prefab || typeof prefab === "string") {
@@ -131,31 +162,43 @@ export class ResMgr {
         if (prefab && typeof prefab === "string") {
             p = await this.load(prefab, cc.Prefab);
         }
-        let gen = function* () {
+        let instNode = (index: number) => {
+            let itemNode = content.children[index];
+            if (!itemNode) {
+                if (!prefab) {
+                    itemNode = cc.instantiate(content.children[0]);
+                } else if (typeof prefab === "string") {
+                    itemNode = cc.instantiate(p);
+                } else {
+                    itemNode = app.pool.get(prefab);
+                }
+                itemNode.parent = content;
+            }
+            itemNode.active = true;
+            return itemNode;
+        }
+        if (dt > 0) {//分帧加载
+            let gen = function* () {
+                for (let i = 0; i < dataList.length; i++) {
+                    const v = dataList[i];
+                    let func = () => {
+                        if (!content?.isValid) return;
+                        execute && execute(v, instNode(i), i);
+                    }
+                    yield func;
+                }
+            }();
+            this.frameLoad(gen, dt).then(() => {
+                onComplete && onComplete();
+            });
+        } else {//一次性加载完
             for (let i = 0; i < dataList.length; i++) {
                 const v = dataList[i];
-                let func = () => {
-                    if (!content?.isValid) return;
-                    let itemNode = content.children[i];
-                    if (!itemNode) {
-                        if (!prefab) {
-                            itemNode = cc.instantiate(content.children[0]);
-                        } else if (typeof prefab === "string") {
-                            itemNode = cc.instantiate(p);
-                        } else {
-                            itemNode = app.pool.get(prefab);
-                        }
-                        itemNode.parent = content;
-                    }
-                    itemNode.active = true;
-                    execute && execute(v, itemNode, i);
-                }
-                yield func;
+                execute && execute(v, instNode(i), i);
             }
-        }();
-        this.frameLoad(gen, dt || 4).then(() => {
             onComplete && onComplete();
-        });
+        }
+
     }
 
     /**

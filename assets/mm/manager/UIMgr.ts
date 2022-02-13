@@ -27,9 +27,12 @@ export default class UIMgr extends cc.Component {
     /** 普通的UI页面 */
     @property(cc.Node)
     private normal: cc.Node = null;
-    /** 比较上层的UI界面(如提示信息、引导等等)不参与UI堆栈 */
+    /** 比较上层的UI界面(如切换地图或UI时的加载界面)不参与UI堆栈 */
     @property(cc.Node)
-    private higher: cc.Node = null;
+    public higher: cc.Node = null;
+    /** 固定在最上层的UI界面(如提示信息、引导)不参与UI堆栈 */
+    @property(cc.Node)
+    public fixed: cc.Node = null;
     /** 弹窗UI的半透明遮罩 */
     @property(cc.Node)
     private shade: cc.Node = null;
@@ -54,10 +57,16 @@ export default class UIMgr extends cc.Component {
         }
     }
 
+    /** UI中的子UIKey列表,子UI不参与主UI堆栈 */
+    private subUIKeyList: UIKey[] = [];
+    /** UI中的子UI列表,子UI不参与主UI堆栈 */
+    private subUIList: UIBase[] = [];
+    /** 记录上一次请求打开UI的时间 抛出短时间内(0.1s)连续打开同一UI的警告 */
+    private lastOpenUITime: Map<UIKey, number> = new Map();
 
-    //常驻高层UI
+    //固定在最高层UI
     public guide: UIGUide = null;
-    public tipMsg: UITipMsg = null;
+    private tipMsg: UITipMsg = null;
 
     onLoad() {
         UIMgr.Inst = this;
@@ -66,29 +75,48 @@ export default class UIMgr extends cc.Component {
 
     /** 初始化 */
     public async init() {
+        this.blockNode.setContentSize(app.winSize);
         //添加上层ui
-        this.guide = await this.showHigher(UIKey.UIGuide) as UIGUide;
         this.tipMsg = await this.showHigher(UIKey.UITipMsg) as UITipMsg;
+        this.guide = await this.showHigher(UIKey.UIGuide) as UIGUide;
     }
 
     /**
      * 打开一个UI界面
      * @param obj parent 允许自定义UI父节点,UI间的层级顺序只有父节点相同时有效(父节点所在UI关闭时,必须手动关闭父节点下所有UI)
      */
-    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, blockTime?: number, parent?: cc.Node, onShow?: (ui: T) => void }) {
-        this.BlockTime = obj?.blockTime == undefined ? 0.5 : obj?.blockTime;
-        let visible = obj?.visible == undefined ? true : obj.visible;
+    public async show<T extends UIBase>(name: UIKey, obj?: { args?: any, visible?: boolean, parent?: cc.Node, blockTime?: number, onShow?: (ui: T) => void }) {
+        this.checkShowUIFrequently(name);
+        let { args, visible, parent, blockTime, onShow } = obj || {};
+        visible = visible == undefined ? true : visible;
+        blockTime = blockTime == undefined ? 0.5 : blockTime;
+        this.BlockTime = blockTime;
         Utils.delItemFromArray(this.uiKeyStack, name);
-        visible ? this.uiKeyStack.push(name) : this.uiKeyStack.unshift(name);
+        if (!parent) {
+            if (visible) {
+                this.uiKeyStack.push(name);
+            } else {
+                this.uiKeyStack.unshift(name);
+            }
+        } else {
+            this.subUIKeyList.push(name);
+        }
         app.event.emit(app.eventKey.OnUIInitBegin, name);
         let ui = await this.initUI(name);
-        if (!this.uiKeyStack.includes(name)) return; //UI未加载成功就已被关闭 
-
+        if (!this.uiKeyStack.includes(name) && !this.subUIKeyList.includes(name)) return; //UI未加载成功就已被关闭 
         Utils.delItemFromArray(this.uiStack, ui);
-        visible ? this.uiStack.push(ui) : this.uiStack.unshift(ui);
-        ui.setArgs(obj?.args);
+        if (!parent) {
+            if (visible) {
+                this.uiStack.push(ui);
+            } else {
+                this.uiStack.unshift(ui);
+            }
+        } else {//子UI存放在列表中,不参与主UI的堆栈
+            this.subUIList.push(ui);
+        }
+        ui.setArgs(args);
         ui.setVisible(visible);
-        ui.node.parent = obj?.parent || this.normal;
+        ui.node.parent = parent || this.normal;
         ui.node.setSiblingIndex(visible ? 10000 : 0);
         if (visible) {
             this.setShade();
@@ -97,28 +125,29 @@ export default class UIMgr extends cc.Component {
             ui.playShowAnim(() => {
                 ui.onShow();
                 app.event.emit(app.eventKey.OnUIShow, ui);
-                obj?.onShow && obj.onShow(ui as T);
+                onShow && onShow(ui as T);
             });
         }
     }
 
-    public async hide(name: UIKey): Promise<void> {
-        this.BlockTime = 0.25;
-        Utils.delItemFromArray(this.uiKeyStack, name);
+    public async hide(name: UIKey, blockTime = 0.25): Promise<void> {
         let ui = this.uiMap.get(name);
-        let index = this.uiStack.indexOf(ui)
+        if (!ui || !ui.isValid) return;
+        this.BlockTime = blockTime;
+        Utils.delItemFromArray(this.uiKeyStack, name);
+        let index = this.uiStack.indexOf(ui);
+        let hideUI = () => {
+            this.setShade();
+            if (ui.destroyNode) {
+                ui.node.destroy();
+                ui.node.removeFromParent();
+                this.uiMap.delete(name);
+            } else if (ui.isValid) {
+                ui.node.active = false;
+            }
+        }
         if (index > -1) {
             Utils.delItemFromArray(this.uiStack, ui);
-            this.setShade();
-            let hideUI = () => {
-                if (ui.destroyNode) {
-                    ui.node.destroy();
-                    ui.node.removeFromParent();
-                    this.uiMap.delete(name);
-                } else if (ui.isValid) {
-                    ui.node.active = false;
-                }
-            }
             if (index == this.uiStack.length) {
                 ui.onHideBegin();
                 app.event.emit(app.eventKey.OnUIHideBegin, ui);
@@ -130,13 +159,22 @@ export default class UIMgr extends cc.Component {
             } else {
                 hideUI();
             }
+        } else {
+            //子UI列表
+            index = this.subUIList.indexOf(ui);
+            if (index > -1) {
+                hideUI();
+                Utils.delItemFromArray(this.subUIKeyList, name);
+                Utils.delItemFromArray(this.subUIList, ui);
+            }
         }
     }
 
-    public async showHigher<T extends UIBase>(name: UIKey, args?: any) {
+    public async showHigher<T extends UIBase>(name: UIKey, args?: any[]) {
         let ui = await this.initUI(name);
         ui.setArgs(args);
         ui.node.parent = this.higher;
+        app.event.emit(app.eventKey.OnUIShow, ui);
         return ui as T;
     }
 
@@ -149,6 +187,7 @@ export default class UIMgr extends cc.Component {
         } else {
             ui.node.parent = null;
         }
+        app.event.emit(app.eventKey.OnUIHide, ui);
     }
 
     public hideAll(exclude?: UIKey[]) {
@@ -183,8 +222,7 @@ export default class UIMgr extends cc.Component {
                     resolve(ui.node);
                 } else {
                     let node: cc.Node = cc.instantiate(prefab);
-                    node.width = this.normal.width;
-                    node.height = this.normal.height;
+                    node.setContentSize(app.winSize);
                     node.position = cc.v3(0, 0);
                     resolve(node);
                 }
@@ -195,15 +233,25 @@ export default class UIMgr extends cc.Component {
         return p;
     }
 
+    /** 检测是否在短时间内(0.1s)连续打开同一UI 抛出警告 */
+    private checkShowUIFrequently(name: UIKey) {
+        if (this.lastOpenUITime.get(name)) {
+            let lastTime = this.lastOpenUITime.get(name);
+            if (Date.now() - lastTime < 100) {
+                cc.warn(`短时间内连续打开UI[${name}] 请检查是否有逻辑问题`)
+            }
+        }
+        this.lastOpenUITime.set(name, Date.now());
+    }
+
     /** 当前UI是否是栈顶的UI */
     public isTopUI(name: UIKey | string, immediate = false) {
-        if (!name) return false;
+        let ui = this.uiMap.get(name as UIKey);
+        if (!ui?.isValid) return false;
         if (!immediate) {
-            let topUI = this.uiStack[this.uiStack.length - 1];
-            if (!topUI) return false;
-            return topUI == this.uiMap.get(name as UIKey);
+            return this.uiStack[this.uiStack.length - 1] == ui || this.subUIList[this.subUIList.length - 1] == ui;
         } else {
-            return this.uiKeyStack[this.uiKeyStack.length - 1] == name;
+            return this.uiKeyStack[this.uiKeyStack.length - 1] == name || this.subUIKeyList[this.subUIKeyList.length - 1] == name;
         }
     }
 
@@ -249,16 +297,14 @@ export default class UIMgr extends cc.Component {
     }
 
     private setShade() {
-        //筛选出UIRoot下的UI
-        let uiStack = this.uiStack.filter(v => this.normal.getChildByName(v.node.name));
         let hideUICnt = 0;
         this.normal.children.forEach(v => {
             if (v.active == false) {
                 hideUICnt++;
             }
         })
-        for (let i = uiStack.length - 1; i >= 0; i--) {
-            let ui = uiStack[i];
+        for (let i = this.uiStack.length - 1; i >= 0; i--) {
+            let ui = this.uiStack[i];
             if (ui?.showShade) {
                 this.shade.setSiblingIndex(hideUICnt + i);
                 ui.node.setSiblingIndex(hideUICnt + i + 1);
@@ -277,6 +323,21 @@ export default class UIMgr extends cc.Component {
             this.blockNode.active = true;
         } else {
             this.blockNode.active = false;
+        }
+    }
+
+    /** 通过UI的名字 调用UI上的方法 */
+    sendMessage(name: UIKey, funcName: string, ...args) {
+        let ui = this.uiMap.get(name);
+        if (ui?.isValid) {
+            let func: Function = ui[funcName];
+            if (func && typeof func === "function") {
+                func.apply(ui, args);
+            } else {
+                console.error("UI不存在指定方法", name, funcName);
+            }
+        } else {
+            console.error("UI不存在", name);
         }
     }
 
@@ -299,9 +360,10 @@ export default class UIMgr extends cc.Component {
      * @param boxType 提示框类型 1：一个确认按钮 2：确认和取消按钮
      * @param opts 确认和取消按钮回调
      */
-    showConfirm(content: string, boxType = 2, cbConfirm?: Function, cbCancel?: Function) {
+    showConfirm(content: string, args: { boxType: 1 | 2, confirmText?: string, cancelText?: string, cbConfirm?: Function, cbCancel?: Function }) {
         if (this.tipMsg) {
-            this.tipMsg.showConfirm(content, boxType, cbConfirm, cbCancel);
+            this.tipMsg.showConfirm(content, args);
+            app.event.emit(app.eventKey.OnUIShow, this.tipMsg, app.eventKey.OnUIShow);
         }
     }
     //#endregion
