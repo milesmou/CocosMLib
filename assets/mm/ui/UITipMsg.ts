@@ -1,42 +1,49 @@
-import { app } from "../App";
-import Language from "../component/Language";
-import UIBase from "./UIBase";
+import { _decorator, Node, Label, NodePool, Button, UIOpacity, instantiate, tween, Tween, CCLoader, UITransform, v3 } from 'cc';
+const { ccclass, property } = _decorator;
 
-const { ccclass, property } = cc._decorator;
+import { UIBase } from "./UIBase";
 
-@ccclass
-export default class UITipMsg extends UIBase {
+@ccclass('UITipMsg')
+export class UITipMsg extends UIBase {
+    @property(Node)
+    singleTip!: Node;
+    @property(Label)
+    singleTipContent!: Label;
 
-    @property(cc.Node)
-    singleTip: cc.Node = null;
-    @property(cc.Label)
-    singleTipContent: cc.Label = null;
+    @property(Node)
+    tipGroup!: Node;
+    tipItem!: Node;
+    tipPool!: NodePool;
 
-    @property(cc.Node)
-    tipGroup: cc.Node = null;
-    tipGroupSpaceY = 50;
+    @property(Node)
+    tipBox!: Node;
+    @property(Label)
+    tipBoxContent!: Label;
+    @property(Button)
+    btnConfirm!: Button;
+    @property(Button)
+    btnCancel!: Button;
 
-    @property(cc.Node)
-    tipBox: cc.Node = null;
-    @property(cc.RichText)
-    tipBoxContent: cc.RichText = null;
-    @property(cc.Button)
-    btnConfirm: cc.Button = null;
-    @property(cc.Button)
-    btnCancel: cc.Button = null;
-    cbConfirm: Function = null;
-    cbCancel: Function = null;
+    tipGroupTransform!: UITransform;
 
-
-    tipsPool: cc.NodePool = new cc.NodePool();
+    cbConfirm: Function | undefined = undefined;
+    cbCancel: Function | undefined = undefined;
 
     onLoad() {
         this.singleTip.active = true;
-        this.singleTip.opacity = 0;
+        this.singleTip.getComponent(UIOpacity)!.opacity = 0;
 
+        this.tipGroupTransform = this.tipGroup.getComponent(UITransform)!;
         this.tipGroup.active = true;
-        app.pool.initPool(app.poolKey.ToastItem, this.tipGroup.children[0] as any, 5);
-        this.tipGroup.removeAllChildren(false);
+        this.tipItem = this.tipGroup.children[0];
+        this.tipPool = new NodePool();
+        for (let i = 0, len = 10; i < len; i++) {
+            let tip: Node = instantiate(this.tipItem);
+            (tip as any)["Miles_Content"] = tip.getComponentInChildren(Label)!;
+            (tip as any)["Miles_UIOpacity"] = tip.getComponent(UIOpacity)!;
+            this.tipPool.put(tip);
+        }
+        this.tipGroup.removeAllChildren();
 
         this.tipBox.active = false;
     }
@@ -46,81 +53,85 @@ export default class UITipMsg extends UIBase {
      * @param content 提示内容
      */
     showTip(content: string) {
-        content = Language.getStringByID(content);
-        //目前没需求提示富文本，所以我改成了LABER，否则颜色太丑，没法描边（KINHOM）
-        // if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
-        //     content = "<color=#00ffff>" + content + "</c>";
-        // }
-        this.singleTip.stopAllActions();
-        this.singleTip.opacity = 255;
+        let uiOpacity = this.singleTip.getComponent(UIOpacity)!;
         this.singleTipContent.string = content;
-        cc.tween(this.singleTip)
+        Tween.stopAllByTarget(uiOpacity);
+        uiOpacity.opacity = 255;
+        tween(uiOpacity)
             .delay(1.2)
             .to(0.2, { opacity: 0 })
             .start();
     }
-
     /**
      * 显示向上浮动提示
      * @param content 提示内容
      */
-    showToast(content: string) {
-        if (!content) return;
-        let tip = app.pool.get(app.poolKey.ToastItem);
-        content = Language.getStringByID(content);
-        //目前没需求提示富文本，所以我改成了LABER，否则颜色太丑，没法描边（KINHOM）
-        // if (!(content.startsWith("<color") && content.startsWith("</c>"))) {
-        //     content = "<color=#00ffff>" + content + "</c>";
-        // }
-        tip.getComponentInChildren(cc.Label).string = content;
-        tip.opacity = 255;
-        tip.parent = this.tipGroup;
-        for (let i = this.tipGroup.childrenCount - 1; i >= 0; i--) {
-            let v = this.tipGroup.children[i];
-            let posY = (this.tipGroup.childrenCount - 2 - i) * this.tipGroupSpaceY;
-            v.y = posY;
+    showTips(content: string) {
+        let tip = this.tipPool.get();
+        if (!tip) {
+            tip = instantiate(this.tipItem);
+            (tip as any)["Miles_Content"] = tip.getComponentInChildren(Label)!;
+            (tip as any)["Miles_UIOpacity"] = tip.getComponent(UIOpacity)!;
         }
-        cc.tween(tip).delay(2.5).to(0.3, { opacity: 0 }).call(() => {
-            app.pool.put(app.poolKey.ToastItem, tip);
-        }).start();
+        (tip as any)["Miles_Content"].string = content;
+        (tip as any)["Miles_UIOpacity"].opacity = 255;
+        (tip as any)["Miles_Move"] = true;
+        tip.position = v3(0, 0);
+        tip.parent = this.tipGroup;
+        let count = this.tipGroup.children.length;
+        if (count > 1 && this.tipGroup.children[count - 2].position.y < 45) {
+            let deltaY = 45 - this.tipGroup.children[count - 2].position.y;
+            for (let i = count - 2; i >= 0; i--) {
+                let y = this.tipGroup.children[i].position.y + deltaY;
+                this.tipGroup.children[i].position = v3(0, y <= this.tipGroupTransform.height ? y : this.tipGroupTransform.height);
+            }
+        }
     }
 
     update(dt: number) {
-        for (let i = this.tipGroup.childrenCount - 1; i >= 0; i--) {
-            let v = this.tipGroup.children[i];
-            let posY = (this.tipGroup.childrenCount - 1 - i) * this.tipGroupSpaceY;
-            if (v.y < posY) {
-                v.y += 200 * dt;
+        for (let i = 0, len = this.tipGroup.children.length; i < len; i++) {
+            let tip = this.tipGroup.children[i];
+            if ((tip as any)["Miles_Move"]) {
+                tip.position = v3(0, tip.position.y + 200 * dt);
+                if (tip.position.y >= this.tipGroupTransform.height) {
+                    (tip as any)["Miles_Move"] = false;
+                    tween((tip as any)["Miles_UIOpacity"] as UIOpacity)
+                        .to(0.2, { opacity: 0 })
+                        .call(() => {
+                            this.tipPool.put(tip)
+                        })
+                        .start();
+                }
             }
         }
     }
 
     /**
-     * 显示确认框
+     * 显示提示框
      * @param content 提示内容
      * @param boxType 提示框类型 1：一个确认按钮 2：确认和取消按钮
+     * @param opts 确认和取消按钮回调
      */
-    showConfirm(content: string, args: { boxType: 1 | 2, confirmText?: string, cancelText?: string, cbConfirm?: Function, cbCancel?: Function }) {
+    showTipBox(content: string, boxType = 2, cbConfirm?: Function, cbCancel?: Function) {
         this.tipBox.active = true;
         this.tipBoxContent.string = content;
         this.btnConfirm.node.once("click", this.Confirm, this);
         this.btnCancel.node.once("click", this.Cancel, this);
-        this.btnCancel.node.active = args.boxType == 2;
-        this.cbConfirm = args.cbConfirm;
-        this.cbCancel = args.cbCancel;
-        this.btnConfirm.getComponentInChildren(cc.Label).string = args.confirmText || "确认";
-        this.btnCancel.getComponentInChildren(cc.Label).string = args.cancelText || "取消";
+        this.btnCancel.node.active = boxType == 2;
+        this.cbConfirm = cbConfirm;
+        this.cbCancel = cbCancel;
     }
 
     Confirm() {
         this.cbConfirm && this.cbConfirm();
         this.tipBox.active = false;
+        this.showTips("Confirm");
     }
 
     Cancel() {
         this.cbCancel && this.cbCancel();
         this.tipBox.active = false;
+        this.showTips("Cancel");
     }
-
 }
 

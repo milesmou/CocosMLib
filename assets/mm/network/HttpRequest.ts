@@ -1,14 +1,14 @@
+import { _decorator } from 'cc';
 export class HttpRequest {
     private constructor() { }
-    private static _inst: HttpRequest = null;
+    private static _inst: HttpRequest;
     public static get inst() {
         if (!this._inst) {
             this._inst = new HttpRequest();
         }
         return this._inst;
     }
-
-    public async request(method: "GET" | "POST", action: string, data?, url?: string, showWait = true) {
+    public async request(method: "GET" | "POST", action: string, data?: any, url?: string, showWait = true) {
         if (!url) {
             url = "http://www.tianqiapi.com/api";
         }
@@ -41,5 +41,5 @@ export class HttpRequest {
         });
         return p;
     }
-
 }
+

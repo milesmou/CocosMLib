@@ -1,0 +1,92 @@
+{
+  "__version__": "1.2.8",
+  "version": {
+    "builder": "1.2.3"
+  },
+  "BuildTaskManager": {
+    "taskMap": {
+      "1616999076264": {
+        "id": "1616999076264",
+        "progress": 1,
+        "state": "success",
+        "message": "Build success in 3169 ms!",
+        "options": {
+          "name": "NewProject3",
+          "platform": "android",
+          "buildPath": "project://build",
+          "debug": false,
+          "md5Cache": false,
+          "sourceMaps": false,
+          "replaceSplashScreen": false,
+          "mainBundleCompressionType": "merge_dep",
+          "mainBundleIsRemote": false,
+          "mergeStartScene": false,
+          "experimentalEraseModules": false,
+          "compressTexture": true,
+          "packAutoAtlas": true,
+          "startScene": "726e5630-312f-4c6c-b8be-8b9a51d9881c",
+          "scenes": [
+            {
+              "url": "db://assets/scene/main.scene",
+              "uuid": "7c3e7fab-7b1e-4865-ba84-3cf81b48b9fb"
+            },
+            {
+              "url": "db://assets/scene/scene.scene",
+              "uuid": "726e5630-312f-4c6c-b8be-8b9a51d9881c"
+            }
+          ],
+          "outputName": "androidTestVideo",
+          "packages": {
+            "native": {
+              "template": "link",
+              "polyfills": {
+                "asyncFunctions": true
+              },
+              "encrypted": false,
+              "xxteaKey": "39/WSTGsNNooNNBR",
+              "compressZip": false,
+              "makeAfterBuild": false
+            },
+            "android": {
+              "packageName": "com.cocos.android",
+              "orientation": {
+                "portrait": false,
+                "upsideDown": false,
+                "landscapeRight": true,
+                "landscapeLeft": true
+              },
+              "apiLevel": "android-26",
+              "appABIs": [
+                "armeabi-v7a",
+                "arm64-v8a"
+              ],
+              "useDebugKeystore": true,
+              "keystorePath": "",
+              "keystorePassword": "",
+              "keystoreAlias": "",
+              "keystoreAliasPassword": "",
+              "appBundle": false,
+              "androidInstant": false,
+              "remoteUrl": "",
+              "sdkPath": "/Users/miles/Library/Android/sdk",
+              "ndkPath": "/Users/miles/Library/Android/sdk/ndk/19.2.5345600",
+              "renderBackEnd": {
+                "vulkan": false,
+                "gles3": true,
+                "gles2": false
+              }
+            }
+          }
+        },
+        "time": "2021-3-29 14:36",
+        "dirty": false
+      }
+    }
+  },
+  "common": {
+    "outputName": "androidTestVideo",
+    "mainBundleCompressionType": "merge_dep",
+    "platform": "android",
+    "startScene": "726e5630-312f-4c6c-b8be-8b9a51d9881c"
+  }
+}

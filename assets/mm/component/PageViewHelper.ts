@@ -1,28 +1,27 @@
-const { ccclass, property } = cc._decorator;
+import { _decorator, Component, Node, PageView, Label, misc } from 'cc';
+const { ccclass, property } = _decorator;
 
-@ccclass
-export default class PageViewHelper extends cc.Component {
-
+@ccclass('PageViewHelper')
+export class PageViewHelper extends Component {
     @property({
-        type: cc.Node,
-        visible: function () { return this.getComponent(cc.PageView) }
+        type: Node,
+        visible: function () { return (this as any).getComponent(PageView) }
     })
-    btnPrevious: cc.Node = null;
+    btnPrevious: Node | null = null;
     @property({
-        type: cc.Node,
-        visible: function () { return this.getComponent(cc.PageView) }
+        type: Node,
+        visible: function () { return (this as any).getComponent(PageView) }
     })
-    btnNext: cc.Node = null;
+    btnNext: Node | null = null;
     @property({
-        type: cc.Label,
-        visible: function () { return this.getComponent(cc.PageView) }
+        type: Label,
+        visible: function () { return (this as any).getComponent(PageView) }
     })
-    pageNum: cc.Label = null;
-
-    pageView: cc.PageView = null;
-
+    pageNum: Label | null = null;
+    pageView: PageView | null = null;
+    
     onLoad() {
-        this.pageView = this.getComponent(cc.PageView);
+        this.pageView = this.getComponent(PageView);
         if (this.btnPrevious) {
             this.btnPrevious.on("click", this.onClickPrevious, this);
         }
@@ -41,13 +40,12 @@ export default class PageViewHelper extends cc.Component {
 
     turnPage(delta: number) {
         let dur = 0.3;
-        let pageCount = this.pageView.getPages().length;
-        let pageIndex = this.pageView.getCurrentPageIndex();
+        let pageCount = this.pageView!.getPages().length;
+        let pageIndex = this.pageView!.getCurrentPageIndex();
         pageIndex += delta;
-        pageIndex = cc.misc.clampf(pageIndex, 0, pageCount - 1);
-        this.pageView.scrollToPage(pageIndex, dur);
+        pageIndex = misc.clampf(pageIndex, 0, pageCount - 1);
+        this.pageView!.scrollToPage(pageIndex, dur);
     }
-
 
     update() {
         if (!this.pageView) return;

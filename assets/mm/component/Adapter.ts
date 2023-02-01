@@ -1,51 +1,54 @@
+import { _decorator, Component, Widget, sys, UITransform, view, v3 } from 'cc';
+const { ccclass, property } = _decorator;
+
 import { app } from "../App";
 
-const { ccclass, property } = cc._decorator;
-
 /** 适配工具 */
-@ccclass
-export default class Adapter extends cc.Component {
+@ccclass('Adapter')
+export class Adapter extends Component {
     @property({
-        tooltip: "将背景图适配屏幕大小(针对全面屏)",
+        tooltip: "将背景图适配屏幕大小",
+        visible: function () { return (this as any).getComponent(UITransform)  }
     })
     fitSize = false;
     @property({
         tooltip: "在安全区域内适配Widget",
-        visible: function () { return this.getComponent(cc.Widget) }
+        visible: function () { return (this as any).getComponent(Widget) }
     })
     safeWidget = false;
-
+    
     start() {
+
         if (this.fitSize) {
-            let resize = ratio => {
-                if (sprite?.sizeMode == cc.Sprite.SizeMode.CUSTOM) {
-                    this.node.width *= ratio;
-                    this.node.height *= ratio;
+            let transform = this.getComponent(UITransform);
+            if (transform) {
+                let winSize = view.getVisibleSize();
+                if (winSize.width > winSize.height) {
+                    let wRatio = winSize.width / transform.width * this.node.scale.x;
+                    if (wRatio > 1) {
+                        this.node.scale = v3(this.node.scale.x * wRatio, this.node.scale.y * wRatio);
+                    }
                 } else {
-                    this.node.scale = ratio;
+                    let hRatio = winSize.height / transform.height * this.node.scale.y;
+                    if (hRatio > 1) {
+                        this.node.scale = v3(this.node.scale.x * hRatio, this.node.scale.y * hRatio);
+                    }
                 }
-            }
-            let wRatio = cc.winSize.width / this.node.width;
-            let hRatio = cc.winSize.height / this.node.height;
-            let aspectRatio = Math.max(cc.winSize.width, cc.winSize.height) / Math.min(cc.winSize.width, cc.winSize.height);
-            let sprite = this.node.getComponent(cc.Sprite);
-            if (aspectRatio > 1.77) {//Phone
-                resize(Math.max(wRatio, hRatio));
             }
         }
 
         if (this.safeWidget) {
-            let widget = this.getComponent(cc.Widget);
+            let widget = this.getComponent(Widget);
             if (!widget) return;
             if (widget.isAlignTop) {
-                if (cc.sys.platform == cc.sys.IPHONE) {
+                if (sys.platform == sys.IPHONE) {
                     widget.top += app.safeSize.top * 0.7;
                 } else {
                     widget.top += app.safeSize.top;
                 }
             }
             if (widget.isAlignBottom) {
-                if (cc.sys.platform == cc.sys.IPHONE) {
+                if (sys.platform == sys.IPHONE) {
                     widget.bottom += app.safeSize.bottom * 0.6;
                 } else {
                     widget.bottom += app.safeSize.bottom;
@@ -60,6 +63,4 @@ export default class Adapter extends cc.Component {
             widget.updateAlignment();
         }
     }
-
-
 }

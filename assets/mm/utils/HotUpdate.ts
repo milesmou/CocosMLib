@@ -3,6 +3,7 @@
 //1.修改热更新工具main_code.js中的搜索路径：var hotUpdateSearchPaths = localStorage.getItem('HotUpdateSearchPaths');中的HotUpdateSearchPaths
 //2.修改当前脚本中的搜索路径：cc.sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));中的HotUpdateSearchPaths，与步骤1的key保持一致
 
+import { _decorator, Asset, sys, assetManager } from 'cc';
 export enum HotUpdateCode {
     UpToDate,//已经是最新版本
     ManifestError,//manifest文件异常
@@ -13,20 +14,17 @@ export enum HotUpdateCode {
 export class HotUpdate {
     private readonly TAG = "[HotUpdate]";
     private constructor() { }
-    private static inst: HotUpdate = null;
+    private static inst: HotUpdate;
     public static get Inst() { return this.inst || (this.inst = new HotUpdate()) }
-
-    manifest: cc.Asset = null;//本地project.manifest文件
-    assetsMgr: jsb.AssetsManager = null;//jsb资源管理器
+    manifest: Asset | null = null;//本地project.manifest文件
+    assetsMgr!: jsb.AssetsManager;//jsb资源管理器
     updating = false; //更新中
     failCount = 3;//更新失败重试次数
-
-    setTips: (content: string) => void;
-    progress: (loaded: number, total: number) => void;
-    complete: (code: HotUpdateCode) => void;
-
-    start(manifest: cc.Asset, setTips: (content: string) => void, progress: (loaded: number, total: number) => void, complete: (code: HotUpdateCode) => void) {
-        if (!cc.sys.isNative) {
+    setTips!: (content: string) => void;
+    progress!: (loaded: number, total: number) => void;
+    complete!: (code: HotUpdateCode) => void;
+    start(manifest: Asset, setTips: (content: string) => void, progress: (loaded: number, total: number) => void, complete: (code: HotUpdateCode) => void) {
+        if (!sys.isNative) {
             console.warn(this.TAG, "非原生环境");
             return;
         }
@@ -43,14 +41,13 @@ export class HotUpdate {
         this.assetsMgr.setVerifyCallback(this.VerifyHandle.bind(this));
         this.checkHotUpdate();
     }
-
-    versionCompareHandle(versionA, versionB) {
+    versionCompareHandle(versionA: string, versionB: string) {
         console.log(this.TAG, "客户端版本: " + versionA + ', 当前最新版本: ' + versionB);
         let vA = versionA.split('.');
         let vB = versionB.split('.');
         for (let i = 0; i < vA.length; ++i) {
             let a = parseInt(vA[i]);
-            let b = parseInt(vB[i] || 0);
+            let b = parseInt(vB[i]);
             if (a === b) {
                 continue;
             } else {
@@ -64,8 +61,8 @@ export class HotUpdate {
         }
     }
 
-    VerifyHandle(path, asset) {
-        let { compressed, expectedMD5, relativePath, size } = asset;
+    VerifyHandle(path: string, asset: jsb.ManifestAsset) {
+        let { compressed } = asset;
         if (compressed) {
             return true;
         } else {
@@ -78,10 +75,10 @@ export class HotUpdate {
             return;
         }
         if (this.assetsMgr.getState() === jsb.AssetsManager.State.UNINITED) {
-            let url = this.manifest.nativeUrl;
-            if (cc.loader.md5Pipe) {
-                url = cc.loader.md5Pipe.transformURL(url);
-            }
+            let url = this.manifest!.nativeUrl;
+            // if (assetManager.md5Pipe) {
+            //     url = loader.md5Pipe.transformURL(url);
+            // }
             this.assetsMgr.loadLocalManifest(url);
         }
         if (!this.assetsMgr.getLocalManifest() || !this.assetsMgr.getLocalManifest().isLoaded()) {
@@ -101,7 +98,7 @@ export class HotUpdate {
         }
     }
 
-    /** 0:检测更新 1:开始下载更新 */
+    /** 0:检测更新 1:下载更新 */
     hotUpdateCb(state: 0 | 1, event: jsb.EventAssetsManager) {
         switch (event.getEventCode()) {
             case jsb.EventAssetsManager.UPDATE_PROGRESSION:
@@ -154,16 +151,16 @@ export class HotUpdate {
             let newPaths = this.assetsMgr.getLocalManifest().getSearchPaths();
             console.log(this.TAG, "搜索路径: " + JSON.stringify(newPaths));
             Array.prototype.unshift.apply(searchPaths, newPaths);//追加脚本搜索路径
-            // !!! 在main.js中添加脚本搜索路径，否则热更的脚本不会生效
-            cc.sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));
+            // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
+            sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));
             jsb.fileUtils.setSearchPaths(searchPaths);
         }
-        this.assetsMgr.setEventCallback(null);
+        this.assetsMgr.setEventCallback(null!);
         this.complete(code);
     }
 
     onUpdateFail() {
-        this.assetsMgr.setEventCallback(null);
+        this.assetsMgr.setEventCallback(null!);
         this.complete(HotUpdateCode.Fail);
     }
 }

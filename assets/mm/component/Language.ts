@@ -1,93 +1,84 @@
+import { _decorator, Component, Label, RichText, Sprite, Font } from 'cc';
+const { ccclass, property } = _decorator;
+
 import { app } from "../App";
 import { Utils } from "../utils/Utils";
 
-const { ccclass, property, requireComponent, menu } = cc._decorator;
-
-const EMode = cc.Enum({
-    ID: 0,
-    Manual: 1
-})
-
-@ccclass("TextInfo")
-class TextInfo {
+@ccclass("LanguageText")
+class LanguageText {
     @property({
-        displayName: "文本"
-    })
-    text = "";
-    @property({
-        type: cc.Font,
-        displayName: "字体"
-    })
-    font: cc.Font = null;
-}
-
-@ccclass("LangConfig")
-class LangConfig {
-    @property({
-        type: TextInfo,
         displayName: "简体"
     })
-    zh: TextInfo = null;
+    zh = "";
     @property({
-        type: TextInfo,
         displayName: "繁体"
     })
-    zh_ft: TextInfo = null;
+    zh_ft = "";
     @property({
-        type: TextInfo,
         displayName: "英文"
     })
-    en: TextInfo = null;
+    english = "";
 }
 
-@ccclass
-@menu("MM/Language")
-export default class Language extends cc.Component {
+@ccclass("LanguageFont")
+class LanguageFont {
     @property({
-        type: EMode,
-        tooltip: "ID: 通过ID从语言表加载内容和字体\nManual: 手动配置不同语言的文本和字体\n注意: 需要在不用语言使用不同字体时,请勾选label的useSystemFont属性",
+        type: Font,
+        displayName: "简体"
+    })
+    zh: Font | null = null;
+    @property({
+        type: Font,
+        displayName: "繁体"
+    })
+    zh_ft: Font | null = null;
+    @property({
+        type: Font,
+        displayName: "英文"
+    })
+    english: Font | null = null;
+}
+
+@ccclass("Language")
+export class Language extends Component {
+    @property({
+        type: LanguageText,
+        tooltip: "不同语言显示的内容",
         visible: function () {
-            return this.getComponent(cc.Label)
-                || this.getComponent(cc.RichText);
+            return (this as any).getComponent(Label)
+                || (this as any).getComponent(RichText);
         }
     })
-    mode = EMode.ID;
+    text!: LanguageText;
     @property({
-        tooltip: "语言表中的ID",
+        tooltip: "不同语言使用不同的字体",
         visible: function () {
-            return this.mode == EMode.ID &&
-                (this.getComponent(cc.Label)
-                    || this.getComponent(cc.RichText));
+            return (this as any).getComponent(Label)
+                || (this as any).getComponent(RichText);
         }
     })
-    ID = "0";
+    useMultipleFont = false;
     @property({
-        tooltip: "不同语言的文本和字体",
-        type: LangConfig,
+        type: LanguageFont,
+        tooltip: "不同语言的字体配置",
         visible: function () {
-            return this.mode == EMode.Manual &&
-                (this.getComponent(cc.Label)
-                    || this.getComponent(cc.RichText));
+            return (this as any).useMultipleFont;
         }
     })
-    config: LangConfig = null;
+    font!: LanguageFont;
     @property({
         tooltip: "图片名字",
         visible: function () {
-            return this.getComponent(cc.Sprite);
+            return (this as any).getComponent(Sprite);
         }
     })
     spriteName = "";
 
-    private args: any[] = null;
+    private args: any[] | null = null;
 
     onLoad() {
-        if (this.ID || this.spriteName) {
-            this.updateContent();
-            Language.list.push(this);
-        } else {
-            console.warn(`${this.node.name} ID=${this.ID} PicName=${this.spriteName}`);
-        }
+        this.updateContent();
+        Language.list.push(this);
     }
 
     onDestroy() {
@@ -98,39 +89,26 @@ export default class Language extends cc.Component {
     }
 
     /** 设置文本参数并刷新内容(针对文本中有动态内容,便于切换语言环境自动刷新内容) */
-    setTextArgs(...args) {
+    setTextArgs(...args: any[]) {
         this.args = args;
         this.updateContent();
     }
 
     updateContent() {
-        let comps: cc.Component[] = this.node["_components"];
+        let comps: Component[] = this.node["_components"];
         for (let i = 0, len = comps.length; i < len; i++) {
             let comp = comps[i];
-            if (comp instanceof cc.Label || comp instanceof cc.RichText) {
-                if (this.mode == EMode.ID) {
-                    if (this.args) {
-                        Language.setStringByID(comp, this.ID, ...this.args);
-                    } else {
-                        Language.setStringByID(comp, this.ID);
-                    }
-                } else {
-                    let textInfo: TextInfo = this.config[app.lang];
-                    if (textInfo) {
-                        let context: string = textInfo.text;
-                        context = context.replace(/\\n/g, "\n");
-                        if (this.args) {
-                            context = Utils.formatString(context, ...this.args);
-                        }
-                        comp.string = context;
-                        if (comp.useSystemFont) {
-                            comp.font = textInfo.font;
-                        }
-                    }
+            if (comp instanceof Label || comp instanceof RichText) {
+                if (this.useMultipleFont) {
+                    comp.font = (this.font as any)[app.lang];
                 }
-                this.args ? Language.setStringByID(comp, this.ID, ...this.args) : Language.setStringByID(comp, this.ID);
+                let context = (this.text as any)[app.lang];
+                if (this.args) {
+                    context = Utils.formatString(context, ...this.args);
+                }
+                comp.string = context;
                 break;
-            } else if (comp instanceof cc.Sprite) {
+            } else if (comp instanceof Sprite) {
                 Language.setSpriteFrameByName(comp, this.spriteName);
                 break;
             }
@@ -138,8 +116,8 @@ export default class Language extends cc.Component {
     }
 
     static list: Language[] = [];
-    static dict: { [key: string]: { [ID: string]: { text: string, font: string } } } = null;
-    static init(dict: {}) {
+    static dict: { [ID: number]: any } | null = null;
+    static init(dict: { [ID: number]: any }) {
         this.dict = this.dict || dict;
     }
 
@@ -149,60 +127,24 @@ export default class Language extends cc.Component {
         });
     }
 
-    static setStringByID(label: cc.Label | cc.RichText, ID: string, ...args) {
-        label.useSystemFont && this.setFontByID(label, ID);
+    static setStringByID(label: Label | RichText, ID: number, ...args: any[]) {
         label.string = this.getStringByID(ID, ...args) || label.string;
     }
 
-    static setSpriteFrameByName(sprite: cc.Sprite, name: string) {
-        Utils.loadPicture(sprite, `language/${app.lang}/${name}`);
+    static setSpriteFrameByName(sprite: Sprite, name: string) {
+        Utils.loadSprite(sprite, `language/${app.lang}/${name}`)
     }
 
-    static getStringByID(ID: string, ...args): string {
-        if (isNaN(parseInt(ID))) return ID;
+    static getStringByID(ID: number, ...args: any[]): string {
         if (!this.dict) {
             console.warn(`未初始化语言表`);
-            return;
+            return "";
         };
-        let value: { text: string, font: string } = null;
-        for (const key in this.dict) {
-            const v = this.dict[key];
-            if (v[ID]) {
-                value = v[ID];
-                break;
-            }
-        }
-        if (!value) {
+        if (!this.dict[ID] || !this.dict[ID][app.lang]) {
             console.warn(`ID=${ID} Lang=${app.lang}  在语言表中无对应内容`);
-            return;
+            return "";
         }
-        return Utils.formatString(value.text, ...args);
-    }
-
-    static setFontByID(label: cc.Label | cc.RichText, ID: string) {
-        if (!this.dict) {
-            console.warn(`未初始化语言表`);
-            return;
-        }
-        let value: { text: string, font: string } = null;
-        for (const key in this.dict) {
-            const v = this.dict[key];
-            if (v[ID]) {
-                value = v[ID];
-                break;
-            }
-        }
-        if (!value) {
-            console.warn(`ID=${ID} Lang=${app.lang}  在语言表中无对应内容`);
-            return;
-        }
-        let fontName = value.font;
-        if (!fontName) {
-            label.font == null;
-        } else {
-            Utils.load("font/" + fontName, cc.Font).then(v => {
-                label.font = v;
-            })
-        }
+        return Utils.formatString(this.dict[ID][app.lang], ...args);
     }
 }
+

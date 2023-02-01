@@ -1,12 +1,13 @@
+import { _decorator, Component, macro } from 'cc';
 import { app } from "../App";
 
-export class SocketConnect extends cc.Component {
+export class SocketConnect extends Component {
     public constructor(url: string) {
         super();
         this.url = url;
     }
-    private url: string = null;
-    private ws: WebSocket = null;
+    private url!: string;
+    private ws!: WebSocket;
     private autoConnect = false;
     private tick = 5;//当5s未收到服务器消息时，向服务器发一个心跳包，确保连接正常
 
@@ -24,10 +25,9 @@ export class SocketConnect extends cc.Component {
         this.autoConnect = false;
         this.ws && this.ws.close();
     }
-
     private onOpen() {
         this.autoConnect = true;
-        this.schedule(this.starTick, 1, cc.macro.REPEAT_FOREVER, 1);
+        this.schedule(this.starTick, 1, macro.REPEAT_FOREVER, 1);
         console.log(this.url + ": socket opened");
     }
 
@@ -40,11 +40,10 @@ export class SocketConnect extends cc.Component {
         console.log(this.url + ": socket fired an error");
     }
 
-    private onClose(event) {
+    private onClose(event: any) {
         if (this.autoConnect) {
-            //auto connect
+            this.openSocket();
             console.log("auto connect");
-
         }
         this.unschedule(this.starTick);
         console.log(this.url + ": socket closed ", event.reason);
@@ -61,7 +60,7 @@ export class SocketConnect extends cc.Component {
         }
     }
 
-    private handlerMessage(data) {
+    private handlerMessage(data: any) {
         console.log(data);
         let obj = JSON.parse(data);
         let msgId = obj.msgId;
@@ -69,9 +68,7 @@ export class SocketConnect extends cc.Component {
         app.event.emit(msgId, content);
     }
 
-    public sendMessage(msgId, content) {
+    public sendMessage(msgId: number, content: any) {
         this.ws.send(JSON.stringify({ msgId: msgId, content: content }));
     }
-
-
 }

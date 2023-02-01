@@ -1,0 +1,17 @@
+{
+  "__version__": "1.0.0",
+  "options": {
+    "android": {
+      "appABIs": [
+        "armeabi-v7a",
+        "arm64-v8a"
+      ],
+      "orientation": {
+        "portrait": false,
+        "upsideDown": false,
+        "landscapeRight": true,
+        "landscapeLeft": true
+      }
+    }
+  }
+}

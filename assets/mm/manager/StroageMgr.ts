@@ -1,120 +1,100 @@
+import { sys, _decorator } from 'cc';
 import { Utils } from "../utils/Utils";
 
-export abstract class SerializableObject {
-    public abstract name: string;
-
-    /** 字段会被每日重置,即使用默认值 */
-    public dayreset: { [key: string]: any };
-    /** 上一次重置dayreset字段日期 */
-    public lastResetDate: number;
-    /** 准备延迟存档,忽略其它存档请求 */
-    private readySave = false;
-
-    /** 立即存档 */
-    save() {
-        StroageMgr.serialize(this);
-    }
-    /** 延迟存档 */
-    delaySave() {
-        if (!this.readySave) {
-            this.readySave = true;
-            cc.tween({}).delay(0.01).call(() => {
-                this.readySave = false;
-                this.save();
-            }).start();
-        }
-    };
+/** 本地存储枚举 */
+export enum StroageKey {
+    SysLanguage,
+    MusicVolume,
+    EffectVolume,
+    LastResetDate,
+    Test1
 }
 
-/**
- * 本地存储工具类
- */
+/** 本地存储工具类 */
 export class StroageMgr {
-
-    /** 从本地缓存读取存档 */
-    public static deserialize<T extends SerializableObject>(inst: T): T {
-        Reflect.defineProperty(inst, "name", { enumerable: false });
-        Reflect.defineProperty(inst, "readySave", { enumerable: false });
-        let name = inst.name;
-        let jsonStr = this.getValue(name, "");
-        if (jsonStr) {
-            try {
-                let obj = JSON.parse(jsonStr);
-                this.mergeValue(inst, obj, true);
-            } catch (err) {
-                console.error(err);
-            }
-        }
-        inst.lastResetDate = Utils.getToday();
-        return inst;
-    }
-
-    /** 将数据写入到本地存档中 */
-    public static serialize<T extends SerializableObject>(inst: T) {
-        let name = inst.name;
-        let jsonStr = JSON.stringify(inst);
-        this.setValue(name, jsonStr);
-        return jsonStr;
-    }
-
-    /** 合并存档默认数据和本地数据 */
-    private static mergeValue(target: object, source: object, isRootObj = false) {
-        for (const key in target) {
-            if (Reflect.has(source, key)) {
-                if (isRootObj && key == "dayreset") {//根对象的dayreset会被每日重置
-                    if (Utils.getToday() > source["lastResetDate"]) continue;//使用默认值
-                }
-                if (Object.prototype.toString.call(target[key]) === "[object Object]" && Object.prototype.toString.call(source[key]) === "[object Object]") {//对象拷贝
-                    if (JSON.stringify(target[key]) === "{}") {//使用空字典存储,完整赋值
-                        target[key] = source[key];
-                    } else {//递归赋值
-                        this.mergeValue(target[key], source[key]);
-                    }
-                } else {//直接完整赋值
-                    target[key] = source[key];
-                }
-            }
+    public prefix = "GameName_";
+    constructor() {
+        if (Utils.getToday() > this.getNumber(StroageKey.LastResetDate, 0)) {
+            this.setValue(StroageKey.LastResetDate, Utils.getToday());
+            //在这里重置一些需要每日重置的值
         }
     }
-
+    /**
+    * 从本地存储中获取数字类型的值
+    * @param stroageKey 键
+    * @param defaultV 默认值
+    */
+    getNumber(stroageKey: StroageKey, defaultV: number): number {
+        return this.getValue<number>("number", stroageKey, defaultV);
+    }
+    /**
+    * 从本地存储中获取字符串类型的值
+    * @param stroageKey 键
+    * @param defaultV 默认值
+    */
+    getString(stroageKey: StroageKey, defaultV: string): string {
+        return this.getValue<string>("string", stroageKey, defaultV);
+    }
+    /**
+    * 从本地存储中获取布尔类型的值
+    * @param stroageKey 键
+    * @param defaultV 默认值
+    */
+    getBoolean(stroageKey: StroageKey, defaultV: boolean): boolean {
+        return this.getValue<boolean>("boolean", stroageKey, defaultV);
+    }
+    /**
+     * 从本地存储中获取对象类型的值
+     * @param stroageKey 键
+     * @param defaultV 默认值
+     */
+    getObject(stroageKey: StroageKey, defaultV: object): object {
+        return this.getValue<object>("object", stroageKey, defaultV);
+    }
     /**
      * 从本地存储中获取缓存的值
+     * @param type 数据类型 number|string|boolean|object
      * @param stroageKey StroageKey键枚举
      * @param defaultV 默认值
      */
-    public static getValue<T>(stroageKey: string, defaultV: T): T {
-        let value = cc.sys.localStorage.getItem(stroageKey);
-        if (!value) return defaultV;
-        if (typeof defaultV === "number") {
-            let v = parseFloat(value);
-            if (isNaN(v)) {
-                console.error(stroageKey, ": 转化为数字类型错误 ", value);
-                value = defaultV;
-            } else {
-                value = v;
-            }
-        } else if (typeof defaultV === "string") {
-            return value;
-        } else if (typeof defaultV === "boolean") {
-            return (value !== "true") as any;
+    private getValue<T>(type: "number" | "string" | "boolean" | "object", stroageKey: StroageKey, defaultV: T): T {
+        let key = this.prefix + StroageKey[stroageKey];
+        let value = sys.localStorage.getItem(key);
+        if (!value) {
+            return defaultV;
         } else {
-            try {
-                value = JSON.parse(value);
-            } catch (err) {
-                console.error(stroageKey, ": 转化对象类型错误 ", value);
-                value = defaultV;
+            if (type === "number") {
+                let v = parseFloat(value);
+                if (isNaN(v)) {
+                    console.error(key, ": 转化为数字类型错误 ", value);
+                    value = defaultV;
+                } else {
+                    value = v;
+                }
+            } else if (type === "string") {
+                return value;
+            } else if (type === "boolean") {
+                return (value !== "true") as any;
+            } else {
+                try {
+                    value = JSON.parse(value);
+                } catch (err) {
+                    console.error(key, ": 转化对象类型错误 ", value);
+                    value = defaultV;
+                }
+
             }
         }
         return value;
     }
-
     /**
      * 设置本地存储值
      */
-    public static setValue(stroageKey: string, value: any) {
+    setValue(stroageKey: StroageKey, value: any) {
+        let key = this.prefix + StroageKey[stroageKey];
         if (typeof value === "object") {
             value = JSON.stringify(value);
         }
-        cc.sys.localStorage.setItem(stroageKey, String(value));
+        sys.localStorage.setItem(key, String(value));
     }
 }
