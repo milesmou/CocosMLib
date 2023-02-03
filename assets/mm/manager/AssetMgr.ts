@@ -14,8 +14,8 @@ class BundleMgr {
         });
     }
 
-    //资源包
-    private bundle: Map<string, AssetManager.Bundle> = new Map();
+    //bundle名字:Bundle
+    private bundles: Map<string, AssetManager.Bundle> = new Map();
 
     //资源地址:Bundle名字
     private address: Map<string, string> = new Map();
@@ -25,7 +25,7 @@ class BundleMgr {
     }
 
     private resolveBundle(bundle: AssetManager.Bundle) {
-        this.bundle.set(bundle.name, bundle);
+        this.bundles.set(bundle.name, bundle);
         bundle.config.paths.forEach(v => {
             v.forEach(v1 => {
                 if (!this.address.has(v1.path))
@@ -94,7 +94,7 @@ class BundleMgr {
     public getBundleByLocation(location: string): AssetManager.Bundle {
         let ab: AssetManager.Bundle = null;
         if (this.address.has(location)) {
-            ab = this.bundle.get(this.address.get(location));
+            ab = this.bundles.get(this.address.get(location));
             if (!ab) console.error(`location: ${location}  资源所在Bundle未加载`);
 
         } else {
