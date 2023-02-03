@@ -1,6 +1,6 @@
 import { game } from "cc";
 
-/** 单例工厂,通过单例工厂实例化的单例对象被存起来,可以手动在引擎重启的时候销毁 */
+/** 单例工厂,通过单例工厂实例化的单例对象被存起来,可以在引擎重启的时候销毁所有实例 */
 export class SingletonFactory {
 
     private static clazz: Set<any> = new Set();
