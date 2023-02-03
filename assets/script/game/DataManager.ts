@@ -1,12 +1,11 @@
 import { JsonAsset, TextAsset } from 'cc';
 import { AssetMgr } from '../../mm/manager/AssetMgr';
+import { SingletonFactory } from '../../mm/utils/SingletonFactory';
 import { Tables } from '../gen/table/Types';
 import { Config, GlobalVal, Guide } from "./DataEntity";
 
 export default class DataManager {
-    private static inst: DataManager;
-    public static get Inst() { return this.inst || (this.inst = new this()) }
-    private constructor() { }
+   public static get Inst() { return SingletonFactory.getInstance<DataManager>(DataManager); }
     globalVal!: GlobalVal;
     config!: Config;
 

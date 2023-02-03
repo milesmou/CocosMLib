@@ -1,3 +1,5 @@
+import { game } from "cc";
+
 /** 单例工厂,通过单例工厂实例化的单例对象被存起来,可以手动在引擎重启的时候销毁 */
 export class SingletonFactory {
 
@@ -23,3 +25,5 @@ export class SingletonFactory {
         SingletonFactory.clazz.clear();
     }
 }
+
+game.onStart = SingletonFactory.clear;
