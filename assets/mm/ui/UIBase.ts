@@ -1,10 +1,9 @@
-import { AnimationState, v3, __private } from 'cc';
-import { _decorator, Enum, Component, Button, Node, Animation, UITransform, BlockInputEvents, view, tween } from 'cc';
+import { Animation, BlockInputEvents, Button, Enum, Node, tween, UITransform, v3, view, _decorator } from 'cc';
 const { property, ccclass } = _decorator;
 
 import { app } from "../App";
 import { CCUtils } from '../utils/CCUtil';
-import { Utils } from "../utils/Utils";
+import { AssetHandler } from './AssetHandler';
 const EAction = Enum({
     NONE: 0,
     OPEN: 1,
@@ -13,7 +12,7 @@ const EAction = Enum({
 })
 
 @ccclass('UIBase')
-export class UIBase extends Component {
+export class UIBase extends AssetHandler {
     @property({
         displayName: "销毁",
         tooltip: "UI关闭时是否销毁"

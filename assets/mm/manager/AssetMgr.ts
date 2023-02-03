@@ -1,4 +1,4 @@
-import { Asset, assetManager, ImageAsset, SpriteFrame, sys } from "cc";
+import { Asset, assetManager, ImageAsset, Sprite, SpriteFrame, sys } from "cc";
 import { SingletonFactory } from "../utils/SingletonFactory";
 import { BundleMgr } from "./BundleMgr";
 
@@ -71,6 +71,25 @@ export class AssetMgr {
             return SpriteFrame.createWithImage(img);
         }
         return null;
+    }
+
+    /**
+    * 加载图片到Sprite
+    * @param sprite 目标Sprite组件
+    * @param location 路径（本地路径不带扩展名 远程路径带扩展名）
+    */
+    static async loadSprite(sprite: Sprite, location: string) {
+        if (!sprite?.isValid) {
+            console.error("Sprite无效 " + location);
+            return;
+        }
+        if (location.startsWith("http") || location.startsWith("/")) {
+            let spFrame = await this.loadRemoteSpriteFrame(location);
+            sprite.spriteFrame = spFrame;
+        } else {
+            let spFrame = await this.loadSpriteFrame(location);
+            sprite.spriteFrame = spFrame;
+        }
     }
 
     /**

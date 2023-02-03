@@ -3,50 +3,6 @@ import { AssetMgr } from "../manager/AssetMgr";
 
 export class CCUtils {
 
-    /**
-     * 加载图片到Sprite
-     * @param sprite 目标Sprite组件
-     * @param location 路径（本地路径不带扩展名 远程路径带扩展名）
-     */
-    static async loadSprite(sprite: Sprite, location: string) {
-
-        if (!sprite?.isValid) {
-            console.error("Sprite无效 " + location);
-            return;
-        }
-
-        if (location.startsWith("http")) {
-            let spFrame = await AssetMgr.loadAsset<SpriteFrame>(location);
-            sprite.spriteFrame = spFrame;
-        } else {
-
-        }
-
-        // let p = new Promise<void>((resolve, reject) => {
-        //     let onComplete = (err: any, res: SpriteFrame | ImageAsset) => {
-        //         if (err) {
-        //             console.error(err);
-        //             reject();
-        //         } else {
-        //             if (res instanceof ImageAsset) {
-        //                 let spriteFrame = new SpriteFrame();
-        //                 spriteFrame.texture = res._texture;
-        //                 sprite.spriteFrame = spriteFrame;
-        //             } else {
-        //                 sprite.spriteFrame = res;
-        //             }
-        //             resolve();
-        //         }
-        //     };
-        //     if (url.startsWith("http") || url.startsWith("/")) {
-        //         assetManager.loadRemote(url, { ext: url.substring(url.lastIndexOf(".")) }, onComplete);
-        //     } else {
-        //         resources.load(url + "/spriteFrame", SpriteFrame, onComplete);
-        //     }
-        // })
-        // return p;
-    }
-
     /** 从节点的一级子节点获取指定组件 */
     static getComponentInChildren<T extends Component>(node: Node, type: new (...args: any[]) => T): T {
         for (let i = 0; i < node.children.length; i++) {

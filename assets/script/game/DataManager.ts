@@ -22,10 +22,10 @@ export default class DataManager {
             return [];
         });
         let datas: Map<string, JsonAsset> = new Map();
-        for (let i = 0; i < files.length; i++) {
-            let location = prefix + files[i];
+        for (let file of files) {
+            let location = prefix + file;
             let asset = await AssetMgr.loadAsset<JsonAsset>(location, JsonAsset);
-            datas.set(files[i], asset);
+            datas.set(file, asset);
         }
         this.Tables = new Tables(file => {
             let obj = datas.get(file)?.json;
