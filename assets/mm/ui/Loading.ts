@@ -1,4 +1,5 @@
-import { _decorator, Component, ProgressBar, Label, Asset, UITransform, v3, JsonAsset, sys, game, tween } from 'cc';
+import { Asset, Component, game, JsonAsset, Label, ProgressBar, tween, UITransform, v3, _decorator } from 'cc';
+import DataManager from '../../script/game/DataManager';
 import { app } from '../App';
 const { ccclass, property } = _decorator;
 
@@ -25,12 +26,11 @@ export class Loading extends Component {
         tooltip: "本地project.manifest文件",
         visible: function () { return (this as any).hotUpdate; }
     })
-    manifest: Asset | null = null;
+    manifest: Asset = null;
     start() {
         let transform = this.getComponent(UITransform);
         if (transform) {
             this.node.scale = v3(1, 1);
-            transform.priority = 10000;
         }
         this.loadCfg();
     }
@@ -65,15 +65,10 @@ export class Loading extends Component {
     async loadRes() {
         //加载游戏数据
         this.setTips("Loading Game Data")
-        // let gameDatas = await Utils.loadDir("data", this.onProgress.bind(this));
-        // for (const v of gameDatas) {
-        //     if (v.name == "GameData") {
-        //         DataManager.Inst.initData((v as cc.JsonAsset).json);
-        //     } else if (v.name == "Language") {
-        //         Language.init((v as cc.JsonAsset).json["Language"], null);
-        //     }
-        // }
-        //加载ui
+
+       
+        await DataManager.Inst.initData()
+        //预加载ui
         // if (cc.sys.isBrowser) {
         //     this.setTips("Loading Game Scene")
         //     await Utils.loadDir("ui", this.onProgress.bind(this));
@@ -83,7 +78,7 @@ export class Loading extends Component {
             .to(1, { x: 1 }, {
                 progress: (start, end, curent, ratio) => {
                     let v = start + (end - start) * ratio;
-                    
+
                     if (this.progressBar) {
                         this.progressBar.progress = v;
                     }
@@ -94,7 +89,7 @@ export class Loading extends Component {
                 }
             })
             .call(() => {
-                app.ui.show(app.uiKey.UIHUD).then(()=>{
+                app.ui.show(app.uiKey.UIHUD).then(() => {
                     this.node.destroy();
                 })
             })

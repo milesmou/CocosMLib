@@ -1,25 +1,49 @@
-import { assetManager, AssetManager } from "cc";
+import { assetManager, AssetManager, resources } from "cc";
+import { SingletonFactory } from "../utils/SingletonFactory";
 
-export enum BundleKey {
-    bundle1,
-    bundle2,
-    count
-}
+
+
 
 export class BundleMgr {
 
-    public bundle: Map<BundleKey, AssetManager.Bundle> = new Map();
+    public static get Inst() {
+        return SingletonFactory.getInstance<BundleMgr>(BundleMgr, t => {
+            t.resolveResources();
+        });
+    }
 
-    public loadBundle(bundleKey: BundleKey, onFileProgress?: (loaded: number, total: number) => void) {
+    //资源包
+    private bundle: Map<string, AssetManager.Bundle> = new Map();
+
+    //资源地址:Bundle名字
+    private address: Map<string, string> = new Map();
+
+    private resolveResources() {
+        this.resolveBundle(resources);
+    }
+
+    private resolveBundle(bundle: AssetManager.Bundle) {
+        this.bundle.set(bundle.name, bundle);
+        bundle.config.paths.forEach(v => {
+            v.forEach(v1 => {
+                if (!this.address.has(v1.path))
+                    this.address.set(v1.path, bundle.name);
+                else
+                    console.error(`资源地址不能重复  ${bundle.name}  ${v1.path}`);
+            });
+        });
+    }
+
+    public loadBundle(bundleName: string, onFileProgress?: (loaded: number, total: number) => void) {
         let p = new Promise<AssetManager.Bundle>((resolve, reject) => {
-            assetManager.loadBundle(BundleKey[bundleKey],
+            assetManager.loadBundle(bundleName,
                 { onFileProgress: onFileProgress },
                 (err, bundle) => {
                     if (err) {
                         console.log(err);
                         reject(err);
                     } else {
-                        this.bundle.set(bundleKey, bundle);
+                        this.resolveBundle(bundle);
                         resolve(bundle);
                     }
                 }
@@ -28,21 +52,22 @@ export class BundleMgr {
         return p;
     }
 
-    public loadAllBundle(onFileProgress?: (loaded: number, total: number) => void) {
+    public loadAllBundle(bundleNames: string[], onFileProgress?: (loaded: number, total: number) => void) {
         let p = new Promise<AssetManager.Bundle[]>((resolve, reject) => {
             let progress: number[] = [];
             let bundleArr: AssetManager.Bundle[] = [];
-            for (let i = 0; i < BundleKey.count; i++) {
-                assetManager.loadBundle(BundleKey[i],
+            for (let i = 0; i < bundleNames.length; i++) {
+                let bundleName = bundleNames[i];
+                assetManager.loadBundle(bundleName,
                     {
                         onFileProgress: (loaded: number, total: number) => {
                             if (onFileProgress) {
                                 progress[i] = loaded / total;
                                 let totalProgress = 0;
-                                for (let i = 0; i < BundleKey.count; i++) {
+                                for (let i = 0; i < bundleNames.length; i++) {
                                     totalProgress += (progress[i] || 0);
                                 }
-                                onFileProgress(totalProgress / BundleKey.count, 1);
+                                onFileProgress(totalProgress / bundleNames.length, 1);
                             }
                         }
                     },
@@ -52,8 +77,8 @@ export class BundleMgr {
                             reject(err)
                         } else {
                             bundleArr.push(bundle);
-                            this.bundle.set(i, bundle);
-                            if (bundleArr.length == BundleKey.count) {
+                            this.resolveBundle(bundle);
+                            if (bundleArr.length == bundleNames.length) {
                                 resolve(bundleArr);
                             }
                         }
@@ -62,5 +87,17 @@ export class BundleMgr {
             }
         })
         return p;
+    }
+
+    public getBundleByLocation(location: string): AssetManager.Bundle {
+        let ab: AssetManager.Bundle = null;
+        if (this.address.has(location)) {
+            ab = this.bundle.get(this.address.get(location));
+            if (!ab) console.error(`location: ${location}  资源所在Bundle未加载`);
+
+        } else {
+            console.error(`location: ${location}  资源不存在或所在Bundle未加载`);
+        }
+        return ab;
     }
 }

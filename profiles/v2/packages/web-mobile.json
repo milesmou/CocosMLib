@@ -1,0 +1,11 @@
+{
+  "common": {
+    "polyfills": {
+      "asyncFunctions": true
+    },
+    "buildPath": "D:\\Workspace\\CocosCreator-Utils\\build\\bbb",
+    "outputName": "web-mobile-001",
+    "mainBundleCompressionType": "merge_dep",
+    "platform": "web-mobile"
+  }
+}

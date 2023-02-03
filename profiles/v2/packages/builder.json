@@ -5,59 +5,117 @@
   },
   "BuildTaskManager": {
     "taskMap": {
-      "1616999076264": {
-        "id": "1616999076264",
+      "1675244573683": {
+        "type": "build",
+        "id": "1675244573683",
         "progress": 1,
         "state": "success",
-        "message": "Build success in 3169 ms!",
+        "stage": "build",
+        "message": "2023-2-2 13:41:10 Build success in 6627 ms!",
+        "options": {
+          "name": "NewProject3",
+          "platform": "web-mobile",
+          "buildPath": "project://build",
+          "debug": false,
+          "md5Cache": false,
+          "skipCompressTexture": false,
+          "sourceMaps": false,
+          "polyfills": {
+            "asyncFunctions": true
+          },
+          "experimentalEraseModules": false,
+          "useBuiltinServer": false,
+          "mainBundleIsRemote": false,
+          "mainBundleCompressionType": "merge_dep",
+          "replaceSplashScreen": false,
+          "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
+          "outputName": "web-mobile",
+          "scenes": [
+            {
+              "url": "db://assets/scene/main.scene",
+              "uuid": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
+              "inBundle": false
+            }
+          ],
+          "android": [],
+          "packages": {
+            "web-mobile": {
+              "orientation": "auto",
+              "embedWebDebugger": false,
+              "__version__": "1.0.1"
+            },
+            "cocos-service": {
+              "configID": "d669e8",
+              "services": [],
+              "__version__": "3.0.5"
+            },
+            "cocos-build-template": {
+              "remoteAddress": "https://www.cocos.com/",
+              "enterCocos": "",
+              "selectTest": "option2",
+              "objectTest": {
+                "number": 80,
+                "string": "cocos",
+                "boolean": true
+              },
+              "arrayTest": [
+                80,
+                "cocos",
+                true
+              ],
+              "__version__": "1.0.0"
+            }
+          },
+          "__version__": "1.3.3",
+          "web-mobile": []
+        },
+        "time": "2023-2-2 13:41",
+        "dirty": false
+      },
+      "1675304278047": {
+        "type": "build",
+        "id": "1675304278047",
+        "progress": 1,
+        "state": "success",
+        "stage": "build",
+        "message": "2023-2-2 13:58:32 Build success in 5415 ms!",
         "options": {
           "name": "NewProject3",
           "platform": "android",
           "buildPath": "project://build",
           "debug": false,
           "md5Cache": false,
+          "skipCompressTexture": false,
           "sourceMaps": false,
-          "replaceSplashScreen": false,
-          "mainBundleCompressionType": "merge_dep",
-          "mainBundleIsRemote": false,
-          "mergeStartScene": false,
+          "polyfills": {
+            "asyncFunctions": false
+          },
           "experimentalEraseModules": false,
-          "compressTexture": true,
-          "packAutoAtlas": true,
-          "startScene": "726e5630-312f-4c6c-b8be-8b9a51d9881c",
+          "useBuiltinServer": false,
+          "mainBundleIsRemote": false,
+          "mainBundleCompressionType": "merge_dep",
+          "replaceSplashScreen": false,
+          "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
+          "outputName": "android",
           "scenes": [
             {
               "url": "db://assets/scene/main.scene",
-              "uuid": "7c3e7fab-7b1e-4865-ba84-3cf81b48b9fb"
-            },
-            {
-              "url": "db://assets/scene/scene.scene",
-              "uuid": "726e5630-312f-4c6c-b8be-8b9a51d9881c"
+              "uuid": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
+              "inBundle": false
             }
           ],
-          "outputName": "androidTestVideo",
+          "web-mobile": [],
           "packages": {
-            "native": {
-              "template": "link",
-              "polyfills": {
-                "asyncFunctions": true
-              },
-              "encrypted": false,
-              "xxteaKey": "39/WSTGsNNooNNBR",
-              "compressZip": false,
-              "__version__": "1.0.0"
-            },
             "android": {
-              "packageName": "com.cocos.android",
+              "packageName": "com.tt.aaa",
               "orientation": {
                 "portrait": false,
                 "upsideDown": false,
-                "landscapeRight": true,
+                "landscapeRight": false,
                 "landscapeLeft": true
               },
-              "apiLevel": "android-26",
+              "apiLevel": 33,
               "appABIs": [
-                "armeabi-v7a",
                 "arm64-v8a"
               ],
               "useDebugKeystore": true,
@@ -68,27 +126,116 @@
               "appBundle": false,
               "androidInstant": false,
               "remoteUrl": "",
-              "sdkPath": "/Users/miles/Library/Android/sdk",
-              "ndkPath": "/Users/miles/Library/Android/sdk/ndk/19.2.5345600",
+              "sdkPath": "",
+              "ndkPath": "",
               "renderBackEnd": {
                 "vulkan": false,
                 "gles3": true,
-                "gles2": false
+                "gles2": true
               },
+              "swappy": false,
+              "__version__": "1.0.1"
+            },
+            "cocos-service": {
+              "configID": "d669e8",
+              "services": [],
+              "__version__": "3.0.5"
+            },
+            "cocos-build-template": {
+              "remoteAddress": "https://www.cocos.com/",
+              "enterCocos": "",
+              "selectTest": "option2",
+              "objectTest": {
+                "number": 80,
+                "string": "cocos",
+                "boolean": true
+              },
+              "arrayTest": [
+                80,
+                "cocos",
+                true
+              ],
+              "__version__": "1.0.0"
+            },
+            "native": {
+              "encrypted": false,
+              "xxteaKey": "682k1bp25OnJ602x",
+              "compressZip": false,
+              "JobSystem": "none",
+              "__version__": "1.0.2"
+            }
+          },
+          "__version__": "1.3.3",
+          "android": []
+        },
+        "time": "2023-2-2 13:58",
+        "dirty": false
+      },
+      "1675309774375": {
+        "type": "build",
+        "id": "1675309774375",
+        "progress": 1,
+        "state": "success",
+        "stage": "build",
+        "message": "2023-2-2 13:41:36 Build success in 6878 ms!",
+        "options": {
+          "name": "NewProject3",
+          "platform": "web-mobile",
+          "buildPath": "D:\\Workspace\\CocosCreator-Utils\\build\\bbb",
+          "debug": false,
+          "md5Cache": false,
+          "skipCompressTexture": false,
+          "sourceMaps": false,
+          "polyfills": {
+            "asyncFunctions": true
+          },
+          "experimentalEraseModules": false,
+          "useBuiltinServer": false,
+          "mainBundleIsRemote": false,
+          "mainBundleCompressionType": "merge_dep",
+          "replaceSplashScreen": false,
+          "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
+          "outputName": "web-mobile-001",
+          "scenes": [
+            {
+              "url": "db://assets/scene/main.scene",
+              "uuid": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
+              "inBundle": false
+            }
+          ],
+          "web-mobile": [],
+          "packages": {
+            "web-mobile": {
+              "orientation": "auto",
+              "embedWebDebugger": false,
+              "__version__": "1.0.1"
+            },
+            "cocos-service": {
+              "configID": "d669e8",
+              "services": [],
+              "__version__": "3.0.5"
+            },
+            "cocos-build-template": {
+              "remoteAddress": "https://www.cocos.com/",
               "__version__": "1.0.0"
             }
-          }
+          },
+          "__version__": "1.3.3"
         },
-        "time": "2021-3-29 14:36",
+        "time": "2023-2-2 13:41",
         "dirty": false
       }
     }
   },
   "common": {
-    "outputName": "androidTestVideo",
+    "outputName": "web-mobile-001",
     "mainBundleCompressionType": "merge_dep",
-    "platform": "android",
-    "startScene": "726e5630-312f-4c6c-b8be-8b9a51d9881c"
+    "platform": "web-mobile",
+    "startScene": "726e5630-312f-4c6c-b8be-8b9a51d9881c",
+    "polyfills": {
+      "asyncFunctions": true
+    },
+    "buildPath": "D:\\Workspace\\CocosCreator-Utils\\build\\bbb"
   },
   "log": {
     "level": 4

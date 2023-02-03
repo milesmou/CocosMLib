@@ -1,5 +1,5 @@
 
-import { _decorator, Component, Node, UIOpacity, UITransform, tween } from 'cc';
+import { Component, tween, UIOpacity, UITransform, _decorator } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Shade')
@@ -13,6 +13,8 @@ export class Shade extends Component {
     opacity: number = 0;
 
     onLoad() {
+
+
         this.opacity = this.uiOpacity.opacity;
     }
 

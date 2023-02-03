@@ -1,50 +1,8 @@
-import { ImageAsset, SpriteFrame } from 'cc';
-import { Sprite, Component, Node, Asset, assetManager, sys, resources, AssetManager } from 'cc';
 
 /**
  * 常用的一些方法工具类
  */
 export class Utils {
-    /**
-     * 加载图片到Sprite
-     * @param sprite 目标Sprite组件
-     * @param url 路径（本地路径不带扩展名 远程路径带扩展名）
-     */
-    static loadSprite(sprite: Sprite, url: string) {
-        let p = new Promise<void>((resolve, reject) => {
-            let onComplete = (err: any, res: SpriteFrame | ImageAsset) => {
-                if (err) {
-                    console.error(err);
-                    reject();
-                } else {
-                    if (res instanceof ImageAsset) {
-                        let spriteFrame = new SpriteFrame();
-                        spriteFrame.texture = res._texture;
-                        sprite.spriteFrame = spriteFrame;
-                    } else {
-                        sprite.spriteFrame = res;
-                    }
-                    resolve();
-                }
-            };
-            if (url.startsWith("http") || url.startsWith("/")) {
-                assetManager.loadRemote(url, { ext: url.substring(url.lastIndexOf(".")) }, onComplete);
-            } else {
-                resources.load(url + "/spriteFrame", SpriteFrame, onComplete);
-            }
-        })
-        return p;
-    }
-
-    /** 从节点的一级子节点获取指定组件 */
-    static getComponentInChildren<T extends Component>(obj: Node, type: new (...args: any[]) => T): T {
-        for (let i = 0; i < obj.children.length; i++) {
-            let child = obj.children[i];
-            let comp = child.getComponent(type);
-            if (comp) return comp;
-        }
-        return null!;
-    }
 
     /**
      * 返回今天的日期,格式20200101
@@ -61,12 +19,12 @@ export class Utils {
     /**
      * 计算两个日期的天数差 日期格式20200101
      */
-     static deltaDay(date1: number, date2: number) {
+    static deltaDay(date1: number, date2: number) {
         let str1 = date1.toString();
         let str2 = date2.toString();
-        if (str1.length == 8 && str2.length==8) {
-            let d1 = new Date(str1.substr(4, 2) + "/" + str1.substr(6, 2) + "/" + str1.substr(0, 4));
-            let d2 = new Date(str2.substr(4, 2) + "/" + str2.substr(6, 2) + "/" + str2.substr(0, 4));
+        if (str1.length == 8 && str2.length == 8) {
+            let d1 = new Date(str1.substring(4, 2) + "/" + str1.substring(6, 2) + "/" + str1.substring(0, 4));
+            let d2 = new Date(str2.substring(4, 2) + "/" + str2.substring(6, 2) + "/" + str2.substring(0, 4));
             let days = Math.abs(d1.getTime() - d2.getTime()) / (24 * 60 * 60 * 1000);
             return Math.floor(days);
         } else {
@@ -131,110 +89,5 @@ export class Utils {
             str = str.replace(`{${i}}`, v);
         });
         return str;
-    }
-
-    /**
-     * 将 cc.resources.load Promise化
-     */
-    static load(path: string, type: typeof Asset | null, onProgress: (finish: number, total: number, item: AssetManager.RequestItem) => void | null): Promise<Asset> {
-        let p = new Promise<Asset>((resolve, reject) => {
-            resources.load(path, type, onProgress, (err, asset) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve(asset);
-                }
-            })
-        })
-        return p;
-    }
-
-    /**
-    * 将 cc.resources.load Promise化
-    */
-    static loadArray(path: string[], type: typeof Asset | null, onProgress: (finish: number, total: number, item: AssetManager.RequestItem) => void | null): Promise<Asset[]> {
-        let p = new Promise<Asset[]>((resolve, reject) => {
-            resources.load(path, type, onProgress, (err, asset) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve(asset);
-                }
-            })
-        })
-        return p;
-    }
-
-    /**
-     * 将 cc.assetManager.loadRemote Promise化
-     */
-    static loadRemote(url: string): Promise<Asset> {
-        let ext = url.substring(url.lastIndexOf("."));
-        let p = new Promise<Asset>((resolve, reject) => {
-            assetManager.loadRemote(url, { ext: ext }, (err, asset) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve(asset);
-                }
-            })
-        })
-        return p;
-    }
-
-    /**
-     * 将 cc.resources.loadDir Promise化
-     */
-    static loadDir(path: string, onProgress: (finish: number, total: number, item: AssetManager.RequestItem) => void | null): Promise<Asset[]> {
-        let p = new Promise<Asset[]>((resolve, reject) => {
-            resources.loadDir(path, onProgress, (err, assets) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve(assets);
-                }
-            })
-        })
-        return p;
-    }
-
-    static downloadProgress: Map<string, Function[]> = new Map();
-    /**
-     * 原生平台下载文件到本地
-     * @param url 文件下载链接
-     * @param onFileProgress 文件下载进度回调(同一url仅第一次传入的回调有效)
-     */
-    static download(url: string, onFileProgress?: (loaded: number, total: number) => void) {
-        let ext = url.substr(url.lastIndexOf("."));
-        if (!this.downloadProgress.get(url)) {
-            this.downloadProgress.set(url, []);
-        }
-        if (onFileProgress) {
-            this.downloadProgress.get(url)?.push(onFileProgress);
-        }
-        let p = new Promise<any>((resolve, reject) => {
-            if (sys.isBrowser) {
-                resolve(url);
-            }
-            assetManager.downloader.download(
-                url, url, ext,
-                {
-                    onFileProgress: (loaded: number, total: number) => {
-                        let arr = this.downloadProgress.get(url)!;
-                        arr.forEach(v => v(loaded, total));
-                    }
-                },
-                (err, res) => {
-                    this.downloadProgress.delete(url);
-                    if (err) {
-                        console.log("download fail", err?.message);
-                        reject(err);
-                    } else {
-                        resolve(res);
-                    }
-                }
-            )
-        })
-        return p;
     }
 }

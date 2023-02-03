@@ -14,26 +14,16 @@ System.warmup({
     },
 });
 
-System.import('./src/application.js').then(({ createApplication }) => {
-    return createApplication({
-        loadJsListFile: (url) => require(url),
-    });
+System.import('./src/application.js')
+.then(({ Application }) => {
+    return new Application();
 }).then((application) => {
-    return application.import('cc').then((cc) => {
-        require('jsb-adapter/jsb-engine.js');
-        cc.sys.__init();
-        cc.macro.CLEANUP_IMAGE_CACHE = false;
+    return System.import('cc').then((cc) => {
+        require('jsb-adapter/engine-adapter.js');
+        return application.init(cc);
     }).then(() => {
-        return application.start({
-            settings: window._CCSettings,
-            findCanvas: () => {
-                var container = document.createElement('div');
-                var frame = document.documentElement;
-                var canvas = window.__canvas;
-                return { frame, canvas, container };
-            },
-        });
+        return application.start();
     });
 }).catch((err) => {
-    console.error(err.toString());
+    console.error(err.toString() + ', stack: ' + err.stack);
 });

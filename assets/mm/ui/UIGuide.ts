@@ -1,11 +1,10 @@
-import { _decorator, Node, Label, v3, UITransform, find, Tween, tween, EventTouch, Touch, Rect } from 'cc';
+import { EventTouch, find, Label, Node, NodeEventType, Rect, Tween, tween, UITransform, v3, _decorator } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { UIBase } from "./UIBase";
-import { UIMgr, UIKey } from "../manager/UIMgr";
 import { Guide } from "../../script/game/DataEntity";
-import DataManager from "../../script/game/DataManager";
 import { app } from "../App";
+import { UIKey, UIMgr } from "../manager/UIMgr";
+import { UIBase } from "./UIBase";
 
 const guideTestData: Guide[] = [
     { ID: 1, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step1", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
@@ -37,8 +36,10 @@ export class UIGuide extends UIBase {
 
     onLoad() {
         this.hide();
-        this.shade.on(Node.EventType.TOUCH_START, this.onShadeTouchStart, this);
-        this.shade["_eventProcessor"]["touchListener"]["swallowTouches"] = false;
+        this.shade.on(NodeEventType.TOUCH_START, this.onShadeTouchStart, this);
+        // this.shade["_eventProcessor"]["touchListener"]["swallowTouches"] = false;
+        console.log(this.shade);
+
     }
 
     hide() {
@@ -48,7 +49,7 @@ export class UIGuide extends UIBase {
         this.btnScreen.active = false;
         this.tip.active = false;
         this.finger.active = false;
-        
+
     }
 
     guideOver() {
@@ -63,7 +64,7 @@ export class UIGuide extends UIBase {
         let size = this.mask.getComponent(UITransform)!.contentSize;
         let touchPos = evt.touch!.getLocation();
         let rect = new Rect(this.mask.worldPosition.x - size.width / 2, this.mask.worldPosition.y - size.height / 2, size.width, size.height);
-        console.log(rect,this.mask.worldPosition, touchPos);
+        console.log(rect, this.mask.worldPosition, touchPos);
         if (!rect.contains(touchPos)) {
             evt.propagationImmediateStopped = true;
         }

@@ -1,0 +1,17 @@
+{
+  "options": {
+    "android": {
+      "configID": "d669e8",
+      "services": []
+    },
+    "web-mobile": {
+      "configID": "d669e8",
+      "services": []
+    }
+  },
+  "builder-options": {
+    "configID": "d669e8",
+    "services": [],
+    "__version__": "3.0.5"
+  }
+}

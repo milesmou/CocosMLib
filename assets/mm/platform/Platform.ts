@@ -25,7 +25,7 @@ export class Platform implements IPlatform {
     }
     reportCustomEvent(event: string, args: any) { }
     public static getPlatformInst(platformId: number): IPlatform {
-        if (sys.platform == sys.ANDROID && platformId == EPlatform.GooglePlay) {
+        if (sys.platform == sys.Platform.ANDROID && platformId == EPlatform.GooglePlay) {
             return new WeChatMini();
         }
         return new Platform();

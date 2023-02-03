@@ -1,8 +1,9 @@
-import { v3, __private } from 'cc';
+import { AnimationState, v3, __private } from 'cc';
 import { _decorator, Enum, Component, Button, Node, Animation, UITransform, BlockInputEvents, view, tween } from 'cc';
 const { property, ccclass } = _decorator;
 
 import { app } from "../App";
+import { CCUtils } from '../utils/CCUtil';
 import { Utils } from "../utils/Utils";
 const EAction = Enum({
     NONE: 0,
@@ -59,7 +60,7 @@ export class UIBase extends Component {
         this.initBlock();
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.blockInputEvent && this.addComponent(BlockInputEvents);
-        this.animation = Utils.getComponentInChildren(this.node, Animation);
+        this.animation = CCUtils.getComponentInChildren(this.node, Animation);
     }
 
     /** 初始化一个遮罩 在UI执行动画时 拦截用户操作 */
@@ -97,7 +98,7 @@ export class UIBase extends Component {
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.clips[0];
                     if (clip) {
-                        this.animation.once(__private.cocos_core_animation_animation_state_EventType.FINISHED, callback);
+                        this.animation.once("finished" as any, callback);
                         this.animation.play(clip.name);
                     } else {
                         console.warn(this.node.name, "无UI打开动画文件");
@@ -134,7 +135,7 @@ export class UIBase extends Component {
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.clips[1];
                     if (clip) {
-                        this.animation.once(__private.cocos_core_animation_animation_state_EventType.FINISHED, callback);
+                        this.animation.once("finished" as any, callback);
                         this.animation.play(clip.name);
                     } else {
                         console.warn(this.node.name, "无UI关闭动画文件");

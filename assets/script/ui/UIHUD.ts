@@ -1,8 +1,8 @@
 
-import { _decorator, Component, Node, Sprite, resources, assetManager, ImageAsset, Texture2D, SpriteFrame, utils } from 'cc';
+import { resources, Sprite, _decorator } from 'cc';
 import { app } from '../../mm/App';
+import { AssetMgr } from '../../mm/manager/AssetMgr';
 import { UIBase } from '../../mm/ui/UIBase';
-import { Utils } from '../../mm/utils/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHUD')
@@ -13,6 +13,43 @@ export class UIHUD extends UIBase {
     onLoad() {
         // Utils.loadSprite(this.bg1, "texture/bg1");
         // Utils.loadSprite(this.bg1,"https://yourdomain.com/1.jpg");
+        AssetMgr.loadSpriteFrame("texture/bg1/spriteFrame").then(s => {
+            console.log("加载成功");
+            console.log(s);
+            console.log(resources);
+            AssetMgr.loadSpriteFrame("texture/bg1/spriteFrame");
+
+        }).catch(e => {
+            console.log("加载失败");
+            console.log(e);
+        });
+
+        // AssetMgr.loadAsset("texture/bg1/texture", null).then(s => {
+        //     console.log("加载成功1");
+        //     console.log(s);
+
+        // }).catch(e => {
+        //     console.log("加载失败1");
+        //     console.log(e);
+        // });
+
+
+        // AssetMgr.loadRemoteAsset("https://fanthen-cn.oss-cn-hangzhou.aliyuncs.com/GangsterLover/Channel/FanQSIOSA3/1.0.1/GameConfig.txt")
+        //     .then(v => {
+        //         console.log(v);
+
+        //     }).catch(e => {
+        //         console.log(e);
+        //     });
+        AssetMgr.loadRemoteSpriteFrame("https://fanthen-cn.oss-cn-hangzhou.aliyuncs.com/GangsterLover/Resources/Pic/Wallpaper/100102.png")
+            .then(v => {
+
+                console.log(v);
+
+            }).catch(e => {
+                console.log(e);
+            });
+
     }
 
     onClickAudioMgr() {
@@ -23,7 +60,7 @@ export class UIHUD extends UIBase {
         app.ui.show(app.uiKey.UIUIMgr);
     }
 
-    onClickGuide(){
+    onClickGuide() {
         app.ui.show(app.uiKey.UIGuideTest1);
     }
 }

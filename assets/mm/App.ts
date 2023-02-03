@@ -1,4 +1,4 @@
-import { _decorator, Enum, Component, game, sys, view } from 'cc';
+import { _decorator, Enum, Component, game, sys, view, director } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { AudioKey, AudioMgr } from "./manager/AudioMgr";
@@ -50,7 +50,7 @@ export class App extends Component {
     public static uiKey = UIKey;
 
     onLoad() {
-        game.addPersistRootNode(this.node);
+        director.addPersistRootNode(this.node);
     }
 
     start() {

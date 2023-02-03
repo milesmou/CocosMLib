@@ -22,7 +22,7 @@
                    android:value="cocos" />
         <activity
                 android:name="com.cocos.game.InstantActivity"
-                android:screenOrientation="sensorLandscape"
+                android:screenOrientation="reverseLandscape"
                 android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
                 android:label="@string/app_name"
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
