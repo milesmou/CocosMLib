@@ -143,10 +143,10 @@ export class AudioMgr extends Component {
     }
 
     /** 播放背景音乐 */
-    async playMusic(location: string, priority = 0, volumeScale = 1, fadeIn = 0, fadeOut = 0, onLoadComplete?: (clip: AudioClip) => void) {
+    async playMusic(audio: string, priority = 0, volumeScale = 1, fadeIn = 0, fadeOut = 0, onLoadComplete?: (clip: AudioClip) => void) {
         priority = Math.max(0, priority);
-        if (this.stack.isTop(priority, location)) return; //播放同样的音乐
-        if (this.stack.contains(priority, location)) this.stack.remove(priority, location); //已存在则移除
+        if (this.stack.isTop(priority, audio)) return; //播放同样的音乐
+        if (this.stack.contains(priority, audio)) this.stack.remove(priority, audio); //已存在则移除
 
         if (this.stack.count > 0 && priority >= this.stack.topKey) //暂停当前音乐
         {
@@ -156,19 +156,19 @@ export class AudioMgr extends Component {
         }
 
         /* -------播放或恢复音乐------ */
-        let audioState = this.musicGet(priority, location) ??
+        let audioState = this.musicGet(priority, audio) ??
             new AudioState(this.addComponent(AudioSource), volumeScale);
-        this.stack.push(priority, location); //加入栈中
-        this.musicAdd(priority, location, audioState);
+        this.stack.push(priority, audio); //加入栈中
+        this.musicAdd(priority, audio, audioState);
         if (audioState.audio?.isValid && audioState.audio.clip) { //恢复音乐
-            if (this.stack.isTop(priority, location) && !this.pause) {
+            if (this.stack.isTop(priority, audio) && !this.pause) {
                 this.fadeInMusic(fadeIn, audioState);
             }
         } else { //播放音乐
-            let clip = await AssetMgr.loadAsset<AudioClip>(location);
+            let clip = await AssetMgr.loadAsset<AudioClip>("audio/" + audio);
             if (!clip) return;
-            if (!this.stack.isTop(priority, location)) {//未加载音乐完就已停止
-                AssetMgr.DecRef(location, 1);
+            if (!this.stack.isTop(priority, audio)) {//未加载音乐完就已停止
+                AssetMgr.DecRef(audio, 1);
                 return;
             }
             onLoadComplete && onLoadComplete(clip);
@@ -194,7 +194,7 @@ export class AudioMgr extends Component {
      */
     async playEffect(audio: string, volumeScale = 1, args: { loop?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
         const { loop, onStart, onFinished } = args;
-        var clip = await AssetMgr.loadAsset(audio, AudioClip);
+        var clip = await AssetMgr.loadAsset("audio/" + audio, AudioClip);
         if (loop) {
             let audioState = new AudioState(this.addComponent(AudioSource), volumeScale);
             this.loopEffect.push(audioState);
