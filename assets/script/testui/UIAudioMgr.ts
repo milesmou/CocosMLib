@@ -11,15 +11,15 @@ export class UIAudioMgr extends UIBase {
 
     playMusic(evt: EventTouch, data: string) {
         if (data == "1") {
-            app.audio.playMusic(app.audioKey.M_BGM1,0.5);
+            app.audio.playMusic("bgm1",0.5);
         } else {
-            app.audio.playMusic(app.audioKey.M_BGM2);
+            app.audio.playMusic("bgm2");
         }
     }
 
     playEffect(evt: EventTouch, data: string) {
         if (data == "1") {
-            app.audio.playEffect(app.audioKey.E_Click, 1, {
+            app.audio.playEffect("click", 1, {
                 loop: false,
                 onStart: (clip: AudioClip) => {
                     console.log("onStart playEffect1", clip);
@@ -29,12 +29,12 @@ export class UIAudioMgr extends UIBase {
                 }
             });
         } else {
-            app.audio.playEffect(app.audioKey.E_Bomb,1);
+            app.audio.playEffect("bomb",1);
         }
     }
 
     playEffect1Loop(evt: EventTouch, data: string) {
-        app.audio.playEffect(app.audioKey.E_Click, 1, {
+        app.audio.playEffect("click", 1, {
             loop: true,
             onStart: (clip: AudioClip) => {
                 console.log("onStart playEffect1Loop", clip);
@@ -62,7 +62,7 @@ export class UIAudioMgr extends UIBase {
     }
 
     stopEffect() {
-        app.audio.stopEffect();
+        app.audio.stopAllEffect();
     }
 
 

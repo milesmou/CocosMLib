@@ -119,6 +119,8 @@ export class AudioMgr extends Component {
     //循环播放的音效
     private loopEffect: AudioState[] = [];
 
+    public get isPlayingMusic() { return !this.pause; }
+
     onLoad() {
         AudioMgr.Inst = this;
         this.mVolume = StroageMgr.getValue(this.sMusicVolume, 1);
@@ -254,7 +256,7 @@ export class AudioMgr extends Component {
     public stopAllMusic(fadeOut = 0) {
         if (this.stack.count > 0) {
             for (let key in this.music) {
-                // this.fadeOutMusic(fadeOut,this.music[key], true);
+                this.fadeOutMusic(fadeOut, this.music[key], true);
             }
 
             this.stack.clear();
@@ -263,12 +265,11 @@ export class AudioMgr extends Component {
     }
 
     // 停止播放指定的循环音效
-    public stopEffect(audioSource: AudioSource) {
-        if (audioSource) {
-            audioSource.stop();
-            audioSource.destroy();
-            let index = this.loopEffect.findIndex(v => v.audio == audioSource);
+    public stopEffect(audioClip: AudioClip) {
+        if (audioClip) {
+            let index = this.loopEffect.findIndex(v => v.audio.clip == audioClip);
             if (index > -1) {
+                this.loopEffect[index].audio.destroy();
                 this.loopEffect = this.loopEffect.splice(index, 1);
             }
         }
