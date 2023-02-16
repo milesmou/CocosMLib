@@ -46,7 +46,7 @@ class MapList<T>
         if (topKey === undefined) return false;
         let topValue = this.topValue;
         if (topValue === undefined) return false;
-        return key.toString() == topKey && item == topValue;
+        return key == topKey && item == topValue;
     }
 
     public get count() {
