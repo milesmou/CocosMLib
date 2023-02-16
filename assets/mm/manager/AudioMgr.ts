@@ -321,7 +321,7 @@ export class AudioMgr extends Component {
     }
 
     private fadeInMusic(dur: number, audioState: AudioState) {
-        if (audioState == null || !audioState.audio) return;
+        if (audioState == null || !audioState.audio?.isValid) return;
         if (dur > 0) {
             audioState.audio.volume = 0;
             audioState.audio.play();
@@ -333,7 +333,7 @@ export class AudioMgr extends Component {
     }
 
     private fadeOutMusic(dur: number, audioState: AudioState, stop = false) {
-        if (audioState == null || !audioState.audio) return;
+        if (audioState == null || !audioState.audio?.isValid) return;
         var audioSource = audioState.audio;
         let onEnd = () => {
             if (stop) {
