@@ -1,10 +1,10 @@
 /** 微信小游戏平台相关方法的实现 */
 
 import { _decorator, Camera } from 'cc';
-import { IPlatform } from "./Platform";
+import { IChannel } from "./Channel";
 const wx = {} as any;
 
-export class WeChatMini implements IPlatform {
+export class WeChatMini implements IChannel {
     systemInfo: any = null;//系统信息
     launchInfo: any = null;//启动游戏信息
     shareTitle = "默认分享标题";//默认分享标题
