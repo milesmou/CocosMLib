@@ -1,5 +1,4 @@
-import { AudioClip, AudioSource, Component, misc, resources, Tween, tween, _decorator } from 'cc';
-import { app } from '../App';
+import { AudioClip, AudioSource, Component, misc, Tween, tween, _decorator } from 'cc';
 import { AssetMgr } from './AssetMgr';
 import { StroageMgr } from './StroageMgr';
 
@@ -151,7 +150,7 @@ export class AudioMgr extends Component {
         {
             //优先级大于等于当前播放的音乐
             let nowPlayingAudioState = this.musicGet(this.stack.topKey, this.stack.topValue);
-            // FadeOutMusic(fadeOut, nowPlayingAudioState, priority == stack.TopKey);
+            this.fadeOutMusic(fadeOut, nowPlayingAudioState, priority == this.stack.topKey);
         }
 
         /* -------播放或恢复音乐------ */
@@ -161,7 +160,7 @@ export class AudioMgr extends Component {
         this.musicAdd(priority, location, audioState);
         if (audioState.audio?.isValid && audioState.audio.clip) { //恢复音乐
             if (this.stack.isTop(priority, location) && !this.pause) {
-                // FadeInMusic(fadeIn, audioState);
+                this.fadeInMusic(fadeIn, audioState);
             }
         } else { //播放音乐
             let clip = await AssetMgr.loadAsset<AudioClip>(location);
@@ -178,7 +177,7 @@ export class AudioMgr extends Component {
                 if (fadeIn > 0) {
                     audioState.audio.volume = 0;
                     audioState.audio.play();
-                    // FadeInMusic(fadeIn, audioState);
+                    this.fadeInMusic(fadeIn, audioState);
                 }
                 else {
                     audioState.audio.play();
@@ -191,87 +190,167 @@ export class AudioMgr extends Component {
      * 播放音效
      * @param loop loop=true时不会触发onFinished
      */
-    playEffect(audio: string | AudioClip, volume = 1, args: { loop?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
-        const { loop, onStart: onStart, onFinished } = args;
-        let play = (audioClip: AudioClip) => {
-            this.eAudioSource.volume = this.eVolume;
-            // audioClip.setLoop(loop || false);
-            // audioClip.setVolume(this.eAudioSource.volume * volume);
-            // audioClip.play();
-            this.eAudioSource.playOneShot(audioClip, volume);
-            this.playingEffect.push(audioClip);
-            if (onStart) {
-                onStart(audioClip);
-            }
-            if (!loop) {
-                Tween.stopAllByTarget(audioClip);
-                tween(audioClip)
-                    .delay(audioClip.getDuration())
-                    .call(() => {
-                        onFinished && onFinished();
-                        this.stopEffect(audioClip);
-                    })
-                    .start();
-            }
-        }
-        if (typeof audio === "string") {
-            resources.load(audio, AudioClip, (err: Error | null, clip: AudioClip) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    play(clip);
-                }
-            });
+    async playEffect(audio: string, volumeScale = 1, args: { loop?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
+        const { loop, onStart, onFinished } = args;
+        var clip = await AssetMgr.loadAsset(audio, AudioClip);
+        if (loop) {
+            let audioState = new AudioState(this.addComponent(AudioSource), volumeScale);
+            this.loopEffect.push(audioState);
+            audioState.audio.clip = clip;
+            audioState.audio.volume = this.eVolume * volumeScale;
+            audioState.audio.loop = true;
+            audioState.audio.play();
+            onStart && onStart(clip);
         } else {
-            play(audio);
+            this.effectOneShot.playOneShot(clip, volumeScale);
+            Tween.stopAllByTarget(clip);
+            tween(clip)
+                .delay(clip.getDuration())
+                .call(() => {
+                    onFinished && onFinished();
+                })
+                .start();
         }
     }
 
     /** 暂停恢复音乐 */
-    pauseMusic(bPause: boolean) {
-        if (bPause) {
-            this.mAudioSource.pause();
-        } else {
-            if (this.mVolume) {
-                this.mAudioSource.play();
+    pauseMusic(isPause: boolean, dur = 0) {
+        this.pause = isPause;
+        if (this.stack.count > 0) {
+            var audioState = this.musicGet(this.stack.topKey, this.stack.topValue);
+            if (isPause) {
+                this.fadeOutMusic(dur, audioState);
+            }
+            else {
+                this.fadeInMusic(dur, audioState);
             }
         }
     }
 
-    /** 停止播放音乐 */
-    stopMusic() {
-        this.mAudioSource.stop();
-    }
 
-    /** 停止播放音效 */
-    stopEffect(clip?: AudioClip) {
-        if (clip) {
-            // clip.stop();
-            let index = this.playingEffect.indexOf(clip);
-            index > -1 && this.playingEffect.splice(index, 1);
-        } else {
-            this.playingEffect.forEach(v => {
-                // v.stop();
-            });
-            this.playingEffect = [];
+    //停止播放当前音乐
+    //audioName 停止指定名字的音乐
+    //priority 音乐的优先级
+    //autoPlay 是否自动播放上一个音乐 默认为true
+    //fadeIn上 一个音乐渐入时间
+    //fadeOut 当前音乐渐出时间
+    stopMusic(audioName: string, priority = 0, autoPlay = true, fadeIn = 0, fadeOut = 0) {
+        let isTop = this.stack.isTop(priority, audioName);
+        //停止指定音乐
+        if (this.stack.contains(priority, audioName)) {
+            this.stack.remove(priority, audioName);
+            this.fadeOutMusic(isTop ? fadeOut : 0, this.musicGet(priority, audioName), true);
+            this.musicRemove(priority, audioName);
+        }
+
+        //恢复上一个音乐
+        if (autoPlay && isTop && !this.pause) {
+            this.pauseMusic(false, fadeIn);
         }
     }
 
-    /** 设置音乐音量 */
-    setMusicVolume(volume: number) {
+    //停止播放所有音乐
+    //fadeOut 音乐渐出时间
+    public stopAllMusic(fadeOut = 0) {
+        if (this.stack.count > 0) {
+            for (let key in this.music) {
+                // this.fadeOutMusic(fadeOut,this.music[key], true);
+            }
+
+            this.stack.clear();
+            this.music.clear();
+        }
+    }
+
+    // 停止播放指定的循环音效
+    public stopEffect(audioSource: AudioSource) {
+        if (audioSource) {
+            audioSource.stop();
+            audioSource.destroy();
+            let index = this.loopEffect.findIndex(v => v.audio == audioSource);
+            if (index > -1) {
+                this.loopEffect = this.loopEffect.splice(index, 1);
+            }
+        }
+    }
+
+    // 停止播放所有音效
+    public stopAllEffect() {
+        this.loopEffect.forEach(v => {
+            if (v.audio) {
+                v.audio.stop();
+                v.audio.destroy();
+            }
+        });
+        this.loopEffect.length = 0;
+        this.effectOneShot.stop();
+    }
+
+    /* 设置音乐音量 */
+    public setMusicVolume(volume: number, dur = 0) {
         volume = misc.clampf(volume, 0, 1);
+        if (this.stack.count > 0) {
+            if (dur > 0) {
+                this.stack.forEach((priority, audioName) => {
+                    let state = this.musicGet(audioName, priority);
+                    if (state?.audio)
+                        tween(state.audio).to(dur, { volume: state.volumeScale * volume }).start();
+                });
+            }
+            else {
+                this.stack.forEach((audioName, priority) => {
+                    let state = this.musicGet(priority, audioName);
+                    if (state?.audio) state.audio.volume = state.volumeScale * volume;
+                });
+            }
+        }
+
         this.mVolume = volume;
-        this.mAudioSource.volume = this.mVolume;
-        app.stroage
-        StroageMgr.setValue(this.musicVolumeKey, this.mVolume);
+        StroageMgr.setValue(this.sMusicVolume, this.mVolume);
     }
 
     /** 设置音效音量 */
-    setEffectVolume(volume: number) {
+    public setEffectVolume(volume: number) {
         volume = misc.clampf(volume, 0, 1);
+        this.loopEffect.forEach(v => {
+            if (v.audio) v.audio.volume = v.volumeScale * volume;
+        });
+        this.effectOneShot.volume = volume;
         this.eVolume = volume;
-        this.eAudioSource.volume = this.eVolume;
-        StroageMgr.setValue(this.effectVolumeKey, this.eVolume);
+        StroageMgr.setValue(this.sEffectVolume, this.eVolume);
     }
+
+    private fadeInMusic(dur: number, audioState: AudioState) {
+        if (audioState == null || !audioState.audio) return;
+        if (dur > 0) {
+            audioState.audio.volume = 0;
+            audioState.audio.play();
+            tween(audioState.audio).to(dur, { volume: audioState.volumeScale * this.mVolume }).start();
+        }
+        else {
+            audioState.audio.play();
+        }
+    }
+
+    private fadeOutMusic(dur: number, audioState: AudioState, stop = false) {
+        if (audioState == null || !audioState.audio) return;
+        var audioSource = audioState.audio;
+        let onEnd = () => {
+            if (stop) {
+                audioSource.destroy();
+            }
+            else {
+                audioSource.pause();
+            }
+        };
+        if (dur > 0) {
+            tween(audioSource).to(dur, { volume: 0 }).start();
+            tween(audioSource).delay(dur).call(onEnd).start();
+        }
+        else {
+            onEnd();
+        }
+    }
+
 }
 
