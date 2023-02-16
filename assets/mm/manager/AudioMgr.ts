@@ -11,10 +11,10 @@ class AudioState {
         this.audio.playOnAwake = false;
     }
 
-    ///音源组件
+    //音源组件
     public audio: AudioSource;
 
-    ///在全局音量基础上的音量缩放
+    //在全局音量基础上的音量缩放
     public volumeScale: number;
 }
 
