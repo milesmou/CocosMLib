@@ -1,4 +1,4 @@
-import { Animation, BlockInputEvents, Button, color, Enum, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
+import { Animation, BlockInputEvents, Button, color, Enum, Node, NodeEventType, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
 const { property, ccclass, requireComponent } = _decorator;
 
 import { app } from "../App";

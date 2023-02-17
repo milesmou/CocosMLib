@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, NodePool, Button, UIOpacity, instantiate, tween, Tween, CCLoader, UITransform, v3 } from 'cc';
+import { Button, instantiate, Label, Node, NodePool, tween, Tween, UIOpacity, UITransform, v3, _decorator } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { UIBase } from "./UIBase";
@@ -6,28 +6,28 @@ import { UIBase } from "./UIBase";
 @ccclass('UITipMsg')
 export class UITipMsg extends UIBase {
     @property(Node)
-    singleTip!: Node;
+    singleTip: Node;
     @property(Label)
-    singleTipContent!: Label;
+    singleTipContent: Label;
 
     @property(Node)
-    tipGroup!: Node;
-    tipItem!: Node;
-    tipPool!: NodePool;
+    tipGroup: Node;
+    tipItem: Node;
+    tipPool: NodePool;
 
     @property(Node)
-    tipBox!: Node;
+    tipBox: Node;
     @property(Label)
-    tipBoxContent!: Label;
+    tipBoxContent: Label;
     @property(Button)
-    btnConfirm!: Button;
+    btnConfirm: Button;
     @property(Button)
-    btnCancel!: Button;
+    btnCancel: Button;
 
-    tipGroupTransform!: UITransform;
+    tipGroupTransform: UITransform;
 
-    cbConfirm: Function | undefined = undefined;
-    cbCancel: Function | undefined = undefined;
+    cbConfirm: Function = undefined;
+    cbCancel: Function = undefined;
 
     onLoad() {
         this.singleTip.active = true;
@@ -66,7 +66,7 @@ export class UITipMsg extends UIBase {
      * 显示向上浮动提示
      * @param content 提示内容
      */
-    showTips(content: string) {
+    showToast(content: string) {
         let tip = this.tipPool.get();
         if (!tip) {
             tip = instantiate(this.tipItem);
@@ -112,26 +112,26 @@ export class UITipMsg extends UIBase {
      * @param boxType 提示框类型 1：一个确认按钮 2：确认和取消按钮
      * @param opts 确认和取消按钮回调
      */
-    showTipBox(content: string, boxType = 2, cbConfirm?: Function, cbCancel?: Function) {
+    showConfirm(content: string, boxType = 2, cbOk?: Function, cbCancel?: Function) {
         this.tipBox.active = true;
         this.tipBoxContent.string = content;
         this.btnConfirm.node.once("click", this.Confirm, this);
         this.btnCancel.node.once("click", this.Cancel, this);
         this.btnCancel.node.active = boxType == 2;
-        this.cbConfirm = cbConfirm;
+        this.cbConfirm = cbOk;
         this.cbCancel = cbCancel;
     }
 
     Confirm() {
         this.cbConfirm && this.cbConfirm();
         this.tipBox.active = false;
-        this.showTips("Confirm");
+        this.showToast("Confirm");
     }
 
     Cancel() {
         this.cbCancel && this.cbCancel();
         this.tipBox.active = false;
-        this.showTips("Cancel");
+        this.showToast("Cancel");
     }
 }
 

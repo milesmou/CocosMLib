@@ -13,11 +13,11 @@ export class UIUIMgr extends UIBase {
     }
 
     showTips() {
-        app.ui.tipMsg.showTips("Tips");
+        app.ui.tipMsg.showToast("Tips");
     }
 
     showTipBox() {
-        app.ui.tipMsg.showTipBox("I'm a TipBox");
+        app.ui.tipMsg.showConfirm("I'm a TipBox");
     }
 
     onClickShowPopUp() {

@@ -11,7 +11,7 @@ export class UIGuideTest1 extends UIBase {
     onShow() {
         this.scheduleOnce(() => {
             app.ui.guide.startGuide(1, () => {
-                app.ui.tipMsg.showTips("引导结束")
+                app.ui.tipMsg.showToast("引导结束")
             });
         })
     }

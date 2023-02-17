@@ -223,7 +223,7 @@ export class AssetMgr {
         return p;
     }
 
-    static DecRef(location: string, decCount: number) {
+    static DecRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
             for (let i = 0; i < decCount; i++) {
@@ -231,7 +231,6 @@ export class AssetMgr {
             }
         } else {
             console.warn(`资源已销毁  ${location}`);
-
         }
     }
 

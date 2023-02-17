@@ -49,28 +49,24 @@ export class UIMgr extends Component {
     public static onStart: () => void;
 
     //常驻高层UI
-    public guide!: UIGuide;
-    public tipMsg!: UITipMsg;
+    public guide: UIGuide;
+    private tipMsg: UITipMsg;
+
     onLoad() {
         UIMgr.Inst = this;
+        this.init();
     }
 
     start() {
         UIMgr.onStart && UIMgr.onStart();
     }
-    // /** 初始化 */
-    // public async init() {
+    /** 初始化 */
+    public async init() {
 
-    //     let shadeNode = await this.instNode(UIKey.Shade);
-    //     this.shade = shadeNode.getComponent(Shade)!;
-    //     this.shade.node.parent = this.normal;
-
-    //     //添加上层ui
-    //     this.guide = await this.initUI(UIKey.UIGuide) as UIGuide;
-    //     this.guide.node.parent = this.higher;
-    //     this.tipMsg = await this.initUI(UIKey.UITipMsg) as UITipMsg;
-    //     this.tipMsg.node.parent = this.higher;
-    // }
+        //添加上层ui
+        this.guide = await this.initUI(UIKey.UIGuide, this.resident) as UIGuide;
+        this.tipMsg = await this.initUI(UIKey.UITipMsg, this.resident) as UITipMsg;
+    }
 
     public async show<T extends UIBase>(uiName: string, obj: { args?: any, blockTime?: number, visible?: boolean, parent?: Node } = {}): Promise<T> {
 
@@ -279,6 +275,22 @@ export class UIMgr extends Component {
         if (this._blockTime > 0) this._blockTime -= dt;
         this.blockInput.active = this._blockTime > 0;
     }
+
+    //#region UITipMsg方法
+
+    showTip(content: string) {
+        this.tipMsg && this.tipMsg.showTip(content);
+    }
+
+    showToast(content: string) {
+        this.tipMsg && this.tipMsg.showToast(content);
+    }
+
+    showConfirm(content: string, boxType = 2, cbOk?: Function, cbCancel?: Function) {
+        this.tipMsg && this.tipMsg.showConfirm(content, boxType, cbOk, cbCancel);
+    }
+
+    //#endregion
 }
 
 export enum UIKey {
