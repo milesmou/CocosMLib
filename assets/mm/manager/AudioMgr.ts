@@ -197,7 +197,7 @@ export class AudioMgr extends Component {
         var clip = await AssetMgr.loadAsset("audio/" + audioName, AudioClip);
         if (loop) {
             let audioState = new AudioState(this.addComponent(AudioSource), volumeScale);
-            this.loopEffect.push(audioState);~
+            this.loopEffect.push(audioState);
             audioState.audio.clip = clip;
             audioState.audio.volume = this.eVolume * volumeScale;
             audioState.audio.loop = true;
