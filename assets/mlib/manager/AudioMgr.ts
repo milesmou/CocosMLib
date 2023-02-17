@@ -6,6 +6,7 @@ const { ccclass } = _decorator;
 
 class AudioState {
     public constructor(location: string, audio: AudioSource, volumeScale: number) {
+        this.location = location;
         this.audio = audio;
         this.volumeScale = volumeScale;
         this.audio.playOnAwake = false;
@@ -341,13 +342,14 @@ export class AudioMgr extends Component {
         }
     }
 
-    private fadeOutMusic(dur: number, audioState: AudioState, stop = false) {
+    private fadeOutMusic(dur: number, audioState: AudioState, stop = false, release = false) {
         if (audioState == null || !audioState.audio?.isValid) return;
         var audioSource = audioState.audio;
         let onEnd = () => {
             if (stop) {
-                audioSource.clip?.isValid && audioSource.clip.decRef();
+
                 audioSource?.isValid && audioSource.destroy();
+                if (release) AssetMgr.DecRef(audioState.location);
             }
             else {
                 audioSource.pause();
