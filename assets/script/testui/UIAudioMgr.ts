@@ -1,5 +1,5 @@
 
-import { _decorator, Component, Node, EventTouch, AudioClip } from 'cc';
+import { AudioClip, EventTouch, _decorator } from 'cc';
 import { app } from '../../mlib/App';
 import { UIBase } from '../../mlib/ui/UIBase';
 const { ccclass, property } = _decorator;
@@ -20,8 +20,10 @@ export class UIAudioMgr extends UIBase {
     stopMusic(evt: EventTouch, data: string) {
         if (data == "1") {
             app.audio.stopMusic("audio/bgm1");
-        } else {
+        } else if (data == "2") {
             app.audio.stopMusic("audio/bgm2", 1);
+        } else if (data == "3") {
+            app.audio.stopMusic();
         }
     }
 
