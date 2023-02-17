@@ -653,7 +653,7 @@
     },
     "destroyNode": false,
     "showShade": true,
-    "fullScreen": false,
+    "fullScreen": true,
     "autoHide": false,
     "listenVisible": false,
     "blockInputEvent": true,

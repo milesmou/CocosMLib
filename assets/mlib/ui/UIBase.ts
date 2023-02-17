@@ -1,4 +1,4 @@
-import { Animation, BlockInputEvents, Button, color, Enum, Node, NodeEventType, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
+import { Animation, BlockInputEvents, Button, color, Enum, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
 const { property, ccclass, requireComponent } = _decorator;
 
 import { app } from "../App";
@@ -121,7 +121,9 @@ export class UIBase extends AssetHandler {
 
     /* 被全屏UI挡住时 隐藏界面 降低dc */
     private enableAutoHide() {
-        app.event.on(app.eventKey.OnUIShow, ui => {
+        console.log("enableAutoHide", this.uiName);
+
+        app.event.on(app.eventKey.OnUIShow, (ui: UIBase) => {
             if (this?.isValid) {
                 if (ui != this && ui.fullScreen && app.ui.isUIBeCover(this) && app.ui.isUIInStack(this)) this.setVisible(false);
             }
@@ -129,7 +131,7 @@ export class UIBase extends AssetHandler {
                 app.event.offByTag(app.eventKey.OnUIHideBegin, this.uiName);
             }
         }, null, this.uiName);
-        app.event.on(app.eventKey.OnUIHideBegin, ui => {
+        app.event.on(app.eventKey.OnUIHideBegin, (ui: UIBase) => {
             if (this?.isValid) {
                 if (!app.ui.isUIBeCover(this) && app.ui.isUIInStack(this)) this.setVisible(true);
             }
@@ -142,7 +144,7 @@ export class UIBase extends AssetHandler {
     /* 监听因其它界面的打开关闭而影响界面的显隐情况 */
     private enableListenVisible() {
         //监听显示
-        app.event.on(app.eventKey.OnUIHideBegin, ui => {
+        app.event.on(app.eventKey.OnUIHideBegin, (ui: UIBase) => {
             if (this) {
                 if (app.ui.isTopUI(this.uiName) && ui.fullScreen) {
                     this.onShowBegin();
@@ -153,7 +155,7 @@ export class UIBase extends AssetHandler {
                 app.event.offByTag(app.eventKey.OnUIHideBegin, this.uiName);
             }
         }, null, this.uiName);
-        app.event.on(app.eventKey.OnUIHide, ui => {
+        app.event.on(app.eventKey.OnUIHide, (ui: UIBase) => {
             if (this) {
                 if (app.ui.isTopUI(this.uiName) && ui.fullScreen) {
                     this.onShow();
@@ -165,7 +167,7 @@ export class UIBase extends AssetHandler {
             }
         }, null, this.uiName);
         //监听隐藏
-        app.event.on(app.eventKey.OnUIShowBegin, ui => {
+        app.event.on(app.eventKey.OnUIShowBegin, (ui: UIBase) => {
             if (this) {
                 if (app.ui.getUIIndex(this.uiName) == 1 && ui.fullScreen) {
                     this.onHideBegin();
@@ -176,7 +178,7 @@ export class UIBase extends AssetHandler {
                 app.event.offByTag(app.eventKey.OnUIShowBegin, this.uiName);
             }
         }, null, this.uiName);
-        app.event.on(app.eventKey.OnUIShow, ui => {
+        app.event.on(app.eventKey.OnUIShow, (ui: UIBase) => {
             if (this) {
                 if (app.ui.getUIIndex(this.uiName) == 1 && ui.fullScreen) {
                     this.onHide();

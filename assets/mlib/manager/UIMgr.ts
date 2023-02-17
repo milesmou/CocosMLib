@@ -239,7 +239,7 @@ export class UIMgr extends Component {
         if (!ui?.isValid) {
             //非UI,在UI下层
             for (const v of this.uiStack) {
-                // if (v.fullScreen) return true;
+                if (v.fullScreen) return true;
             }
         }
         else {
@@ -248,11 +248,10 @@ export class UIMgr extends Component {
             if (index > -1) {
                 for (let i = index + 1; i < this.uiStack.length; i++) {
                     let v = this.uiStack[i];
-                    // if (v.fullScreen) return true;
+                    if (v.fullScreen) return true;
                 }
             }
         }
-
         return false;
     }
 
