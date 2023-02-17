@@ -137,8 +137,11 @@ export class AudioMgr extends Component {
     }
 
     /** 播放背景音乐 */
-    async playMusic(location: string, priority = 0, volumeScale = 1, fadeIn = 0, fadeOut = 0, onLoadComplete?: (clip: AudioClip) => void) {
+    async playMusic(location: string, priority = 0, volumeScale = 1, args: { fadeIn?: number, fadeOut?: number, onLoadComplete?: (clip: AudioClip) => void } = {}) {
         priority = Math.max(0, priority);
+        let { fadeIn, fadeOut, onLoadComplete } = args;
+        fadeIn = fadeIn === undefined ? 0 : fadeIn;
+        fadeOut = fadeOut === undefined ? 0 : fadeOut;
         if (this.stack.isTop(priority, location)) return; //播放同样的音乐
         if (this.stack.has(priority, location)) this.stack.delete(priority, location); //已存在则移除
 
