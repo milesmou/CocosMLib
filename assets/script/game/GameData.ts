@@ -1,4 +1,4 @@
-import { SerializableObject } from "../../mm/manager/StroageMgr";
+import { SerializableObject } from "../../mlib/manager/StroageMgr";
 import { Config, GlobalVal } from "./DataEntity";
 
 export class GameData extends SerializableObject {

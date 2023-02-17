@@ -1,7 +1,7 @@
 
 import { _decorator, Component, Node, EventTouch, AudioClip } from 'cc';
-import { app } from '../../mm/App';
-import { UIBase } from '../../mm/ui/UIBase';
+import { app } from '../../mlib/App';
+import { UIBase } from '../../mlib/ui/UIBase';
 const { ccclass, property } = _decorator;
 
 @ccclass('UIAudioMgr')

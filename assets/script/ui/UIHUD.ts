@@ -1,8 +1,8 @@
 
 import { resources, Sprite, tween, _decorator } from 'cc';
-import { app } from '../../mm/App';
-import { AssetMgr } from '../../mm/manager/AssetMgr';
-import { UIBase } from '../../mm/ui/UIBase';
+import { app } from '../../mlib/App';
+import { AssetMgr } from '../../mlib/manager/AssetMgr';
+import { UIBase } from '../../mlib/ui/UIBase';
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHUD')

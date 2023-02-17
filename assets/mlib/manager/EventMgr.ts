@@ -12,9 +12,9 @@ export enum EventKey {
 
 /** 全局事件管理工具 */
 export class EventMgr {
-    private eventMap: Map<string | number, { callback: Function, thisObj?: object, once?: boolean }[]> = new Map();
+    private eventMap: Map<string | number, { callback: Function, thisObj?: object, once?: boolean, tag?: string }[]> = new Map();
     /** 为事件注册一个回调,重复注册只保留第一次的事件 */
-    public on(name: number | string, callback: Function, thisObj?: object) {
+    public on(name: number | string, callback: Function, thisObj?: object, tag?: string) {
         let events = this.eventMap.get(name)!;
         if (!events) {
             this.eventMap.set(name, []);
@@ -22,11 +22,11 @@ export class EventMgr {
         }
         let index = events.findIndex(v => v.callback == callback && v.thisObj == thisObj);
         if (index < 0) {
-            events.push({ callback: callback, thisObj: thisObj, once: false });
+            events.push({ callback: callback, thisObj: thisObj, once: false, tag: tag });
         }
     }
     /** 为事件注册一个回调,回调仅会触发一次,重复注册只保留第一次的事件 */
-    public once(name: number | string, callback: Function, thisObj?: object) {
+    public once(name: number | string, callback: Function, thisObj?: object, tag?: string) {
         let events = this.eventMap.get(name)!;
         if (!events) {
             this.eventMap.set(name, []);
@@ -34,7 +34,7 @@ export class EventMgr {
         }
         let index = events.findIndex(v => v.callback == callback && v.thisObj == thisObj);
         if (index < 0) {
-            events.push({ callback: callback, thisObj: thisObj, once: true });
+            events.push({ callback: callback, thisObj: thisObj, once: true, tag: tag });
         }
     }
     /** 取消事件的某个回调，callback不传值时取消事件所有回调*/
@@ -47,6 +47,14 @@ export class EventMgr {
             } else {
                 this.eventMap.delete(name);
             }
+        }
+    }
+    /** 通过tag取消事件 */
+    public offByTag(name: number | string, tag: string) {
+        if (!tag) return;
+        let event = this.eventMap.get(name);
+        if (event?.length > 0) {
+            this.eventMap.set(name, event.filter(vv => vv.tag != tag));
         }
     }
     /** 触发事件，参数个数不固定 */

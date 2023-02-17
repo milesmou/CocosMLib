@@ -1,6 +1,6 @@
 import { JsonAsset } from 'cc';
-import { AssetMgr } from '../../mm/manager/AssetMgr';
-import { SingletonFactory } from '../../mm/utils/SingletonFactory';
+import { AssetMgr } from '../../mlib/manager/AssetMgr';
+import { SingletonFactory } from '../../mlib/utils/SingletonFactory';
 import { Tables } from '../gen/table/Types';
 import { Config, GlobalVal, Guide } from "./DataEntity";
 

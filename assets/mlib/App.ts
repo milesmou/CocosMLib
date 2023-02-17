@@ -32,6 +32,7 @@ export class App extends Component {
         displayName: "版本"
     })
     private version = "1.0.0";
+
     //environment
     public static config: { channelName: string, version: string };
     public static lang: string;

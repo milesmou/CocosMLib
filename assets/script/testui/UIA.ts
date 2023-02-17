@@ -1,7 +1,7 @@
 
 import { _decorator, Component, Node, Label } from 'cc';
-import { app } from '../../mm/App';
-import { UIBase } from '../../mm/ui/UIBase';
+import { app } from '../../mlib/App';
+import { UIBase } from '../../mlib/ui/UIBase';
 const { ccclass, property } = _decorator;
 
 @ccclass('UIA')
@@ -12,6 +12,10 @@ export class UIA extends UIBase {
 
     onShow() {
         this.label.string = `由${this.args}打开`;
+    }
+
+    onClick(){
+        this.safeClose();
     }
 
     showUI(evt: TouchEvent, data: string) {
