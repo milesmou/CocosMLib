@@ -21,9 +21,10 @@ class AudioState {
     public volumeScale: number;
 }
 
+/** 使用object模拟一个可以对key自动排序的List */
 class MapList<T>
 {
-    private _list: { [key: string]: T[] } = {};
+    private _list: { [key: string]: T } = {};
 
     public get topKey() {
         let keys = Object.keys(this._list);
@@ -33,14 +34,13 @@ class MapList<T>
 
     public get topValue() {
         let topKey = this.topKey;
-        if (topKey !== undefined) {
-            let v = this._list[topKey];
-            if (v?.length > 0) {
-                return v[v.length - 1];
-            }
-        }
-        return undefined;
+        return this._list[topKey];
+    }
 
+    public isTopKey(key: number) {
+        let topKey = this.topKey;
+        if (topKey === undefined) return false;
+        return key == topKey;
     }
 
     public isTop(key: number, item: T) {
@@ -51,53 +51,44 @@ class MapList<T>
         return key == topKey && item == topValue;
     }
 
-    public get count() {
-
-        let cnt = 0;
+    public get size() {
         let keys = Object.keys(this._list);
-        keys.forEach(v => {
-            let arr = this._list[v];
-            if (arr) cnt += arr.length;
-        });
-        return cnt;
+        return keys.length;
     }
 
     public clear() {
         this._list = {};
     }
 
-    public push(key: number, item: T) {
-        if (!this._list[key]) this._list[key] = [];
-        this._list[key].push(item);
+    public get(key: number) {
+
+        return this._list[key];
     }
 
-    public remove(key: number, item: T) {
-        let arr = this._list[key];
-        if (arr) {
-            let index = arr.indexOf(item);
-            if (index > -1) {
-                arr.splice(index, 1);
-                if (arr.length == 0) delete this._list[key];
-            }
-        }
+    public set(key: number, item: T) {
+
+        this._list[key] = item;
     }
 
-    public contains(key: number, item: T) {
-        let arr = this._list[key];
-        if (arr) {
-            return arr.indexOf(item) > -1;
-        }
-        return false;
+    public delete(key: number, item: T) {
+        let v = this._list[key];
+        if (item == v) delete this._list[key];
+    }
+
+    public hasKey(key: number) {
+        let v = this._list[key];
+        return Boolean(v);
+    }
+
+    public has(key: number, item: T) {
+        let v = this._list[key];
+        return item == v;
     }
 
     public forEach(predicate: (item: T, key: number) => void) {
         for (const key in this._list) {
-            let arr = this._list[key];
-            if (arr?.length > 0) {
-                arr.forEach(v => {
-                    predicate && predicate(v, parseFloat(key));
-                });
-            }
+            let v = this._list[key];
+            predicate && predicate(v, parseFloat(key));
         }
     }
 }
@@ -149,21 +140,23 @@ export class AudioMgr extends Component {
     async playMusic(location: string, priority = 0, volumeScale = 1, fadeIn = 0, fadeOut = 0, onLoadComplete?: (clip: AudioClip) => void) {
         priority = Math.max(0, priority);
         if (this.stack.isTop(priority, location)) return; //播放同样的音乐
-        if (this.stack.contains(priority, location)) this.stack.remove(priority, location); //已存在则移除
+        if (this.stack.has(priority, location)) this.stack.delete(priority, location); //已存在则移除
 
-        if (this.stack.count > 0 && priority >= this.stack.topKey) //暂停当前音乐
-        {
-            //优先级大于等于当前播放的音乐
-            let nowPlayingAudioState = this.musicGet(this.stack.topKey, this.stack.topValue);
-            this.fadeOutMusic(fadeOut, nowPlayingAudioState, priority == this.stack.topKey);
+        if (this.stack.size > 0) {
+            if (this.stack.hasKey(priority)) {//停止原来同优先级的音乐并释放
+                let audioState = this.musicGet(priority, this.stack.get(priority));
+                this.fadeOutMusic(priority == this.stack.topKey ? fadeOut : 0, audioState, true);
+            } else {
+                let nowAudioState = this.musicGet(this.stack.topKey, this.stack.topValue);
+                this.fadeOutMusic(fadeOut, nowAudioState, false);
+            }
         }
 
         /* -------播放或恢复音乐------ */
-        let audioState = this.musicGet(priority, location) ??
-            new AudioState(location, this.addComponent(AudioSource), volumeScale);
-        this.stack.push(priority, location); //加入栈中
+        let audioState = this.musicGet(priority, location) || new AudioState(location, this.addComponent(AudioSource), volumeScale);
+        this.stack.set(priority, location); //加入栈中
         this.musicAdd(priority, location, audioState);
-        if (audioState.audio?.isValid && audioState.audio.clip) { //恢复音乐
+        if (audioState.audio?.isValid && audioState.audio.clip?.isValid) { //恢复音乐
             if (this.stack.isTop(priority, location) && !this.pause) {
                 this.fadeInMusic(fadeIn, audioState);
             }
@@ -224,7 +217,7 @@ export class AudioMgr extends Component {
     /** 暂停恢复音乐 */
     pauseMusic(isPause: boolean, dur = 0) {
         this.pause = isPause;
-        if (this.stack.count > 0) {
+        if (this.stack.size > 0) {
             var audioState = this.musicGet(this.stack.topKey, this.stack.topValue);
             if (isPause) {
                 this.fadeOutMusic(dur, audioState);
@@ -237,20 +230,26 @@ export class AudioMgr extends Component {
 
 
     //停止播放当前音乐
-    //audioName 停止指定名字的音乐
+    //location 停止指定名字音乐的地址 默认停止当前音乐
     //priority 音乐的优先级
     //autoPlay 是否自动播放上一个音乐 默认为true
-    //fadeIn上 一个音乐渐入时间
+    //fadeIn 上一个音乐渐入时间
     //fadeOut 当前音乐渐出时间
-    stopMusic(audioName: string, priority = 0, autoPlay = true, fadeIn = 0, fadeOut = 0) {
-        let isTop = this.stack.isTop(priority, audioName);
-        //停止指定音乐
-        if (this.stack.contains(priority, audioName)) {
-            this.stack.remove(priority, audioName);
-            this.fadeOutMusic(isTop ? fadeOut : 0, this.musicGet(priority, audioName), true);
-            this.musicRemove(priority, audioName);
+    stopMusic(location?: string, priority = 0, autoPlay = true, fadeIn = 0, fadeOut = 0) {
+        let isTop = false;
+        if (location === undefined) {
+            isTop = true;
+            priority = this.stack.topKey;
+            location = this.stack.topValue;
+        } else {
+            isTop = this.stack.isTop(priority, location);
         }
-
+        //停止指定音乐
+        if (this.stack.has(priority, location)) {
+            this.stack.delete(priority, location);
+            this.fadeOutMusic(isTop ? fadeOut : 0, this.musicGet(priority, location), true);
+            this.musicRemove(priority, location);
+        }
         //恢复上一个音乐
         if (autoPlay && isTop && !this.pause) {
             this.pauseMusic(false, fadeIn);
@@ -260,7 +259,7 @@ export class AudioMgr extends Component {
     //停止播放所有音乐
     //fadeOut 音乐渐出时间
     public stopAllMusic(fadeOut = 0) {
-        if (this.stack.count > 0) {
+        if (this.stack.size > 0) {
             for (let key in this.music) {
                 this.fadeOutMusic(fadeOut, this.music[key], true);
             }
@@ -299,7 +298,7 @@ export class AudioMgr extends Component {
     /* 设置音乐音量 */
     public setMusicVolume(volume: number, dur = 0) {
         volume = misc.clampf(volume, 0, 1);
-        if (this.stack.count > 0) {
+        if (this.stack.size > 0) {
             if (dur > 0) {
                 this.stack.forEach((priority, audioName) => {
                     let state = this.musicGet(audioName, priority);
@@ -342,14 +341,14 @@ export class AudioMgr extends Component {
         }
     }
 
-    private fadeOutMusic(dur: number, audioState: AudioState, stop = false, release = false) {
+    private fadeOutMusic(dur: number, audioState: AudioState, stop = false) {
         if (audioState == null || !audioState.audio?.isValid) return;
         var audioSource = audioState.audio;
         let onEnd = () => {
             if (stop) {
 
                 audioSource?.isValid && audioSource.destroy();
-                if (release) AssetMgr.DecRef(audioState.location);
+                AssetMgr.DecRef(audioState.location);
             }
             else {
                 audioSource.pause();

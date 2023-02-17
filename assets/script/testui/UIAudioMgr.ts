@@ -13,7 +13,15 @@ export class UIAudioMgr extends UIBase {
         if (data == "1") {
             app.audio.playMusic("audio/bgm1");
         } else {
-            app.audio.playMusic("audio/bgm2");
+            app.audio.playMusic("audio/bgm2", 1, 1, 0.5, 0.5);
+        }
+    }
+
+    stopMusic(evt: EventTouch, data: string) {
+        if (data == "1") {
+            app.audio.stopMusic("audio/bgm1");
+        } else {
+            app.audio.stopMusic("audio/bgm2", 1);
         }
     }
 
