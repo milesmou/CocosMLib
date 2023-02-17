@@ -1,0 +1,87 @@
+{
+  "name": "ccc-quick-finder",
+  "package_version": 2,
+  "version": "1.4.0.20210910",
+  "description": "输入关键字即可快速打开或定位项目中的文件...",
+  "author": "陈皮皮 (ifaswind)",
+  "author-info": {
+    "email": "952157129@qq.com",
+    "url": "https://chenpipi.cn",
+    "wechat": "im_chenpipi",
+    "git-home": "https://gitee.com/ifaswind",
+    "official-account": "公众号「菜鸟小栈」"
+  },
+  "repository": "https://gitee.com/ifaswind/ccc-quick-finder",
+  "license": "MIT",
+  "main": "src/main/index.js",
+  "contributions": {
+    "menu": [
+      {
+        "path": "i18n:menu.extension/i18n:ccc-quick-finder.name",
+        "label": "i18n:ccc-quick-finder.search",
+        "message": "open-search-bar",
+        "icon": "/images/search.png"
+      },
+      {
+        "path": "i18n:menu.extension/i18n:ccc-quick-finder.name",
+        "label": "i18n:ccc-quick-finder.settings",
+        "message": "open-settings-panel",
+        "icon": "/images/settings.png"
+      },
+      {
+        "path": "i18n:menu.extension/i18n:ccc-quick-finder.name",
+        "label": "i18n:ccc-quick-finder.checkUpdate",
+        "message": "menu-check-update",
+        "icon": "/images/update.png"
+      },
+      {
+        "path": "i18n:menu.extension/i18n:ccc-quick-finder.name",
+        "label": "v1.4.0.20210910",
+        "message": "menu-version",
+        "icon": "/images/version.png"
+      }
+    ],
+    "messages": {
+      "open-search-bar": {
+        "public": true,
+        "description": "打开搜索栏",
+        "methods": [
+          "openSearchBar"
+        ]
+      },
+      "open-settings-panel": {
+        "public": true,
+        "description": "打开设置面板",
+        "methods": [
+          "openSettingsPanel"
+        ]
+      },
+      "menu-check-update": {
+        "public": true,
+        "description": "检查扩展是否有更新",
+        "methods": [
+          "menuCheckUpdate"
+        ]
+      },
+      "menu-version": {
+        "public": false,
+        "methods": [
+          "menuVersion"
+        ]
+      },
+      "scene:ready": {
+        "methods": [
+          "onSceneReady"
+        ]
+      }
+    },
+    "shortcuts": [
+      {
+        "message": "open-search-bar",
+        "win": "CmdOrCtrl+F",
+        "mac": "CmdOrCtrl+F"
+      }
+    ]
+  },
+  "_storeId": "0e19e46b5df8576de6a6d3f59dd45ef4"
+}

@@ -30,7 +30,7 @@ class MapList<T>
 
     public get topValue() {
         let topKey = this.topKey;
-        if (topKey) {
+        if (topKey !== undefined) {
             let v = this._list[topKey];
             if (v?.length > 0) {
                 return v[v.length - 1];
@@ -73,8 +73,8 @@ class MapList<T>
         if (arr) {
             let index = arr.indexOf(item);
             if (index > -1) {
-                this._list[key] = arr.splice(index, 1);
-                if (this._list[key].length == 0) delete this._list[key];
+                arr.splice(index, 1);
+                if (arr.length == 0) delete this._list[key];
             }
         }
     }
@@ -143,10 +143,10 @@ export class AudioMgr extends Component {
     }
 
     /** 播放背景音乐 */
-    async playMusic(audio: string, priority = 0, volumeScale = 1, fadeIn = 0, fadeOut = 0, onLoadComplete?: (clip: AudioClip) => void) {
+    async playMusic(audioName: string, priority = 0, volumeScale = 1, fadeIn = 0, fadeOut = 0, onLoadComplete?: (clip: AudioClip) => void) {
         priority = Math.max(0, priority);
-        if (this.stack.isTop(priority, audio)) return; //播放同样的音乐
-        if (this.stack.contains(priority, audio)) this.stack.remove(priority, audio); //已存在则移除
+        if (this.stack.isTop(priority, audioName)) return; //播放同样的音乐
+        if (this.stack.contains(priority, audioName)) this.stack.remove(priority, audioName); //已存在则移除
 
         if (this.stack.count > 0 && priority >= this.stack.topKey) //暂停当前音乐
         {
@@ -156,19 +156,19 @@ export class AudioMgr extends Component {
         }
 
         /* -------播放或恢复音乐------ */
-        let audioState = this.musicGet(priority, audio) ??
+        let audioState = this.musicGet(priority, audioName) ??
             new AudioState(this.addComponent(AudioSource), volumeScale);
-        this.stack.push(priority, audio); //加入栈中
-        this.musicAdd(priority, audio, audioState);
+        this.stack.push(priority, audioName); //加入栈中
+        this.musicAdd(priority, audioName, audioState);
         if (audioState.audio?.isValid && audioState.audio.clip) { //恢复音乐
-            if (this.stack.isTop(priority, audio) && !this.pause) {
+            if (this.stack.isTop(priority, audioName) && !this.pause) {
                 this.fadeInMusic(fadeIn, audioState);
             }
         } else { //播放音乐
-            let clip = await AssetMgr.loadAsset<AudioClip>("audio/" + audio);
+            let clip = await AssetMgr.loadAsset<AudioClip>("audio/" + audioName);
             if (!clip) return;
-            if (!this.stack.isTop(priority, audio)) {//未加载音乐完就已停止
-                AssetMgr.DecRef(audio, 1);
+            if (!this.stack.isTop(priority, audioName)) {//未加载音乐完就已停止
+                clip.decRef();
                 return;
             }
             onLoadComplete && onLoadComplete(clip);
@@ -192,12 +192,12 @@ export class AudioMgr extends Component {
      * 播放音效
      * @param loop loop=true时不会触发onFinished
      */
-    async playEffect(audio: string, volumeScale = 1, args: { loop?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
+    async playEffect(audioName: string, volumeScale = 1, args: { loop?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
         const { loop, onStart, onFinished } = args;
-        var clip = await AssetMgr.loadAsset("audio/" + audio, AudioClip);
+        var clip = await AssetMgr.loadAsset("audio/" + audioName, AudioClip);
         if (loop) {
             let audioState = new AudioState(this.addComponent(AudioSource), volumeScale);
-            this.loopEffect.push(audioState);
+            this.loopEffect.push(audioState);~
             audioState.audio.clip = clip;
             audioState.audio.volume = this.eVolume * volumeScale;
             audioState.audio.loop = true;
@@ -269,8 +269,9 @@ export class AudioMgr extends Component {
         if (audioClip) {
             let index = this.loopEffect.findIndex(v => v.audio.clip == audioClip);
             if (index > -1) {
-                this.loopEffect[index].audio.destroy();
+                let audio = this.loopEffect[index].audio;
                 this.loopEffect = this.loopEffect.splice(index, 1);
+                audio?.isValid && audio.destroy();
             }
         }
     }
@@ -278,8 +279,7 @@ export class AudioMgr extends Component {
     // 停止播放所有音效
     public stopAllEffect() {
         this.loopEffect.forEach(v => {
-            if (v.audio) {
-                v.audio.stop();
+            if (v.audio?.isValid) {
                 v.audio.destroy();
             }
         });
@@ -338,15 +338,19 @@ export class AudioMgr extends Component {
         var audioSource = audioState.audio;
         let onEnd = () => {
             if (stop) {
-                audioSource.destroy();
+                audioSource.clip?.isValid && audioSource.clip.decRef();
+                audioSource?.isValid && audioSource.destroy();
             }
             else {
                 audioSource.pause();
             }
         };
         if (dur > 0) {
-            tween(audioSource).to(dur, { volume: 0 }).start();
-            tween(audioSource).delay(dur).call(onEnd).start();
+            tween(audioSource).to(dur, { volume: 0 }, {
+                onComplete: () => {
+                    onEnd();
+                }
+            }).start();
         }
         else {
             onEnd();

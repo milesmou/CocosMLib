@@ -11,7 +11,7 @@ export class UIAudioMgr extends UIBase {
 
     playMusic(evt: EventTouch, data: string) {
         if (data == "1") {
-            app.audio.playMusic("bgm1",0.5);
+            app.audio.playMusic("bgm1");
         } else {
             app.audio.playMusic("bgm2");
         }
