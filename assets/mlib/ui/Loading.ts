@@ -126,7 +126,7 @@ export class Loading extends Component {
             // cc.audioEngine.stopAll();
             game.restart();
         } else if (code == HotUpdateCode.Fail) {
-            app.ui.tipMsg.showConfirm(
+            app.ui.showConfirm(
                 "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", 1,
                 () => {
                     // audio.stopAll();
