@@ -149,7 +149,7 @@ export class AudioMgr extends Component {
             if (this.stack.hasKey(priority)) {//停止原来同优先级的音乐并释放
                 let audioState = this.musicGet(priority, this.stack.get(priority));
                 this.fadeOutMusic(priority == this.stack.topKey ? fadeOut : 0, audioState, true);
-            } else {
+            } else {//暂停当前音乐
                 let nowAudioState = this.musicGet(this.stack.topKey, this.stack.topValue);
                 this.fadeOutMusic(fadeOut, nowAudioState, false);
             }

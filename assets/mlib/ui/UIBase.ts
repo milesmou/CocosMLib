@@ -1,7 +1,8 @@
-import { Animation, BlockInputEvents, Button, color, Enum, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
+import { Animation, BlockInputEvents, Button, color, Enum, Layers, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
 const { property, ccclass, requireComponent } = _decorator;
 
 import { app } from "../App";
+import { AssetMgr } from '../manager/AssetMgr';
 import { CCUtils } from '../utils/CCUtil';
 import { Utils } from '../utils/Utils';
 import { AssetHandler } from './AssetHandler';
@@ -70,6 +71,11 @@ export class UIBase extends AssetHandler {
     public get isAnimEnd() { return this._isAnimEnd; }
     protected args: any = null;
 
+    onDestroy() {
+        super.onDestroy();
+        AssetMgr.DecRef(this.uiName);
+    }
+
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     init(uiName: string) {
         if (this.uiName) return;
@@ -111,18 +117,20 @@ export class UIBase extends AssetHandler {
     }
 
     setVisible(visible: boolean) {
+        console.log(this.uiName+" setVisible "+visible );
+        
         if (visible) {
-            this.opacity.opacity = 255;
-            this.node.active = true;
+            this.node.layer = Layers.Enum.UI_2D;
+            // this.opacity.opacity = 255;
+            // this.node.active = true;
         } else {
-            this.opacity.opacity = 0;
+            // this.opacity.opacity = 0;
+            this.node.layer = Layers.Enum.NONE;
         }
     }
 
     /* 被全屏UI挡住时 隐藏界面 降低dc */
     private enableAutoHide() {
-        console.log("enableAutoHide", this.uiName);
-
         app.event.on(app.eventKey.OnUIShow, (ui: UIBase) => {
             if (this?.isValid) {
                 if (ui != this && ui.fullScreen && app.ui.isUIBeCover(this) && app.ui.isUIInStack(this)) this.setVisible(false);
