@@ -207,7 +207,7 @@ export class UIMgr extends Component {
         return this.uiStack[this.uiStack.length - 1] == ui;
     }
 
-    public getUI<T extends UIBase>(name: UIKey) {
+    public getUI<T extends UIBase>(name: string) {
         let ui = this.uiDict.get(name);
         if (ui?.isValid) {
             return ui as T;
