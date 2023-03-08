@@ -104,6 +104,11 @@ class BundleMgr {
     }
 }
 
+/**
+ * 资源加载管理类
+ * 
+ * 若需要自动释放资源,请使用UI或ViewAssetMgr来加载资源
+ */
 export class AssetMgr {
 
     static get cache() {
@@ -223,6 +228,18 @@ export class AssetMgr {
         return p;
     }
 
+    //让资源引用计数增加 避免自动管理释放
+    static AddRef(location: string, decCount = 1) {
+        let asset = this.cache.get(location);
+        if (asset?.isValid) {
+            for (let i = 0; i < decCount; i++) {
+                asset.addRef();
+            }
+        } else {
+            console.warn(`[AddRef] 资源已销毁 ${location}`);
+        }
+    }
+
     static DecRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
@@ -230,7 +247,7 @@ export class AssetMgr {
                 asset.decRef();
             }
         } else {
-            console.warn(`资源已销毁  ${location}`);
+            console.warn(`[DecRef] 资源已销毁 ${location}`);
         }
     }
 

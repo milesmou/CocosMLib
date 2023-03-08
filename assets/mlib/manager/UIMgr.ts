@@ -279,6 +279,7 @@ export class UIMgr extends Component {
 
     showTip(content: string) {
         this.tipMsg && this.tipMsg.showTip(content);
+        AssetMgr
     }
 
     showToast(content: string) {
