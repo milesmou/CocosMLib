@@ -64,7 +64,7 @@ export class UIBase extends AssetHandler {
     public transform: UITransform;
     public uiName: string = null;
     protected animation: Animation;
-    private opacity: UIOpacity;
+    private uiOpacity: UIOpacity;
     private shadeOpacity: UIOpacity;
 
     private _isAnimEnd = false;
@@ -81,7 +81,7 @@ export class UIBase extends AssetHandler {
         if (this.uiName) return;
         this.uiName = uiName;
         this.transform = this.getComponent(UITransform);
-        this.opacity = this.getComponent(UIOpacity);
+        this.uiOpacity = this.getComponent(UIOpacity);
 
         Utils.uiNodeMatchParent(this.node);
 
@@ -117,15 +117,11 @@ export class UIBase extends AssetHandler {
     }
 
     setVisible(visible: boolean) {
-        console.log(this.uiName+" setVisible "+visible );
-        
         if (visible) {
-            this.node.layer = Layers.Enum.UI_2D;
-            // this.opacity.opacity = 255;
-            // this.node.active = true;
+            this.uiOpacity.opacity = 255;
+            this.node.active = true;
         } else {
-            // this.opacity.opacity = 0;
-            this.node.layer = Layers.Enum.NONE;
+            this.uiOpacity.opacity = 0;
         }
     }
 
