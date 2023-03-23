@@ -275,35 +275,10 @@ export class UIMgr extends Component {
         this.blockInput.active = this._blockTime > 0;
     }
 
-    //#region UI资源加载
-
-    static async loadAsset<T extends Asset>(uiName: string, location: string, type?: new (...args: any[]) => T) {
-        return await this.Inst.getUI(uiName).loadAsset<T>(location, type);
-    }
-
-    static async loadRemoteAsset<T extends Asset>(uiName: string, url: string): Promise<T> {
-        return await this.Inst.getUI(uiName).loadRemoteAsset<T>(url);
-    }
-
-    static async loadSpriteFrame(uiName: string, location: string) {
-        return await this.Inst.getUI(uiName).loadSpriteFrame(location);
-    }
-
-    static async loadRemoteSpriteFrame(uiName: string, url: string) {
-        return await this.Inst.getUI(uiName).loadRemoteSpriteFrame(url);
-    }
-
-    static async loadSprite(uiName: string, sprite: Sprite, location: string) {
-        return await this.Inst.getUI(uiName).loadSprite(sprite, location);
-    }
-
-    //#endregion
-
     //#region UITipMsg方法
 
     showTip(content: string) {
         this.tipMsg && this.tipMsg.showTip(content);
-        AssetMgr
     }
 
     showToast(content: string) {
