@@ -20,6 +20,8 @@ class BundleMgr {
     //资源地址:Bundle名字
     private address: Map<string, string> = new Map();
 
+
+
     private resolveResources() {
         this.resolveBundle(resources);
     }
@@ -34,6 +36,18 @@ class BundleMgr {
                     console.error(`资源地址不能重复  ${bundle.name}  ${v1.path}`);
             });
         });
+    }
+
+    public projectBundles() {
+        let builtin: string[] = ["resources", "main", "internal"];
+        let arr: string[] = assetManager['_projectBundles'];
+        let result: string[] = [];
+        for (const v of arr) {
+            if (builtin.indexOf(v) == -1) {
+                result.push(v);
+            }
+        }
+        return result;
     }
 
     public loadBundle(bundleName: string, onFileProgress?: (loaded: number, total: number) => void) {
@@ -54,7 +68,10 @@ class BundleMgr {
         return p;
     }
 
-    public loadAllBundle(bundleNames: string[], onFileProgress?: (loaded: number, total: number) => void) {
+    public loadAllBundle(bundleNames?: string[], onFileProgress?: (loaded: number, total: number) => void) {
+        if (!bundleNames) {
+            bundleNames = this.projectBundles();
+        }
         let p = new Promise<AssetManager.Bundle[]>((resolve, reject) => {
             let progress: number[] = [];
             let bundleArr: AssetManager.Bundle[] = [];
@@ -115,7 +132,11 @@ export class AssetMgr {
         return AssetCache.Inst.cache;
     }
 
-    static loadAllBundle(bundleNames: string[], onFileProgress?: (loaded: number, total: number) => void) {
+    static get projectBundles() {
+        return BundleMgr.Inst.projectBundles();
+    }
+
+    static loadAllBundle(bundleNames?: string[], onFileProgress?: (loaded: number, total: number) => void) {
         return BundleMgr.Inst.loadAllBundle(bundleNames, onFileProgress);
     }
 

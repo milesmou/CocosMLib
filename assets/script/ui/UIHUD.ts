@@ -1,5 +1,5 @@
 
-import { resources, Sprite, tween, _decorator } from 'cc';
+import { assetManager, resources, Sprite, tween, _decorator } from 'cc';
 import { app } from '../../mlib/App';
 import { AssetMgr } from '../../mlib/manager/AssetMgr';
 import { UIBase } from '../../mlib/ui/UIBase';
@@ -29,6 +29,9 @@ export class UIHUD extends UIBase {
             console.log(a.a);
             
         },}).start();
+
+        console.log(AssetMgr.projectBundles);
+        
 
         // AssetMgr.loadAsset("texture/bg1/texture", null).then(s => {
         //     console.log("加载成功1");
