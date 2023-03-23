@@ -12,11 +12,11 @@ export class ButtonHelper extends Component {
     disableDefault = false;
     @property({
         type: AudioClip,
-        displayName: "音效",
-        tooltip: "当音效不为null时，点击按钮播放指定的音效",
+        displayName: "音效地址",
+        tooltip: "当音效不为空时，点击按钮播放指定的音效",
         visible: function () { return (this as any).disableDefault; }
     })
-    audioClip: AudioClip | null = null;
+    audioLocation = "";
     @property({
         displayName: "冷却时间",
         tooltip: "点击按钮后，等待多长时间重新启用按钮，单位秒",
@@ -65,8 +65,8 @@ export class ButtonHelper extends Component {
     }
 
     onClick() {
-        if (this.disableDefault && this.audioClip) {
-            app.audio.playEffect(this.audioClip);
+        if (this.disableDefault && this.audioLocation) {
+            app.audio.playEffect(this.audioLocation);
         }
         if (this.cooldown > 0 && !(this as any).isCooldown)
             (this as any).isCooldown = true;
@@ -84,7 +84,7 @@ export class ButtonHelper extends Component {
             if (!this.interactable || !this.enabledInHierarchy) return;
             if ((this as any)._pressed) {
                 if (!(this as any).disableDefault) {//默认音效是否被禁用
-                    app.audio.playEffect(app.audioKey.E_Click);
+                    app.audio.playEffect("audioLocation");
                 }
                 if (!(this as any).isCooldown) {
                     EventHandler.emitEvents(this.clickEvents, event);
