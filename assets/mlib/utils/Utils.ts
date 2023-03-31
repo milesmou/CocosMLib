@@ -257,7 +257,7 @@ export class Utils {
      * @param compare 若需要不重复item,则传入比较两个元素的方法
      * @returns 
      */
-    public static RandomValue<T>(list: T[], weight: (item: T) => number, num: number, compare?: (v1: T, v2: T) => boolean) {
+    public static randomValueByWeight<T>(list: T[], weight: (item: T) => number, num: number, compare?: (v1: T, v2: T) => boolean) {
         let result: T[] = [];
         if (!list || list.length == 0) return result;
         if (list.length < num) console.warn("需要返回的item数量大于集合长度");
