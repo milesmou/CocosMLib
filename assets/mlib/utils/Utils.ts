@@ -254,10 +254,10 @@ export class Utils {
      * @param list 集合
      * @param weight 获取item权重的方法
      * @param num 返回item数量
-     * @param compare 若需要不重复item,则传入比较两个元素的方法
+     * @param canRepeat item是否可以重复
      * @returns 
      */
-    public static randomValueByWeight<T>(list: T[], weight: (item: T) => number, num: number, compare?: (v1: T, v2: T) => boolean) {
+    public static randomValueByWeight<T>(list: T[], weight: (item: T) => number, num: number, canRepeat = false) {
         let result: T[] = [];
         if (!list || list.length == 0) return result;
         if (list.length < num) console.warn("需要返回的item数量大于集合长度");
@@ -277,10 +277,10 @@ export class Utils {
                 {
                     let w = weight(item);
                     if (randomV >= tmpWeight && randomV < tmpWeight + w) {
-                        if (compare) //检查是否重复元素
+                        if (!canRepeat) //检查是否重复元素
                         {
-                            var findItem = result.find(v => compare(v, item));
-                            if (findItem == null) result.push(item);
+                            var index = result.indexOf(item);
+                            if (index == -1) result.push(item);
                         }
                         else {
                             result.push(item);
