@@ -1,4 +1,4 @@
-import { Node, Widget } from "cc";
+import { Component, instantiate, Node, Prefab, Widget } from "cc";
 
 /**
  * 常用的一些方法工具类
@@ -52,6 +52,79 @@ export class Utils {
         widget.isAlignRight = true;
         widget.right = 0;
     }
+
+    static loadList<T>(content: Node, listData: T[], action?: (T, Node, number) => void,
+        item: Prefab = null, frameTimeMS = 4) {
+
+        return new Promise<void>((resolve, reject) => {
+            if (!content || listData == null) return;
+
+            if (!item && content.children.length == 0) {
+                reject("当content无子节点时 必须传入预制体");
+                return;
+            }
+
+            if (content.children.length > listData.length) //隐藏多余的Item
+            {
+                for (let i = listData.length; i < content.children.length; i++) {
+                    content.children[i].active = false;
+                }
+            }
+
+            let comp = content.getComponent(Component);
+
+            let gen = this.listGenerator(content, listData, action);
+
+            let execute = () => {
+                let startMS = Date.now();
+
+                for (let iter = gen.next(); ; iter = gen.next()) {
+
+                    if (iter == null || iter.done) {
+                        resolve();
+                        return;
+                    }
+
+                    // 每执行完一段小代码段，都检查一下是否
+                    // 已经超过我们分配给本帧，这些小代码端的最大可执行时间
+                    if (Date.now() - startMS > frameTimeMS) {
+                        // 如果超过了，那么本帧就不在执行，开定时器，让下一帧再执行
+                        comp.scheduleOnce(() => {
+                            execute();
+                        });
+                        return;
+                    }
+
+                }
+
+            }
+
+
+            execute();
+        });
+    }
+
+    private static *listGenerator<T>(content: Node, listData: T[], action?: (T, Node, number) => void,
+        item: Prefab = null) {
+        let instNode = (index: number) => {
+            if (!content?.isValid) return;
+            let child: Node;
+            if (content.children.length > index) {
+                child = content[index];
+            }
+            else {
+                child = item ? instantiate(item) : instantiate(content.children[0]);
+            }
+
+            child.active = true;
+            action && action(listData[index], child, index);
+        }
+
+        for (let i = 0; i < listData.length; i++) {
+            yield instNode(i);
+        }
+    }
+
 
     /**
      * 返回今天的日期,格式20200101
