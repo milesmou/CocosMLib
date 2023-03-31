@@ -281,6 +281,7 @@ export class Utils {
                         {
                             var index = result.indexOf(item);
                             if (index == -1) result.push(item);
+                            else break;
                         }
                         else {
                             result.push(item);
