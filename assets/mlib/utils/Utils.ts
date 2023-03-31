@@ -242,7 +242,58 @@ export class Utils {
         return str;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="list">集合</param>
+    /// <param name="weight">获取item权重</param>
+    /// <param name="num">返回item数量委托</param>
+    /// <param name="compare">若需要不重复item,则传入比较两个元素的委托</param>
+    /**
+     * 从带权重的集合中随机获取指定数量的元素
+     * @param list 集合
+     * @param weight 获取item权重的方法
+     * @param num 返回item数量
+     * @param compare 若需要不重复item,则传入比较两个元素的方法
+     * @returns 
+     */
+    public static RandomValue<T>(list: T[], weight: (item: T) => number, num: number, compare?: (v1: T, v2: T) => boolean) {
+        let result: T[] = [];
+        if (!list || list.length == 0) return result;
+        if (list.length < num) console.warn("需要返回的item数量大于集合长度");
 
+        let count: number = Math.min(list.length, num);
+        let totalWeight = 0;
+
+        for (const item of list) {
+            totalWeight += weight(item);
+        }
+
+        while (result.length < count) {
+            let randomV = Math.floor(Math.random() * totalWeight);;
+            let tmpWeight = 0;
+
+            for (const item of list) {
+                {
+                    let w = weight(item);
+                    if (randomV >= tmpWeight && randomV < tmpWeight + w) {
+                        if (compare) //检查是否重复元素
+                        {
+                            var findItem = result.find(v => compare(v, item));
+                            if (findItem == null) result.push(item);
+                        }
+                        else {
+                            result.push(item);
+                        }
+                    }
+
+                    tmpWeight += w;
+                }
+            }
+
+            return result;
+        }
+    }
     /**
      * 格式化字符串,用args的内容替换str中的{i},i从0开始
      */
