@@ -1,24 +1,60 @@
 import { sys, tween } from "cc";
+import { InventoryItemSO } from "../misc/PlayerInventory";
+import { TaskItemSO } from "../misc/PlayerTask";
 import { Utils } from "../utils/Utils";
 
 
-export abstract class SerializableObject {
+export abstract class LocalStroage {
     public abstract name: string;
     /** 存档描述(多存档时使用) */
     public desc = "";
     /** 存档时间最后一次保存时间(时间戳) */
-    public date = 0;
-
-    /** 字段会被每日重置,即使用默认值 */
-    public dayreset: { [key: string]: any };
-    /** 上一次重置dayreset字段日期 */
-    public lastResetDate: number;
+    public time = 0;
     /** 准备延迟存档,忽略其它存档请求 */
     private readySave = false;
+    /** 自增uid */
+    private uid = 0;
+    /** 是否是全新存档 */
+    private origin = true;
+    /** 上一次重置每日数据日期 */
+    private date = 0;
+
+    /** 自增且唯一的UID */
+    get newUid() {
+        this.uid++;
+        this.delaySave();
+        return this.uid;
+    }
+
+    /** 背包数据存档 */
+    public inventory: InventoryItemSO[] = [];
+
+    /** 任务数据存档 */
+    public task: TaskItemSO[] = [];
+
+    /** 初始化 */
+    init() {
+        if (this.origin) {
+            this.setInitialData()
+            this.delaySave();
+        }
+        let today = Utils.getToday();
+        if (today > this.date) {
+            this.resetDailyData();
+            this.delaySave();
+        }
+    }
+
+    /** 为新玩家设置初始数据 */
+    abstract setInitialData(): void;
+
+    /** 重置一些每日需要重置的数据 */
+    abstract resetDailyData(): void;
 
     /** 立即存档 */
     save() {
-        this.date = Date.now();
+        this.origin = false;
+        this.time = Date.now();
         StroageMgr.serialize(this);
     }
     /** 延迟存档 */
@@ -31,6 +67,12 @@ export abstract class SerializableObject {
             }).start();
         }
     };
+
+    /** 获取存档序列化后的json字符串 */
+    serialize() {
+        this.time = Date.now();
+        return JSON.stringify(this);
+    }
 }
 
 /**
@@ -39,7 +81,7 @@ export abstract class SerializableObject {
 export class StroageMgr {
 
     /** 从本地缓存读取存档 */
-    public static deserialize<T extends SerializableObject>(inst: T): T {
+    public static deserialize<T extends LocalStroage>(inst: T): T {
         Reflect.defineProperty(inst, "name", { enumerable: false });
         Reflect.defineProperty(inst, "readySave", { enumerable: false });
         let name = inst.name;
@@ -47,29 +89,25 @@ export class StroageMgr {
         if (jsonStr) {
             try {
                 let obj = JSON.parse(jsonStr);
-                this.mergeValue(inst, obj, true);
+                this.mergeValue(inst, obj);
             } catch (err) {
                 console.error(err);
             }
         }
-        inst.lastResetDate = Utils.getToday();
         return inst;
     }
 
     /** 将数据写入到本地存档中 */
-    public static serialize<T extends SerializableObject>(inst: T) {
+    public static serialize<T extends LocalStroage>(inst: T) {
         let name = inst.name;
         let jsonStr = JSON.stringify(inst);
         this.setValue(name, jsonStr);
     }
 
     /** 合并存档默认数据和本地数据 */
-    private static mergeValue(target: object, source: object, isRootObj = false) {
+    private static mergeValue(target: object, source: object) {
         for (const key in target) {
             if (Reflect.has(source, key)) {
-                if (isRootObj && key == "dayreset") {//根对象的dayreset会被每日重置
-                    if (Utils.getToday() > source["lastResetDate"]) continue;//使用默认值
-                }
                 if (Object.prototype.toString.call(target[key]) === "[object Object]" && Object.prototype.toString.call(source[key]) === "[object Object]") {//对象拷贝
                     if (JSON.stringify(target[key]) === "{}") {//使用空字典存储,完整赋值
                         target[key] = source[key];

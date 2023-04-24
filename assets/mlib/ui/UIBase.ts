@@ -1,10 +1,9 @@
-import { Animation, BlockInputEvents, Button, color, Enum, Layers, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
+import { Animation, BlockInputEvents, Button, color, Enum, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
 const { property, ccclass, requireComponent } = _decorator;
 
 import { app } from "../App";
 import { AssetMgr } from '../manager/AssetMgr';
 import { CCUtils } from '../utils/CCUtil';
-import { Utils } from '../utils/Utils';
 import { AssetHandler } from './AssetHandler';
 const EUIAnim = Enum({
     NONE: 0,
@@ -83,7 +82,7 @@ export class UIBase extends AssetHandler {
         this.transform = this.getComponent(UITransform);
         this.uiOpacity = this.getComponent(UIOpacity);
 
-        Utils.uiNodeMatchParent(this.node);
+        CCUtils.uiNodeMatchParent(this.node);
 
         if (this.showShade) this.initShade();
         if (this.autoHide) this.enableAutoHide();
@@ -100,7 +99,7 @@ export class UIBase extends AssetHandler {
         } else {
             let n = new Node("shade");
             n.addComponent(UITransform);
-            Utils.uiNodeMatchParent(n);
+            CCUtils.uiNodeMatchParent(n);
             let sp = n.addComponent(Sprite);
             sp.spriteFrame = app.ui.whiteSplash;
             sp.color = color(0, 0, 0, 150);
