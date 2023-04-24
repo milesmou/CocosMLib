@@ -132,7 +132,7 @@ export class Language extends Component {
     }
 
     static setSpriteFrameByName(sprite: Sprite, name: string) {
-        Utils.loadSprite(sprite, `language/${app.lang}/${name}`)
+        // Utils.loadSprite(sprite, `language/${app.lang}/${name}`)
     }
 
     static getStringByID(ID: number, ...args: any[]): string {

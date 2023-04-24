@@ -1,16 +1,38 @@
-import { Component, instantiate, Node, Prefab, ScrollView, Sprite, SpriteFrame, Vec3, Widget } from "cc";
-import { AssetMgr } from "../manager/AssetMgr";
+import { Component, instantiate, Node, Prefab, ScrollView, Vec3, Widget } from "cc";
 
 export class CCUtils {
 
-    /** 从节点的一级子节点获取指定组件 */
+    /** 从一级子节点获取指定组件 */
     static getComponentInChildren<T extends Component>(node: Node, type: new (...args: any[]) => T): T {
         for (let i = 0; i < node.children.length; i++) {
             let child = node.children[i];
             let comp = child.getComponent(type);
             if (comp) return comp;
         }
-        return null!;
+        return null;
+    }
+
+    /** 从自身或者父节点获取指定组件 */
+    static getComponentInParent<T extends Component>(node: Node, type: new (...args: any[]) => T): T {
+        let n = node;
+        while (n) {
+            let comp = n.getComponent(type);
+            if (comp) return comp;
+            n = n.parent;
+        }
+        return null;
+    }
+
+    /** 从自身或者父节点获取指定组件 */
+    static getComponentsInParent<T extends Component>(node: Node, type: new (...args: any[]) => T): T[] {
+        let arr: T[] = [];
+        let n = node;
+        while (n) {
+            let comp = n.getComponent(type);
+            if (comp) arr.push(comp);
+            n = n.parent;
+        }
+        return arr;
     }
 
     /** 将node1本地坐标系的位置转化为node2本地坐标下的位置 */
@@ -102,8 +124,6 @@ export class CCUtils {
                 }
 
             }
-
-
             execute();
         });
     }
