@@ -119,8 +119,8 @@ export class UIGuide extends UIBase {
             let pos = this.transform.convertToNodeSpaceAR(btnTransform.convertToWorldSpaceAR(v3(0, 0)));
             Tween.stopAllByTarget(this.mask);
             Tween.stopAllByTarget(maskTransform);
-            this.block.active = true;
-            tween(this.mask).to(0.25, { position: pos }).call(() => { this.block.active = false; }).start();
+            app.ui.blockTime = 10;
+            tween(this.mask).to(0.25, { position: pos }).call(() => { app.ui.blockTime = 0; }).start();
             tween(maskTransform).to(0.25, { width: btnTransform.width, height: btnTransform.height }).start();
             btnNode.once("click", () => {
                 this.onClickGuideBtn(index);
