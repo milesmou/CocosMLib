@@ -1,0 +1,40 @@
+{
+    "package_version": 2,
+    "version": "1.0.0",
+    "name": "miles-editor-tool",
+    "contributions": {
+        "messages": {
+            "log1": {
+                "public":true,
+                "methods": ["log"]
+            }
+        },
+        "menu": [
+            {
+                "path": "MTools",
+                "label": "Open Hello World",
+                "icon": "./static/icon.png",
+                "message": "log1"
+            }
+        ],
+        "shortcuts":[
+            {
+                "message": "log1",
+                "win": "ctrl+alt+l",
+                "mac": "cmd+z"
+            }
+        ]
+    },
+    "description": "miles的一些编辑器扩展",
+    "main": "./dist/main.js",
+    "devDependencies": {
+        "@types/node": "^16.0.1",
+        "typescript": "^4.3.4"
+    },
+    "author": "Miles",
+    "editor": ">=3.6.3",
+    "scripts": {
+        "build": "tsc -b",
+        "watch": "tsc -w"
+    }
+}
