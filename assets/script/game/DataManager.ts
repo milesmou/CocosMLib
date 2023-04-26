@@ -2,17 +2,12 @@ import { JsonAsset } from 'cc';
 import { AssetMgr } from '../../mlib/manager/AssetMgr';
 import { SingletonFactory } from '../../mlib/utils/SingletonFactory';
 import { Tables } from '../gen/table/Types';
-import { Config, GlobalVal, Guide } from "./DataEntity";
 
 export default class DataManager {
     public static get Inst() { return SingletonFactory.getInstance<DataManager>(DataManager); }
-    globalVal!: GlobalVal;
-    config!: Config;
 
     public Tables: Tables = null!;
 
-
-    private guides!: { [id: number]: Guide };
 
     async initData() {
         let prefix = "data/";
@@ -38,13 +33,8 @@ export default class DataManager {
 
 
     getGuideData(guideId: number) {
-        let arr: Guide[] = [];
-        for (const key in this.guides) {
-            let v = this.guides[key];
-            if (v.GuideID == guideId) {
-                arr.push(v);
-            }
-        }
+        let arr: [] = [];
+
         return arr;
     }
 }

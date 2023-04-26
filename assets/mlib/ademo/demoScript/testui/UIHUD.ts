@@ -1,8 +1,9 @@
 
 import { assetManager, resources, Sprite, tween, _decorator } from 'cc';
-import { app } from '../../mlib/App';
-import { AssetMgr } from '../../mlib/manager/AssetMgr';
-import { UIBase } from '../../mlib/ui/UIBase';
+import { App } from '../../../App';
+import { AssetMgr } from '../../../manager/AssetMgr';
+import { UIBase } from '../../../ui/UIBase';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHUD')
@@ -62,15 +63,15 @@ export class UIHUD extends UIBase {
     }
 
     onClickAudioMgr() {
-        app.ui.show(app.uiKey.UIAudioMgr);
+        App.ui.show(App.uiKey.UIAudioMgr);
     }
 
     onClickUIMgr() {
-        app.ui.show(app.uiKey.UIUIMgr);
+        App.ui.show(App.uiKey.UIUIMgr);
     }
 
     onClickGuide() {
-        app.ui.show(app.uiKey.UIGuideTest1);
+        App.ui.show(App.uiKey.UIGuideTest1);
     }
 }
 

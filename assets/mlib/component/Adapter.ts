@@ -1,7 +1,7 @@
 import { _decorator, Component, Widget, sys, UITransform, view, v3 } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { app } from "../App";
+import { App } from "../App";
 
 /** 适配工具 */
 @ccclass('Adapter')
@@ -42,23 +42,23 @@ export class Adapter extends Component {
             if (!widget) return;
             if (widget.isAlignTop) {
                 if (sys.platform == sys.IPHONE) {
-                    widget.top += app.safeSize.top * 0.7;
+                    widget.top += App.safeSize.top * 0.7;
                 } else {
-                    widget.top += app.safeSize.top;
+                    widget.top += App.safeSize.top;
                 }
             }
             if (widget.isAlignBottom) {
                 if (sys.platform == sys.IPHONE) {
-                    widget.bottom += app.safeSize.bottom * 0.6;
+                    widget.bottom += App.safeSize.bottom * 0.6;
                 } else {
-                    widget.bottom += app.safeSize.bottom;
+                    widget.bottom += App.safeSize.bottom;
                 }
             }
             if (widget.isAlignLeft) {
-                widget.left += app.safeSize.left;
+                widget.left += App.safeSize.left;
             }
             if (widget.isAlignRight) {
-                widget.right += app.safeSize.right;
+                widget.right += App.safeSize.right;
             }
             widget.updateAlignment();
         }

@@ -77,6 +77,8 @@ class BundleMgr {
             let bundleArr: AssetManager.Bundle[] = [];
             for (let i = 0; i < bundleNames.length; i++) {
                 let bundleName = bundleNames[i];
+                console.log("bundleName="+bundleName);
+                
                 assetManager.loadBundle(bundleName,
                     {
                         onFileProgress: (loaded: number, total: number) => {

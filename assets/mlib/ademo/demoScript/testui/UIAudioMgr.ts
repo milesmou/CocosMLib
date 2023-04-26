@@ -1,7 +1,8 @@
 
 import { AudioClip, EventTouch, _decorator } from 'cc';
-import { app } from '../../mlib/App';
-import { UIBase } from '../../mlib/ui/UIBase';
+import { App } from '../../../App';
+import { UIBase } from '../../../ui/UIBase';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('UIAudioMgr')
@@ -11,25 +12,25 @@ export class UIAudioMgr extends UIBase {
 
     playMusic(evt: EventTouch, data: string) {
         if (data == "1") {
-            app.audio.playMusic("audio/bgm1");
+            App.audio.playMusic("audio/bgm1");
         } else {
-            app.audio.playMusic("audio/bgm2", 1, 1);
+            App.audio.playMusic("audio/bgm2", 1, 1);
         }
     }
 
     stopMusic(evt: EventTouch, data: string) {
         if (data == "1") {
-            app.audio.stopMusic("audio/bgm1");
+            App.audio.stopMusic("audio/bgm1");
         } else if (data == "2") {
-            app.audio.stopMusic("audio/bgm2", 1);
+            App.audio.stopMusic("audio/bgm2", 1);
         } else if (data == "3") {
-            app.audio.stopMusic();
+            App.audio.stopMusic();
         }
     }
 
     playEffect(evt: EventTouch, data: string) {
         if (data == "1") {
-            app.audio.playEffect("audio/click", 1, {
+            App.audio.playEffect("audio/click", 1, {
                 loop: false,
                 release: false,
                 onStart: (clip: AudioClip) => {
@@ -40,12 +41,12 @@ export class UIAudioMgr extends UIBase {
                 }
             });
         } else {
-            app.audio.playEffect("audio/bomb", 1);
+            App.audio.playEffect("audio/bomb", 1);
         }
     }
 
     playEffect1Loop(evt: EventTouch, data: string) {
-        app.audio.playEffect("audio/click", 1, {
+        App.audio.playEffect("audio/click", 1, {
             loop: true,
             onStart: (clip: AudioClip) => {
                 console.log("onStart playEffect1Loop", clip);
@@ -58,22 +59,22 @@ export class UIAudioMgr extends UIBase {
     }
 
     playOrPauseMusic() {
-        if (app.audio.isPlayingMusic) {
-            app.audio.pauseMusic(true);
+        if (App.audio.isPlayingMusic) {
+            App.audio.pauseMusic(true);
         } else {
-            app.audio.pauseMusic(false);
+            App.audio.pauseMusic(false);
         }
     }
 
     effect1Clip: AudioClip | null = null;
     stopEffect1() {
         if (this.effect1Clip) {
-            app.audio.stopEffect(this.effect1Clip);
+            App.audio.stopEffect(this.effect1Clip);
         }
     }
 
     stopEffect() {
-        app.audio.stopAllEffect();
+        App.audio.stopAllEffect();
     }
 
 

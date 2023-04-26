@@ -1,7 +1,7 @@
 import { _decorator, Component, AudioClip, PolygonCollider2D, Button, EventTouch, Intersection2D, EventHandler } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { app } from "../App";
+import { App } from "../App";
 
 @ccclass('ButtonHelper')
 export class ButtonHelper extends Component {
@@ -11,7 +11,6 @@ export class ButtonHelper extends Component {
     })
     disableDefault = false;
     @property({
-        type: AudioClip,
         displayName: "音效地址",
         tooltip: "当音效不为空时，点击按钮播放指定的音效",
         visible: function () { return (this as any).disableDefault; }
@@ -66,7 +65,7 @@ export class ButtonHelper extends Component {
 
     onClick() {
         if (this.disableDefault && this.audioLocation) {
-            app.audio.playEffect(this.audioLocation);
+            App.audio.playEffect(this.audioLocation);
         }
         if (this.cooldown > 0 && !(this as any).isCooldown)
             (this as any).isCooldown = true;
@@ -84,7 +83,7 @@ export class ButtonHelper extends Component {
             if (!this.interactable || !this.enabledInHierarchy) return;
             if ((this as any)._pressed) {
                 if (!(this as any).disableDefault) {//默认音效是否被禁用
-                    app.audio.playEffect("audioLocation");
+                    App.audio.playEffect("audioLocation");
                 }
                 if (!(this as any).isCooldown) {
                     EventHandler.emitEvents(this.clickEvents, event);

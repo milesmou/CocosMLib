@@ -1,7 +1,8 @@
 
-import { _decorator, Component, Node, Label } from 'cc';
-import { app } from '../../mlib/App';
-import { UIBase } from '../../mlib/ui/UIBase';
+import { Label, _decorator } from 'cc';
+import { App } from '../../../App';
+import { UIBase } from '../../../ui/UIBase';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('UIC')
@@ -16,11 +17,11 @@ export class UIC extends UIBase {
 
     showUI(evt: TouchEvent, data: string) {
         if (data == "A") {
-            app.ui.show(app.uiKey.UIA, { args: "C" });
+            App.ui.show(App.uiKey.UIA, { args: "C" });
         } else if (data == "B") {
-            app.ui.show(app.uiKey.UIB, { args: "C" });
+            App.ui.show(App.uiKey.UIB, { args: "C" });
         } else if (data == "C") {
-            app.ui.show(app.uiKey.UIC, { args: "C" });
+            App.ui.show(App.uiKey.UIC, { args: "C" });
         }
     }
 

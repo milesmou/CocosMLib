@@ -2,7 +2,7 @@ import { EventTouch, find, Label, Node, NodeEventType, Rect, Tween, tween, UITra
 const { ccclass, property } = _decorator;
 
 import { Guide } from "../../script/game/DataEntity";
-import { app } from "../App";
+import { App } from "../App";
 import { UIKey, UIMgr } from "../manager/UIMgr";
 import { UIBase } from "./UIBase";
 
@@ -119,8 +119,8 @@ export class UIGuide extends UIBase {
             let pos = this.transform.convertToNodeSpaceAR(btnTransform.convertToWorldSpaceAR(v3(0, 0)));
             Tween.stopAllByTarget(this.mask);
             Tween.stopAllByTarget(maskTransform);
-            app.ui.blockTime = 10;
-            tween(this.mask).to(0.25, { position: pos }).call(() => { app.ui.blockTime = 0; }).start();
+            App.ui.blockTime = 10;
+            tween(this.mask).to(0.25, { position: pos }).call(() => { App.ui.blockTime = 0; }).start();
             tween(maskTransform).to(0.25, { width: btnTransform.width, height: btnTransform.height }).start();
             btnNode.once("click", () => {
                 this.onClickGuideBtn(index);
@@ -179,7 +179,7 @@ export class UIGuide extends UIBase {
             }
         } else {
             let func = () => {
-                app.event.once(app.eventKey.OnUIShow, (uiData: UIBase) => {
+                App.event.once(App.eventKey.OnUIShow, (uiData: UIBase) => {
                     if (uiData.uiName == (UIKey as any)[guide.UIName]) {
                         if (this.wait) {
                             func();

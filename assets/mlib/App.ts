@@ -54,16 +54,16 @@ export class App extends Component {
     }
 
     start() {
-        app.event = new EventMgr();
-        app.pool = new PoolMgr();
-        app.audio = AudioMgr.Inst;
-        app.ui = UIMgr.Inst;
+        App.event = new EventMgr();
+        App.pool = new PoolMgr();
+        App.audio = AudioMgr.Inst;
+        App.ui = UIMgr.Inst;
 
-        app.config = { channelName: (EChannel as any)[this.platformId], version: this.version };
-        app.lang = this.getLanguage();
-        app.channel = Channel.getPlatformInst(this.platformId);
-        app.safeSize = this.getSafeArea();
-        console.log(`Channel = ${app.config.channelName} Version = ${app.config.version} Language = ${app.lang}`);
+        App.config = { channelName: (EChannel as any)[this.platformId], version: this.version };
+        App.lang = this.getLanguage();
+        App.channel = Channel.getPlatformInst(this.platformId);
+        App.safeSize = this.getSafeArea();
+        console.log(`Channel = ${App.config.channelName} Version = ${App.config.version} Language = ${App.lang}`);
     }
 
     /** 获取语言环境 */
@@ -98,5 +98,3 @@ export class App extends Component {
         return SingletonFactory.getInstance(clazz, onInst);
     }
 }
-
-export const app = App;

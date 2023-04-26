@@ -1,13 +1,12 @@
-import { Asset, Component, game, JsonAsset, Label, ProgressBar, tween, UITransform, v3, _decorator } from 'cc';
+import { Asset, Component, game, Label, ProgressBar, tween, UITransform, v3, _decorator } from 'cc';
 import DataManager from '../../script/game/DataManager';
 import { GameData } from '../../script/game/GameData';
 import { PlayerData } from '../../script/game/PlayerData';
-import { app } from '../App';
+import { App } from '../App';
 import { AssetMgr } from '../manager/AssetMgr';
 const { ccclass, property } = _decorator;
 
 import { HotUpdate, HotUpdateCode } from "../utils/HotUpdate";
-import { Utils } from '../utils/Utils';
 
 @ccclass('Loading')
 export class Loading extends Component {
@@ -74,6 +73,8 @@ export class Loading extends Component {
 
         await AssetMgr.loadAllBundle();
 
+        await App.ui.init();
+
         GameData.Inst.init();
 
         PlayerData.Inst.addGameItem(1, 100, 1000);
@@ -99,7 +100,7 @@ export class Loading extends Component {
                 }
             })
             .call(() => {
-                app.ui.show(app.uiKey.UIHUD).then(() => {
+                App.ui.show(App.uiKey.UIHUD).then(() => {
                     this.node.destroy();
                 })
             })
@@ -136,7 +137,7 @@ export class Loading extends Component {
             // cc.audioEngine.stopAll();
             game.restart();
         } else if (code == HotUpdateCode.Fail) {
-            app.ui.showConfirm(
+            App.ui.showConfirm(
                 "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", 1,
                 () => {
                     // audio.stopAll();
