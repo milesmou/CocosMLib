@@ -7,6 +7,7 @@ import { EventKey, EventMgr } from "./manager/EventMgr";
 import { PoolKey, PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
 import { UIKey, UIMgr } from "./manager/UIMgr";
+import { SingletonFactory } from './utils/SingletonFactory';
 
 export const ELanguage = Enum({
     Auto: 0,
@@ -91,6 +92,10 @@ export class App extends Component {
         safeSize.width = safeArea.width;
         safeSize.height = safeArea.height;
         return safeSize;
+    }
+
+    static getSingleInst<T>(clazz: { new(): T }, onInst?: (t: T) => void) {
+        return SingletonFactory.getInstance(clazz, onInst);
     }
 }
 

@@ -1,5 +1,7 @@
 import { Asset, Component, game, JsonAsset, Label, ProgressBar, tween, UITransform, v3, _decorator } from 'cc';
 import DataManager from '../../script/game/DataManager';
+import { GameData } from '../../script/game/GameData';
+import { PlayerData } from '../../script/game/PlayerData';
 import { app } from '../App';
 import { AssetMgr } from '../manager/AssetMgr';
 const { ccclass, property } = _decorator;
@@ -67,10 +69,15 @@ export class Loading extends Component {
         //加载游戏数据
         this.setTips("Loading Game Data")
 
-       
+
         await DataManager.Inst.initData()
 
         await AssetMgr.loadAllBundle();
+
+        GameData.Inst.init();
+
+        PlayerData.Inst.addGameItem(1, 100, 1000);
+        // PlayerData.Inst.delCost([[1, 100, 1000]]);
         //预加载ui
         // if (cc.sys.isBrowser) {
         //     this.setTips("Loading Game Scene")

@@ -40,7 +40,8 @@ export abstract class LocalStroage {
         }
         let today = Utils.getToday();
         if (today > this.date) {
-            this.resetDailyData();
+            this.onDateChange(this.date, today);
+            this.date = today;
             this.delaySave();
         }
     }
@@ -48,8 +49,8 @@ export abstract class LocalStroage {
     /** 为新玩家设置初始数据 */
     abstract setInitialData(): void;
 
-    /** 重置一些每日需要重置的数据 */
-    abstract resetDailyData(): void;
+    /** 日期发生变化 */
+    abstract onDateChange(lastDate: number, today: number): void;
 
     /** 立即存档 */
     save() {
@@ -69,9 +70,14 @@ export abstract class LocalStroage {
     };
 
     /** 获取存档序列化后的json字符串 */
-    serialize() {
+    getSerializeJsonStr() {
         this.time = Date.now();
         return JSON.stringify(this);
+    }
+
+    /** 从本地缓存读取存档 */
+    public static deserialize<T extends LocalStroage>(inst: T): T {
+        return StroageMgr.deserialize(inst);
     }
 }
 
