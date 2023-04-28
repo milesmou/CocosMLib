@@ -1,5 +1,5 @@
 
-import { resources, Sprite, tween, _decorator } from 'cc';
+import { Sprite, tween, _decorator } from 'cc';
 import { App } from '../../../App';
 import { AssetMgr } from '../../../manager/AssetMgr';
 import { UIBase } from '../../../ui/UIBase';
@@ -37,6 +37,9 @@ export class UITestMain extends UIBase {
 
     onClickGuide() {
         App.ui.show(TestUIConst.UIGuideTest1);
+    }
+    onClickButtonHelper() {
+        App.ui.show(TestUIConst.UIButtonHelper);
     }
 }
 

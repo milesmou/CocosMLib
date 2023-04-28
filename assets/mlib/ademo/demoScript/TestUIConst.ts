@@ -8,4 +8,5 @@ export const TestUIConst = {
     "UITestMain": "testui/UITestMain",
     "UIGuideTest1": "testui/UIGuideTest1",
     "UIGuideTest2": "testui/UIGuideTest2",
+    "UIButtonHelper": "testui/UIButtonHelper",
 }

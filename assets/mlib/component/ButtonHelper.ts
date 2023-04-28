@@ -1,9 +1,10 @@
 import { Button, Component, EventHandler, EventTouch, Intersection2D, PolygonCollider2D, _decorator } from 'cc';
-const { ccclass, property } = _decorator;
+const { ccclass, property, requireComponent } = _decorator;
 
 import { App } from "../App";
 
 @ccclass('ButtonHelper')
+@requireComponent(Button)
 export class ButtonHelper extends Component {
     @property({
         displayName: "禁用默认音效",
@@ -31,17 +32,22 @@ export class ButtonHelper extends Component {
 
     button: Button;
 
+    /** 按钮是在冷却中 */
+    isCooldown = false;
+    /** 触摸点不在多边形范围内 */
+    isOutOfPolygon = false;
+
     onLoad() {
-        this.button = this.getComponent(Button)!;
-        let polygon = this.getComponent(PolygonCollider2D);
-        if (this.button) {
-            (this.button as any)["disableDefault"] = this.disableDefault;
-            this.node.on(Button.EventType.CLICK, this.onClick, this);
-        } else {
+        this.button = this.getComponent(Button);
+        if (!this.button) {
             console.warn(`节点${this.node.name}上没有Button组件`);
+            return;
         }
-        if (this.button && this.polygonButton && polygon) {
-            (this.button as any)["_onTouchBegan"] = function (event: EventTouch) {
+        this.button["_helper"] = this;
+        let polygon = this.getComponent(PolygonCollider2D);
+        this.node.on(Button.EventType.CLICK, this.onClick, this);
+        if (this.polygonButton && polygon) {
+            this.button["_onTouchBegan"] = function (event: EventTouch) {
                 let pos = this.node.convertToNodeSpaceAR(event.getLocation());
                 if (!this.interactable || !this.enabledInHierarchy) return;
                 if (Intersection2D.pointInPolygon(pos, polygon!.points)) {
@@ -64,39 +70,52 @@ export class ButtonHelper extends Component {
     }
 
     onClick() {
-        if (this.disableDefault && this.audioLocation) {
-            App.audio.playEffect(this.audioLocation);
+        if (this.disableDefault) {
+            if (this.audioLocation) App.audio.playEffect(this.audioLocation);
         }
-        if (this.cooldown > 0 && !(this as any).isCooldown)
-            (this as any).isCooldown = true;
+        if (this.cooldown > 0 && this.isCooldown)
+            this.isCooldown = true;
         this.scheduleOnce(() => {
-            (this as any).isCooldown = false;
+            this.isCooldown = false;
         }, this.cooldown);
     }
 
+    /** 默认音效路径 */
+    static defaultAuidoLocation: string = "";
+
     /**
-     * 修改原型，针对所有按钮，不需要将该组件挂在Button节点上同样有效
-     * 为按钮增加播放点击音效，button["disableDefault"]=true时不会播放默认音效
+     * 修改原型，针对所有按钮，扩展按钮功能
      */
-    static enableDefaultEffect() {
-        Button.prototype["_onTouchEnded"] = function (event: EventTouch) {
-            if (!this.interactable || !this.enabledInHierarchy) return;
-            if ((this as any)._pressed) {
-                if (!(this as any).disableDefault) {//默认音效是否被禁用
-                    App.audio.playEffect("audioLocation");
-                }
-                if (!(this as any).isCooldown) {
-                    EventHandler.emitEvents(this.clickEvents, event);
+    static extendButton() {
+        let self: Button;
+        let helper: ButtonHelper;
+        Button.prototype["_onTouchEnded"] = function (event?: EventTouch) {
+            self = this;
+            helper = this["_helper"];
+            if (!self.interactable || !self.enabledInHierarchy) return;
+            if (this["_pressed"]) {
+                if (!helper?.isCooldown) {
+                    if (!helper?.disableDefault && ButtonHelper.defaultAuidoLocation) {//默认音效是否被禁用
+                        App.audio.playEffect(ButtonHelper.defaultAuidoLocation);
+                    }
+                    EventHandler.emitEvents(self.clickEvents, event);
                     this.node.emit('click', this);
                 }
             }
-            (this as any)._pressed = false;
-            (this as any)._updateState();
-            if (!(this as any).outOfPolygon) {//触摸点不在多边形内继续冒泡触摸事件
-                event.propagationStopped = false;
+
+            this["_pressed"] = false;
+            this["_updateState"]();
+
+            if (event) {
+                if (helper?.polygonButton && !helper?.isOutOfPolygon) {//触摸点不在多边形内继续冒泡触摸事件
+                    event.propagationStopped = false;
+                } else {
+                    event.propagationStopped = true;
+                }
             }
+
         }
     }
 }
 
-// ButtonHelper.enableDefaultEffect();
+ButtonHelper.extendButton();
