@@ -2,6 +2,7 @@
 import { _decorator } from 'cc';
 import { App } from '../../../App';
 import { UIBase } from '../../../ui/UIBase';
+import { TestUIConst } from '../TestUIConst';
 
 const { ccclass, property } = _decorator;
 
@@ -18,6 +19,6 @@ export class UIGuideTest1 extends UIBase {
     }
 
     openUIGuideTest2() {
-        App.ui.show(App.uiKey.UIGuideTest2);
+        App.ui.show(TestUIConst.UIGuideTest2);
     }
 }

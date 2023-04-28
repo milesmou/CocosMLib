@@ -50,10 +50,13 @@
       },
       {
         "__id__": 77
+      },
+      {
+        "__id__": 79
       }
     ],
     "_prefab": {
-      "__id__": 79
+      "__id__": 81
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -584,7 +587,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "09da0V/qnJAR7VkSkPxFZ4a",
+    "_componentId": "4958cqrII9PlLJFHUrJtcC1",
     "handler": "onClick",
     "customEventData": ""
   },
@@ -1190,7 +1193,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "09da0V/qnJAR7VkSkPxFZ4a",
+    "_componentId": "4958cqrII9PlLJFHUrJtcC1",
     "handler": "showUI",
     "customEventData": "B"
   },
@@ -1538,7 +1541,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "09da0V/qnJAR7VkSkPxFZ4a",
+    "_componentId": "4958cqrII9PlLJFHUrJtcC1",
     "handler": "showUI",
     "customEventData": "C"
   },
@@ -1727,7 +1730,7 @@
     "fileId": "f902+ufN9DNq//dCy0M6ut"
   },
   {
-    "__type__": "09da0V/qnJAR7VkSkPxFZ4a",
+    "__type__": "cc.Widget",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -1737,14 +1740,51 @@
     "__prefab": {
       "__id__": 78
     },
-    "destroyNode": true,
+    "_alignFlags": 0,
+    "_target": null,
+    "_left": 0,
+    "_right": 0,
+    "_top": 0,
+    "_bottom": 0,
+    "_horizontalCenter": 0,
+    "_verticalCenter": 0,
+    "_isAbsLeft": true,
+    "_isAbsRight": true,
+    "_isAbsTop": true,
+    "_isAbsBottom": true,
+    "_isAbsHorizontalCenter": true,
+    "_isAbsVerticalCenter": true,
+    "_originalWidth": 0,
+    "_originalHeight": 0,
+    "_alignMode": 2,
+    "_lockFlags": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "a5JvnNDHxIN6oYtCYpt8r2"
+  },
+  {
+    "__type__": "4958cqrII9PlLJFHUrJtcC1",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 80
+    },
+    "destroyNode": false,
     "showShade": false,
     "fullScreen": false,
     "autoHide": false,
     "listenVisible": false,
     "blockInputEvent": true,
     "action": 0,
-    "closeBtn": null,
+    "closeBtn": {
+      "__id__": 21
+    },
     "label": {
       "__id__": 34
     },
@@ -1752,7 +1792,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "bf9csyiDdKq5CuaGR3W0N8"
+    "fileId": "1cQ8qC8dlMNr7b6LOH/sNk"
   },
   {
     "__type__": "cc.PrefabInfo",

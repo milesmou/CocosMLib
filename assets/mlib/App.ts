@@ -6,7 +6,7 @@ import { AudioMgr } from "./manager/AudioMgr";
 import { EventKey, EventMgr } from "./manager/EventMgr";
 import { PoolKey, PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
-import { UIKey, UIMgr } from "./manager/UIMgr";
+import { UIMgr } from "./manager/UIMgr";
 import { SingletonFactory } from './utils/SingletonFactory';
 
 export const ELanguage = Enum({
@@ -47,7 +47,6 @@ export class App extends Component {
     public static pool: PoolMgr;
     public static poolKey = PoolKey;
     public static ui: UIMgr;
-    public static uiKey = UIKey;
 
     onLoad() {
         director.addPersistRootNode(this.node);
@@ -92,6 +91,11 @@ export class App extends Component {
         safeSize.width = safeArea.width;
         safeSize.height = safeArea.height;
         return safeSize;
+    }
+
+
+    static init(){
+
     }
 
     static getSingleInst<T>(clazz: { new(): T }, onInst?: (t: T) => void) {

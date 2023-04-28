@@ -65,10 +65,16 @@
       },
       {
         "__id__": 191
+      },
+      {
+        "__id__": 193
+      },
+      {
+        "__id__": 195
       }
     ],
     "_prefab": {
-      "__id__": 193
+      "__id__": 197
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -933,7 +939,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "playMusic",
     "customEventData": "1"
   },
@@ -1281,7 +1287,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "playMusic",
     "customEventData": "2"
   },
@@ -1629,7 +1635,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "stopMusic",
     "customEventData": "1"
   },
@@ -1977,7 +1983,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "stopMusic",
     "customEventData": "2"
   },
@@ -2325,7 +2331,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "stopMusic",
     "customEventData": "3"
   },
@@ -2673,7 +2679,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "playOrPauseMusic",
     "customEventData": ""
   },
@@ -3021,7 +3027,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "playEffect",
     "customEventData": "1"
   },
@@ -3369,7 +3375,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "playEffect",
     "customEventData": "2"
   },
@@ -3717,7 +3723,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "stopEffect",
     "customEventData": ""
   },
@@ -4065,7 +4071,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "playEffect1Loop",
     "customEventData": ""
   },
@@ -4413,7 +4419,7 @@
       "__id__": 1
     },
     "component": "",
-    "_componentId": "9be42LYOvlNf5v02xQ748s5",
+    "_componentId": "e5547iLAqpJi6cHdoNUtaqP",
     "handler": "stopEffect1",
     "customEventData": "1"
   },
@@ -4455,7 +4461,7 @@
     "fileId": "73s/ayVBNKR6TjRwNHMRTf"
   },
   {
-    "__type__": "9be42LYOvlNf5v02xQ748s5",
+    "__type__": "cc.UIOpacity",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -4464,6 +4470,59 @@
     "_enabled": true,
     "__prefab": {
       "__id__": 192
+    },
+    "_opacity": 255,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "3bwNg93nVOuaX+/VRUA5tT"
+  },
+  {
+    "__type__": "cc.Widget",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 194
+    },
+    "_alignFlags": 0,
+    "_target": null,
+    "_left": 0,
+    "_right": 0,
+    "_top": 0,
+    "_bottom": 0,
+    "_horizontalCenter": 0,
+    "_verticalCenter": 0,
+    "_isAbsLeft": true,
+    "_isAbsRight": true,
+    "_isAbsTop": true,
+    "_isAbsBottom": true,
+    "_isAbsHorizontalCenter": true,
+    "_isAbsVerticalCenter": true,
+    "_originalWidth": 0,
+    "_originalHeight": 0,
+    "_alignMode": 2,
+    "_lockFlags": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "4aDd/eYvZPxZ4xz/uDQGsA"
+  },
+  {
+    "__type__": "e5547iLAqpJi6cHdoNUtaqP",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 196
     },
     "destroyNode": false,
     "showShade": false,
@@ -4479,7 +4538,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "57Ezy+/7hDf7j14qlaumSF"
+    "fileId": "a3iguSnURBFpeh6g2AOubc"
   },
   {
     "__type__": "cc.PrefabInfo",

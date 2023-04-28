@@ -1,4 +1,4 @@
-import { _decorator, Component, AudioClip, PolygonCollider2D, Button, EventTouch, Intersection2D, EventHandler } from 'cc';
+import { Button, Component, EventHandler, EventTouch, Intersection2D, PolygonCollider2D, _decorator } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { App } from "../App";
@@ -29,14 +29,14 @@ export class ButtonHelper extends Component {
     })
     polygonButton = false;
 
-    button!: Button;
+    button: Button;
 
     onLoad() {
         this.button = this.getComponent(Button)!;
         let polygon = this.getComponent(PolygonCollider2D);
         if (this.button) {
             (this.button as any)["disableDefault"] = this.disableDefault;
-            this.node.on("click", this.onClick, this);
+            this.node.on(Button.EventType.CLICK, this.onClick, this);
         } else {
             console.warn(`节点${this.node.name}上没有Button组件`);
         }

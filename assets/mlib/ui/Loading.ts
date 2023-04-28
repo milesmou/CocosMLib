@@ -2,6 +2,7 @@ import { Asset, Component, game, Label, ProgressBar, tween, UITransform, v3, _de
 import DataManager from '../../script/game/DataManager';
 import { GameData } from '../../script/game/GameData';
 import { PlayerData } from '../../script/game/PlayerData';
+import { UIConst } from '../../script/gen/UIConst';
 import { App } from '../App';
 import { AssetMgr } from '../manager/AssetMgr';
 const { ccclass, property } = _decorator;
@@ -100,7 +101,7 @@ export class Loading extends Component {
                 }
             })
             .call(() => {
-                App.ui.show(App.uiKey.UIHUD).then(() => {
+                App.ui.show(UIConst.UIHUD).then(() => {
                     this.node.destroy();
                 })
             })

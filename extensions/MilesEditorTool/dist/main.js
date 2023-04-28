@@ -1,15 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.unload = exports.load = exports.methods = void 0;
+const mExec_1 = require("./mExec");
 /**
  * @en Registration method for the main process of Extension
  * @zh 为扩展的主进程的注册方法
  */
 exports.methods = {
-    log() {
-        Editor.Dialog.info("hahaha");
-        console.log("hahaha");
-    }
+    loadExcel: mExec_1.mExec.loadExcel,
+    genConst: mExec_1.mExec.genConst,
 };
 /**
  * @en Hooks triggered after extension loading is complete

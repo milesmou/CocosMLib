@@ -1,12 +1,11 @@
 import { EventTouch, find, Label, Node, NodeEventType, Rect, Tween, tween, UITransform, v3, _decorator } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { Guide } from "../../script/game/DataEntity";
 import { App } from "../App";
 import { UIKey, UIMgr } from "../manager/UIMgr";
 import { UIBase } from "./UIBase";
 
-const guideTestData: Guide[] = [
+const guideTestData:any[] = [
     { ID: 1, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step1", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
     { ID: 2, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step2", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
     { ID: 3, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step3", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
@@ -30,7 +29,7 @@ export class UIGuide extends UIBase {
 
     wait = false;
     guideId: number = 0;
-    guideData: Guide[] = [];
+    guideData: any[] = [];
     cbFinish: Function = null!;
     stepFunc: ((ui: UIBase) => Node)[] = null!;
 

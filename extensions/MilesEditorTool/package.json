@@ -4,24 +4,43 @@
     "name": "miles-editor-tool",
     "contributions": {
         "messages": {
-            "log1": {
-                "public":true,
-                "methods": ["log"]
+            "loadExcel": {
+                "public": true,
+                "methods": [
+                    "loadExcel"
+                ]
+            },
+            "genConst": {
+                "public": true,
+                "methods": [
+                    "genConst"
+                ]
             }
         },
         "menu": [
             {
                 "path": "MTools",
-                "label": "Open Hello World",
+                "label": "导表",
                 "icon": "./static/icon.png",
-                "message": "log1"
+                "message": "loadExcel"
+            },
+            {
+                "path": "MTools",
+                "label": "生成常量",
+                "icon": "./static/icon.png",
+                "message": "genConst"
             }
         ],
-        "shortcuts":[
+        "shortcuts": [
             {
-                "message": "log1",
+                "message": "loadExcel",
                 "win": "ctrl+alt+l",
-                "mac": "cmd+z"
+                "mac": "ctrl+option+l"
+            },
+            {
+                "message": "genConst",
+                "win": "shift+g",
+                "mac": "shift+g"
             }
         ]
     },

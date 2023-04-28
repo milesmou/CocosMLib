@@ -2,6 +2,7 @@
 import { _decorator } from 'cc';
 import { App } from '../../../App';
 import { UIBase } from '../../../ui/UIBase';
+import { TestUIConst } from '../TestUIConst';
 
 const { ccclass, property } = _decorator;
 
@@ -22,16 +23,16 @@ export class UIUIMgr extends UIBase {
     }
 
     onClickShowPopUp() {
-        App.ui.show(App.uiKey.UIPopUp);
+        App.ui.show(TestUIConst.UIPopUp);
     }
 
     showUI(evt: TouchEvent, data: string) {
         if (data == "A") {
-            App.ui.show(App.uiKey.UIA, { args: "UIMgr" });
+            App.ui.show(TestUIConst.UIA, { args: "UIMgr" });
         } else if (data == "B") {
-            App.ui.show(App.uiKey.UIB, { args: "UIMgr" });
+            App.ui.show(TestUIConst.UIB, { args: "UIMgr" });
         } else if (data == "C") {
-            App.ui.show(App.uiKey.UIC, { args: "UIMgr" });
+            App.ui.show(TestUIConst.UIC, { args: "UIMgr" });
         }
     }
 }

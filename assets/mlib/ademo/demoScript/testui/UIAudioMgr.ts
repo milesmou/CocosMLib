@@ -12,17 +12,17 @@ export class UIAudioMgr extends UIBase {
 
     playMusic(evt: EventTouch, data: string) {
         if (data == "1") {
-            App.audio.playMusic("audio/bgm1");
+            App.audio.playMusic("testaudio/bgm1");
         } else {
-            App.audio.playMusic("audio/bgm2", 1, 1);
+            App.audio.playMusic("testaudio/bgm2", 1, 1);
         }
     }
 
     stopMusic(evt: EventTouch, data: string) {
         if (data == "1") {
-            App.audio.stopMusic("audio/bgm1");
+            App.audio.stopMusic("testaudio/bgm1");
         } else if (data == "2") {
-            App.audio.stopMusic("audio/bgm2", 1);
+            App.audio.stopMusic("testaudio/bgm2", 1);
         } else if (data == "3") {
             App.audio.stopMusic();
         }
@@ -30,7 +30,7 @@ export class UIAudioMgr extends UIBase {
 
     playEffect(evt: EventTouch, data: string) {
         if (data == "1") {
-            App.audio.playEffect("audio/click", 1, {
+            App.audio.playEffect("testaudio/click", 1, {
                 loop: false,
                 release: false,
                 onStart: (clip: AudioClip) => {
@@ -41,12 +41,12 @@ export class UIAudioMgr extends UIBase {
                 }
             });
         } else {
-            App.audio.playEffect("audio/bomb", 1);
+            App.audio.playEffect("testaudio/bomb", 1);
         }
     }
 
     playEffect1Loop(evt: EventTouch, data: string) {
-        App.audio.playEffect("audio/click", 1, {
+        App.audio.playEffect("testaudio/click", 1, {
             loop: true,
             onStart: (clip: AudioClip) => {
                 console.log("onStart playEffect1Loop", clip);
