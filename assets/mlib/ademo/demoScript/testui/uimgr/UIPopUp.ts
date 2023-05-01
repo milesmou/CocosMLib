@@ -1,6 +1,6 @@
 
 import { _decorator, Component, Node } from 'cc';
-import { UIBase } from '../../../ui/UIBase';
+import { UIBase } from '../../../../ui/UIBase';
 
 const { ccclass, property } = _decorator;
 

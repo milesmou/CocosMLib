@@ -1,7 +1,7 @@
 
 import { AudioClip, EventTouch, _decorator } from 'cc';
-import { App } from '../../../App';
-import { UIBase } from '../../../ui/UIBase';
+import { App } from '../../../../App';
+import { UIBase } from '../../../../ui/UIBase';
 
 const { ccclass, property } = _decorator;
 
