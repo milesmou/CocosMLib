@@ -32,6 +32,9 @@ export abstract class LocalStroage {
     /** 任务数据存档 */
     public task: TaskItemSO[] = [];
 
+    /** 标记存档 */
+    public flag: { [key: string]: string } = {};
+
     /** 初始化 */
     init() {
         if (this.origin) {
