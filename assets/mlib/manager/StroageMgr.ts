@@ -89,7 +89,7 @@ export abstract class LocalStroage {
  */
 export class StroageMgr {
 
-
+    /** 字典或数组集合的元素的key的后缀 */
     public static readonly CollectionItemSuffix = "_item";
 
     /** 从本地缓存读取存档 */
