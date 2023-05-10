@@ -89,6 +89,9 @@ export abstract class LocalStroage {
  */
 export class StroageMgr {
 
+
+    public static readonly CollectionItemSuffix = "_item";
+
     /** 从本地缓存读取存档 */
     public static deserialize<T extends LocalStroage>(inst: T): T {
         Reflect.defineProperty(inst, "name", { enumerable: false });
@@ -109,7 +112,10 @@ export class StroageMgr {
     /** 将数据写入到本地存档中 */
     public static serialize<T extends LocalStroage>(inst: T) {
         let name = inst.name;
-        let jsonStr = JSON.stringify(inst);
+        let jsonStr = JSON.stringify(inst, function (key, value) {
+            if (key.endsWith(this.CollectionItemSuffix)) return undefined;
+            return value;
+        });
         this.setValue(name, jsonStr);
     }
 
@@ -120,13 +126,13 @@ export class StroageMgr {
                 if (Object.prototype.toString.call(target[key]) === "[object Object]" && Object.prototype.toString.call(source[key]) === "[object Object]") {//对象拷贝
                     if (JSON.stringify(target[key]) === "{}") {//使用空字典存储,完整赋值
                         target[key] = source[key];
-                        if (target[key + "_item"]) this.checkMissProperty(target[key], target[key + "_item"]);
+                        if (target[key + this.CollectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.CollectionItemSuffix]);
                     } else {//递归赋值
                         this.mergeValue(target[key], source[key]);
                     }
                 } else if (Object.prototype.toString.call(target[key]) === "[object Array]" && Object.prototype.toString.call(source[key]) === "[object Array]") {//数组{
                     target[key] = source[key];
-                    if (target[key + "_item"]) this.checkMissProperty(target[key], target[key + "_item"]);
+                    if (target[key + this.CollectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.CollectionItemSuffix]);
                 }
                 else {//直接完整赋值
                     target[key] = source[key];
