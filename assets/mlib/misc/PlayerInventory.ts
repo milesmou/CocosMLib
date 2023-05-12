@@ -170,7 +170,7 @@ export class PlayerInventory {
 
             //生成新的背包物品
             if (remain > 0) {
-                var num1 = remain / stackLimit;
+                var num1 = Math.floor(remain / stackLimit);
                 for (let i = 0; i < num1; i++) {
                     var inventoryItemSo = this.genInventoryItemSO(type, itemId);
                     inventoryItemSo.amount = stackLimit;
