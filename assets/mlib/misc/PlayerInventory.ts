@@ -39,7 +39,7 @@ export class PlayerInventory {
 
 
     /** 获取奖励，添加到背包 */
-    public getReward(reawrds: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true) {
+    public getReward(reawrds: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, ...args: any[]) {
         if (reawrds.length == 0) return
         let items: number[][];
         if (Array.isArray(reawrds) && Array.isArray(reawrds[0])) items = reawrds as any;
@@ -48,7 +48,7 @@ export class PlayerInventory {
         if (items.length > 0) {
             for (const item of items) {
                 this.addGameItem(item[0], item[1], item[2] * multiple);
-                this.onGetRewardItem(item[0], item[1], item[2] * multiple, showTips, showTipsNow);
+                this.onGetRewardItem(item[0], item[1], item[2] * multiple, showTips, showTipsNow, ...args);
             }
             this.saveInventory();
         }
@@ -60,13 +60,13 @@ export class PlayerInventory {
     }
 
     /**可重写 重写该方法处理获取奖励的提示信息 */
-    protected onGetRewardItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true) {
+    protected onGetRewardItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, ...args: any[]) {
 
     }
 
 
     /** 消耗背包中的物品 */
-    public delCost(costs: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true) {
+    public delCost(costs: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, ...args: any[]) {
         if (costs.length == 0) return;
         let items: number[][];
         if (Array.isArray(costs) && Array.isArray(costs[0])) items = costs as any;
@@ -75,7 +75,7 @@ export class PlayerInventory {
             let type = item[0];
             let id = item[1];
             let num = item[2];
-            this.onDelCostItem(type, id, num, showTips, showTipsNow);
+            this.onDelCostItem(type, id, num, showTips, showTipsNow, ...args);
             let itemSO = this.getCacheItemSO(type, id);
             if (itemSO) {
                 this.delGameItem(itemSO, num);
@@ -101,7 +101,7 @@ export class PlayerInventory {
 
 
     /**可重写 重写该方法处理获消耗物品的提示信息 */
-    protected onDelCostItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true) {
+    protected onDelCostItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, ...args: any[]) {
     }
 
     /** 背包物品是否足够 */
