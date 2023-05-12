@@ -31,7 +31,7 @@ export class PlayerInventory {
     private _mergeInventoryItem: boolean;
 
     /** 初始化玩家背包 */
-    protected init(localStroage: LocalStroage, onInventoryChange?: () => void, mergeInventoryItem = true) {
+    protected init(localStroage: LocalStroage, onInventoryChange?: () => void, mergeInventoryItem = false) {
         this._localStroage = localStroage;
         this._onInventoryChange = onInventoryChange;
         this._mergeInventoryItem = mergeInventoryItem;
@@ -39,7 +39,7 @@ export class PlayerInventory {
 
 
     /** 获取奖励，添加到背包 */
-    public getReward(reawrds: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, ...args: any[]) {
+    public getReward(reawrds: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, args?: { [key: string]: any }) {
         if (reawrds.length == 0) return
         let items: number[][];
         if (Array.isArray(reawrds) && Array.isArray(reawrds[0])) items = reawrds as any;
@@ -48,7 +48,7 @@ export class PlayerInventory {
         if (items.length > 0) {
             for (const item of items) {
                 this.addGameItem(item[0], item[1], item[2] * multiple);
-                this.onGetRewardItem(item[0], item[1], item[2] * multiple, showTips, showTipsNow, ...args);
+                this.onGetRewardItem(item[0], item[1], item[2] * multiple, showTips, showTipsNow, args);
             }
             this.saveInventory();
         }
@@ -60,13 +60,13 @@ export class PlayerInventory {
     }
 
     /**可重写 重写该方法处理获取奖励的提示信息 */
-    protected onGetRewardItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, ...args: any[]) {
+    protected onGetRewardItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, args?: { [key: string]: any }) {
 
     }
 
 
     /** 消耗背包中的物品 */
-    public delCost(costs: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, ...args: any[]) {
+    public delCost(costs: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, args?: { [key: string]: any }) {
         if (costs.length == 0) return;
         let items: number[][];
         if (Array.isArray(costs) && Array.isArray(costs[0])) items = costs as any;
@@ -75,7 +75,7 @@ export class PlayerInventory {
             let type = item[0];
             let id = item[1];
             let num = item[2];
-            this.onDelCostItem(type, id, num, showTips, showTipsNow, ...args);
+            this.onDelCostItem(type, id, num, showTips, showTipsNow, args);
             let itemSO = this.getCacheItemSO(type, id);
             if (itemSO) {
                 this.delGameItem(itemSO, num);
@@ -101,11 +101,11 @@ export class PlayerInventory {
 
 
     /**可重写 重写该方法处理获消耗物品的提示信息 */
-    protected onDelCostItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, ...args: any[]) {
+    protected onDelCostItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, args?: { [key: string]: any }) {
     }
 
     /** 背包物品是否足够 */
-    public isCostEnough(costs: string | string[] | number[][], multiple = 1) {
+    public isCostEnough(costs: string | string[] | number[][], multiple = 1, args?: { [key: string]: any }) {
         if (costs.length == 0) return true;
         let cost: number[][];
         if (Array.isArray(costs) && Array.isArray(costs[0])) cost = costs as any;
@@ -113,10 +113,16 @@ export class PlayerInventory {
         for (let i = 0; i < cost.length; i++) {
             var arr = cost[i];
             if (arr.length == 3) {
-                var ownNum = this.getItemAmount(arr[0], arr[1]);
-                if (ownNum < arr[1] * multiple) return false;
+                if (!this.onSingleCostEnough(arr[0], arr[1], arr[2], multiple, args)) return false;
             }
         }
+        return true;
+    }
+
+    /**可重写 检查单个物品数量是否足够 */
+    protected onSingleCostEnough(type: number, itemId: number, needNum: number, multiple = 1, args?: { [key: string]: any }) {
+        var ownNum = this.getItemAmount(type, itemId);
+        if (ownNum < needNum * multiple) return false;
         return true;
     }
 
