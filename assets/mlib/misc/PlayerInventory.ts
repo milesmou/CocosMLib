@@ -326,10 +326,13 @@ export class ParseItemTool {
         let result = [1, 0, 0];
         let arr = str.trim().split(",").filter(v => v != "");
         if (arr.length >= 2) {
-            let start = 0;
-            if (arr.length == 2) start = 1;
+            let start = 0, di = 0;
+            if (arr.length == 2) {
+                start = 1;
+                di = -1
+            }
             for (let i = start; i < 3; i++) {
-                let v = parseFloat(arr[i]);
+                let v = parseFloat(arr[i + di]);
                 if (!isNaN(v)) result[i] = v;
                 else console.error("请检查物品配置:", str);
             }
