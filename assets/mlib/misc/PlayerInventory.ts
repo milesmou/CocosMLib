@@ -46,7 +46,8 @@ export class PlayerInventory {
         else items = ParseItemTool.parseGameItem(reawrds as any);
         items = this.postParseRewards(items);
         if (items.length > 0) {
-            for (const item of items) {
+            for (let item of items) {
+                item = this.postParseSingleItem(item, args);
                 this.addGameItem(item[0], item[1], item[2] * multiple);
                 this.onGetRewardItem(item[0], item[1], item[2] * multiple, showTips, showTipsNow, args);
             }
@@ -59,11 +60,15 @@ export class PlayerInventory {
         return reawrds;
     }
 
+    /**可重写 最后解析物品，在获得奖励、计算数量是否足够、消耗物品时会调用 */
+    protected postParseSingleItem(reawrds: number[], args?: string) {
+        return reawrds;
+    }
+
     /**可重写 重写该方法处理获取奖励的提示信息 */
     protected onGetRewardItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, args?: string) {
 
     }
-
 
     /** 消耗背包中的物品 */
     public delCost(costs: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, args?: string) {
@@ -72,7 +77,7 @@ export class PlayerInventory {
         if (Array.isArray(costs) && Array.isArray(costs[0])) items = costs as any;
         else items = ParseItemTool.parseGameItem(costs as any);
         for (let item of items) {
-            item = this.postParseSingleCost(item, args);
+            item = this.postParseSingleItem(item, args);
             let type = item[0];
             let id = item[1];
             let num = item[2] * multiple;
@@ -100,12 +105,6 @@ export class PlayerInventory {
         this.saveInventory();
     }
 
-    /**可重写 解析消耗的物品 部分可能需要特殊处理 */
-    protected postParseSingleCost(cost: number[], args?: string) {
-        return cost;
-    }
-
-
     /**可重写 重写该方法处理获消耗物品的提示信息 */
     protected onDelCostItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, args?: string) {
     }
@@ -119,16 +118,11 @@ export class PlayerInventory {
         for (let i = 0; i < cost.length; i++) {
             var arr = cost[i];
             if (arr.length == 3) {
-                if (!this.onSingleCostEnough(arr[0], arr[1], arr[2], multiple, args)) return false;
+                arr = this.postParseSingleItem(arr, args);
+                var ownNum = this.getItemAmount(arr[0], arr[1]);
+                if (ownNum < arr[2] * multiple) return false;
             }
         }
-        return true;
-    }
-
-    /**可重写 检查单个物品数量是否足够 */
-    protected onSingleCostEnough(type: number, itemId: number, needNum: number, multiple = 1, args?: string) {
-        var ownNum = this.getItemAmount(type, itemId);
-        if (ownNum < needNum * multiple) return false;
         return true;
     }
 
