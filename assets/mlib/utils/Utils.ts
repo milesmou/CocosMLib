@@ -1,57 +1,8 @@
-import { Node, Widget } from "cc";
 
 /**
  * 常用的一些方法工具类
  */
 export class Utils {
-
-
-    // /** 将node1本地坐标系的位置转化为node2本地坐标下的位置 */
-    // static NodePosToNodeAxisPos(node1: cc.Node, node2: cc.Node, vec?: cc.Vec3) {
-    //     if (!vec) {
-    //         vec = cc.v3(0, 0);
-    //     }
-    //     let worldPos = node1.convertToWorldSpaceAR(vec);
-    //     return node2.convertToNodeSpaceAR(worldPos);
-    // }
-
-    // /** Scrollview左右翻页  turnType -1:上一页 1:下一页*/
-    // static ScrollViewTurnPage(scrollView: cc.ScrollView, turnType: -1 | 1, dur = 0.15) {
-    //     let currentOffset = scrollView.getScrollOffset();
-    //     let maxOffset = scrollView.getMaxScrollOffset();
-    //     let x = 0;
-    //     if (turnType == -1) {
-    //         x = misc.clampf(currentOffset.x + scrollView.node.width, - maxOffset.x, 0);
-    //     } else {
-    //         x = misc.clampf(currentOffset.x - scrollView.node.width, - maxOffset.x, 0);
-    //     }
-    //     scrollView.scrollToOffset(cc.v2(-x, currentOffset.y), dur);
-    // }
-
-    // static GetNodePath(node: Node) {
-    //     let arr = [];
-    //     arr.push(node.name);
-    //     while (node.parent) {
-    //         node = node.parent;
-    //         arr.push(node.name);
-    //     }
-    //     return arr.reverse().join("/");
-    // }
-
-    static uiNodeMatchParent(node: Node) {
-        let widget = node.getComponent(Widget);
-        if (!widget) {
-            widget = node.addComponent(Widget);
-        }
-        widget.isAlignTop = true;
-        widget.top = 0;
-        widget.isAlignBottom = true;
-        widget.bottom = 0;
-        widget.isAlignLeft = true;
-        widget.left = 0;
-        widget.isAlignRight = true;
-        widget.right = 0;
-    }
 
     /**
      * 返回今天的日期,格式20200101
@@ -242,7 +193,59 @@ export class Utils {
         return str;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="list">集合</param>
+    /// <param name="weight">获取item权重</param>
+    /// <param name="num">返回item数量委托</param>
+    /// <param name="compare">若需要不重复item,则传入比较两个元素的委托</param>
+    /**
+     * 从带权重的集合中随机获取指定数量的元素
+     * @param list 集合
+     * @param weight 获取item权重的方法
+     * @param num 返回item数量
+     * @param canRepeat item是否可以重复
+     * @returns 
+     */
+    public static randomValueByWeight<T>(list: T[], weight: (item: T) => number, num: number, canRepeat = false) {
+        let result: T[] = [];
+        if (!list || list.length == 0) return result;
+        if (list.length < num) console.warn("需要返回的item数量大于集合长度");
 
+        let count: number = Math.min(list.length, num);
+        let totalWeight = 0;
+
+        for (const item of list) {
+            totalWeight += weight(item);
+        }
+
+        while (result.length < count) {
+            let randomV = Math.floor(Math.random() * totalWeight);;
+            let tmpWeight = 0;
+
+            for (const item of list) {
+                {
+                    let w = weight(item);
+                    if (randomV >= tmpWeight && randomV < tmpWeight + w) {
+                        if (!canRepeat) //检查是否重复元素
+                        {
+                            var index = result.indexOf(item);
+                            if (index == -1) result.push(item);
+                            else break;
+                        }
+                        else {
+                            result.push(item);
+                        }
+                    }
+
+                    tmpWeight += w;
+                }
+            }
+
+            return result;
+        }
+    }
     /**
      * 格式化字符串,用args的内容替换str中的{i},i从0开始
      */

@@ -6,7 +6,8 @@ import { AudioMgr } from "./manager/AudioMgr";
 import { EventKey, EventMgr } from "./manager/EventMgr";
 import { PoolKey, PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
-import { UIKey, UIMgr } from "./manager/UIMgr";
+import { UIMgr } from "./manager/UIMgr";
+import { SingletonFactory } from './utils/SingletonFactory';
 
 export const ELanguage = Enum({
     Auto: 0,
@@ -46,23 +47,22 @@ export class App extends Component {
     public static pool: PoolMgr;
     public static poolKey = PoolKey;
     public static ui: UIMgr;
-    public static uiKey = UIKey;
 
     onLoad() {
         director.addPersistRootNode(this.node);
     }
 
     start() {
-        app.event = new EventMgr();
-        app.pool = new PoolMgr();
-        app.audio = AudioMgr.Inst;
-        app.ui = UIMgr.Inst;
+        App.event = new EventMgr();
+        App.pool = new PoolMgr();
+        App.audio = AudioMgr.Inst;
+        App.ui = UIMgr.Inst;
 
-        app.config = { channelName: (EChannel as any)[this.platformId], version: this.version };
-        app.lang = this.getLanguage();
-        app.channel = Channel.getPlatformInst(this.platformId);
-        app.safeSize = this.getSafeArea();
-        console.log(`Channel = ${app.config.channelName} Version = ${app.config.version} Language = ${app.lang}`);
+        App.config = { channelName: (EChannel as any)[this.platformId], version: this.version };
+        App.lang = this.getLanguage();
+        App.channel = Channel.getPlatformInst(this.platformId);
+        App.safeSize = this.getSafeArea();
+        console.log(`Channel = ${App.config.channelName} Version = ${App.config.version} Language = ${App.lang}`);
     }
 
     /** 获取语言环境 */
@@ -92,6 +92,13 @@ export class App extends Component {
         safeSize.height = safeArea.height;
         return safeSize;
     }
-}
 
-export const app = App;
+
+    static init(){
+
+    }
+
+    static getSingleInst<T>(clazz: { new(): T }, onInst?: (t: T) => void) {
+        return SingletonFactory.getInstance(clazz, onInst);
+    }
+}

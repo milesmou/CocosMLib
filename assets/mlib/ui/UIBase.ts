@@ -1,10 +1,9 @@
-import { Animation, BlockInputEvents, Button, color, Enum, Layers, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
+import { Animation, BlockInputEvents, Button, color, Enum, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
 const { property, ccclass, requireComponent } = _decorator;
 
-import { app } from "../App";
+import { App } from "../App";
 import { AssetMgr } from '../manager/AssetMgr';
 import { CCUtils } from '../utils/CCUtil';
-import { Utils } from '../utils/Utils';
 import { AssetHandler } from './AssetHandler';
 const EUIAnim = Enum({
     NONE: 0,
@@ -83,7 +82,7 @@ export class UIBase extends AssetHandler {
         this.transform = this.getComponent(UITransform);
         this.uiOpacity = this.getComponent(UIOpacity);
 
-        Utils.uiNodeMatchParent(this.node);
+        CCUtils.uiNodeMatchParent(this.node);
 
         if (this.showShade) this.initShade();
         if (this.autoHide) this.enableAutoHide();
@@ -100,9 +99,9 @@ export class UIBase extends AssetHandler {
         } else {
             let n = new Node("shade");
             n.addComponent(UITransform);
-            Utils.uiNodeMatchParent(n);
+            CCUtils.uiNodeMatchParent(n);
             let sp = n.addComponent(Sprite);
-            sp.spriteFrame = app.ui.whiteSplash;
+            sp.spriteFrame = App.ui.whiteSplash;
             sp.color = color(0, 0, 0, 150);
             this.shadeOpacity = n.addComponent(UIOpacity);
             n.layer = this.node.layer;
@@ -127,20 +126,20 @@ export class UIBase extends AssetHandler {
 
     /* 被全屏UI挡住时 隐藏界面 降低dc */
     private enableAutoHide() {
-        app.event.on(app.eventKey.OnUIShow, (ui: UIBase) => {
+        App.event.on(App.eventKey.OnUIShow, (ui: UIBase) => {
             if (this?.isValid) {
-                if (ui != this && ui.fullScreen && app.ui.isUIBeCover(this) && app.ui.isUIInStack(this)) this.setVisible(false);
+                if (ui != this && ui.fullScreen && App.ui.isUIBeCover(this) && App.ui.isUIInStack(this)) this.setVisible(false);
             }
             else {
-                app.event.offByTag(app.eventKey.OnUIHideBegin, this.uiName);
+                App.event.offByTag(App.eventKey.OnUIHideBegin, this.uiName);
             }
         }, null, this.uiName);
-        app.event.on(app.eventKey.OnUIHideBegin, (ui: UIBase) => {
+        App.event.on(App.eventKey.OnUIHideBegin, (ui: UIBase) => {
             if (this?.isValid) {
-                if (!app.ui.isUIBeCover(this) && app.ui.isUIInStack(this)) this.setVisible(true);
+                if (!App.ui.isUIBeCover(this) && App.ui.isUIInStack(this)) this.setVisible(true);
             }
             else {
-                app.event.offByTag(app.eventKey.OnUIHideBegin, this.uiName);
+                App.event.offByTag(App.eventKey.OnUIHideBegin, this.uiName);
             }
         }, null, this.uiName);
     }
@@ -148,49 +147,49 @@ export class UIBase extends AssetHandler {
     /* 监听因其它界面的打开关闭而影响界面的显隐情况 */
     private enableListenVisible() {
         //监听显示
-        app.event.on(app.eventKey.OnUIHideBegin, (ui: UIBase) => {
+        App.event.on(App.eventKey.OnUIHideBegin, (ui: UIBase) => {
             if (this) {
-                if (app.ui.isTopUI(this.uiName) && ui.fullScreen) {
+                if (App.ui.isTopUI(this.uiName) && ui.fullScreen) {
                     this.onShowBegin();
                     this._isAnimEnd = false;
                 }
             }
             else {
-                app.event.offByTag(app.eventKey.OnUIHideBegin, this.uiName);
+                App.event.offByTag(App.eventKey.OnUIHideBegin, this.uiName);
             }
         }, null, this.uiName);
-        app.event.on(app.eventKey.OnUIHide, (ui: UIBase) => {
+        App.event.on(App.eventKey.OnUIHide, (ui: UIBase) => {
             if (this) {
-                if (app.ui.isTopUI(this.uiName) && ui.fullScreen) {
+                if (App.ui.isTopUI(this.uiName) && ui.fullScreen) {
                     this.onShow();
                     this._isAnimEnd = true;
                 }
             }
             else {
-                app.event.offByTag(app.eventKey.OnUIHide, this.uiName);
+                App.event.offByTag(App.eventKey.OnUIHide, this.uiName);
             }
         }, null, this.uiName);
         //监听隐藏
-        app.event.on(app.eventKey.OnUIShowBegin, (ui: UIBase) => {
+        App.event.on(App.eventKey.OnUIShowBegin, (ui: UIBase) => {
             if (this) {
-                if (app.ui.getUIIndex(this.uiName) == 1 && ui.fullScreen) {
+                if (App.ui.getUIIndex(this.uiName) == 1 && ui.fullScreen) {
                     this.onHideBegin();
                     this._isAnimEnd = false;
                 }
             }
             else {
-                app.event.offByTag(app.eventKey.OnUIShowBegin, this.uiName);
+                App.event.offByTag(App.eventKey.OnUIShowBegin, this.uiName);
             }
         }, null, this.uiName);
-        app.event.on(app.eventKey.OnUIShow, (ui: UIBase) => {
+        App.event.on(App.eventKey.OnUIShow, (ui: UIBase) => {
             if (this) {
-                if (app.ui.getUIIndex(this.uiName) == 1 && ui.fullScreen) {
+                if (App.ui.getUIIndex(this.uiName) == 1 && ui.fullScreen) {
                     this.onHide();
                     this._isAnimEnd = true;
                 }
             }
             else {
-                app.event.offByTag(app.eventKey.OnUIShow, this.uiName);
+                App.event.offByTag(App.eventKey.OnUIShow, this.uiName);
             }
         }, null, this.uiName);
     }
@@ -204,7 +203,7 @@ export class UIBase extends AssetHandler {
             if (Boolean(this.action & EUIAnim.OPEN)) {
                 if (this.animation) {//播放指定动画
                     let clip = this.animation.clips[0];
-                    app.ui.blockTime = clip.duration + 0.1;
+                    App.ui.blockTime = clip.duration + 0.1;
                     if (clip) {
                         this.animation.stop();
                         this.animation.once("finished" as any, callback);
@@ -258,7 +257,7 @@ export class UIBase extends AssetHandler {
 
     /** 关闭UI时调用此方法 */
     safeClose() {
-        app.ui.hide(this.uiName);
+        App.ui.hide(this.uiName);
     }
 
     /** UI准备打开时触发 (UI打开动画播放前) */

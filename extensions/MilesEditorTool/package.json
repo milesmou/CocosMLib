@@ -1,0 +1,59 @@
+{
+    "package_version": 2,
+    "version": "1.0.0",
+    "name": "miles-editor-tool",
+    "contributions": {
+        "messages": {
+            "loadExcel": {
+                "public": true,
+                "methods": [
+                    "loadExcel"
+                ]
+            },
+            "genConst": {
+                "public": true,
+                "methods": [
+                    "genConst"
+                ]
+            }
+        },
+        "menu": [
+            {
+                "path": "MTools",
+                "label": "导表",
+                "icon": "./static/icon.png",
+                "message": "loadExcel"
+            },
+            {
+                "path": "MTools",
+                "label": "生成常量",
+                "icon": "./static/icon.png",
+                "message": "genConst"
+            }
+        ],
+        "shortcuts": [
+            {
+                "message": "loadExcel",
+                "win": "ctrl+alt+l",
+                "mac": "ctrl+option+l"
+            },
+            {
+                "message": "genConst",
+                "win": "shift+g",
+                "mac": "shift+g"
+            }
+        ]
+    },
+    "description": "miles的一些编辑器扩展",
+    "main": "./dist/main.js",
+    "devDependencies": {
+        "@types/node": "^16.0.1",
+        "typescript": "^4.3.4"
+    },
+    "author": "Miles",
+    "editor": ">=3.6.3",
+    "scripts": {
+        "build": "tsc -b",
+        "watch": "tsc -w"
+    }
+}

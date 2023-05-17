@@ -1,7 +1,7 @@
-import { Asset, Component, instantiate, Node, Prefab, Sprite, SpriteFrame, _decorator } from 'cc';
+import { Component, instantiate, Node, Prefab, SpriteFrame, _decorator } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { app } from "../App";
+import { App } from "../App";
 import { UIBase } from "../ui/UIBase";
 import { UIGuide } from "../ui/UIGuide";
 import { UITipMsg } from "../ui/UITipMsg";
@@ -54,7 +54,6 @@ export class UIMgr extends Component {
 
     onLoad() {
         UIMgr.Inst = this;
-        this.init();
     }
 
     start() {
@@ -76,7 +75,7 @@ export class UIMgr extends Component {
         this.checkShowUI(uiName);
         this.blockTime = blockTime;
         Utils.delItemFromArray(this.uiList, uiName);
-        app.event.emit(app.eventKey.OnUIInitBegin, uiName);
+        App.event.emit(App.eventKey.OnUIInitBegin, uiName);
         this.uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this.normal, visible);
         Utils.delItemFromArray(this.uiStack, ui);
@@ -89,10 +88,10 @@ export class UIMgr extends Component {
         else ui.node.setSiblingIndex(0);
         if (visible) {
             ui.onShowBegin();
-            app.event.emit(app.eventKey.OnUIShowBegin, ui);
+            App.event.emit(App.eventKey.OnUIShowBegin, ui);
             await ui.playShowAnim();
             ui.onShow();
-            app.event.emit(app.eventKey.OnUIShow, ui);
+            App.event.emit(App.eventKey.OnUIShow, ui);
         }
         return ui as T;
     }
@@ -117,15 +116,15 @@ export class UIMgr extends Component {
             Utils.delItemFromArray(this.uiStack, ui);
             if (index == this.uiStack.length) {
                 ui.onHideBegin();
-                app.event.emit(app.eventKey.OnUIHideBegin, ui);
+                App.event.emit(App.eventKey.OnUIHideBegin, ui);
                 if (fastHide) {
                     ui.onHide();
-                    app.event.emit(app.eventKey.OnUIHide, ui);
+                    App.event.emit(App.eventKey.OnUIHide, ui);
                     hideUI();
                 } else {
                     await ui.playHideAnim();
                     ui.onHide();
-                    app.event.emit(app.eventKey.OnUIHide, ui);
+                    App.event.emit(App.eventKey.OnUIHide, ui);
                     hideUI();
                 }
             }
@@ -143,7 +142,7 @@ export class UIMgr extends Component {
         let ui = await this.initUI(uiName, this.higher);
         ui.setArgs(args);
         ui.node.setSiblingIndex(999999);
-        app.event.emit(app.eventKey.OnUIShow, ui);
+        App.event.emit(App.eventKey.OnUIShow, ui);
         return ui;
     }
 
@@ -155,7 +154,7 @@ export class UIMgr extends Component {
             this.uiDict.delete(uiName);
         }
         else ui.node.active = false;
-        app.event.emit(app.eventKey.OnUIHide, ui);
+        App.event.emit(App.eventKey.OnUIHide, ui);
     }
 
     public showResident(uiName: string) {
@@ -275,35 +274,10 @@ export class UIMgr extends Component {
         this.blockInput.active = this._blockTime > 0;
     }
 
-    //#region UI资源加载
-
-    static async loadAsset<T extends Asset>(uiName: string, location: string, type?: new (...args: any[]) => T) {
-        return await this.Inst.getUI(uiName).loadAsset<T>(location, type);
-    }
-
-    static async loadRemoteAsset<T extends Asset>(uiName: string, url: string): Promise<T> {
-        return await this.Inst.getUI(uiName).loadRemoteAsset<T>(url);
-    }
-
-    static async loadSpriteFrame(uiName: string, location: string) {
-        return await this.Inst.getUI(uiName).loadSpriteFrame(location);
-    }
-
-    static async loadRemoteSpriteFrame(uiName: string, url: string) {
-        return await this.Inst.getUI(uiName).loadRemoteSpriteFrame(url);
-    }
-
-    static async loadSprite(uiName: string, sprite: Sprite, location: string) {
-        return await this.Inst.getUI(uiName).loadSprite(sprite, location);
-    }
-
-    //#endregion
-
     //#region UITipMsg方法
 
     showTip(content: string) {
         this.tipMsg && this.tipMsg.showTip(content);
-        AssetMgr
     }
 
     showToast(content: string) {

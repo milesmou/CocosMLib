@@ -1,7 +1,7 @@
 import { _decorator, Component, Label, RichText, Sprite, Font } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { app } from "../App";
+import { App } from "../App";
 import { Utils } from "../utils/Utils";
 
 @ccclass("LanguageText")
@@ -100,9 +100,9 @@ export class Language extends Component {
             let comp = comps[i];
             if (comp instanceof Label || comp instanceof RichText) {
                 if (this.useMultipleFont) {
-                    comp.font = (this.font as any)[app.lang];
+                    comp.font = (this.font as any)[App.lang];
                 }
-                let context = (this.text as any)[app.lang];
+                let context = (this.text as any)[App.lang];
                 if (this.args) {
                     context = Utils.formatString(context, ...this.args);
                 }
@@ -132,7 +132,7 @@ export class Language extends Component {
     }
 
     static setSpriteFrameByName(sprite: Sprite, name: string) {
-        Utils.loadSprite(sprite, `language/${app.lang}/${name}`)
+        // Utils.loadSprite(sprite, `language/${app.lang}/${name}`)
     }
 
     static getStringByID(ID: number, ...args: any[]): string {
@@ -140,11 +140,11 @@ export class Language extends Component {
             console.warn(`未初始化语言表`);
             return "";
         };
-        if (!this.dict[ID] || !this.dict[ID][app.lang]) {
-            console.warn(`ID=${ID} Lang=${app.lang}  在语言表中无对应内容`);
+        if (!this.dict[ID] || !this.dict[ID][App.lang]) {
+            console.warn(`ID=${ID} Lang=${App.lang}  在语言表中无对应内容`);
             return "";
         }
-        return Utils.formatString(this.dict[ID][app.lang], ...args);
+        return Utils.formatString(this.dict[ID][App.lang], ...args);
     }
 }
 

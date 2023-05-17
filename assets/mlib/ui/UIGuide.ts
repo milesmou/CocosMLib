@@ -1,12 +1,11 @@
 import { EventTouch, find, Label, Node, NodeEventType, Rect, Tween, tween, UITransform, v3, _decorator } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { Guide } from "../../script/game/DataEntity";
-import { app } from "../App";
+import { App } from "../App";
 import { UIKey, UIMgr } from "../manager/UIMgr";
 import { UIBase } from "./UIBase";
 
-const guideTestData: Guide[] = [
+const guideTestData:any[] = [
     { ID: 1, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step1", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
     { ID: 2, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step2", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
     { ID: 3, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step3", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
@@ -30,7 +29,7 @@ export class UIGuide extends UIBase {
 
     wait = false;
     guideId: number = 0;
-    guideData: Guide[] = [];
+    guideData: any[] = [];
     cbFinish: Function = null!;
     stepFunc: ((ui: UIBase) => Node)[] = null!;
 
@@ -119,8 +118,8 @@ export class UIGuide extends UIBase {
             let pos = this.transform.convertToNodeSpaceAR(btnTransform.convertToWorldSpaceAR(v3(0, 0)));
             Tween.stopAllByTarget(this.mask);
             Tween.stopAllByTarget(maskTransform);
-            this.block.active = true;
-            tween(this.mask).to(0.25, { position: pos }).call(() => { this.block.active = false; }).start();
+            App.ui.blockTime = 10;
+            tween(this.mask).to(0.25, { position: pos }).call(() => { App.ui.blockTime = 0; }).start();
             tween(maskTransform).to(0.25, { width: btnTransform.width, height: btnTransform.height }).start();
             btnNode.once("click", () => {
                 this.onClickGuideBtn(index);
@@ -179,7 +178,7 @@ export class UIGuide extends UIBase {
             }
         } else {
             let func = () => {
-                app.event.once(app.eventKey.OnUIShow, (uiData: UIBase) => {
+                App.event.once(App.eventKey.OnUIShow, (uiData: UIBase) => {
                     if (uiData.uiName == (UIKey as any)[guide.UIName]) {
                         if (this.wait) {
                             func();

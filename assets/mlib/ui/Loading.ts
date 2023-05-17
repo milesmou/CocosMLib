@@ -1,10 +1,13 @@
-import { Asset, Component, game, JsonAsset, Label, ProgressBar, tween, UITransform, v3, _decorator } from 'cc';
+import { Asset, Component, game, Label, ProgressBar, tween, UITransform, v3, _decorator } from 'cc';
 import DataManager from '../../script/game/DataManager';
-import { app } from '../App';
+import { GameData } from '../../script/game/GameData';
+import { PlayerData } from '../../script/game/PlayerData';
+import { UIConst } from '../../script/gen/UIConst';
+import { App } from '../App';
+import { AssetMgr } from '../manager/AssetMgr';
 const { ccclass, property } = _decorator;
 
 import { HotUpdate, HotUpdateCode } from "../utils/HotUpdate";
-import { Utils } from '../utils/Utils';
 
 @ccclass('Loading')
 export class Loading extends Component {
@@ -66,8 +69,17 @@ export class Loading extends Component {
         //加载游戏数据
         this.setTips("Loading Game Data")
 
-       
+
         await DataManager.Inst.initData()
+
+        await AssetMgr.loadAllBundle();
+
+        await App.ui.init();
+
+        GameData.Inst.init();
+
+        PlayerData.Inst.addGameItem(1, 100, 1000);
+        // PlayerData.Inst.delCost([[1, 100, 1000]]);
         //预加载ui
         // if (cc.sys.isBrowser) {
         //     this.setTips("Loading Game Scene")
@@ -89,7 +101,7 @@ export class Loading extends Component {
                 }
             })
             .call(() => {
-                app.ui.show(app.uiKey.UIHUD).then(() => {
+                App.ui.show(UIConst.UIHUD).then(() => {
                     this.node.destroy();
                 })
             })
@@ -126,7 +138,7 @@ export class Loading extends Component {
             // cc.audioEngine.stopAll();
             game.restart();
         } else if (code == HotUpdateCode.Fail) {
-            app.ui.showConfirm(
+            App.ui.showConfirm(
                 "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", 1,
                 () => {
                     // audio.stopAll();
