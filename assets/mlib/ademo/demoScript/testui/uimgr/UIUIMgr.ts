@@ -8,16 +8,16 @@ const { ccclass, property } = _decorator;
 @ccclass('UIUIMgr')
 export class UIUIMgr extends UIBase {
     //gen property start don't modify this area
-    get bsssswssuttonTf(){ return this.getAutoBindComp("bp_Bsssswssutton", UITransform); }
-    get bsssswssuttonSp(){ return this.getAutoBindComp("bp_Bsssswssutton", Sprite); }
-    get bsssswssuttonBtn(){ return this.getAutoBindComp("bp_Bsssswssutton", Button); }
+    get assuttonTf(){ return this.getAutoBindComp("bp_assutton", UITransform); }
+    get assuttonSp(){ return this.getAutoBindComp("bp_assutton", Sprite); }
+    get assuttonBtn(){ return this.getAutoBindComp("bp_assutton", Button); }
     //gen property end don't modify this area 
     showSingleTip() {
 
 
         App.ui.showTip("SingleTip");
         
-        console.log("");
+        console.log(this.assuttonBtn.name);
         
 
     }

@@ -9,8 +9,7 @@ const mExec_1 = require("./mExec");
 exports.methods = {
     loadExcel: mExec_1.mExec.loadExcel,
     genConst: mExec_1.mExec.genConst,
-    autoBind: mExec_1.mExec.autoBind,
-    refreshPrefab: mExec_1.mExec.refreshPrefab,
+    autoBind: mExec_1.mExec.autoBind
 };
 /**
  * @en Hooks triggered after extension loading is complete

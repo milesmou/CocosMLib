@@ -6,14 +6,21 @@ const { ccclass } = _decorator;
 @ccclass('AutoBindProperty')
 export class AutoBindProperty extends Component {
 
-    private autoBindCache: { [key: string]: Node } = {}
+    private autoBindCompCache: { [key: string]: Component } = {}
+    private autoBindNodeCache: { [path: string]: Node } = {}
 
     getAutoBindComp<T extends Component>(path: string, type: { new(): T }) {
-        if (this.autoBindCache[path]?.isValid) {
-            return this.autoBindCache[path].getComponent(type);
+        let key = `${type.name}+${path}`;
+        if (this.autoBindCompCache[key]?.isValid) return this.autoBindCompCache[key];
+
+        if (this.autoBindNodeCache[path]?.isValid) {
+            return this.autoBindNodeCache[path].getComponent(type);
         } else {
             let comp = CCUtils.getComponentAtPath(this.node, path, type);
-            if (comp?.isValid) this.autoBindCache[path] = comp.node;
+            if (comp?.isValid) {
+                this.autoBindCompCache[key] = comp;
+                this.autoBindNodeCache[path] = comp.node;
+            }
             return comp;
         }
     }

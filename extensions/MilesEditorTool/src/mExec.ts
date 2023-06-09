@@ -102,21 +102,7 @@ export class mExec {
         }
         if (save) {
             fs.writeFileSync(filePath, lines.join(util.returnSymbol));
-            console.log("自动绑定成功");
+            console.log(`[${scriptName}] 自动绑定成功`);
         }
-    }
-
-    static refreshPrefab(){
-        let v = Editor.Selection.getSelected("node")[0];
-        console.log(v);
-        // Editor.Message.send("asset-db", "refresh-asset", v);
-        let res = Editor.Message.send("scene", "query-node");
-        console.log(res);
-        
-        // for (const iterator of paths) {
-        //     console.log(iterator.name,"--",iterator.path);
-            
-        // }
-        
     }
 }
