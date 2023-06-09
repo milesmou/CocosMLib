@@ -39,6 +39,8 @@ export class TimeHandler extends Component {
     }
 
     private urls = ["https://www.baidu.com", "https://www.microsoft.com"];
+    private url2s = [];
+
     private networkTimeMS = 0;
     private localTimeMS = 0;
 
@@ -61,10 +63,23 @@ export class TimeHandler extends Component {
     }
 
     private async syncTime() {
-        // console.log("hahah1");
-        // let xhr = await HttpRequest.request(this.urls[0]);
-        // console.log("hahah2");
-        // console.log(xhr.getResponseHeader("date"));
+        this.getTaobaoTimeMS();
+        // let xhr = await HttpRequest.request(window.location.href.toString());
+        // let date = new Date(xhr.getResponseHeader("date"));
+        // console.log(date);
+    }
+
+    private async getTaobaoTimeMS() {
+        let url = "http://vv.video.qq.com/checktime?otype=json";
+        let xhr = await HttpRequest.request(url).catch(e => {
+            console.log(e);
+        });
+        if(xhr){
+            console.log(xhr.responseText);
+            console.log(xhr.getAllResponseHeaders());
+            return 1;
+        }
+        return 0;
     }
 
     public createTimerGroup(name: string) {
