@@ -1,19 +1,11 @@
-import { _decorator } from 'cc';
 export class HttpRequest {
-    private constructor() { }
-    private static _inst: HttpRequest;
-    public static get inst() {
-        if (!this._inst) {
-            this._inst = new HttpRequest();
-        }
-        return this._inst;
-    }
-    public async request(method: "GET" | "POST", action: string, data?: any, url?: string, showWait = true) {
-        if (!url) {
-            url = "http://www.tianqiapi.com/api";
-        }
-        let p = new Promise((resolve, reject) => {
+
+    public static async request(url: string, args: { method?: "GET" | "POST", data?: any, requestHeader?: { [key: string]: string }, showWait?: boolean } = {}) {
+        let { method, data, requestHeader, showWait } = args;
+        method = method || "GET";
+        let p = new Promise<XMLHttpRequest>((resolve, reject) => {
             let xhr = new XMLHttpRequest();
+
             xhr.timeout = 5000;
             xhr.ontimeout = () => {
                 reject("timeout");
@@ -26,17 +18,17 @@ export class HttpRequest {
             };
             xhr.onreadystatechange = () => {
                 if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
-                    var response = xhr.responseText;
-                    resolve(response);
+                    resolve(xhr);
                 }
             }
-            if (method == "GET") {
-                xhr.open("GET", url + action, true);
-                xhr.send();
-            } else if (method == "POST") {
-                xhr.open("POST", url + action, true);
-                xhr.send(data);
+            xhr.open(method, url, true);
+            xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+            if (requestHeader) {
+                for (const key in requestHeader) {
+                    xhr.setRequestHeader(key, requestHeader[key]);
+                }
             }
+            xhr.send(data);
 
         });
         return p;

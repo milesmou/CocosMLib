@@ -9,6 +9,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UITestMain')
 export class UITestMain extends UIBase {
+    //gen pro
     @property(Sprite)
     bg1!: Sprite;
 

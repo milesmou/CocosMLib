@@ -15,6 +15,18 @@
                 "methods": [
                     "genConst"
                 ]
+            },
+            "autoBind": {
+                "public": true,
+                "methods": [
+                    "autoBind"
+                ]
+            },
+            "refreshPrefab": {
+                "public": true,
+                "methods": [
+                    "refreshPrefab"
+                ]
             }
         },
         "menu": [
@@ -29,6 +41,12 @@
                 "label": "生成常量",
                 "icon": "./static/icon.png",
                 "message": "genConst"
+            },
+            {
+                "path": "MTools",
+                "label": "刷新绑定",
+                "icon": "./static/icon.png",
+                "message": "refreshPrefab"
             }
         ],
         "shortcuts": [
@@ -41,6 +59,11 @@
                 "message": "genConst",
                 "win": "shift+g",
                 "mac": "shift+g"
+            },
+            {
+                "message": "refreshPrefab",
+                "win": "f5",
+                "mac": "f5"
             }
         ]
     },

@@ -1,4 +1,4 @@
-import { Component, director, Enum, sys, view, _decorator } from 'cc';
+import { Component, director, Enum, game, sys, view, _decorator } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { Channel, EChannel, IChannel } from "./channel/Channel";
@@ -39,7 +39,7 @@ export class App extends Component {
     public static lang: string;
     public static channel: IChannel;
     public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
-    // //manager
+    //manager
     public static stroage = StroageMgr;
     public static audio: AudioMgr;
     public static event: EventMgr;
@@ -50,6 +50,7 @@ export class App extends Component {
 
     onLoad() {
         director.addPersistRootNode(this.node);
+        game.frameRate = 45;
     }
 
     start() {
@@ -94,7 +95,7 @@ export class App extends Component {
     }
 
 
-    static init(){
+    static init() {
 
     }
 

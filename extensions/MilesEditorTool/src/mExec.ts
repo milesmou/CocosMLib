@@ -57,10 +57,66 @@ export class mExec {
             content += `    "${key}": "${map[key]}",\n`;
         }
         content += "}";
-        console.log();
-        
+
         util.mkDirIfNotExists(path.dirname(outFile));
         fs.writeFileSync(outFile, content);
         Editor.Message.send("asset-db", "refresh-asset", util.toAssetDBUrl(outFile));
+    }
+
+    static autoBind(scriptName: string, start: string, end: string, strs: string[]) {
+
+        let save = false;
+        let filePath = util.getAllFiles(util.ProjectPath, [scriptName + ".ts"])[0];
+        let content: string = fs.readFileSync(filePath).toString();
+        let lines = content.split(util.returnSymbol);
+
+        let classTag = `class ${scriptName}`;
+        let classIndex = -1, genStartIndex = -1, genEndIndex = -1;
+        for (let index = 0; index < lines.length; index++) {
+            const line = lines[index].trim();
+            if (line.indexOf(classTag)>-1) classIndex = index;
+            else if (line == start.trim()) genStartIndex = index;
+            else if (line == end.trim()) genEndIndex = index;
+        }
+
+        // console.log("????? ", classIndex, " - ", genStartIndex, " - ", genEndIndex);
+
+        if (genStartIndex == -1) {//直接生成
+            lines.splice(classIndex + 1, 0, start, ...strs, end);
+            save = true;
+        } else {
+            if (genEndIndex - genStartIndex - 1 != strs.length) {
+                lines.splice(genStartIndex, genEndIndex - genStartIndex + 1, start, ...strs, end);
+                save = true;
+            } else {
+                for (let i = genStartIndex + 1, j = 0; i < genEndIndex; i++, j++) {
+                    if (lines[i].trim() != strs[j].trim()) {
+                        save = true;
+                        break;
+                    }
+                }
+                if (save) {
+                    lines.splice(genStartIndex, genEndIndex - genStartIndex + 1, start, ...strs, end);
+                }
+            }
+        }
+        if (save) {
+            fs.writeFileSync(filePath, lines.join(util.returnSymbol));
+            console.log("自动绑定成功");
+        }
+    }
+
+    static refreshPrefab(){
+        let v = Editor.Selection.getSelected("node")[0];
+        console.log(v);
+        // Editor.Message.send("asset-db", "refresh-asset", v);
+        let res = Editor.Message.send("scene", "query-node");
+        console.log(res);
+        
+        // for (const iterator of paths) {
+        //     console.log(iterator.name,"--",iterator.path);
+            
+        // }
+        
     }
 }

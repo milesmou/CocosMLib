@@ -1,10 +1,11 @@
 import { Asset, Component, ImageAsset, Sprite, SpriteFrame, _decorator } from "cc";
 import { AssetMgr } from "../manager/AssetMgr";
+import { AutoBindProperty } from "./AutoBindProperty";
 
 const { ccclass } = _decorator;
 
 @ccclass('AssetHandler')
-export class AssetHandler extends Component {
+export class AssetHandler extends AutoBindProperty {
 
     //Location:Asset
     private cache: Map<string, Asset> = new Map();

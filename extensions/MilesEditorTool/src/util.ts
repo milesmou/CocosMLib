@@ -1,5 +1,6 @@
 import child from "child_process";
 import fs from "fs";
+import os from "os";
 import path from "path";
 export class util {
 
@@ -66,5 +67,17 @@ export class util {
         if (!fs.existsSync(dir)) fs.mkdirSync(dir);
     }
 
+    static get returnSymbol() {
+        switch (os.platform()) {
+            case 'win32': return '\r\n' // windows
+            case 'darwin':
+            case 'linux':
+            case 'aix':
+            case 'freebsd':
+            case 'openbsd':
+            case 'sunos':
+            default: return '\n'
+        }
+    }
 
 }

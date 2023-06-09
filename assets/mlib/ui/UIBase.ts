@@ -4,7 +4,7 @@ const { property, ccclass, requireComponent } = _decorator;
 import { App } from "../App";
 import { AssetMgr } from '../manager/AssetMgr';
 import { CCUtils } from '../utils/CCUtil';
-import { AssetHandler } from './AssetHandler';
+import { AssetHandler } from '../component/AssetHandler';
 const EUIAnim = Enum({
     NONE: 0,
     OPEN: 1,

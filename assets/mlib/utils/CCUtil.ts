@@ -1,4 +1,5 @@
 import { Component, instantiate, Node, Prefab, ScrollView, Vec3, Widget } from "cc";
+import { Utils } from "./Utils";
 
 export class CCUtils {
 
@@ -33,6 +34,20 @@ export class CCUtils {
             n = n.parent;
         }
         return arr;
+    }
+
+    /** 通过路径获取指定组件(路径不包含根节点) */
+    static getComponentAtPath<T extends Component>(node: Node, path: string, type: new (...args: any[]) => T): T {
+        path = Utils.trim(path.trim(), "/");
+        let arr = path.split("/");
+        let n = node;
+        if (arr.length > 0) {
+            for (const name of arr) {
+                n = n.getChildByName(name);
+                if (!n?.isValid) return null;
+            }
+        }
+        return n.getComponent(type);
     }
 
     /** 将node1本地坐标系的位置转化为node2本地坐标下的位置 */

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.util = void 0;
 const child_process_1 = __importDefault(require("child_process"));
 const fs_1 = __importDefault(require("fs"));
+const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
 class util {
     static get ProjectPath() {
@@ -69,6 +70,18 @@ class util {
     static mkDirIfNotExists(dir) {
         if (!fs_1.default.existsSync(dir))
             fs_1.default.mkdirSync(dir);
+    }
+    static get returnSymbol() {
+        switch (os_1.default.platform()) {
+            case 'win32': return '\r\n'; // windows
+            case 'darwin':
+            case 'linux':
+            case 'aix':
+            case 'freebsd':
+            case 'openbsd':
+            case 'sunos':
+            default: return '\n';
+        }
     }
 }
 exports.util = util;

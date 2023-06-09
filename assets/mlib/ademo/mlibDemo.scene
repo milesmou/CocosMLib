@@ -32,7 +32,7 @@
   {
     "__type__": "cc.Node",
     "_name": "App",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 1
     },
@@ -88,7 +88,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Main Camera",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 2
     },
@@ -174,7 +174,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Light Group",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 2
     },
@@ -217,7 +217,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Main Light",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 5
     },
@@ -307,7 +307,7 @@
   {
     "__type__": "cc.Node",
     "_name": "AudioMgr",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 2
     },
@@ -361,7 +361,7 @@
   {
     "__type__": "cc.Node",
     "_name": "UIMgr",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 2
     },
@@ -429,7 +429,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Camera",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 11
     },
@@ -515,7 +515,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Normal",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 11
     },
@@ -611,7 +611,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Higher",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 11
     },
@@ -661,7 +661,7 @@
   {
     "__type__": "cc.Node",
     "_name": "TestLoading",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 17
     },
@@ -723,7 +723,7 @@
   {
     "__type__": "cc.Node",
     "_name": "bg",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 18
     },
@@ -878,7 +878,7 @@
   {
     "__type__": "cc.Node",
     "_name": "lblDesc",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 18
     },
@@ -1001,7 +1001,7 @@
   {
     "__type__": "cc.Node",
     "_name": "progressBar",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 18
     },
@@ -1057,7 +1057,7 @@
   {
     "__type__": "cc.Node",
     "_name": "bar",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 28
     },
@@ -1272,7 +1272,7 @@
   {
     "__type__": "cc.Node",
     "_name": "lblProgress",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 18
     },
@@ -1517,7 +1517,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Resident",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 11
     },
@@ -1613,7 +1613,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Block",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 11
     },

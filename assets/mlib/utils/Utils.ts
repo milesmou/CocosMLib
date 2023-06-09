@@ -256,6 +256,35 @@ export class Utils {
         return str;
     }
 
+    /**
+     * 裁剪前后指定的字符
+     */
+    static trim(source: string, ...strs: string[]) {
+        if (!source) return source;
+        if (strs.length == 0) return source.trim();
+        for (const str of strs) {
+            while (source.startsWith(str)) {
+                source = source.substring(str.length);
+            }
+            while (source.endsWith(str)) {
+                source = source.substring(0, source.length - str.length);
+            }
+        }
+        return source;
+    }
+
+    static upperFirst(source: string) {
+        if (!source) return source;
+        if (source.length < 2) return source.toUpperCase();
+        return source[0].toUpperCase() + source.substring(1);
+    }
+
+    static lowerFirst(source: string) {
+        if (!source) return source;
+        if (source.length < 2) return source.toLowerCase();
+        return source[0].toLowerCase() + source.substring(1);
+    }
+
     static delItemFromArray<T>(arr: T[], ...item: T[]) {
         if (arr.length > 0 && item.length > 0) {
             item.forEach(v => {

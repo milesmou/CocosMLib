@@ -38,6 +38,7 @@ export abstract class LocalStroage {
     /** 初始化 */
     init() {
         if (this.origin) {
+            this.origin = false;
             this.setInitialData()
             this.delaySave();
         }
