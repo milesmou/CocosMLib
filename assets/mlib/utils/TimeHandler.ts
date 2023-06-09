@@ -61,10 +61,10 @@ export class TimeHandler extends Component {
     }
 
     private async syncTime() {
-        console.log("hahah1");
-        let xhr = await HttpRequest.request(this.urls[0]);
-        console.log("hahah2");
-        console.log(xhr.getResponseHeader("date"));
+        // console.log("hahah1");
+        // let xhr = await HttpRequest.request(this.urls[0]);
+        // console.log("hahah2");
+        // console.log(xhr.getResponseHeader("date"));
     }
 
     public createTimerGroup(name: string) {
