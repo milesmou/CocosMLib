@@ -203,6 +203,10 @@ export class PlayerInventory {
         else {
             inventoryItemSo = this._localStroage.inventory.find(v => v.type == type && v.id == itemId);
             if (inventoryItemSo) this._itemCache[key] = inventoryItemSo;
+            else{
+                inventoryItemSo = this.genInventoryItemSO(type,itemId);
+                this._localStroage.inventory.push(inventoryItemSo);
+            }
         }
         return inventoryItemSo;
     }
