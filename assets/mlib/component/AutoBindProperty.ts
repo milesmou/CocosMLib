@@ -21,6 +21,8 @@ export class AutoBindProperty extends Component {
                 this.autoBindCompCache[key] = comp;
                 this.autoBindNodeCache[path] = comp.node;
             }
+            console.error(`[${this.node.name}]节点指定路径未找到组件 ${key}`);
+
             return comp;
         }
     }
