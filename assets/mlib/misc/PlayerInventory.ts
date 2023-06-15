@@ -44,7 +44,7 @@ export class PlayerInventory {
         let items: number[][];
         if (Array.isArray(reawrds) && Array.isArray(reawrds[0])) items = reawrds as any;
         else items = ParseItemTool.parseGameItem(reawrds as any);
-        items = this.postParseRewards(items);
+        items = this.postParseRewards(items, args);
         if (items.length > 0) {
             for (let item of items) {
                 item = this.postParseSingleItem(item, args);
@@ -56,7 +56,7 @@ export class PlayerInventory {
     }
 
     /**可重写 解析配置的奖励 部分奖励需要特殊处理(如掉落池之类) */
-    protected postParseRewards(reawrds: number[][]) {
+    protected postParseRewards(reawrds: number[][], args?: string) {
         return reawrds;
     }
 
@@ -203,8 +203,8 @@ export class PlayerInventory {
         else {
             inventoryItemSo = this._localStroage.inventory.find(v => v.type == type && v.id == itemId);
             if (inventoryItemSo) this._itemCache[key] = inventoryItemSo;
-            else{
-                inventoryItemSo = this.genInventoryItemSO(type,itemId);
+            else {
+                inventoryItemSo = this.genInventoryItemSO(type, itemId);
                 this._localStroage.inventory.push(inventoryItemSo);
             }
         }
