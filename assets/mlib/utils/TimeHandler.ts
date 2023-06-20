@@ -1,4 +1,4 @@
-import { Component, Director, director, Node, Tween, tween } from "cc";
+import { Component, Director, director, Node } from "cc";
 import { EDITOR } from "cc/env";
 import { HttpRequest } from "../network/HttpRequest";
 
@@ -63,7 +63,8 @@ export class TimeHandler extends Component {
     }
 
     private async syncTime() {
-        this.getTaobaoTimeMS();
+        this.getTxTimeMS();
+        // this.getTaobaoTimeMS();
         // let xhr = await HttpRequest.request(window.location.href.toString());
         // let date = new Date(xhr.getResponseHeader("date"));
         // console.log(date);
@@ -74,13 +75,43 @@ export class TimeHandler extends Component {
         let xhr = await HttpRequest.request(url).catch(e => {
             console.log(e);
         });
-        if(xhr){
+        if (xhr) {
             console.log(xhr.responseText);
             console.log(xhr.getAllResponseHeaders());
             return 1;
         }
         return 0;
     }
+
+    private async getSuningTimeMS() {
+
+        let url = "https://f.m.suning.com/api/ct.do";
+        let xhr = await HttpRequest.request(url).catch(e => {
+            console.log(e);
+        });
+        if (xhr) {
+            console.log(xhr.responseText);
+            console.log(xhr.getAllResponseHeaders());
+            return 1;
+        }
+        return 0;
+    }
+
+    private async getTxTimeMS() {
+
+        let url = "http://vv.video.qq.com/checktime?otype=json";
+        let xhr = await HttpRequest.request(url).catch(e => {
+            console.log(e);
+        });
+        if (xhr) {
+            console.log(xhr.responseText);
+            console.log(xhr.getAllResponseHeaders());
+            return 1;
+        }
+        return 0;
+    }
+
+
 
     public createTimerGroup(name: string) {
         let timerGroup = this.timerGroups.find(v => v.name == name);

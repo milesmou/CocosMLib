@@ -202,11 +202,11 @@ export class PlayerInventory {
         if (inventoryItemSo) return inventoryItemSo;
         else {
             inventoryItemSo = this._localStroage.inventory.find(v => v.type == type && v.id == itemId);
-            if (inventoryItemSo) this._itemCache[key] = inventoryItemSo;
-            else {
+            if (inventoryItemSo == null) {
                 inventoryItemSo = this.genInventoryItemSO(type, itemId);
                 this._localStroage.inventory.push(inventoryItemSo);
             }
+            this._itemCache[key] = inventoryItemSo;
         }
         return inventoryItemSo;
     }
