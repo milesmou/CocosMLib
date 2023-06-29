@@ -2,7 +2,7 @@ import { Component, instantiate, Node, Prefab, SpriteFrame, _decorator } from 'c
 const { ccclass, property } = _decorator;
 
 import { App } from "../App";
-import { UIBase } from "../ui/UIBase";
+import { EPassiveType, UIBase } from "../ui/UIBase";
 import { UIGuide } from "../ui/UIGuide";
 import { UITipMsg } from "../ui/UITipMsg";
 import { Utils } from '../utils/Utils';
@@ -87,10 +87,13 @@ export class UIMgr extends Component {
         if (visible) ui.node.setSiblingIndex(999999);
         else ui.node.setSiblingIndex(0);
         if (visible) {
+            let belowUI = this.uiStack[this.uiStack.length - 2];
             ui.onShowBegin();
+            belowUI?.onPassive(EPassiveType.HideBegin, ui);
             App.event.emit(App.eventKey.OnUIShowBegin, ui);
             await ui.playShowAnim();
             ui.onShow();
+            belowUI?.onPassive(EPassiveType.Hide, ui);
             App.event.emit(App.eventKey.OnUIShow, ui);
         }
         return ui as T;
@@ -115,15 +118,19 @@ export class UIMgr extends Component {
             Utils.delItemFromArray(this.uiList, uiName);
             Utils.delItemFromArray(this.uiStack, ui);
             if (index == this.uiStack.length) {
+                let topUI = this.uiStack[this.uiStack.length - 1];
                 ui.onHideBegin();
+                topUI?.onPassive(EPassiveType.ShowBegin,ui);
                 App.event.emit(App.eventKey.OnUIHideBegin, ui);
                 if (fastHide) {
                     ui.onHide();
+                    topUI?.onPassive(EPassiveType.Show,ui);
                     App.event.emit(App.eventKey.OnUIHide, ui);
                     hideUI();
                 } else {
                     await ui.playHideAnim();
                     ui.onHide();
+                    topUI?.onPassive(EPassiveType.Show,ui);
                     App.event.emit(App.eventKey.OnUIHide, ui);
                     hideUI();
                 }
