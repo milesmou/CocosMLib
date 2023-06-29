@@ -38,6 +38,7 @@ class PropertyInfo {
 //get hahha(){ return this.getAutoBindComp("showTipBox/Label", Label); }
 //gen property end don't modify this area
 
+/** 编辑器使用的自动绑定字段的脚本 需配合插件一起使用 */
 @ccclass('AutoBindPropertyEditor')
 @executeInEditMode
 export class AutoBindPropertyEditor extends Component {
