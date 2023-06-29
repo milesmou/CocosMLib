@@ -228,14 +228,15 @@
     }
   },
   "common": {
-    "outputName": "web-mobile-001",
+    "outputName": "wechatgame",
     "mainBundleCompressionType": "merge_dep",
-    "platform": "web-mobile",
+    "platform": "wechatgame",
     "startScene": "726e5630-312f-4c6c-b8be-8b9a51d9881c",
     "polyfills": {
       "asyncFunctions": true
     },
-    "buildPath": "D:\\Workspace\\CocosCreator-Utils\\build\\bbb"
+    "buildPath": "project://build",
+    "replaceSplashScreen": false
   },
   "log": {
     "level": 4
