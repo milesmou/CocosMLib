@@ -6,7 +6,8 @@ import { mExec } from "./mExec";
 export const methods: { [key: string]: (...any: any) => any } = {
     loadExcel: mExec.loadExcel,
     genConst:mExec.genConst,
-    autoBind:mExec.autoBind
+    autoBind:mExec.autoBind,
+    formatProject:mExec.formatProject
 };
 
 /**

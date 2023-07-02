@@ -1,44 +1,24 @@
-import { IBuildTaskOption, BuildHook, IBuildResult } from '../@types';
-
-interface IOptions {
-    remoteAddress: string;
-    enterCocos: string;
-    selectTest: string;
-    objectTest: {
-        number: number;
-        string: string;
-        boolean: boolean
-    },
-    arrayTest: [number, string, boolean];
-}
-
-const PACKAGE_NAME = 'cocos-build-template';
-
-interface ITaskOptions extends IBuildTaskOption {
-    packages: {
-        'cocos-plugin-template': IOptions;
-    };
-}
-
-function log(...arg: any[]) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.unload = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = exports.load = exports.throwError = void 0;
+const PACKAGE_NAME = 'miles-build';
+function log(...arg) {
     return console.log(`[${PACKAGE_NAME}] `, ...arg);
 }
-
 let allAssets = [];
-
-export const throwError: BuildHook.throwError = true;
-
-export const load: BuildHook.load = async function() {
+exports.throwError = true;
+const load = async function () {
     console.log(`[${PACKAGE_NAME}] Load cocos plugin example in builder.`);
     allAssets = await Editor.Message.request('asset-db', 'query-assets');
 };
-
-export const onBeforeBuild: BuildHook.onBeforeBuild = async function(options: ITaskOptions, result: IBuildResult) {
+exports.load = load;
+const onBeforeBuild = async function (options, result) {
     // Todo some thing
     log(`${PACKAGE_NAME}.webTestOption`, 'onBeforeBuild');
+    console.log("onBeforeBuild", result);
 };
-
-export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function(options: ITaskOptions, result: IBuildResult) {
+exports.onBeforeBuild = onBeforeBuild;
+const onBeforeCompressSettings = async function (options, result) {
     const pkgOptions = options.packages[PACKAGE_NAME];
     if (pkgOptions.webTestOption) {
         console.debug('webTestOption', true);
@@ -46,13 +26,13 @@ export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = asyn
     // Todo some thing
     console.debug('get settings test', result.settings);
 };
-
-export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async function(options: ITaskOptions, result: IBuildResult) {
+exports.onBeforeCompressSettings = onBeforeCompressSettings;
+const onAfterCompressSettings = async function (options, result) {
     // Todo some thing
     console.log('webTestOption', 'onAfterCompressSettings');
 };
-
-export const onAfterBuild: BuildHook.onAfterBuild = async function(options: ITaskOptions, result: IBuildResult) {
+exports.onAfterCompressSettings = onAfterCompressSettings;
+const onAfterBuild = async function (options, result) {
     // change the uuid to test
     const uuidTestMap = {
         image: '57520716-48c8-4a19-8acf-41c9f8777fb0',
@@ -66,21 +46,23 @@ export const onAfterBuild: BuildHook.onAfterBuild = async function(options: ITas
     }
     // test onError hook
     // throw new Error('Test onError');
+    console.log("onAfterBuild", result);
 };
-
-export const unload: BuildHook.unload = async function() {
+exports.onAfterBuild = onAfterBuild;
+const unload = async function () {
     console.log(`[${PACKAGE_NAME}] Unload cocos plugin example in builder.`);
 };
-
-export const onError: BuildHook.onError = async function(options, result) {
+exports.unload = unload;
+const onError = async function (options, result) {
     // Todo some thing
     console.warn(`${PACKAGE_NAME} run onError`);
 };
-
-export const onBeforeMake: BuildHook.onBeforeMake = async function(root, options) {
+exports.onError = onError;
+const onBeforeMake = async function (root, options) {
     console.log(`onBeforeMake: root: ${root}, options: ${options}`);
 };
-
-export const onAfterMake: BuildHook.onAfterMake = async function(root, options) {
+exports.onBeforeMake = onBeforeMake;
+const onAfterMake = async function (root, options) {
     console.log(`onAfterMake: root: ${root}, options: ${options}`);
 };
+exports.onAfterMake = onAfterMake;

@@ -8,6 +8,24 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const util_1 = require("./util");
 class mExec {
+    /** 格式化目录结构 */
+    static formatProject() {
+        //创建目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/publish"); //构建后处理资源目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/art"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/audio"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/sprite"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/uiSprite"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/prefab"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/uiPrefab"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/script"); //脚本目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/script/base"); //脚本目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/script/gen"); //脚本目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/script/ui"); //脚本目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/scene"); //场景目录
+        //拷贝资源
+    }
     /** 导表 */
     static loadExcel() {
         let workDir = util_1.util.ProjectPath + "/excel";

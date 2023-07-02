@@ -1462,7 +1462,7 @@
     },
     "hotUpdate": false,
     "manifest": null,
-    "_id": "bbmqMmCQ9DIo//k5sx8k3T"
+    "_id": "5dkZV2SvRHYazqqs9A0toe"
   },
   {
     "__type__": "cc.UITransform",
@@ -1719,6 +1719,7 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "alignment": 0,
     "_id": "30YOsuJpFAc7ae4pReWjkO"
   },
   {

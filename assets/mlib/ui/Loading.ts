@@ -1,7 +1,7 @@
 import { Asset, Component, game, Label, ProgressBar, tween, UITransform, v3, _decorator } from 'cc';
-import DataManager from '../../script/game/DataManager';
-import { GameData } from '../../script/game/GameData';
-import { PlayerData } from '../../script/game/PlayerData';
+import DataManager from '../../script/base/DataManager';
+import { GameData } from '../../script/base/GameData';
+import { PlayerData } from '../../script/base/PlayerData';
 import { UIConst } from '../../script/gen/UIConst';
 import { App } from '../App';
 import { AssetMgr } from '../manager/AssetMgr';

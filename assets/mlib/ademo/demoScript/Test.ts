@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, SpriteFrame, Sprite } from 'cc';
+import { _decorator, Component, Node, SpriteFrame, Sprite, sys } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Test')
@@ -14,7 +14,7 @@ export class Test extends Component {
     }
 
     update(deltaTime: number) {
-
+        sys.platform
     }
 }
 

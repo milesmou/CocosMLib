@@ -11,6 +11,10 @@
     "wechatgame": {
       "configID": "d669e8",
       "services": []
+    },
+    "web-desktop": {
+      "configID": "d669e8",
+      "services": []
     }
   },
   "builder-options": {

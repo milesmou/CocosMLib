@@ -3,6 +3,26 @@ import path from "path";
 import { util } from "./util";
 
 export class mExec {
+
+    /** 格式化目录结构 */
+    static formatProject() {
+        //创建目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/publish");//构建后处理资源目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/bundle");//资源包目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/bundle/art");//资源包目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/bundle/audio");//资源包目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/bundle/sprite");//资源包目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/bundle/uiSprite");//资源包目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/bundle/prefab");//资源包目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/bundle/uiPrefab");//资源包目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/script");//脚本目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/script/base");//脚本目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/script/gen");//脚本目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/script/ui");//脚本目录
+        util.mkDirIfNotExists(util.ProjectPath + "/assets/scene");//场景目录
+        //拷贝资源
+    }
+
     /** 导表 */
     static loadExcel() {
         let workDir = util.ProjectPath + "/excel";
@@ -74,7 +94,7 @@ export class mExec {
         let classIndex = -1, genStartIndex = -1, genEndIndex = -1;
         for (let index = 0; index < lines.length; index++) {
             const line = lines[index].trim();
-            if (line.indexOf(classTag)>-1) classIndex = index;
+            if (line.indexOf(classTag) > -1) classIndex = index;
             else if (line == start.trim()) genStartIndex = index;
             else if (line == end.trim()) genEndIndex = index;
         }

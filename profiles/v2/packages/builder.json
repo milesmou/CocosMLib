@@ -5,73 +5,6 @@
   },
   "BuildTaskManager": {
     "taskMap": {
-      "1675244573683": {
-        "type": "build",
-        "id": "1675244573683",
-        "progress": 1,
-        "state": "success",
-        "stage": "build",
-        "message": "2023-2-2 13:41:10 Build success in 6627 ms!",
-        "options": {
-          "name": "NewProject3",
-          "platform": "web-mobile",
-          "buildPath": "project://build",
-          "debug": false,
-          "md5Cache": false,
-          "skipCompressTexture": false,
-          "sourceMaps": false,
-          "polyfills": {
-            "asyncFunctions": true
-          },
-          "experimentalEraseModules": false,
-          "useBuiltinServer": false,
-          "mainBundleIsRemote": false,
-          "mainBundleCompressionType": "merge_dep",
-          "replaceSplashScreen": false,
-          "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
-          "outputName": "web-mobile",
-          "scenes": [
-            {
-              "url": "db://assets/scene/main.scene",
-              "uuid": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
-              "inBundle": false
-            }
-          ],
-          "android": [],
-          "packages": {
-            "web-mobile": {
-              "orientation": "auto",
-              "embedWebDebugger": false,
-              "__version__": "1.0.1"
-            },
-            "cocos-service": {
-              "configID": "d669e8",
-              "services": [],
-              "__version__": "3.0.5"
-            },
-            "cocos-build-template": {
-              "remoteAddress": "https://www.cocos.com/",
-              "enterCocos": "",
-              "selectTest": "option2",
-              "objectTest": {
-                "number": 80,
-                "string": "cocos",
-                "boolean": true
-              },
-              "arrayTest": [
-                80,
-                "cocos",
-                true
-              ],
-              "__version__": "1.0.0"
-            }
-          },
-          "__version__": "1.3.3",
-          "web-mobile": []
-        },
-        "time": "2023-2-2 13:41",
-        "dirty": false
-      },
       "1675304278047": {
         "type": "build",
         "id": "1675304278047",
@@ -224,6 +157,78 @@
         },
         "time": "2023-2-2 13:41",
         "dirty": false
+      },
+      "1688055389829": {
+        "type": "build",
+        "id": "1688055389829",
+        "progress": 1,
+        "state": "success",
+        "stage": "build",
+        "message": "2023-7-2 21:13:58 Build success in 11142 ms!",
+        "options": {
+          "name": "NewProject3",
+          "platform": "web-mobile",
+          "buildPath": "D:\\Workspace\\CocosCreator-Utils\\build\\bbb",
+          "debug": false,
+          "md5Cache": false,
+          "skipCompressTexture": false,
+          "sourceMaps": false,
+          "polyfills": {
+            "asyncFunctions": true
+          },
+          "experimentalEraseModules": false,
+          "useBuiltinServer": false,
+          "mainBundleIsRemote": false,
+          "mainBundleCompressionType": "merge_dep",
+          "replaceSplashScreen": false,
+          "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
+          "outputName": "web-mobile",
+          "scenes": [
+            {
+              "url": "db://assets/scene/main.scene",
+              "uuid": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
+              "inBundle": false
+            },
+            {
+              "url": "db://assets/mlib/ademo/mlibDemo.scene",
+              "uuid": "52773a2b-5a62-415a-9066-f5e75cc3316e",
+              "inBundle": false
+            }
+          ],
+          "wechatgame": [],
+          "packages": {
+            "web-mobile": {
+              "orientation": "auto",
+              "embedWebDebugger": false,
+              "__version__": "1.0.1"
+            },
+            "cocos-service": {
+              "configID": "d669e8",
+              "services": [],
+              "__version__": "3.0.5"
+            },
+            "cocos-build-template": {
+              "remoteAddress": "https://www.cocos.com/",
+              "enterCocos": "",
+              "selectTest": "option2",
+              "objectTest": {
+                "number": 80,
+                "string": "cocos",
+                "boolean": true
+              },
+              "arrayTest": [
+                80,
+                "cocos",
+                true
+              ]
+            }
+          },
+          "__version__": "1.3.3",
+          "web-desktop": [],
+          "web-mobile": []
+        },
+        "time": "2023-7-2 21:13",
+        "dirty": false
       }
     }
   },
@@ -236,7 +241,7 @@
       "asyncFunctions": true
     },
     "buildPath": "project://build",
-    "replaceSplashScreen": false
+    "replaceSplashScreen": true
   },
   "log": {
     "level": 4

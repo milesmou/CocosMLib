@@ -1,10 +1,10 @@
 {
-    "name": "cocos-build-template",
-    "title": "cocos-build-template",
+    "name": "miles-build-hook",
+    "title": "miles-build-hook",
     "package_version": 2,
     "version": "1.0.0",
-    "author": "Cocos Creator",
-    "description": "i18n:cocos-build-template.description",
+    "author": "miles",
+    "description": "构建时的一些处理",
     "contributions": {
         "builder": "./dist/builder.js"
     },
@@ -12,5 +12,9 @@
         "@types/fs-extra": "^5.0.4",
         "@types/node": "^14.5.2",
         "fs-extra": "^10.0.0"
+    },
+    "scripts": {
+        "build": "tsc -b",
+        "watch": "tsc -w"
     }
 }

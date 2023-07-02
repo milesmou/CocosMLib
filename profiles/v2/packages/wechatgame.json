@@ -4,6 +4,6 @@
     "outputName": "wechatgame",
     "mainBundleCompressionType": "merge_dep",
     "platform": "wechatgame",
-    "replaceSplashScreen": false
+    "replaceSplashScreen": true
   }
 }

@@ -4,7 +4,13 @@
     "name": "miles-editor-tool",
     "contributions": {
         "messages": {
-            "loadExcel": {
+            "formatProject": {
+                "public": false,
+                "methods": [
+                    "formatProject"
+                ]
+            },
+             "loadExcel": {
                 "public": true,
                 "methods": [
                     "loadExcel"
@@ -24,6 +30,12 @@
             }
         },
         "menu": [
+            {
+                "path": "MTools",
+                "label": "格式化目录结构",
+                "icon": "./static/icon.png",
+                "message": "formatProject"
+            },
             {
                 "path": "MTools",
                 "label": "导表",
