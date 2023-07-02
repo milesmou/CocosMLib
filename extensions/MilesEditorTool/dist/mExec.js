@@ -13,12 +13,16 @@ class mExec {
         //创建目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/publish"); //构建后处理资源目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle"); //资源包目录
-        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/art"); //资源包目录
-        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/audio"); //资源包目录
-        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/sprite"); //资源包目录
-        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/uiSprite"); //资源包目录
-        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/prefab"); //资源包目录
-        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/uiPrefab"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/static"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/static/anim"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/static/font"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/static/uiSprite"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/dynamic"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/dynamic/audio"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/dynamic/table"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/dynamic/sprite"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/dynamic/prefab"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/dynamic/uiPrefab"); //资源包目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/script"); //脚本目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/script/base"); //脚本目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/script/gen"); //脚本目录
@@ -30,7 +34,7 @@ class mExec {
     static loadExcel() {
         let workDir = util_1.util.ProjectPath + "/excel";
         let batPath = util_1.util.ProjectPath + "/excel/gen_code_json.bat";
-        let jsonDir = "db://assets/resources/data";
+        let jsonDir = "db://assets/bundle/dynamic/table";
         util_1.util.exeCMD(workDir, batPath, msg => {
             console.log(msg);
         }, err => {
@@ -45,32 +49,19 @@ class mExec {
     /** 生成一些常量 */
     static genConst() {
         let map = {};
-        let outFile = util_1.util.ProjectPath + "/assets/script/gen/UIConst.ts";
+        let outFile = util_1.util.ProjectPath + "/assets/script/gen/UIConstant.ts";
         let ext = ".prefab";
-        let path1 = util_1.util.ProjectPath + "/assets/bundles";
-        let path2 = util_1.util.ProjectPath + "/assets/resources";
+        let path1 = util_1.util.ProjectPath + "/assets/bundle/dynamic/uiPrefab";
         let files1 = util_1.util.getAllFiles(path1, [ext]);
-        let files2 = util_1.util.getAllFiles(path2, [ext]);
         files1.forEach(v => {
             let basename = path_1.default.basename(v);
             if (basename.startsWith("UI")) {
                 let name = basename.replace(ext, "");
-                let location = v.replace(path2 + "/", "").replace(ext, "");
-                let index = location.indexOf("/");
-                if (index > -1)
-                    location = location.substring(index + 1);
+                let location = v.replace(path1 + "/", "").replace(ext, "");
                 map[name] = location;
             }
         });
-        files2.forEach(v => {
-            let basename = path_1.default.basename(v);
-            if (basename.startsWith("UI")) {
-                let name = basename.replace(ext, "");
-                let location = v.replace(path2 + "/", "").replace(ext, "");
-                map[name] = location;
-            }
-        });
-        let content = "export const UIConst = {\n";
+        let content = "export const UIConstant = {\n";
         for (const key in map) {
             content += `    "${key}": "${map[key]}",\n`;
         }

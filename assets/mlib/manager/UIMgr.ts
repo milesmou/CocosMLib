@@ -1,10 +1,11 @@
 import { Component, instantiate, Node, Prefab, SpriteFrame, _decorator } from 'cc';
+import { UIConstant } from '../../script/gen/UIConstant';
+import { UIGuide } from '../../script/ui/base/UIGuide';
+import { UITipMsg } from '../../script/ui/base/UITipMsg';
 const { ccclass, property } = _decorator;
 
 import { App } from "../App";
-import { EPassiveType, UIBase } from "../ui/UIBase";
-import { UIGuide } from "../ui/UIGuide";
-import { UITipMsg } from "../ui/UITipMsg";
+import { EPassiveType, UIBase } from "../component/UIBase";
 import { Utils } from '../utils/Utils';
 import { AssetMgr } from './AssetMgr';
 
@@ -63,8 +64,8 @@ export class UIMgr extends Component {
     public async init() {
 
         //添加上层ui
-        this.guide = await this.initUI(UIKey.UIGuide, this.resident) as UIGuide;
-        this.tipMsg = await this.initUI(UIKey.UITipMsg, this.resident) as UITipMsg;
+        this.guide = await this.initUI(UIConstant.UIGuide, this.resident) as UIGuide;
+        this.tipMsg = await this.initUI(UIConstant.UITipMsg, this.resident) as UITipMsg;
     }
 
     public async show<T extends UIBase>(uiName: string, obj: { args?: any, blockTime?: number, visible?: boolean, parent?: Node } = {}): Promise<T> {
@@ -195,7 +196,7 @@ export class UIMgr extends Component {
                 return ui.node;
             }
         }
-        let prefab = await AssetMgr.loadAsset(uiName, Prefab);
+        let prefab = await AssetMgr.loadAsset("uiPrefab/"+uiName, Prefab);
         var uiObj = instantiate(prefab);
         uiObj.parent = parent;
         if (!visible) uiObj.setSiblingIndex(0);
@@ -296,20 +297,4 @@ export class UIMgr extends Component {
     }
 
     //#endregion
-}
-
-export enum UIKey {
-    Shade = "ui/Shade",
-    UIGuide = "ui/UIGuide",
-    UITipMsg = "ui/UITipMsg",
-    UIHUD = "ui/UIHUD",
-    //testui
-    UIAudioMgr = "testui/UIAudioMgr",
-    UIUIMgr = "testui/UIUIMgr",
-    UIPopUp = "testui/UIPopUp",
-    UIA = "testui/UIA",
-    UIB = "testui/UIB",
-    UIC = "testui/UIC",
-    UIGuideTest1 = "testui/UIGuideTest1",
-    UIGuideTest2 = "testui/UIGuideTest2",
 }

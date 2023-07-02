@@ -7,6 +7,18 @@ import { TaskState } from '../../mlib/misc/PlayerTask';
 import { GameData } from './GameData';
 const { ccclass, property } = _decorator;
 
+export enum RedDotConstant {
+    Main = "Main",
+    Task = "Task",
+    Photo = "Photo",
+    Foster = "Foster",
+    CrushGame = "CrushGame",
+    Turntable = "Turntable",
+}
+
+/**
+ * 红点管理类
+ */
 @ccclass('GameRedDot')
 export class GameRedDot extends Component {
     public static Inst: GameRedDot;

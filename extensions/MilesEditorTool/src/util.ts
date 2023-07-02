@@ -30,6 +30,7 @@ export class util {
         dir = this.toAbsolutePath(dir);
         suffix = suffix || [];
         let files: string[] = [];
+        if (!fs.existsSync(dir)) return files;
         let walkSync = (currentDir: string, callback: (filePath: string) => void) => {
             fs.readdirSync(currentDir, { withFileTypes: true }).forEach(dirent => {
                 let p = path.join(currentDir, dirent.name);

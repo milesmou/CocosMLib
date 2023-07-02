@@ -33,7 +33,7 @@ export abstract class LocalStroage {
     public task: TaskItemSO[] = [];
 
     /** 标记存档 */
-    public flag: { [key: string]: string } = {};
+    public flag: Map<string, string> = new Map;
 
     /** 初始化 */
     init() {

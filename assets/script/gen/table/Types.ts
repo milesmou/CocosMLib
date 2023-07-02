@@ -357,6 +357,152 @@ export class CityMap {
 
 
 
+export class TbGuide{
+    private _dataMap: Map<number, Guide>
+    private _dataList: Guide[]
+    constructor(_json_: any) {
+        this._dataMap = new Map<number, Guide>()
+        this._dataList = []
+        for(var _json2_ of _json_) {
+            let _v: Guide
+            _v = new Guide(_json2_)
+            this._dataList.push(_v)
+            this._dataMap.set(_v.ID, _v)
+        }
+    }
+
+    getDataMap(): Map<number, Guide> { return this._dataMap; }
+    getDataList(): Guide[] { return this._dataList; }
+
+    get(key: number): Guide | undefined { return this._dataMap.get(key); }
+
+    resolve(_tables: Map<string, any>) {
+        for(var v of this._dataList) {
+            v.resolve(_tables)
+        }
+    }
+
+}
+
+
+
+
+
+export class Guide {
+
+    constructor(_json_: any) {
+        if (_json_.ID === undefined) { throw new Error() }
+        this.ID = _json_.ID
+        if (_json_.GuideID === undefined) { throw new Error() }
+        this.GuideID = _json_.GuideID
+        if (_json_.UIName === undefined) { throw new Error() }
+        this.UIName = _json_.UIName
+        if (_json_.GOPath === undefined) { throw new Error() }
+        this.GOPath = _json_.GOPath
+        if (_json_.GOSize === undefined) { throw new Error() }
+        this.GOSize = Vector2.deserializeFromJson(_json_.GOSize)
+        if (_json_.DelayCheckUI === undefined) { throw new Error() }
+        this.DelayCheckUI = _json_.DelayCheckUI
+        if (_json_.ClickScreen === undefined) { throw new Error() }
+        this.ClickScreen = _json_.ClickScreen
+        if (_json_.Opacity === undefined) { throw new Error() }
+        this.Opacity = _json_.Opacity
+        if (_json_.HollowType === undefined) { throw new Error() }
+        this.HollowType = _json_.HollowType
+        if (_json_.HollowScale === undefined) { throw new Error() }
+        this.HollowScale = _json_.HollowScale
+        if (_json_.RingScale === undefined) { throw new Error() }
+        this.RingScale = _json_.RingScale
+        if (_json_.RingOffset === undefined) { throw new Error() }
+        this.RingOffset = Vector2.deserializeFromJson(_json_.RingOffset)
+        if (_json_.FingerDir === undefined) { throw new Error() }
+        this.FingerDir = _json_.FingerDir
+        if (_json_.FingerOffset === undefined) { throw new Error() }
+        this.FingerOffset = Vector2.deserializeFromJson(_json_.FingerOffset)
+        if (_json_.TipText === undefined) { throw new Error() }
+        this.TipText = _json_.TipText
+        if (_json_.TipPos === undefined) { throw new Error() }
+        this.TipPos = Vector2.deserializeFromJson(_json_.TipPos)
+        if (_json_.Prefab === undefined) { throw new Error() }
+        this.Prefab = _json_.Prefab
+    }
+
+    /**
+     * 主键
+     */
+    readonly ID: number
+    /**
+     * 引导ID
+     */
+    readonly GuideID: number
+    /**
+     * 物体所在UI名字
+     */
+    readonly UIName: string
+    /**
+     * 物体在UI中的路径
+     */
+    readonly GOPath: string
+    /**
+     * 直接指定物体尺寸
+     */
+    readonly GOSize: Vector2
+    /**
+     * 延迟检测是否处于指定UI
+     */
+    readonly DelayCheckUI: number
+    /**
+     * 点击屏幕即完成本步引导
+     */
+    readonly ClickScreen: boolean
+    /**
+     * 遮罩透明度
+     */
+    readonly Opacity: number
+    /**
+     * 挖孔类型
+     */
+    readonly HollowType: number
+    /**
+     * 挖孔缩放
+     */
+    readonly HollowScale: number
+    /**
+     * 圆圈缩放
+     */
+    readonly RingScale: number
+    /**
+     * 圆圈相对挖孔偏移
+     */
+    readonly RingOffset: Vector2
+    /**
+     * 手指方向
+     */
+    readonly FingerDir: number
+    /**
+     * 手指相对挖孔偏移
+     */
+    readonly FingerOffset: Vector2
+    /**
+     * 提示文字
+     */
+    readonly TipText: string
+    /**
+     * 提示文字位置
+     */
+    readonly TipPos: Vector2
+    /**
+     * 加载预制体
+     */
+    readonly Prefab: string
+
+    resolve(_tables: Map<string, any>) {
+    }
+}
+
+
+
+
 type JsonLoader = (file: string) => any
 
 export class Tables {
@@ -366,6 +512,8 @@ export class Tables {
     get TbDemoGroupDefineFromExcel1(): TbDemoGroupDefineFromExcel1  { return this._TbDemoGroupDefineFromExcel1;}
     private _TbCityMap: TbCityMap
     get TbCityMap(): TbCityMap  { return this._TbCityMap;}
+    private _TbGuide: TbGuide
+    get TbGuide(): TbGuide  { return this._TbGuide;}
 
     constructor(loader: JsonLoader) {
         let tables = new Map<string, any>()
@@ -375,9 +523,12 @@ export class Tables {
         tables.set('TbDemoGroupDefineFromExcel1', this._TbDemoGroupDefineFromExcel1)
         this._TbCityMap = new TbCityMap(loader('tbcitymap'))
         tables.set('TbCityMap', this._TbCityMap)
+        this._TbGuide = new TbGuide(loader('tbguide'))
+        tables.set('TbGuide', this._TbGuide)
 
         this._TbDemoGroupDefineFromExcel.resolve(tables)
         this._TbDemoGroupDefineFromExcel1.resolve(tables)
         this._TbCityMap.resolve(tables)
+        this._TbGuide.resolve(tables)
     }
 }
