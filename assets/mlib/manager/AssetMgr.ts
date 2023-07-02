@@ -28,7 +28,7 @@ class BundleMgr {
 
     private resolveBundle(bundle: AssetManager.Bundle) {
         this.bundles.set(bundle.name, bundle);
-        bundle.config.paths.forEach(v => {
+        bundle["_config"].paths.forEach(v => {
             v.forEach(v1 => {
                 if (!this.address.has(v1.path))
                     this.address.set(v1.path, bundle.name);
