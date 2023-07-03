@@ -24,7 +24,7 @@ export enum EPassiveType {
 export class UIBase extends AssetHandler {
     @property({
         displayName: "销毁",
-        tooltip: "UI关闭时是否销毁"
+        tooltip: "UI关闭时销毁"
     })
     destroyNode = false;
     @property({
@@ -72,15 +72,16 @@ export class UIBase extends AssetHandler {
     public get isAnimEnd() { return this._isAnimEnd; }
     protected args: any = null;
 
-    onDestroy() {
+    protected onDestroy() {
         super.onDestroy();
-        AssetMgr.DecRef(this.uiName);
+        AssetMgr.DecRef("uiPrefab/" + this.uiName);
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     init(uiName: string) {
         if (this.uiName) return;
         this.uiName = uiName;
+
         this.transform = this.getComponent(UITransform);
         this.uiOpacity = this.getComponent(UIOpacity);
 
@@ -157,7 +158,7 @@ export class UIBase extends AssetHandler {
                     App.ui.blockTime = clip.duration + 0.1;
                     if (clip) {
                         this.animation.stop();
-                        this.animation.once("finished" as any, callback);
+                        this.animation.once(Animation.EventType.FINISHED, callback);
                         this.animation.play(clip.name);
                         if (this.shadeOpacity) {
                             this.shadeOpacity.opacity = 0;
@@ -189,7 +190,7 @@ export class UIBase extends AssetHandler {
                     let clip = this.animation.clips[1];
                     if (clip) {
                         this.animation.stop();
-                        this.animation.once("finished" as any, callback);
+                        this.animation.once(Animation.EventType.FINISHED, callback);
                         this.animation.play(clip.name);
                         if (this.shadeOpacity) tween(this.shadeOpacity).to(clip.duration, { opacity: 0 }).start();
                     } else {

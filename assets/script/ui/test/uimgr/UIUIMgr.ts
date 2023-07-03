@@ -35,14 +35,9 @@ export class UIUIMgr extends UIBase {
 
     }
 
-
     onClickShowPopUp() {
 
-
-
         App.ui.show(UIConstant.UIPopUp);
-
-
 
     }
 

@@ -190,11 +190,11 @@ export class AudioMgr extends Component {
     /**
      * 播放音效
      * @param loop loop=true时不会触发onFinished
-     * @param release 默认为true 是否在音效结束时释放音频资源
+     * @param deRef 默认为true 是否在音效结束时释引用次数-1
      */
-    async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, release?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
-        let { loop, release, onStart, onFinished } = args;
-        release = release === undefined ? true : release;
+    async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
+        let { loop, deRef, onStart, onFinished } = args;
+        deRef = deRef === undefined ? true : deRef;
         var clip = await AssetMgr.loadAsset(location, AudioClip);
         if (loop) {
             let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
@@ -210,7 +210,7 @@ export class AudioMgr extends Component {
             tween(clip)
                 .delay(clip.getDuration())
                 .call(() => {
-                    if (release) AssetMgr.DecRef(location);
+                    if (deRef) AssetMgr.DecRef(location);
                     onFinished && onFinished();
                 })
                 .start();

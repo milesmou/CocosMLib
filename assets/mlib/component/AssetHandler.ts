@@ -10,7 +10,7 @@ export class AssetHandler extends AutoBindProperty {
     //Location:Asset
     private cache: Map<string, Asset> = new Map();
 
-    onDestroy() {
+    protected onDestroy() {
         this.decRefCount();
     }
 

@@ -4624,7 +4624,7 @@
     "__prefab": {
       "__id__": 196
     },
-    "destroyNode": false,
+    "destroyNode": true,
     "showShade": false,
     "fullScreen": false,
     "autoHide": false,

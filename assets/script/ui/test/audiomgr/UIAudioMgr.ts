@@ -8,7 +8,9 @@ const { ccclass, property } = _decorator;
 @ccclass('UIAudioMgr')
 export class UIAudioMgr extends UIBase {
 
-
+    onDestroy(){
+       super.onDestroy(); 
+    }
 
     playMusic(evt: EventTouch, data: string) {
         if (data == "1") {
@@ -32,7 +34,7 @@ export class UIAudioMgr extends UIBase {
         if (data == "1") {
             App.audio.playEffect("audio/test/click", 1, {
                 loop: false,
-                release: false,
+                deRef: false,
                 onStart: (clip: AudioClip) => {
                     console.log("onStart playEffect1", clip);
                 },

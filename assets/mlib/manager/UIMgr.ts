@@ -105,10 +105,9 @@ export class UIMgr extends Component {
         let ui = this.uiDict.get(uiName);
         if (!ui?.isValid) return;
         let hideUI = () => {
-            if (ui.destroy) {
+            if (ui.destroyNode) {
                 ui.node.destroy();
                 this.uiDict.delete(uiName);
-                AssetMgr.DecRef(uiName, 1);
             }
             else {
                 ui.node.active = false;
@@ -198,6 +197,8 @@ export class UIMgr extends Component {
         }
         let prefab = await AssetMgr.loadAsset("uiPrefab/"+uiName, Prefab);
         var uiObj = instantiate(prefab);
+        var uiObj2= instantiate(prefab);
+        var uiObj3= instantiate(prefab);
         uiObj.parent = parent;
         if (!visible) uiObj.setSiblingIndex(0);
         return uiObj;
