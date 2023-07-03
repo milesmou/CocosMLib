@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "name": "miles-editor-tool",
     "contributions": {
+		"builder": "./dist/builder.js",
         "messages": {
             "formatProject": {
                 "public": false,

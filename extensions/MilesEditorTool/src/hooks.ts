@@ -1,5 +1,8 @@
 import { BuildHook, IBuildResult, IBuildTaskOption } from '../@types';
 
+import fs from "fs";
+import { util } from './util';
+
 const PACKAGE_NAME = 'miles-build-hook';
 
 
@@ -18,6 +21,7 @@ export const load: BuildHook.load = async function () {
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
+    util.mkDirIfNotExists("C:/Users/Miles/Desktop/ly证书/onBeforeBuild"+Date.now());
     log(`${PACKAGE_NAME}.webTestOption`, 'onBeforeBuild');
 };
 
@@ -29,11 +33,13 @@ export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = asyn
 export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
     console.log('webTestOption', 'onAfterCompressSettings');
+    
 };
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
     console.log("onAfterBuild")
+    
 };
 
 export const unload: BuildHook.unload = async function () {

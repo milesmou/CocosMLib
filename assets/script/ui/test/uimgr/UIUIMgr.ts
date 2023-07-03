@@ -1,4 +1,4 @@
-import { Button, Sprite, UITransform, _decorator } from 'cc';
+import { Button, Sprite, UITransform,_decorator } from 'cc';
 import { App } from '../../../../mlib/App';
 import { UIBase } from '../../../../mlib/component/UIBase';
 import { UIConstant } from '../../../gen/UIConstant';

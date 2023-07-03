@@ -169,7 +169,7 @@ export class ButtonHelper extends Component {
     }
 
     /** 默认音效路径 */
-    static defaultAuidoLocation: string = "";
+static defaultAuidoLocation: string = "";
 
     /**
      * 修改原型，针对所有按钮，扩展按钮功能
