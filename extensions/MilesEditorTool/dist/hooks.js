@@ -1,53 +1,53 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.unload = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = exports.load = exports.throwError = void 0;
-const util_1 = require("./util");
-const PACKAGE_NAME = 'miles-build-hook';
-function log(...arg) {
-    return console.log(`[${PACKAGE_NAME}] `, ...arg);
-}
-let allAssets = [];
-exports.throwError = true;
-const load = async function () {
-    console.log(`[${PACKAGE_NAME}] Load cocos plugin example in builder.`);
-    allAssets = await Editor.Message.request('asset-db', 'query-assets');
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.load = load;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = void 0;
+const fs_1 = __importDefault(require("fs"));
+const util_1 = require("./util");
+const TAG = 'miles-build';
+const TemplatePrefix = util_1.util.ProjectPath + "/assets/publish/";
+function log(...arg) {
+    return console.log(`[${TAG}] `, ...arg);
+}
 const onBeforeBuild = async function (options, result) {
     // Todo some thing
-    util_1.util.mkDirIfNotExists("C:/Users/Miles/Desktop/ly证书/onBeforeBuild" + Date.now());
-    log(`${PACKAGE_NAME}.webTestOption`, 'onBeforeBuild');
+    util_1.util.mkDirIfNotExists(TemplatePrefix + options.platform);
+    appendMBuildLog("Build Start");
 };
 exports.onBeforeBuild = onBeforeBuild;
 const onBeforeCompressSettings = async function (options, result) {
     // Todo some thing
-    console.debug('get settings test', result.settings);
+    appendMBuildLog('get settings test', result.settings);
 };
 exports.onBeforeCompressSettings = onBeforeCompressSettings;
 const onAfterCompressSettings = async function (options, result) {
     // Todo some thing
-    console.log('webTestOption', 'onAfterCompressSettings');
+    appendMBuildLog('webTestOption ' + 'onAfterCompressSettings');
 };
 exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = async function (options, result) {
     // Todo some thing
-    console.log("onAfterBuild");
+    let dir = TemplatePrefix + options.platform;
+    appendMBuildLog(options.buildPath);
 };
 exports.onAfterBuild = onAfterBuild;
-const unload = async function () {
-    console.log(`[${PACKAGE_NAME}] Unload cocos plugin example in builder.`);
-};
-exports.unload = unload;
 const onError = async function (options, result) {
     // Todo some thing
-    console.warn(`${PACKAGE_NAME} run onError`);
+    console.warn(`${TAG} run onError`);
 };
 exports.onError = onError;
 const onBeforeMake = async function (root, options) {
-    console.log(`onBeforeMake: root: ${root}, options: ${options}`);
+    appendMBuildLog(`onBeforeMake: root: ${root}, options: ${options}`);
 };
 exports.onBeforeMake = onBeforeMake;
 const onAfterMake = async function (root, options) {
-    console.log(`onAfterMake: root: ${root}, options: ${options}`);
+    appendMBuildLog(`onAfterMake: root: ${root}, options: ${options}`);
 };
 exports.onAfterMake = onAfterMake;
+const appendMBuildLog = function (...strs) {
+    let filePath = util_1.util.ProjectPath + "/temp/builder/mbuildlog.txt";
+    let content = `[${TAG}] ${new Date().toLocaleString()} ${strs.join(" ")} \n`;
+    fs_1.default.appendFileSync(filePath, content);
+};

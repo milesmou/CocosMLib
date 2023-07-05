@@ -90,6 +90,9 @@ export abstract class LocalStroage {
  */
 export class StroageMgr {
 
+
+    //用户自定义语言存档的Key
+    public static readonly UserLanguageCodeKey = "UserLanguageCodeKey";
     /** 字典或数组集合的元素的key的后缀 */
     public static readonly CollectionItemSuffix = "_item";
 

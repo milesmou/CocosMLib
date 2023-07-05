@@ -16,6 +16,12 @@ export const ELanguage = Enum({
     English: 3,
 })
 
+export enum LanguageCode {
+    ChineseSimplified = "sc",
+    ChineseTraditional = "tc",
+    English = "en"
+}
+
 /** 应用程序启动入口 */
 @ccclass('App')
 export class App extends Component {
@@ -36,7 +42,7 @@ export class App extends Component {
 
     //environment
     public static config: { channelName: string, version: string };
-    public static lang: string;
+    public static lang: LanguageCode;
     public static channel: IChannel;
     public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
     //manager
@@ -67,16 +73,24 @@ export class App extends Component {
     }
 
     /** 获取语言环境 */
-    getLanguage = () => {
-        let v = "";
+    getLanguage(): LanguageCode {
+        let v: LanguageCode = LanguageCode.ChineseSimplified;
         if (this.languageId == ELanguage.Auto) {
-            v = "zh";
+            let code = StroageMgr.getValue(StroageMgr.UserLanguageCodeKey, "");
+            if (code) {
+                v = code as LanguageCode;
+            }
+            else {
+                if (sys.languageCode == "zh") v = LanguageCode.ChineseSimplified;
+                else if (sys.languageCode.startsWith("zh")) v = LanguageCode.ChineseTraditional;
+                else v = LanguageCode.English;
+            }
         } else if (this.languageId == ELanguage.ChineseSimplified) {
-            v = "zh";
+            v = LanguageCode.ChineseSimplified;
         } else if (this.languageId == ELanguage.ChineseTraditional) {
-            v = "zh_ft";
-        } else if (this.languageId == ELanguage.English) {
-            v = "en";
+            v = LanguageCode.ChineseTraditional;
+        } else {
+            v = LanguageCode.English;
         }
         return v;
     }

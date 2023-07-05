@@ -90,7 +90,7 @@
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2023-7-3 23:13:34 build success in 13101 ms!",
+        "message": "2023-7-4 23:33:28 build success in 11948 ms!",
         "options": {
           "name": "NewProject3",
           "platform": "web-mobile",
@@ -123,7 +123,7 @@
           "packages": {},
           "packAutoAtlas": true
         },
-        "time": "2023-7-3 23:13",
+        "time": "2023-7-4 23:33",
         "dirty": false
       }
     }

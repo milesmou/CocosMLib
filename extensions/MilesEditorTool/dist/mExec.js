@@ -86,7 +86,6 @@ class mExec {
             else if (line == end.trim())
                 genEndIndex = index;
         }
-        // console.log("????? ", classIndex, " - ", genStartIndex, " - ", genEndIndex);
         if (genStartIndex == -1) { //直接生成
             lines.splice(classIndex + 1, 0, start, ...strs, end);
             save = true;
