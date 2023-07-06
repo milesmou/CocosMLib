@@ -69,7 +69,7 @@ export class App extends Component {
         App.lang = this.getLanguage();
         App.channel = Channel.getPlatformInst(this.platformId);
         App.safeSize = this.getSafeArea();
-        console.log(`Channel = ${App.config.channelName} Version = ${App.config.version} Language = ${App.lang}`);
+        console.log(`Channel=${App.config.channelName} Version=${App.config.version} Language=${App.lang}`);
     }
 
     /** 获取语言环境 */
