@@ -1,4 +1,5 @@
 import { Component, Enum, Label, Node, RichText, Sprite, _decorator } from 'cc';
+import GameTable from '../../script/base/GameTable';
 const { ccclass, property } = _decorator;
 
 import { App } from "../App";
@@ -91,10 +92,6 @@ export class Localization extends Component {
     }
 
     static list: Localization[] = [];
-    static dict: { [key: number]: Language } = null;
-    static init(dict: { [key: number]: Language }) {
-        this.dict = this.dict || dict;
-    }
 
     static reload() {
         this.list.forEach(v => {
@@ -117,15 +114,12 @@ export class Localization extends Component {
 
     /** 通过Key获取语言表上当前语言的内容 */
     static getTextByKey(key: string, ...args: any[]): string {
-        if (!this.dict) {
-            console.error(`未初始化语言表`);
-            return "";
-        };
-        if (!this.dict[key] || !this.dict[key][App.lang]) {
+        let data = GameTable.Inst.Table.TbLocalization.get(key);
+        if (!data) {
             console.error(`key=${key} Lang=${App.lang}  在语言表中无对应内容`);
             return "";
         }
-        return Utils.formatString(this.dict[key][App.lang], ...args);
+        return Utils.formatString(data[App.lang], ...args);
     }
 }
 

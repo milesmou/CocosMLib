@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = void 0;
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const util_1 = require("./util");
 const TAG = 'miles-build';
 const TemplatePrefix = util_1.util.ProjectPath + "/assets/publish/";
@@ -28,9 +29,16 @@ const onAfterCompressSettings = async function (options, result) {
 };
 exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = async function (options, result) {
-    // Todo some thing
-    let dir = TemplatePrefix + options.platform;
-    appendMBuildLog(options.buildPath);
+    appendMBuildLog("onAfterBuild");
+    let templatePath = TemplatePrefix + options.platform;
+    let buildPath = util_1.util.toUniSeparator(result.dest);
+    let files = util_1.util.getAllFiles(templatePath);
+    for (const file of files) {
+        let newFile = buildPath + file.replace(templatePath, "");
+        util_1.util.mkDirIfNotExists(path_1.default.dirname(newFile));
+        fs_1.default.copyFileSync(file, newFile);
+        appendMBuildLog(`copy ${file} to ${newFile}`);
+    }
 };
 exports.onAfterBuild = onAfterBuild;
 const onError = async function (options, result) {

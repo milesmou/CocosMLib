@@ -43,6 +43,7 @@ export class util {
             });
         };
         walkSync(dir, file => {
+            if(file.endsWith(".meta")) return;
             if (suffix.length == 0) files.push(this.toUniSeparator(file));
             let s = suffix.find(v => file.endsWith(v));
             if (s) files.push(this.toUniSeparator(file));

@@ -503,6 +503,74 @@ export class Guide {
 
 
 
+export class TbLocalization{
+    private _dataMap: Map<string, Localization>
+    private _dataList: Localization[]
+    constructor(_json_: any) {
+        this._dataMap = new Map<string, Localization>()
+        this._dataList = []
+        for(var _json2_ of _json_) {
+            let _v: Localization
+            _v = new Localization(_json2_)
+            this._dataList.push(_v)
+            this._dataMap.set(_v.key, _v)
+        }
+    }
+
+    getDataMap(): Map<string, Localization> { return this._dataMap; }
+    getDataList(): Localization[] { return this._dataList; }
+
+    get(key: string): Localization | undefined { return this._dataMap.get(key); }
+
+    resolve(_tables: Map<string, any>) {
+        for(var v of this._dataList) {
+            v.resolve(_tables)
+        }
+    }
+
+}
+
+
+
+
+
+export class Localization {
+
+    constructor(_json_: any) {
+        if (_json_.key === undefined) { throw new Error() }
+        this.key = _json_.key
+        if (_json_.sc === undefined) { throw new Error() }
+        this.sc = _json_.sc
+        if (_json_.tc === undefined) { throw new Error() }
+        this.tc = _json_.tc
+        if (_json_.en === undefined) { throw new Error() }
+        this.en = _json_.en
+    }
+
+    /**
+     * key
+     */
+    readonly key: string
+    /**
+     * 简体中文
+     */
+    readonly sc: string
+    /**
+     * 繁体中文
+     */
+    readonly tc: string
+    /**
+     * 英文
+     */
+    readonly en: string
+
+    resolve(_tables: Map<string, any>) {
+    }
+}
+
+
+
+
 type JsonLoader = (file: string) => any
 
 export class Tables {
@@ -514,6 +582,8 @@ export class Tables {
     get TbCityMap(): TbCityMap  { return this._TbCityMap;}
     private _TbGuide: TbGuide
     get TbGuide(): TbGuide  { return this._TbGuide;}
+    private _TbLocalization: TbLocalization
+    get TbLocalization(): TbLocalization  { return this._TbLocalization;}
 
     constructor(loader: JsonLoader) {
         let tables = new Map<string, any>()
@@ -525,10 +595,13 @@ export class Tables {
         tables.set('TbCityMap', this._TbCityMap)
         this._TbGuide = new TbGuide(loader('tbguide'))
         tables.set('TbGuide', this._TbGuide)
+        this._TbLocalization = new TbLocalization(loader('tblocalization'))
+        tables.set('TbLocalization', this._TbLocalization)
 
         this._TbDemoGroupDefineFromExcel.resolve(tables)
         this._TbDemoGroupDefineFromExcel1.resolve(tables)
         this._TbCityMap.resolve(tables)
         this._TbGuide.resolve(tables)
+        this._TbLocalization.resolve(tables)
     }
 }

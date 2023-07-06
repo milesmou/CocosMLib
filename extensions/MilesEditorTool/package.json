@@ -53,8 +53,8 @@
         "shortcuts": [
             {
                 "message": "loadExcel",
-                "win": "ctrl+alt+l",
-                "mac": "ctrl+option+l"
+                "win": "ctrl+shift+l",
+                "mac": "ctrl+shift+l"
             },
             {
                 "message": "genConst",

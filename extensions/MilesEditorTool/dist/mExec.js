@@ -13,6 +13,10 @@ class mExec {
         //创建目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/publish"); //构建后处理资源目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/localization"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/localization/sc"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/localization/tc"); //资源包目录
+        util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/localization/en"); //资源包目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/static"); //资源包目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/static/anim"); //资源包目录
         util_1.util.mkDirIfNotExists(util_1.util.ProjectPath + "/assets/bundle/static/font"); //资源包目录

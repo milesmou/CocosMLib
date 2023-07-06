@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import { BuildHook, IBuildResult, IBuildTaskOption } from '../@types';
 import { util } from './util';
 
@@ -26,9 +27,16 @@ export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async 
 };
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
-    // Todo some thing
-    let dir = TemplatePrefix + options.platform;
-    appendMBuildLog(options.buildPath);
+    appendMBuildLog("onAfterBuild");
+    let templatePath = TemplatePrefix + options.platform;
+    let buildPath = util.toUniSeparator(result.dest);
+    let files = util.getAllFiles(templatePath);
+    for (const file of files) {
+        let newFile = buildPath + file.replace(templatePath, "");
+        util.mkDirIfNotExists(path.dirname(newFile));
+        fs.copyFileSync(file, newFile,);
+        appendMBuildLog(`copy ${file} to ${newFile}`);
+    }
 };
 
 export const onError: BuildHook.onError = async function (options, result) {
