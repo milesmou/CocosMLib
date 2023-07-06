@@ -1,4 +1,5 @@
 import { Animation, BlockInputEvents, Button, color, Enum, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
+import { EventKey } from '../../script/base/GameEnum';
 const { property, ccclass, requireComponent } = _decorator;
 
 import { App } from "../App";
@@ -128,20 +129,20 @@ export class UIBase extends AssetHandler {
 
     /* 被全屏UI挡住时 隐藏界面 降低dc */
     private enableAutoHide() {
-        App.event.on(App.eventKey.OnUIShow, (ui: UIBase) => {
+        App.event.on(EventKey.OnUIShow, (ui: UIBase) => {
             if (this?.isValid) {
                 if (ui != this && ui.fullScreen && App.ui.isUIBeCover(this) && App.ui.isUIInStack(this)) this.setVisible(false);
             }
             else {
-                App.event.offByTag(App.eventKey.OnUIHideBegin, this.uiName);
+                App.event.offByTag(EventKey.OnUIHideBegin, this.uiName);
             }
         }, null, this.uiName);
-        App.event.on(App.eventKey.OnUIHideBegin, (ui: UIBase) => {
+        App.event.on(EventKey.OnUIHideBegin, (ui: UIBase) => {
             if (this?.isValid) {
                 if (!App.ui.isUIBeCover(this) && App.ui.isUIInStack(this)) this.setVisible(true);
             }
             else {
-                App.event.offByTag(App.eventKey.OnUIHideBegin, this.uiName);
+                App.event.offByTag(EventKey.OnUIHideBegin, this.uiName);
             }
         }, null, this.uiName);
     }

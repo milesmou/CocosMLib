@@ -3,8 +3,8 @@ const { ccclass, property } = _decorator;
 
 import { Channel, EChannel, IChannel } from "./channel/Channel";
 import { AudioMgr } from "./manager/AudioMgr";
-import { EventKey, EventMgr } from "./manager/EventMgr";
-import { PoolKey, PoolMgr } from "./manager/PoolMgr";
+import { EventMgr } from "./manager/EventMgr";
+import { PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
 import { UIMgr } from "./manager/UIMgr";
 import { SingletonFactory } from './utils/SingletonFactory';
@@ -47,11 +47,9 @@ export class App extends Component {
     public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
     //manager
     public static stroage = StroageMgr;
+    public static event = EventMgr;
+    public static pool = PoolMgr;
     public static audio: AudioMgr;
-    public static event: EventMgr;
-    public static eventKey = EventKey;
-    public static pool: PoolMgr;
-    public static poolKey = PoolKey;
     public static ui: UIMgr;
 
     onLoad() {
@@ -59,9 +57,11 @@ export class App extends Component {
         game.frameRate = 45;
     }
 
+    onDestroy() {
+
+    }
+
     start() {
-        App.event = new EventMgr();
-        App.pool = new PoolMgr();
         App.audio = AudioMgr.Inst;
         App.ui = UIMgr.Inst;
 

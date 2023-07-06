@@ -1,5 +1,16 @@
 //枚举定义类
 
+/** 事件枚举 */
+export enum EventKey {
+    ShowUI,
+    HideUI,
+    OnUIInitBegin,
+    OnUIShowBegin,
+    OnUIHideBegin,
+    OnUIShow,
+    OnUIHide,
+}
+
 /**
  * 引导枚举
  */

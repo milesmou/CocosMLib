@@ -1,22 +1,24 @@
-import { _decorator, Prefab, NodePool, Node, instantiate, Component } from 'cc';
-
-/** 对象池枚举 */
-export enum PoolKey {
-    Miles,
-    Mou,
-}
+import { Component, instantiate, Node, NodePool, Prefab } from 'cc';
 
 /** 对象池工具类 */
 export class PoolMgr {
-    private prefabs: Map<number, Prefab> = new Map();
-    private pools: Map<number, NodePool> = new Map();
+    private static prefabs: Map<string, Prefab> = new Map();
+    private static pools: Map<string, NodePool> = new Map();
+
+    /** 清理所有对象池 */
+    static clear() {
+        this.prefabs.clear();
+        this.pools.forEach(v => v.clear());
+        this.pools.clear();
+    }
+
     /**
      * 初始化一个对象池
      * @param poolName 对象池名字
      * @param prefab 预制体
      * @param num 初始化节点数量
      */
-    initPool(poolName: number, prefab: Prefab, itemNum: number) {
+    static initPool(poolName: string, prefab: Prefab, itemNum: number) {
         if (!this.pools.has(poolName)) {
             let pool = new NodePool();
             this.prefabs.set(poolName, prefab);
@@ -51,7 +53,7 @@ export class PoolMgr {
      * 从对象池中获取节点
      * @param poolName?对象池名字
      */
-    get(poolName: number) {
+    static get(poolName: string) {
         if (this.pools.has(poolName)) {
             let pool = this.pools.get(poolName)!;
             if (pool.size() > 0) {
@@ -68,7 +70,7 @@ export class PoolMgr {
      * @param poolName 对象池名字
      * @param nodeRes 节点或节点数组
      */
-    put(poolName: number, nodeRes: Node | Node[]) {
+    static put(poolName: string, nodeRes: Node | Node[]) {
         if (this.pools.has(poolName)) {
             let pool = this.pools.get(poolName)!;
             if (nodeRes instanceof Array) {
@@ -82,7 +84,8 @@ export class PoolMgr {
             console.error("对象池不存在!");
         }
     }
-    *itemGen(pool: NodePool, prefab: Prefab, itemNum: number) {
+
+    static *itemGen(pool: NodePool, prefab: Prefab, itemNum: number) {
         for (let i = 0; i < itemNum; i++) {
             let func = () => {
                 pool.put(instantiate(prefab))

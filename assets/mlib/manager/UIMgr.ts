@@ -1,13 +1,14 @@
 import { Component, instantiate, Node, Prefab, SpriteFrame, _decorator } from 'cc';
+import { EventKey } from '../../script/base/GameEnum';
 import { UIConstant } from '../../script/gen/UIConstant';
 import { UIGuide } from '../../script/ui/base/UIGuide';
 import { UITipMsg } from '../../script/ui/base/UITipMsg';
 const { ccclass, property } = _decorator;
 
-import { App } from "../App";
 import { EPassiveType, UIBase } from "../component/UIBase";
 import { Utils } from '../utils/Utils';
 import { AssetMgr } from './AssetMgr';
+import { EventMgr } from './EventMgr';
 
 @ccclass('UIMgr')
 export class UIMgr extends Component {
@@ -76,7 +77,7 @@ export class UIMgr extends Component {
         this.checkShowUI(uiName);
         this.blockTime = blockTime;
         Utils.delItemFromArray(this.uiList, uiName);
-        App.event.emit(App.eventKey.OnUIInitBegin, uiName);
+        EventMgr.emit(EventKey.OnUIInitBegin, uiName);
         this.uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this.normal, visible);
         Utils.delItemFromArray(this.uiStack, ui);
@@ -91,11 +92,11 @@ export class UIMgr extends Component {
             let belowUI = this.uiStack[this.uiStack.length - 2];
             ui.onShowBegin();
             belowUI?.onPassive(EPassiveType.HideBegin, ui);
-            App.event.emit(App.eventKey.OnUIShowBegin, ui);
+            EventMgr.emit(EventKey.OnUIShowBegin, ui);
             await ui.playShowAnim();
             ui.onShow();
             belowUI?.onPassive(EPassiveType.Hide, ui);
-            App.event.emit(App.eventKey.OnUIShow, ui);
+            EventMgr.emit(EventKey.OnUIShow, ui);
         }
         return ui as T;
     }
@@ -120,18 +121,18 @@ export class UIMgr extends Component {
             if (index == this.uiStack.length) {
                 let topUI = this.uiStack[this.uiStack.length - 1];
                 ui.onHideBegin();
-                topUI?.onPassive(EPassiveType.ShowBegin,ui);
-                App.event.emit(App.eventKey.OnUIHideBegin, ui);
+                topUI?.onPassive(EPassiveType.ShowBegin, ui);
+                EventMgr.emit(EventKey.OnUIHideBegin, ui);
                 if (fastHide) {
                     ui.onHide();
-                    topUI?.onPassive(EPassiveType.Show,ui);
-                    App.event.emit(App.eventKey.OnUIHide, ui);
+                    topUI?.onPassive(EPassiveType.Show, ui);
+                    EventMgr.emit(EventKey.OnUIHide, ui);
                     hideUI();
                 } else {
                     await ui.playHideAnim();
                     ui.onHide();
-                    topUI?.onPassive(EPassiveType.Show,ui);
-                    App.event.emit(App.eventKey.OnUIHide, ui);
+                    topUI?.onPassive(EPassiveType.Show, ui);
+                    EventMgr.emit(EventKey.OnUIHide, ui);
                     hideUI();
                 }
             }
@@ -149,7 +150,7 @@ export class UIMgr extends Component {
         let ui = await this.initUI(uiName, this.higher);
         ui.setArgs(args);
         ui.node.setSiblingIndex(999999);
-        App.event.emit(App.eventKey.OnUIShow, ui);
+        EventMgr.emit(EventKey.OnUIShow, ui);
         return ui;
     }
 
@@ -161,7 +162,7 @@ export class UIMgr extends Component {
             this.uiDict.delete(uiName);
         }
         else ui.node.active = false;
-        App.event.emit(App.eventKey.OnUIHide, ui);
+        EventMgr.emit(EventKey.OnUIHide, ui);
     }
 
     public showResident(uiName: string) {
@@ -195,10 +196,10 @@ export class UIMgr extends Component {
                 return ui.node;
             }
         }
-        let prefab = await AssetMgr.loadAsset("uiPrefab/"+uiName, Prefab);
+        let prefab = await AssetMgr.loadAsset("uiPrefab/" + uiName, Prefab);
         var uiObj = instantiate(prefab);
-        var uiObj2= instantiate(prefab);
-        var uiObj3= instantiate(prefab);
+        var uiObj2 = instantiate(prefab);
+        var uiObj3 = instantiate(prefab);
         uiObj.parent = parent;
         if (!visible) uiObj.setSiblingIndex(0);
         return uiObj;

@@ -1,20 +1,14 @@
-/** 事件枚举 */
-export enum EventKey {
-    ShowUI,
-    HideUI,
-    OnUIInitBegin,
-    OnUIShowBegin,
-    OnUIHideBegin,
-    OnUIShow,
-    OnUIHide,
-    Test3 = 10000,
-}
-
 /** 全局事件管理工具 */
 export class EventMgr {
-    private eventMap: Map<string | number, { callback: Function, thisObj?: object, once?: boolean, tag?: string }[]> = new Map();
+    private static eventMap: Map<string | number, { callback: Function, thisObj?: object, once?: boolean, tag?: string }[]> = new Map();
+    
+    /** 清理所有事件 */
+    public static clear() {
+        EventMgr.eventMap.clear();
+    }
+
     /** 为事件注册一个回调,重复注册只保留第一次的事件 */
-    public on(name: number | string, callback: Function, thisObj?: object, tag?: string) {
+    public static on(name: number | string, callback: Function, thisObj?: object, tag?: string) {
         let events = this.eventMap.get(name)!;
         if (!events) {
             this.eventMap.set(name, []);
@@ -26,7 +20,7 @@ export class EventMgr {
         }
     }
     /** 为事件注册一个回调,回调仅会触发一次,重复注册只保留第一次的事件 */
-    public once(name: number | string, callback: Function, thisObj?: object, tag?: string) {
+    public static once(name: number | string, callback: Function, thisObj?: object, tag?: string) {
         let events = this.eventMap.get(name)!;
         if (!events) {
             this.eventMap.set(name, []);
@@ -38,7 +32,7 @@ export class EventMgr {
         }
     }
     /** 取消事件的某个回调，callback不传值时取消事件所有回调*/
-    public off(name: number | string, callback?: Function, thisObj?: object) {
+    public static off(name: number | string, callback?: Function, thisObj?: object) {
         let events = this.eventMap.get(name);
         if (events && events.length > 0) {
             if (callback) {
@@ -50,7 +44,7 @@ export class EventMgr {
         }
     }
     /** 通过tag取消事件 */
-    public offByTag(name: number | string, tag: string) {
+    public static offByTag(name: number | string, tag: string) {
         if (!tag) return;
         let event = this.eventMap.get(name);
         if (event?.length > 0) {
@@ -58,7 +52,7 @@ export class EventMgr {
         }
     }
     /** 触发事件，参数个数不固定 */
-    public emit(name: number | string, ...args: any[]) {
+    public static emit(name: number | string, ...args: any[]) {
         let events = this.eventMap.get(name);
         if (events && events.length > 0) {
             let toDelArr: number[] = [];
