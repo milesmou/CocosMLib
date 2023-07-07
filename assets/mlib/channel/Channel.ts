@@ -24,6 +24,8 @@ export abstract class IChannel {
     abstract showRewardVideo(args: ShowRewardVideoArgs);
     /** 展示插屏 */
     abstract showInterstitial(arg?: string);
+    /** 分享 */
+    abstract share(...args: any[]);
     /** 发起内购 */
     abstract requestIAP(args: RequestIAPArgs);
     /** 查询漏单 */
@@ -66,6 +68,10 @@ export class Channel implements IChannel {
     }
 
     showInterstitial(extParam?: string) {
+
+    }
+
+    share(...args: any[]) {
 
     }
 
