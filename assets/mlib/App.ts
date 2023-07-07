@@ -90,7 +90,8 @@ export class App extends Component {
         director.addPersistRootNode(this.node);
         game.frameRate = 45;
         App.config = {
-            gameConfigType: this.gameConfigType, gameConfigText: this.gameConfigAsset.text, gameConfigUrl: this.gameConfigUrl.replace("{0}", EChannel[this.platformId]),
+            gameConfigType: this.gameConfigType, gameConfigText: this.gameConfigAsset.text,
+            gameConfigUrl: this.gameConfigUrl.replace("{0}", EChannel[this.platformId]),
             hotupdateManifest: this.hotupdateManifest, channel: EChannel[this.platformId], version: this.version
         };
         this.gameConfigAsset.destroy();
