@@ -1,25 +1,25 @@
-import { _decorator, Component, Node, PageView, Label, misc } from 'cc';
+import { Component, Label, Node, PageView, _decorator, misc } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('PageViewHelper')
 export class PageViewHelper extends Component {
     @property({
         type: Node,
-        visible: function () { return (this as any).getComponent(PageView) }
+        visible: function () { return this.getComponent(PageView) }
     })
-    btnPrevious: Node | null = null;
+    btnPrevious: Node = null;
     @property({
         type: Node,
-        visible: function () { return (this as any).getComponent(PageView) }
+        visible: function () { return this.getComponent(PageView) }
     })
-    btnNext: Node | null = null;
+    btnNext: Node = null;
     @property({
         type: Label,
-        visible: function () { return (this as any).getComponent(PageView) }
+        visible: function () { return this.getComponent(PageView) }
     })
-    pageNum: Label | null = null;
-    pageView: PageView | null = null;
-    
+    pageNum: Label = null;
+    pageView: PageView = null;
+
     onLoad() {
         this.pageView = this.getComponent(PageView);
         if (this.btnPrevious) {
