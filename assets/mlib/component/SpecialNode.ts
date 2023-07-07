@@ -1,4 +1,5 @@
-import { Component, Enum, sys, _decorator } from 'cc';
+import { Component, Enum, _decorator, sys } from 'cc';
+import { GameConfig } from '../../script/base/GameConfig';
 const { ccclass, property } = _decorator;
 
 
@@ -32,11 +33,27 @@ export class SpecialNode extends Component {
     }
 
     checkGMVisible() {
+        let visible = true;
+        if (GameConfig.gm) {
+            visible = !this.reverse;
+        }
+        else {
+            visible = this.reverse;
+        }
 
+        this.node.active = visible;
     }
 
     checkSHVisible() {
+        let visible = true;
+        if (GameConfig.sh) {
+            visible = !this.reverse;
+        }
+        else {
+            visible = this.reverse;
+        }
 
+        this.node.active = visible;
     }
 
     checkAndroidVisible() {

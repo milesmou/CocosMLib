@@ -19,8 +19,8 @@
   "camera-infos": {
     "f46876e4-e81b-4931-b493-6d367be385e7": {
       "position": {
-        "x": 949.9999999999999,
-        "y": 566,
+        "x": 175.5,
+        "y": 314.5,
         "z": 5000
       },
       "rotation": {
@@ -163,7 +163,7 @@
     }
   },
   "camera-uuids": [
-    "0e09b2b3-90f0-4f74-802f-17a05e082e6a"
+    "f46876e4-e81b-4931-b493-6d367be385e7"
   ],
   "float-window": {
     "position": {
@@ -200,8 +200,8 @@
     "size": "__default_design__"
   },
   "game-view": {
-    "scaleValue": 49,
-    "sliderValue": 22
+    "scaleValue": 55,
+    "sliderValue": 25
   },
   "builder": {
     "taskOptionsMap": {},

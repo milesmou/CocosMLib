@@ -1886,7 +1886,9 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "languageId": 0,
+    "languageId": 1,
+    "gameConfigType": 0,
+    "gameConfigUrl": "",
     "platformId": 0,
     "version": "1.0.0",
     "_id": "9epUewMU5ANYJOqxYufvib"

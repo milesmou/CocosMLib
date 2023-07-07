@@ -1,4 +1,4 @@
-import { Component, director, Enum, game, sys, view, _decorator } from 'cc';
+import { Component, Enum, TextAsset, _decorator, director, game, sys, view } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { Channel, EChannel, IChannel } from "./channel/Channel";
@@ -9,18 +9,24 @@ import { StroageMgr } from "./manager/StroageMgr";
 import { UIMgr } from "./manager/UIMgr";
 import { SingletonFactory } from './utils/SingletonFactory';
 
-export const ELanguage = Enum({
+const ELanguage = Enum({
     Auto: 0,
-    ChineseSimplified: 1,
-    ChineseTraditional: 2,
+    SimplifiedChinese: 1,
+    TraditionalChinese: 2,
     English: 3,
 })
 
-export enum LanguageCode {
+enum LanguageCode {
     ChineseSimplified = "sc",
     ChineseTraditional = "tc",
     English = "en"
 }
+
+export const EGameConfigType = Enum({
+    Local: 0,
+    Remote: 1,
+    PreferRemote: 2,
+})
 
 /** 应用程序启动入口 */
 @ccclass('App')
@@ -29,7 +35,30 @@ export class App extends Component {
         displayName: "语言",
         type: ELanguage
     })
-    private languageId = ELanguage.Auto;
+    private languageId = ELanguage.SimplifiedChinese;
+
+    @property({
+        displayName: "配置",
+        type: EGameConfigType,
+        tooltip: "配置类型 Local:使用本地配置 Remote:使用远程配置  PreferRemote:优先使用远程配置,若拉取失败使用本地配置"
+    })
+    private gameConfigType = EGameConfigType.Local;
+
+    @property({
+        type: TextAsset,
+        displayName: "配置文件",
+        tooltip: "本地配置的配置文件",
+        visible: function () { return this.gameConfigType == EGameConfigType.Local; }
+    })
+    private gameConfigAsset: TextAsset = null;
+
+    @property({
+        displayName: "配置地址",
+        tooltip: "远程配置的地址",
+        visible: function () { return this.gameConfigType != EGameConfigType.Local; }
+    })
+    private gameConfigUrl = "";
+
     @property({
         displayName: "渠道",
         type: EChannel
@@ -41,7 +70,7 @@ export class App extends Component {
     private version = "1.0.0";
 
     //environment
-    public static config: { channelName: string, version: string };
+    public static config: { gameConfigType: number, gameConfigText: string, gameConfigUrl: string, channel: string, version: string }
     public static lang: LanguageCode;
     public static channel: IChannel;
     public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
@@ -55,6 +84,11 @@ export class App extends Component {
     onLoad() {
         director.addPersistRootNode(this.node);
         game.frameRate = 45;
+        App.config = { gameConfigType: this.gameConfigType, gameConfigText: this.gameConfigAsset.text, gameConfigUrl: this.gameConfigUrl, channel: (EChannel as any)[this.platformId], version: this.version };
+        this.gameConfigAsset.destroy();
+        App.lang = this.getLanguage();
+        App.channel = Channel.getPlatformInst(this.platformId);
+        console.log(`Channel=${App.config.channel} Version=${App.config.version} Language=${App.lang}`);
     }
 
     onDestroy() {
@@ -64,12 +98,7 @@ export class App extends Component {
     start() {
         App.audio = AudioMgr.Inst;
         App.ui = UIMgr.Inst;
-
-        App.config = { channelName: (EChannel as any)[this.platformId], version: this.version };
-        App.lang = this.getLanguage();
-        App.channel = Channel.getPlatformInst(this.platformId);
         App.safeSize = this.getSafeArea();
-        console.log(`Channel=${App.config.channelName} Version=${App.config.version} Language=${App.lang}`);
     }
 
     /** 获取语言环境 */
@@ -85,9 +114,9 @@ export class App extends Component {
                 else if (sys.languageCode.startsWith("zh")) v = LanguageCode.ChineseTraditional;
                 else v = LanguageCode.English;
             }
-        } else if (this.languageId == ELanguage.ChineseSimplified) {
+        } else if (this.languageId == ELanguage.SimplifiedChinese) {
             v = LanguageCode.ChineseSimplified;
-        } else if (this.languageId == ELanguage.ChineseTraditional) {
+        } else if (this.languageId == ELanguage.TraditionalChinese) {
             v = LanguageCode.ChineseTraditional;
         } else {
             v = LanguageCode.English;

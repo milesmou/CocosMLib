@@ -1,6 +1,6 @@
 set WORKSPACE=..
 
-set GEN_CLIENT=%WORKSPACE%\excel\Luban\Luban.ClientServer\Luban.ClientServer.exe
+set GEN_CLIENT=%WORKSPACE%\excel\Tools\Luban.ClientServer\Luban.ClientServer.exe
 set CONF_ROOT=.\Confs
 
 

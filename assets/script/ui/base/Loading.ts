@@ -1,10 +1,10 @@
-import { Asset, Component, game, Label, ProgressBar, tween, UITransform, v3, _decorator } from 'cc';
-import { App } from '../../../mlib/App';
+import { Asset, Component, Label, ProgressBar, TextAsset, UITransform, _decorator, game, sys, tween, v3 } from 'cc';
+import { App, EGameConfigType } from '../../../mlib/App';
 import { AssetMgr } from '../../../mlib/manager/AssetMgr';
 import { HotUpdate, HotUpdateCode } from '../../../mlib/utils/HotUpdate';
+import { GameConfig } from '../../base/GameConfig';
 import { GameData } from '../../base/GameData';
 import GameTable from '../../base/GameTable';
-import { PlayerData } from '../../base/PlayerData';
 import { UIConstant } from '../../gen/UIConstant';
 const { ccclass, property } = _decorator;
 
@@ -39,24 +39,29 @@ export class Loading extends Component {
     }
     loadCfg() {
         this.setTips("Loading Config")
-        // Utils.loadRemote("http://localhost/GameConfig.json?" + Date.now())
-        //     .then((v: JsonAsset) => {
-        //         if (this.hotUpdate && this.manifest && sys.isNative) {
-        //             this.checkVersion();
-        //         } else {
-        //             this.loadRes()
-        //         }
-        //     })
-        //     .catch(() => {
-        //         UIManager.Inst.tipMseeage.showTipBox(
-        //             "遊戲配置加載失敗，請檢查網絡是否正常！", 1,
-        //             () => {
-        //                 this.loadCfg();
-        //             }
-        //         );
-        //     })
-        this.loadRes();
+        if (App.config.gameConfigType == EGameConfigType.Local) {
+            GameConfig.deserialize(App.config.gameConfigText);
+            this.loadRes();
+        } else {
+            AssetMgr.loadRemoteAsset(App.config.gameConfigUrl + "?" + Date.now()).then((v: TextAsset) => {
+                GameConfig.deserialize(v.text);
+                v.destroy();
+                if (this.hotUpdate && this.manifest && GameConfig.rg && sys.isNative) {
+                    this.checkVersion();
+                } else {
+                    this.loadRes();
+                }
+            }).catch(err => {
+                console.error(`加载配置失败 Url=${App.config.gameConfigUrl} ${err}`);
+                if (App.config.gameConfigType == EGameConfigType.Remote) {
+                    this.loadCfg();
+                } else {
+                    this.loadRes();
+                }
+            })
+        }
     }
+
     checkVersion() {
         HotUpdate.Inst.start(
             this.manifest!,
@@ -77,13 +82,6 @@ export class Loading extends Component {
 
         GameData.Inst.init();
 
-        PlayerData.Inst.addGameItem(1, 100, 1000);
-        // PlayerData.Inst.delCost([[1, 100, 1000]]);
-        //预加载ui
-        // if (cc.sys.isBrowser) {
-        //     this.setTips("Loading Game Scene")
-        //     await Utils.loadDir("ui", this.onProgress.bind(this));
-        // }
         let obj = { x: 0 };
         tween(obj)
             .to(1, { x: 1 }, {
@@ -134,13 +132,11 @@ export class Loading extends Component {
     complete(code?: HotUpdateCode) {
         console.log("HotUpdate ResultCode = ", code);
         if (code == HotUpdateCode.Success) {
-            // cc.audioEngine.stopAll();
             game.restart();
         } else if (code == HotUpdateCode.Fail) {
             App.ui.showConfirm(
                 "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", 1,
                 () => {
-                    // audio.stopAll();
                     game.restart();
                 }
             );
