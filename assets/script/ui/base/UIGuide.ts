@@ -1,7 +1,9 @@
-import { EventTouch, find, Label, Node, NodeEventType, Rect, Tween, tween, UITransform, v3, _decorator } from 'cc';
+import { EventTouch, Label, Node, NodeEventType, Rect, Tween, UITransform, _decorator, find, tween, v3 } from 'cc';
 import { App } from '../../../mlib/App';
 import { UIBase } from '../../../mlib/component/UIBase';
 import { UIMgr } from '../../../mlib/manager/UIMgr';
+import { EventKey } from '../../base/GameEnum';
+import GameTable from '../../base/GameTable';
 const { ccclass, property } = _decorator;
 
 
@@ -17,15 +19,15 @@ const guideTestData: any[] = [
 export class UIGuide extends UIBase {
 
     @property(Node)
-    mask!: Node;
+    mask: Node;
     @property(Node)
-    shade!: Node;
+    shade: Node;
     @property(Node)
-    btnScreen!: Node;
+    btnScreen: Node;
     @property(Node)
-    tip!: Node;
+    tip: Node;
     @property(Node)
-    finger!: Node;
+    finger: Node;
 
     wait = false;
     guideId: number = 0;
@@ -76,7 +78,7 @@ export class UIGuide extends UIBase {
         }
         this.node.active = true;
         this.guideId = guideId;
-        // this.guideData = DataManager.Inst.getGuideData(guideId);
+        this.guideData = GameTable.Inst.Table.TbGuide.getDataList().filter(v => v.GuideID == guideId);;
         this.guideData = guideTestData;
         if (this.guideData.length > 0) {
             this.cbFinish = cbFinish!;
@@ -178,7 +180,7 @@ export class UIGuide extends UIBase {
             }
         } else {
             let func = () => {
-                App.event.once(App.eventKey.OnUIShow, (uiData: UIBase) => {
+                App.event.once(EventKey.OnUIShow, (uiData: UIBase) => {
                     if (uiData.uiName == guide.UIName) {
                         if (this.wait) {
                             func();

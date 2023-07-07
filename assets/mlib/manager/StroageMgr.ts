@@ -26,6 +26,9 @@ export abstract class LocalStroage {
         return this.uid;
     }
 
+    /** 用户id */
+    public userId: string = "";
+
     /** 背包数据存档 */
     public inventory: InventoryItemSO[] = [];
 

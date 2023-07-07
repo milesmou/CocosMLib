@@ -1,4 +1,4 @@
-import { Component, Enum, TextAsset, _decorator, director, game, sys, view } from 'cc';
+import { Asset, Component, Enum, TextAsset, _decorator, director, game, sys, view } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { Channel, EChannel, IChannel } from "./channel/Channel";
@@ -45,21 +45,6 @@ export class App extends Component {
     private gameConfigType = EGameConfigType.Local;
 
     @property({
-        type: TextAsset,
-        displayName: "配置文件",
-        tooltip: "本地配置的配置文件",
-        visible: function () { return this.gameConfigType == EGameConfigType.Local; }
-    })
-    private gameConfigAsset: TextAsset = null;
-
-    @property({
-        displayName: "配置地址",
-        tooltip: "远程配置的地址",
-        visible: function () { return this.gameConfigType != EGameConfigType.Local; }
-    })
-    private gameConfigUrl = "";
-
-    @property({
         displayName: "渠道",
         type: EChannel
     })
@@ -69,10 +54,31 @@ export class App extends Component {
     })
     private version = "1.0.0";
 
+    @property({
+        type: TextAsset,
+        displayName: "本地配置文件",
+        visible: function () { return this.gameConfigType == EGameConfigType.Local; }
+    })
+    private gameConfigAsset: TextAsset = null;
+
+    @property({
+        displayName: "配置地址",
+        tooltip: "远程配置的地址,地址中的渠道使用{0}替代",
+        visible: function () { return this.gameConfigType != EGameConfigType.Local; }
+    })
+    private gameConfigUrl = "";
+
+    @property({
+        type: Asset,
+        displayName: "热更清单文件",
+        tooltip: "本地project.manifest清单文件",
+    })
+    private hotupdateManifest: Asset = null;
+
     //environment
-    public static config: { gameConfigType: number, gameConfigText: string, gameConfigUrl: string, channel: string, version: string }
+    public static config: { gameConfigType: number, gameConfigText: string, gameConfigUrl: string, hotupdateManifest: Asset, channel: string, version: string }
     public static lang: LanguageCode;
-    public static channel: IChannel;
+    public static chan: IChannel;
     public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
     //manager
     public static stroage = StroageMgr;
@@ -84,10 +90,13 @@ export class App extends Component {
     onLoad() {
         director.addPersistRootNode(this.node);
         game.frameRate = 45;
-        App.config = { gameConfigType: this.gameConfigType, gameConfigText: this.gameConfigAsset.text, gameConfigUrl: this.gameConfigUrl, channel: (EChannel as any)[this.platformId], version: this.version };
+        App.config = {
+            gameConfigType: this.gameConfigType, gameConfigText: this.gameConfigAsset.text, gameConfigUrl: this.gameConfigUrl.replace("{0}", EChannel[this.platformId]),
+            hotupdateManifest: this.hotupdateManifest, channel: EChannel[this.platformId], version: this.version
+        };
         this.gameConfigAsset.destroy();
         App.lang = this.getLanguage();
-        App.channel = Channel.getPlatformInst(this.platformId);
+        App.chan = Channel.getInstance(this.platformId);
         console.log(`Channel=${App.config.channel} Version=${App.config.version} Language=${App.lang}`);
     }
 

@@ -10,7 +10,6 @@ export default class GameTable {
 
     public Table: Tables = null!;
 
-
     async initData() {
         let prefix = "table/";
         let files: string[] = [];
@@ -31,12 +30,5 @@ export default class GameTable {
         });
         console.log(this.Table.TbCityMap.get(1));
 
-    }
-
-
-    getGuideData(guideId: number) {
-        let arr: [] = [];
-
-        return arr;
     }
 }

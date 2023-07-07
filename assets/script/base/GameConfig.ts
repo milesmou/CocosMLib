@@ -1,3 +1,4 @@
+
 /** 商品类 */
 export class ProductData {
     /** 主键ID */
@@ -71,21 +72,21 @@ export class GameConfig {
         if (iniData.has("goods")) {
             let lines = iniData.get("goods");
             if (lines.length > 1) {
-                let tagDict = this.getTagIndexMap(lines[0].split('|'));
+                let tagMap = this.getTagIndexMap(lines[0].split('|'));
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i];
                     let columns = line.split('|');
                     let productData = new ProductData();
-                    productData.id = this.convertString(columns[this.getIndex(tagDict, "id")]);
-                    productData.goodsId = this.convertString(columns[this.getIndex(tagDict, "goodsId")]);
-                    productData.type = this.convertNumber(columns[this.getIndex(tagDict, "type")]);
-                    productData.unit = this.convertString(columns[this.getIndex(tagDict, "unit")]);
-                    productData.price = this.convertNumber(columns[this.getIndex(tagDict, "price")]);
-                    productData.limit = this.convertNumber(columns[this.getIndex(tagDict, "limit")]);
-                    productData.name = this.convertString(columns[this.getIndex(tagDict, "name")]);
-                    productData.desc = this.convertString(columns[this.getIndex(tagDict, "desc")]);
-                    productData.icon = this.convertString(columns[this.getIndex(tagDict, "icon")]);
-                    productData.reward = this.convertString(columns[this.getIndex(tagDict, "reward")]);
+                    productData.id = this.convertString(columns[tagMap.get("id")]);
+                    productData.goodsId = this.convertString(columns[tagMap.get("goodsId")]);
+                    productData.type = this.convertNumber(columns[tagMap.get("type")]);
+                    productData.unit = this.convertString(columns[tagMap.get("unit")]);
+                    productData.price = this.convertNumber(columns[tagMap.get("price")]);
+                    productData.limit = this.convertNumber(columns[tagMap.get("limit")]);
+                    productData.name = this.convertString(columns[tagMap.get("name")]);
+                    productData.desc = this.convertString(columns[tagMap.get("desc")]);
+                    productData.icon = this.convertString(columns[tagMap.get("icon")]);
+                    productData.reward = this.convertString(columns[tagMap.get("reward")]);
                     this.product.push(productData);
                 }
             }
@@ -95,19 +96,11 @@ export class GameConfig {
 
     public static getTagIndexMap(tags: string[]): Map<string, number> {
         let tagMap = new Map<string, number>();
-
         for (let i = 0; i < tags.length; i++) {
             tagMap.set(tags[i], i);
         }
 
         return tagMap;
-    }
-
-    public static getIndex(tagMap: Map<string, number>, tag: string) {
-        if (tagMap.has(tag))
-            return tagMap[tag];
-        else console.error(`GetIndex  ${tag} 不存在`);
-        return 0;
     }
 
     public static convertString(value: string) {
@@ -138,11 +131,11 @@ export class GameConfig {
             if (text.startsWith("//")) continue;
             if (text.startsWith("[")) {
                 let tag = text.replace("[", "").replace("]", "").trim();
-                map[tag] = [];
+                map.set(tag, []);
                 lastTag = tag;
             }
             else if (lastTag) {
-                map[lastTag].Add(text);
+                map.get(lastTag).push(text);
             }
         }
         return map;

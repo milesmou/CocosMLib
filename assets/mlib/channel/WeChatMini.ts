@@ -1,16 +1,17 @@
 /** 微信小游戏平台相关方法的实现 */
 
 import { _decorator, Camera } from 'cc';
-import { IChannel } from "./Channel";
+import { Channel } from "./Channel";
 const wx = {} as any;
 
-export class WeChatMini implements IChannel {
+export class WeChatMini extends Channel {
     systemInfo: any = null;//系统信息
     launchInfo: any = null;//启动游戏信息
     shareTitle = "默认分享标题";//默认分享标题
     shareImageUrl = "默认分享图片地址";//默认分享图片
 
     constructor() {
+        super();
         //console.log("运行环境：wx");
         //this.systemInfo = wx.getSystemInfoSync();
         //this.launchInfo = wx.getLaunchOptionsSync();
@@ -372,20 +373,20 @@ export class WeChatMini implements IChannel {
  * 注意：已把原脚本注释，由于脚本变动过大，转换的时候可能有遗落，需要自行手动转换
  */
 // import { IPlatform } from "./Platform";
-// 
+//
 // const wx = {} as any;
 // /** 微信小游戏平台相关方法的实现 */
 // export class WeChatMini implements IPlatform {
-// 
+//
 //     systemInfo = null;//系统信息
 //     launchInfo = null;//启动游戏信息
 //     shareTitle = "默认分享标题";//默认分享标题
 //     shareImageUrl = "默认分享图片地址";//默认分享图片
-// 
+//
 //     adCfg: {
 //         video: { 1: "asdfgh" }
 //     }
-// 
+//
 //     constructor() {
 //         console.log("运行环境：wx");
 //         this.systemInfo = wx.getSystemInfoSync();
@@ -394,7 +395,7 @@ export class WeChatMini implements IChannel {
 //         this.checkUpdate();
 //         cc.game.on(cc.game.EVENT_HIDE, this.shareResult, this);
 //     }
-// 
+//
 //     /**
 //      * 微信登陆流程
 //      */
@@ -409,7 +410,7 @@ export class WeChatMini implements IChannel {
 //             }
 //         });
 //     }
-// 
+//
 //     /**
 //      * 请求授权
 //      * @param obj.scope 授权权限 例: scope.userLocation
@@ -478,13 +479,13 @@ export class WeChatMini implements IChannel {
 //             }
 //         });
 //     }
-// 
+//
 //     // 分享相关
 //     shareTime: number = 0;
 //     shareSuccess: Function = null;
 //     shareFail: Function = null;
 //     shareComplete: Function = null;
-// 
+//
 //     /**
 //      * 主动拉起转发，给好友分享信息
 //      */
@@ -497,7 +498,7 @@ export class WeChatMini implements IChannel {
 //         //判断分享方式
 //         if (obj?.camera) {//分享传入的camera渲染的内容//普通分享
 //             obj.imageUrl = this.getImageUrlByCamera(obj.camera);
-// 
+//
 //         } else if (obj?.imageUrl) {//分享屏幕正中间
 //             obj.imageUrl = obj.imageUrl;
 //         } else {
@@ -525,7 +526,7 @@ export class WeChatMini implements IChannel {
 //         this.shareFail = null;
 //         this.shareComplete = null;
 //     }
-// 
+//
 //     /**
 //      * 获取屏幕正中间截屏图片URL 取屏幕正中间5:4区域,横屏适应屏幕高度,竖屏适应屏幕宽度
 //      */
@@ -550,10 +551,10 @@ export class WeChatMini implements IChannel {
 //             destHeight: 400
 //         });
 //     }
-// 
+//
 //     /**
 //      * 通过摄像机获取截屏图片的URl
-//      * @param camera 
+//      * @param camera
 //      */
 //     getImageUrlByCamera(camera: cc.Camera) {
 //         let texture = new cc.RenderTexture();
@@ -562,15 +563,15 @@ export class WeChatMini implements IChannel {
 //         camera.targetTexture = texture;
 //         camera.render(null);
 //         let data = texture.readPixels();
-// 
+//
 //         let canvas: any = document.createElement('canvas');
 //         let ctx = canvas.getContext('2d');
-// 
+//
 //         let width = canvas.width = texture.width;
 //         let height = canvas.height = texture.height;
 //         canvas.width = texture.width;
 //         canvas.height = texture.height;
-// 
+//
 //         let rowBytes = width * 4;
 //         for (let row = 0; row < height; row++) {
 //             let srow = height - 1 - row;
@@ -583,7 +584,7 @@ export class WeChatMini implements IChannel {
 //         }
 //         return canvas.toTempFilePathSync();
 //     }
-// 
+//
 //     /**
 //      * 显示右上角菜单里的转发按钮
 //      */
@@ -642,7 +643,7 @@ export class WeChatMini implements IChannel {
 //             this.bannerCache[adUnitId].sCnt -= 1;
 //         }
 //     }
-// 
+//
 //     /**
 //      * 隐藏所有banner
 //      */
@@ -652,10 +653,10 @@ export class WeChatMini implements IChannel {
 //             banner.hide();
 //         }
 //     }
-// 
+//
 //     interstitial = null;//插屏广告
 //     /**
-//      * 添加插屏广告   
+//      * 添加插屏广告
 //      */
 //     showInterstitial(id) {
 //         let adUnitId = this.adCfg["Interstitial"][id];
@@ -673,7 +674,7 @@ export class WeChatMini implements IChannel {
 //                 });
 //         }
 //     }
-// 
+//
 //     /**
 //      * 观看视频广告
 //      * @param obj.adId 广告id @param obj.success 观看完成
@@ -701,10 +702,10 @@ export class WeChatMini implements IChannel {
 //             });
 //         }
 //     }
-// 
+//
 //     reqInternalPay() { }
 //     reportCustomEvent() { }
-// 
+//
 //     /**
 //      *  判断系统SDK版本是否符合最低版本要求
 //      * @ver 最低SDK版本要求 格式：1.0.0
@@ -729,7 +730,7 @@ export class WeChatMini implements IChannel {
 //         }
 //         return true;
 //     }
-// 
+//
 //     /**
 //      * 开启版本更新检测
 //      */
@@ -747,7 +748,7 @@ export class WeChatMini implements IChannel {
 //             })
 //         })
 //     }
-// 
+//
 //     /**
 //      * 使手机发生震动
 //      * @param long 默认false较短时间震动  true较长时间震动
@@ -756,5 +757,5 @@ export class WeChatMini implements IChannel {
 //         long && wx.vibrateLong();
 //         !long || wx.vibrateShort();
 //     }
-// 
+//
 // }

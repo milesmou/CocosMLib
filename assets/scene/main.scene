@@ -1505,8 +1505,6 @@
     "lblProgress": {
       "__id__": 38
     },
-    "hotUpdate": false,
-    "manifest": null,
     "_id": "fcqZNUEKFLtY/myDet/UQ5"
   },
   {
@@ -1888,9 +1886,14 @@
     "__prefab": null,
     "languageId": 1,
     "gameConfigType": 0,
-    "gameConfigUrl": "",
     "platformId": 0,
     "version": "1.0.0",
+    "gameConfigAsset": {
+      "__uuid__": "8481b517-58bb-418e-85b1-6f94c5416b1c",
+      "__expectedType__": "cc.TextAsset"
+    },
+    "gameConfigUrl": "",
+    "hotupdateManifest": null,
     "_id": "9epUewMU5ANYJOqxYufvib"
   },
   {

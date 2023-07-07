@@ -19,17 +19,6 @@ export class Loading extends Component {
     @property(Label)
     lblProgress: Label | null = null;
 
-    @property({
-        tooltip: "原生平台是否要开启热更新"
-    })
-    hotUpdate = false;
-
-    @property({
-        type: Asset,
-        tooltip: "本地project.manifest文件",
-        visible: function () { return (this as any).hotUpdate; }
-    })
-    manifest: Asset = null;
     start() {
         let transform = this.getComponent(UITransform);
         if (transform) {
@@ -46,7 +35,7 @@ export class Loading extends Component {
             AssetMgr.loadRemoteAsset(App.config.gameConfigUrl + "?" + Date.now()).then((v: TextAsset) => {
                 GameConfig.deserialize(v.text);
                 v.destroy();
-                if (this.hotUpdate && this.manifest && GameConfig.rg && sys.isNative) {
+                if (App.config.hotupdateManifest && GameConfig.rg && sys.isNative) {
                     this.checkVersion();
                 } else {
                     this.loadRes();
@@ -64,7 +53,7 @@ export class Loading extends Component {
 
     checkVersion() {
         HotUpdate.Inst.start(
-            this.manifest!,
+            App.config.hotupdateManifest,
             this.setTips.bind(this),
             this.onProgress.bind(this),
             this.complete.bind(this)

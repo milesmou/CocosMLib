@@ -26,4 +26,21 @@ export class AutoBindProperty extends Component {
             return comp;
         }
     }
+
+    /** 调用当前节点上其它组件的方法 */
+    sendMessage(methodName: string, ...args: any[]) {
+        methodName = methodName.trim();
+        for (const comp of this.node.components) {
+            if (comp[methodName] && typeof comp[methodName] === "function") {
+                (comp[methodName] as Function).apply(comp, args);
+                return;
+            }
+        }
+        console.warn(`节点上未找到指定方法 ${methodName}`);
+    }
+    
+    /** 调用当前节点上其它组件的方法 */
+    sendMessageUpwards(methodName: string, ...args: any[]) {
+
+    }
 }

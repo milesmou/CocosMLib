@@ -5,6 +5,9 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UITipMsg')
 export class UITipMsg extends UIBase {
+
+    static Inst: UITipMsg;
+
     @property(Node)
     singleTip: Node;
     @property(Label)
@@ -30,6 +33,7 @@ export class UITipMsg extends UIBase {
     cbCancel: Function = undefined;
 
     onLoad() {
+        UITipMsg.Inst = this;
         this.singleTip.active = true;
         this.singleTip.getComponent(UIOpacity)!.opacity = 0;
 
