@@ -1,4 +1,4 @@
-import { Asset, Component, Enum, TextAsset, _decorator, director, game, sys, view } from 'cc';
+import { Asset, Component, Enum, TextAsset, _decorator, director, game, sys } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { Channel, EChannel, IChannel } from "./channel/Channel";
@@ -79,7 +79,6 @@ export class App extends Component {
     public static config: { gameConfigType: number, gameConfigText: string, gameConfigUrl: string, hotupdateManifest: Asset, channel: string, version: string }
     public static lang: LanguageCode;
     public static chan: IChannel;
-    public static safeSize: { top: number, bottom: number, left: number, right: number, width: number, height: number };
     //manager
     public static stroage = StroageMgr;
     public static event = EventMgr;
@@ -107,7 +106,6 @@ export class App extends Component {
     start() {
         App.audio = AudioMgr.Inst;
         App.ui = UIMgr.Inst;
-        App.safeSize = this.getSafeArea();
     }
 
     /** 获取语言环境 */
@@ -132,20 +130,6 @@ export class App extends Component {
         }
         return v;
     }
-
-    getSafeArea() {
-        let winSize = view.getVisibleSize();
-        let safeSize = { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 };
-        let safeArea = sys.getSafeAreaRect();
-        safeSize.top = winSize.height - safeArea.height - safeArea.y;
-        safeSize.bottom = safeArea.y;
-        safeSize.left = safeArea.x;
-        safeSize.right = winSize.width - safeArea.width - safeArea.x;
-        safeSize.width = safeArea.width;
-        safeSize.height = safeArea.height;
-        return safeSize;
-    }
-
 
     static init() {
 
