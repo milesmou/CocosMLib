@@ -36,11 +36,21 @@ export class AutoBindProperty extends Component {
                 return;
             }
         }
-        console.warn(`节点上未找到指定方法 ${methodName}`);
+        console.warn(`节点上未找到指定方法 ${methodName} ${CCUtils.GetNodePath(this.node)}`);
     }
-    
-    /** 调用当前节点上其它组件的方法 */
-    sendMessageUpwards(methodName: string, ...args: any[]) {
 
+    /** 调用祖先节点上组件的方法 */
+    sendMessageUpwards(methodName: string, ...args: any[]) {
+        let node = this.node.parent;
+        while (node?.isValid) {
+            for (const comp of node.components) {
+                if (comp[methodName] && typeof comp[methodName] === "function") {
+                    (comp[methodName] as Function).apply(comp, args);
+                    return;
+                }
+            }
+            node = node.parent;
+        }
+        console.warn(`祖先节点上未找到指定方法 ${methodName} ${CCUtils.GetNodePath(this.node)}`);
     }
 }
