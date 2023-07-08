@@ -1,19 +1,14 @@
-import { EventTouch, Label, Node, NodeEventType, Rect, Tween, UITransform, _decorator, find, tween, v3 } from 'cc';
+import { EventTouch, Label, Node, NodeEventType, Rect, Tween, UITransform, _decorator, find, math, tween, v3 } from 'cc';
 import { App } from '../../../mlib/App';
 import { UIBase } from '../../../mlib/component/UIBase';
 import { UIMgr } from '../../../mlib/manager/UIMgr';
 import { EventKey } from '../../base/GameEnum';
 import GameTable from '../../base/GameTable';
+import { Guide } from '../../gen/table/Types';
 const { ccclass, property } = _decorator;
 
 
-const guideTestData: any[] = [
-    { ID: 1, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step1", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
-    { ID: 2, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step2", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
-    { ID: 3, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step3", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
-    { ID: 4, GuideID: 1, UIName: "UIGuideTest1", NodePath: "step4", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
-    { ID: 5, GuideID: 1, UIName: "UIGuideTest2", NodePath: "step5", ShowBtnNode: true, FingerDir: 1, TipText: "", TipPos: [0, 0], ClickScreen: false },
-]
+
 
 @ccclass('UIGuide')
 export class UIGuide extends UIBase {
@@ -31,9 +26,11 @@ export class UIGuide extends UIBase {
 
     wait = false;
     guideId: number = 0;
-    guideData: any[] = [];
+    guideData: Guide[] = [];
     cbFinish: Function = null!;
     stepFunc: ((ui: UIBase) => Node)[] = null!;
+
+
 
     onLoad() {
         this.hide();
@@ -79,7 +76,6 @@ export class UIGuide extends UIBase {
         this.node.active = true;
         this.guideId = guideId;
         this.guideData = GameTable.Inst.Table.TbGuide.getDataList().filter(v => v.GuideID == guideId);;
-        this.guideData = guideTestData;
         if (this.guideData.length > 0) {
             this.cbFinish = cbFinish!;
             this.stepFunc = stepFunc!;

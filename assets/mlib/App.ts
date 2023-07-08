@@ -1,7 +1,8 @@
 import { Asset, Component, Enum, TextAsset, _decorator, director, game, sys } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { Channel, EChannel, IChannel } from "./channel/Channel";
+import { EChannel } from '../script/base/GameEnum';
+import { Channel, IChannel } from "./channel/Channel";
 import { AudioMgr } from "./manager/AudioMgr";
 import { EventMgr } from "./manager/EventMgr";
 import { PoolMgr } from "./manager/PoolMgr";

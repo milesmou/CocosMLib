@@ -1,13 +1,8 @@
-import { Enum, sys } from 'cc';
+import { sys } from 'cc';
 import { ShopUtil } from '../../script/base/ShopUtil';
 import { UITipMsg } from '../../script/ui/base/UITipMsg';
 import { LoginArgs, RequestIAPArgs, SDKCallback, ShowRewardVideoArgs } from '../sdk/MSDKWrapper';
 import { Utils } from '../utils/Utils';
-
-export const EChannel = Enum({
-    Debug: 0,
-    GooglePlay: 1,
-});
 
 
 

@@ -72,7 +72,6 @@ export class MSDKWrapper {
     private static onRequestIAPEnded(arg: string) {
 
     }
-
 }
 
 
