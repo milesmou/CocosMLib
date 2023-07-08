@@ -1,8 +1,8 @@
 import { Enum, sys } from 'cc';
 import { ShopUtil } from '../../script/base/ShopUtil';
+import { UITipMsg } from '../../script/ui/base/UITipMsg';
 import { LoginArgs, RequestIAPArgs, SDKCallback, ShowRewardVideoArgs } from '../sdk/MSDKWrapper';
 import { Utils } from '../utils/Utils';
-import { UITipMsg } from '../../script/ui/base/UITipMsg';
 
 export const EChannel = Enum({
     Debug: 0,
@@ -20,10 +20,12 @@ export abstract class IChannel {
     abstract initIAP();
     /** 登录 */
     abstract login(args: LoginArgs);
-    /** 展示激励视频 */
+    /** 展示激励视频广告 */
     abstract showRewardVideo(args: ShowRewardVideoArgs);
-    /** 展示插屏 */
-    abstract showInterstitial(arg?: string);
+    /** 展示插屏广告 */
+    abstract showInterstitial(...args: any[]);
+    /** 展示横幅广告 */
+    abstract showbanner(...args: any[]);
     /** 分享 */
     abstract share(...args: any[]);
     /** 发起内购 */
@@ -67,7 +69,11 @@ export class Channel implements IChannel {
         UITipMsg.Inst.showToast("测试环境 直接看广告成功!");
     }
 
-    showInterstitial(extParam?: string) {
+    showInterstitial(...args: any[]) {
+
+    }
+
+    showbanner(...args: any[]) {
 
     }
 

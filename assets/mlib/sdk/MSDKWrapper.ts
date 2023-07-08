@@ -20,7 +20,7 @@ export class SDKCallback {
     public static login: LoginArgs;
     /** 本次激励视频回调 */
     public static rewardVideo: ShowRewardVideoArgs;
-    /** 每次激励视频回调 */
+    /** 默认激励视频回调,每次都会调用 */
     public static rewardVideoDefault: ShowRewardVideoArgs;
     /** 内购回调 */
     public static inAppPurchase: { success: StringCallback, fail: NumberCallback };
