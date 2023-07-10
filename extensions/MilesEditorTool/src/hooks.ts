@@ -14,6 +14,7 @@ export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: I
     // Todo some thing
     util.mkDirIfNotExists(TemplatePrefix + options.platform);
     appendMBuildLog("Build Start");
+    
 };
 
 export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {

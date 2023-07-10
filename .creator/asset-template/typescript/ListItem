@@ -1,0 +1,15 @@
+import { _decorator } from 'cc';
+const { ccclass, property } = _decorator;
+
+@ccclass('<%UnderscoreCaseClassName%>')
+export class <%UnderscoreCaseClassName%> extends AutoBindProperty {
+
+    public initData() {
+
+    }
+
+    public onClick() {
+        
+    }
+
+}

@@ -80,7 +80,7 @@ export class UIBase extends AssetHandler {
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
-    init(uiName: string) {
+    public init(uiName: string) {
         if (this.uiName) return;
         this.uiName = uiName;
 
@@ -115,11 +115,11 @@ export class UIBase extends AssetHandler {
     }
 
 
-    setArgs(args: any) {
+    public setArgs(args: any) {
         this.args = args;
     }
 
-    setVisible(visible: boolean) {
+    public setVisible(visible: boolean) {
         if (visible) {
             this.uiOpacity.opacity = 255;
             this.node.active = true;
@@ -210,22 +210,22 @@ export class UIBase extends AssetHandler {
     }
 
     /** 关闭UI时调用此方法 */
-    safeClose() {
+    protected safeClose() {
         App.ui.hide(this.uiName);
     }
 
     /** UI准备打开时触发 (UI打开动画播放前) */
-    onShowBegin() { }
+    protected onShowBegin() { }
 
     /** UI准备关闭时触发 (UI关闭动画播放前) */
-    onHideBegin() { }
+    protected onHideBegin() { }
 
     /** UI完全打开时触发 (UI打开动画播放完) */
-    onShow() { }
+    protected onShow() { }
 
     /** UI完全关闭时触发 (UI关闭动画播放完) */
-    onHide() { }
+    protected onHide() { }
 
     /** 因为其它UI，被动的显示和隐藏 */
-    onPassive(passiveType: EPassiveType, ui: UIBase) { }
+    protected onPassive(passiveType: EPassiveType, ui: UIBase) { }
 }

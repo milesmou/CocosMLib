@@ -1,0 +1,27 @@
+import { _decorator, Component, Node } from 'cc';
+const { ccclass, property } = _decorator;
+
+@ccclass('<%UnderscoreCaseClassName%>')
+export class <%UnderscoreCaseClassName%> extends UIBase {
+
+    protected onLoad(): void {
+        super.onLoad();
+    }
+
+    protected onDestroy(): void {
+        super.onDestroy();
+    }
+
+    protected start(): void {
+
+    }
+
+    protected onShowBegin(): void {
+
+    }
+
+    private initView() {
+
+    }
+
+}
