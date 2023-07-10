@@ -1,4 +1,5 @@
-import { Asset, Component, ImageAsset, Sprite, SpriteFrame, _decorator } from "cc";
+import { Asset, ImageAsset, Sprite, SpriteFrame, _decorator } from "cc";
+import { EDITOR } from "cc/env";
 import { AssetMgr } from "../manager/AssetMgr";
 import { AutoBindProperty } from "./AutoBindProperty";
 
@@ -11,7 +12,8 @@ export class AssetHandler extends AutoBindProperty {
     private cache: Map<string, Asset> = new Map();
 
     protected onDestroy() {
-        this.decRefCount();
+        super.onDestroy();
+        if (!EDITOR) this.decRefCount();
     }
 
     private decRefCount() {

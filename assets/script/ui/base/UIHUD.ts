@@ -7,9 +7,10 @@ import { UIConstant } from '../../gen/UIConstant';
 
 const { ccclass, property } = _decorator;
 
-@ccclass('UITestMain')
+@ccclass('UIHUD')
 export class UIHUD extends UIBase {
-    //gen pro
+    //gen property start don't modify this area
+    //gen property end don't modify this area 
     @property(Sprite)
     bg1!: Sprite;
 

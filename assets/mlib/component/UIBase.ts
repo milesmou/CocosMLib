@@ -1,7 +1,8 @@
-import { Animation, BlockInputEvents, Button, color, Enum, Node, Sprite, tween, UIOpacity, UITransform, Widget, _decorator } from 'cc';
+import { Animation, BlockInputEvents, Button, Enum, Node, Sprite, UIOpacity, UITransform, Widget, _decorator, color, tween } from 'cc';
 import { EventKey } from '../../script/base/GameEnum';
 const { property, ccclass, requireComponent } = _decorator;
 
+import { EDITOR } from 'cc/env';
 import { App } from "../App";
 import { AssetHandler } from '../component/AssetHandler';
 import { AssetMgr } from '../manager/AssetMgr';
@@ -75,7 +76,7 @@ export class UIBase extends AssetHandler {
 
     protected onDestroy() {
         super.onDestroy();
-        AssetMgr.DecRef("uiPrefab/" + this.uiName);
+        if (!EDITOR) AssetMgr.DecRef("uiPrefab/" + this.uiName);
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */

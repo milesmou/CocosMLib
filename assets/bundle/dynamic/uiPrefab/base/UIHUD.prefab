@@ -2213,14 +2213,11 @@
     "blockInputEvent": true,
     "action": 0,
     "closeBtn": null,
-    "bg1": {
-      "__id__": 13
-    },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "a6r/2cv8lPOrxKlnp8Kx40"
+    "fileId": "f02QfcoE9C4pw0SV3j/5Ff"
   },
   {
     "__type__": "cc.PrefabInfo",
