@@ -779,6 +779,16 @@ export class Sheet1 {
 type JsonLoader = (file: string) => any
 
 export class Tables {
+	public static get TableNames(){
+        return [
+			'tbglobalvar',
+			'tbguide',
+			'tblocalization',
+			'tbbuildskill',
+			'tbitem',
+			'tbsheet1',
+        ];
+    }
     private _TbGlobalVar: TbGlobalVar
     get TbGlobalVar(): TbGlobalVar  { return this._TbGlobalVar;}
     private _TbGuide: TbGuide

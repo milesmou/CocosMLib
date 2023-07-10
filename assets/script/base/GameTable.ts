@@ -12,13 +12,8 @@ export default class GameTable {
 
     async initData() {
         let prefix = "table/";
-        let files: string[] = [];
-        new Tables(file => {
-            files.push(file);
-            return [];
-        });
         let datas: Map<string, JsonAsset> = new Map();
-        for (let file of files) {
+        for (let file of Tables.TableNames) {
             let location = prefix + file;
             let asset = await AssetMgr.loadAsset<JsonAsset>(location, JsonAsset);
             datas.set(file, asset);
@@ -28,7 +23,7 @@ export default class GameTable {
             AssetMgr.DecRef(prefix + file, 1);
             return obj;
         });
-        console.log(this.Table.TbCityMap.get(1));
+        console.log(this.Table.TbGlobalVar);
 
     }
 }
