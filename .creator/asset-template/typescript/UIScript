@@ -16,7 +16,7 @@ export class <%UnderscoreCaseClassName%> extends UIBase {
 
     }
 
-    protected onShowBegin(): void {
+    public onShowBegin(): void {
 
     }
 

@@ -215,17 +215,17 @@ export class UIBase extends AssetHandler {
     }
 
     /** UI准备打开时触发 (UI打开动画播放前) */
-    protected onShowBegin() { }
+    public onShowBegin() { }
 
     /** UI准备关闭时触发 (UI关闭动画播放前) */
-    protected onHideBegin() { }
+    public onHideBegin() { }
 
     /** UI完全打开时触发 (UI打开动画播放完) */
-    protected onShow() { }
+    public onShow() { }
 
     /** UI完全关闭时触发 (UI关闭动画播放完) */
-    protected onHide() { }
+    public onHide() { }
 
     /** 因为其它UI，被动的显示和隐藏 */
-    protected onPassive(passiveType: EPassiveType, ui: UIBase) { }
+    public onPassive(passiveType: EPassiveType, ui: UIBase) { }
 }
