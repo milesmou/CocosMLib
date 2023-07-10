@@ -125,8 +125,8 @@ class BundleMgr {
 
 /**
  * 资源加载管理类
- * 
- * 若需要自动释放资源,请使用UI或ViewAssetMgr来加载资源
+ * 每调用一次资源加载接口,资源引用次数+1
+ * 若需要自动释放资源,请使用UI来加载资源
  */
 export class AssetMgr {
 
