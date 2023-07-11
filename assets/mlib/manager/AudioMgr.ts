@@ -22,7 +22,7 @@ class AudioState {
 }
 
 /** 使用object模拟一个可以对key自动排序的List */
-class MapList<T>
+class SortedList<T>
 {
     private _list: { [key: string]: T } = {};
 
@@ -105,7 +105,7 @@ export class AudioMgr extends Component {
     private pause = false;
 
     //音乐的音轨栈
-    public stack: MapList<string> = new MapList<string>();
+    public stack: SortedList<string> = new SortedList<string>();
     //音乐播放状态
     public music: Map<string, AudioState> = new Map<string, AudioState>();
     //单次播放音效的AudioSource
