@@ -7,6 +7,8 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIAudioMgr')
 export class UIAudioMgr extends UIBase {
+    //gen property start don't modify this area
+    //gen property end don't modify this area 
 
     onDestroy(){
        super.onDestroy(); 

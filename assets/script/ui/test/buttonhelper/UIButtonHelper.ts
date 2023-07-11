@@ -7,6 +7,8 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIButtonHelper')
 export class UIButtonHelper extends UIBase {
+    //gen property start don't modify this area
+    //gen property end don't modify this area 
     @property(Label)
     tip: Label;
 

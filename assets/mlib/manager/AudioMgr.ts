@@ -142,14 +142,14 @@ export class AudioMgr extends Component {
         let { fadeIn, fadeOut, onLoadComplete } = args;
         fadeIn = fadeIn === undefined ? 0 : fadeIn;
         fadeOut = fadeOut === undefined ? 0 : fadeOut;
-        if (this.stack.isTop(priority, location)) return; //播放同样的音乐
-        if (this.stack.has(priority, location)) this.stack.delete(priority, location); //已存在则移除
+
+        if (this.stack.has(priority, location)) return; //已在播放列表则忽略
 
         if (this.stack.size > 0) {
             if (this.stack.hasKey(priority)) {//停止原来同优先级的音乐并释放
                 let audioState = this.musicGet(priority, this.stack.get(priority));
                 this.fadeOutMusic(priority == this.stack.topKey ? fadeOut : 0, audioState, true);
-            } else {//暂停当前音乐
+            } else if (priority > this.stack.topKey) {//优先级更大则暂停当前音乐
                 let nowAudioState = this.musicGet(this.stack.topKey, this.stack.topValue);
                 this.fadeOutMusic(fadeOut, nowAudioState, false);
             }
@@ -174,6 +174,9 @@ export class AudioMgr extends Component {
             audioState.audio.clip = clip;
             audioState.audio.volume = this.mVolume * volumeScale;
             audioState.audio.loop = true;
+            if (!this.stack.isTop(priority, location)) {//不是优先级最高的音乐暂停播放 
+                return;
+            }
             if (!this.pause) {
                 if (fadeIn > 0) {
                     audioState.audio.volume = 0;
