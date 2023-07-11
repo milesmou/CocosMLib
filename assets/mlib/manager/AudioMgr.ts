@@ -21,20 +21,20 @@ class AudioState {
     public volumeScale: number;
 }
 
-/** 使用object模拟一个可以对key自动排序的List */
-class SortedList<T>
+/** 使用object模拟一个可以对key自动排序的Map */
+class SortedMap<T>
 {
-    private _list: { [key: string]: T } = {};
+    private _map: { [key: string]: T } = {};
 
     public get topKey() {
-        let keys = Object.keys(this._list);
+        let keys = Object.keys(this._map);
         if (keys.length > 0) return parseFloat(keys[keys.length - 1]);
         return -1;
     }
 
     public get topValue() {
         let topKey = this.topKey;
-        return this._list[topKey];
+        return this._map[topKey];
     }
 
     public isTopKey(key: number) {
@@ -52,42 +52,42 @@ class SortedList<T>
     }
 
     public get size() {
-        let keys = Object.keys(this._list);
+        let keys = Object.keys(this._map);
         return keys.length;
     }
 
     public clear() {
-        this._list = {};
+        this._map = {};
     }
 
     public get(key: number) {
 
-        return this._list[key];
+        return this._map[key];
     }
 
     public set(key: number, item: T) {
 
-        this._list[key] = item;
+        this._map[key] = item;
     }
 
     public delete(key: number, item: T) {
-        let v = this._list[key];
-        if (item == v) delete this._list[key];
+        let v = this._map[key];
+        if (item == v) delete this._map[key];
     }
 
     public hasKey(key: number) {
-        let v = this._list[key];
+        let v = this._map[key];
         return Boolean(v);
     }
 
     public has(key: number, item: T) {
-        let v = this._list[key];
+        let v = this._map[key];
         return item == v;
     }
 
     public forEach(predicate: (item: T, key: number) => void) {
-        for (const key in this._list) {
-            let v = this._list[key];
+        for (const key in this._map) {
+            let v = this._map[key];
             predicate && predicate(v, parseFloat(key));
         }
     }
@@ -105,7 +105,7 @@ export class AudioMgr extends Component {
     private pause = false;
 
     //音乐的音轨栈
-    public stack: SortedList<string> = new SortedList<string>();
+    public stack: SortedMap<string> = new SortedMap<string>();
     //音乐播放状态
     public music: Map<string, AudioState> = new Map<string, AudioState>();
     //单次播放音效的AudioSource
