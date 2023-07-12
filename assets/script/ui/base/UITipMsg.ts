@@ -1,12 +1,9 @@
-import { Button, instantiate, Label, Node, NodePool, tween, Tween, UIOpacity, UITransform, v3, _decorator } from 'cc';
-import { UIBase } from '../../../mlib/component/UIBase';
+import { Button, Component, Label, Node, NodePool, Tween, UIOpacity, UITransform, _decorator, instantiate, tween, v3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 
 @ccclass('UITipMsg')
-export class UITipMsg extends UIBase {
-
-    static Inst: UITipMsg;
+export class UITipMsg extends Component {
 
     @property(Node)
     singleTip: Node;
@@ -33,7 +30,6 @@ export class UITipMsg extends UIBase {
     cbCancel: Function = undefined;
 
     onLoad() {
-        UITipMsg.Inst = this;
         this.singleTip.active = true;
         this.singleTip.getComponent(UIOpacity)!.opacity = 0;
 

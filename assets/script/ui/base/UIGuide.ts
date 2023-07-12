@@ -1,4 +1,4 @@
-import { EventTouch, Label, Node, NodeEventType, Rect, Tween, UITransform, _decorator, find, math, tween, v3 } from 'cc';
+import { Component, EventTouch, Label, Node, NodeEventType, Rect, Tween, UITransform, _decorator, find, tween, v3 } from 'cc';
 import { App } from '../../../mlib/App';
 import { UIBase } from '../../../mlib/component/UIBase';
 import { UIMgr } from '../../../mlib/manager/UIMgr';
@@ -11,8 +11,9 @@ const { ccclass, property } = _decorator;
 
 
 @ccclass('UIGuide')
-export class UIGuide extends UIBase {
-
+export class UIGuide extends Component {
+    //gen property start don't modify this area
+    //gen property end don't modify this area 
     @property(Node)
     mask: Node;
     @property(Node)
@@ -33,6 +34,7 @@ export class UIGuide extends UIBase {
 
 
     onLoad() {
+        UIGuide.Inst = this;
         this.hide();
         this.shade.on(NodeEventType.TOUCH_START, this.onShadeTouchStart, this);
         // this.shade["_eventProcessor"]["touchListener"]["swallowTouches"] = false;

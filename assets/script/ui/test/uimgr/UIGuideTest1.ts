@@ -9,6 +9,8 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIGuideTest1')
 export class UIGuideTest1 extends UIBase {
+    //gen property start don't modify this area
+    //gen property end don't modify this area 
 
 
     onShow() {

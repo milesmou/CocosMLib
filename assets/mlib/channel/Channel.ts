@@ -1,7 +1,7 @@
 import { sys } from 'cc';
 import { ShopUtil } from '../../script/base/ShopUtil';
 import { UITipMsg } from '../../script/ui/base/UITipMsg';
-import { LoginArgs, RequestIAPArgs, SDKCallback, ShowRewardVideoArgs } from '../sdk/MSDKWrapper';
+import { GameDataArgs, LoginArgs, RequestIAPArgs, SDKCallback, ShowRewardVideoArgs } from '../sdk/MSDKWrapper';
 import { Utils } from '../utils/Utils';
 
 
@@ -15,6 +15,10 @@ export abstract class IChannel {
     abstract initIAP();
     /** 登录 */
     abstract login(args: LoginArgs);
+    /** 获取玩家存档 */
+    abstract getGameData(args: GameDataArgs);
+    /** 上传玩家存档 */
+    abstract uploadGameData(args: GameDataArgs);
     /** 展示激励视频广告 */
     abstract showRewardVideo(args: ShowRewardVideoArgs);
     /** 展示插屏广告 */
@@ -40,6 +44,7 @@ export abstract class IChannel {
 }
 
 export class Channel implements IChannel {
+
     initSDK() {
 
 
@@ -55,6 +60,13 @@ export class Channel implements IChannel {
     login(args: LoginArgs) {
         SDKCallback.login = args;
         SDKCallback.login.success("666666");
+    }
+
+    getGameData(args: GameDataArgs) {
+        throw new Error('Method not implemented.');
+    }
+    uploadGameData(args: GameDataArgs) {
+        throw new Error('Method not implemented.');
     }
 
     showRewardVideo(args: ShowRewardVideoArgs) {

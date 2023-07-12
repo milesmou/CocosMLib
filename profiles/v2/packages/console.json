@@ -1,6 +1,6 @@
 {
   "panel": {
-    "filterType": "warn"
+    "filterType": "error"
   },
   "__version__": "1.0.0"
 }

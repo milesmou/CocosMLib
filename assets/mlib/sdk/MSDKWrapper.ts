@@ -18,6 +18,10 @@ export enum EIAPResult {
 export class SDKCallback {
     /** 登录回调 */
     public static login: LoginArgs;
+    /** 获取玩家存档回调 */
+    public static getGameData: GameDataArgs;
+    /** 上传玩家存档回调 */
+    public static uploadGameData: GameDataArgs;
     /** 本次激励视频回调 */
     public static rewardVideo: ShowRewardVideoArgs;
     /** 默认激励视频回调,每次都会调用 */
@@ -74,15 +78,18 @@ export class MSDKWrapper {
     }
 }
 
-
-
 type StringCallback = (str?: string) => void;
 type NumberCallback = (num?: number) => void;
 
 export class LoginArgs {
-    success: StringCallback;
-    fail: StringCallback;
+    success?: StringCallback;
+    fail?: StringCallback;
     extParam?: string;
+}
+
+export class GameDataArgs extends LoginArgs {
+    userId: string;
+    jsonData?: string;
 }
 
 export class ShowRewardVideoArgs {

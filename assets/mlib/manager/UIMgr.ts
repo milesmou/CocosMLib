@@ -48,25 +48,19 @@ export class UIMgr extends Component {
     /* UI参数缓存 方便可以在onLoad时手动拿到参数 */
     private uiArgs: Map<string, object> = new Map();
 
-    public static onStart: () => void;
-
-    //常驻高层UI
-    public guide: UIGuide;
     private tipMsg: UITipMsg;
+    private guide: UIGuide;
 
     onLoad() {
         UIMgr.Inst = this;
     }
 
-    start() {
-        UIMgr.onStart && UIMgr.onStart();
-    }
+
     /** 初始化 */
     public async init() {
-
         //添加上层ui
-        this.guide = await this.initUI(UIConstant.UIGuide, this.resident) as UIGuide;
-        this.tipMsg = await this.initUI(UIConstant.UITipMsg, this.resident) as UITipMsg;
+        this.guide = (await this.instNode(UIConstant.UIGuide, this.resident)).getComponent(UIGuide);
+        this.tipMsg = (await this.initUI(UIConstant.UITipMsg, this.resident)).getComponent(UITipMsg);
     }
 
     public async show<T extends UIBase>(uiName: string, obj: { args?: any, blockTime?: number, visible?: boolean, parent?: Node } = {}): Promise<T> {
