@@ -140,6 +140,6 @@
     "replaceSplashScreen": true
   },
   "log": {
-    "level": 2
+    "level": 1
   }
 }

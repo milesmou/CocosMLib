@@ -29,7 +29,7 @@ export const EGameConfigType = Enum({
     PreferRemote: 2,
 })
 
-/** 应用程序启动入口 */
+/** 应用程序 */
 @ccclass('App')
 export class App extends Component {
     @property({
@@ -141,3 +141,5 @@ export class App extends Component {
         return SingletonFactory.getInstance(clazz, onInst);
     }
 }
+
+globalThis['app'] = App;

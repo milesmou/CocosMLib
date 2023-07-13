@@ -1,9 +1,8 @@
 import { sys } from 'cc';
 import { ShopUtil } from '../../script/base/ShopUtil';
-import { UITipMsg } from '../../script/ui/base/UITipMsg';
 import { GameDataArgs, LoginArgs, RequestIAPArgs, SDKCallback, ShowRewardVideoArgs } from '../sdk/MSDKWrapper';
 import { Utils } from '../utils/Utils';
-
+import { App } from '../App';
 
 
 export abstract class IChannel {
@@ -73,7 +72,7 @@ export class Channel implements IChannel {
         SDKCallback.rewardVideo = args;
         args.success && args.success();
         SDKCallback.rewardVideoDefault?.success && SDKCallback.rewardVideoDefault?.success();
-        UITipMsg.Inst.showToast("测试环境 直接看广告成功!");
+        App.ui.showToast("测试环境 直接看广告成功!");
     }
 
     showInterstitial(...args: any[]) {
@@ -90,7 +89,8 @@ export class Channel implements IChannel {
 
     requestIAP(args: RequestIAPArgs) {
         SDKCallback.inAppPurchase.success(args.id);
-        UITipMsg.Inst.showToast("测试环境 直接内购成功!");
+        app
+        // Inst.showToast("测试环境 直接内购成功!");
     }
 
 

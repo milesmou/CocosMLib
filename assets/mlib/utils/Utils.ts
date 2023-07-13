@@ -207,10 +207,11 @@ export class Utils {
      * @param canRepeat item是否可以重复
      * @returns 
      */
-    public static randomValueByWeight<T>(list: T[], weight: (item: T) => number, num: number, canRepeat = false) {
+    public static randomValueByWeight<T>(list: T[], num = 1, weight?: (item: T) => number, canRepeat = false) {
         let result: T[] = [];
         if (!list || list.length == 0) return result;
         if (list.length < num) console.warn("需要返回的item数量大于集合长度");
+        if (!weight) weight = (item: T) => 1;
 
         let count: number = Math.min(list.length, num);
         let totalWeight = 0;
@@ -224,26 +225,23 @@ export class Utils {
             let tmpWeight = 0;
 
             for (const item of list) {
-                {
-                    let w = weight(item);
-                    if (randomV >= tmpWeight && randomV < tmpWeight + w) {
-                        if (!canRepeat) //检查是否重复元素
-                        {
-                            var index = result.indexOf(item);
-                            if (index == -1) result.push(item);
-                            else break;
-                        }
-                        else {
-                            result.push(item);
-                        }
+                let w = weight(item);
+                if (randomV >= tmpWeight && randomV < tmpWeight + w) {
+                    if (!canRepeat) //检查是否重复元素
+                    {
+                        var index = result.indexOf(item);
+                        if (index == -1) result.push(item);
+                        else break;
                     }
-
-                    tmpWeight += w;
+                    else {
+                        result.push(item);
+                    }
                 }
-            }
 
-            return result;
+                tmpWeight += w;
+            }
         }
+        return result;
     }
     /**
      * 格式化字符串,用args的内容替换str中的{i},i从0开始
