@@ -5,6 +5,7 @@ import { UIMgr } from '../../../mlib/manager/UIMgr';
 import { EventKey } from '../../base/GameEnum';
 import GameTable from '../../base/GameTable';
 import { Guide } from '../../gen/table/Types';
+import { app } from '../../../mlib/misc/mlib';
 const { ccclass, property } = _decorator;
 
 
@@ -12,6 +13,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIGuide')
 export class UIGuide extends Component {
+
     //gen property start don't modify this area
     //gen property end don't modify this area 
     @property(Node)
@@ -34,7 +36,7 @@ export class UIGuide extends Component {
 
 
     onLoad() {
-        UIGuide.Inst = this;
+        app
         this.hide();
         this.shade.on(NodeEventType.TOUCH_START, this.onShadeTouchStart, this);
         // this.shade["_eventProcessor"]["touchListener"]["swallowTouches"] = false;
