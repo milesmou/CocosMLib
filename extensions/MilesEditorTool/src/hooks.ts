@@ -14,7 +14,7 @@ export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: I
     // Todo some thing
     util.mkDirIfNotExists(TemplatePrefix + options.platform);
     appendMBuildLog("Build Start");
-    
+
 };
 
 export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
@@ -35,7 +35,7 @@ export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBu
     for (const file of files) {
         let newFile = buildPath + file.replace(templatePath, "");
         util.mkDirIfNotExists(path.dirname(newFile));
-        fs.copyFileSync(file, newFile,);
+        fs.copyFileSync(file, util.fixupFilePath(newFile));
         appendMBuildLog(`copy ${file} to ${newFile}`);
     }
 };
