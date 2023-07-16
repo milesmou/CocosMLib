@@ -60,7 +60,7 @@ export class UIMgr extends Component {
     public async init() {
         //添加上层ui
         this.guide = (await this.instNode(UIConstant.UIGuide, this.resident)).getComponent(UIGuide);
-        this.tipMsg = (await this.initUI(UIConstant.UITipMsg, this.resident)).getComponent(UITipMsg);
+        this.tipMsg = (await this.instNode(UIConstant.UITipMsg, this.resident)).getComponent(UITipMsg);
     }
 
     public async show<T extends UIBase>(uiName: string, obj: { args?: any, blockTime?: number, visible?: boolean, parent?: Node } = {}): Promise<T> {

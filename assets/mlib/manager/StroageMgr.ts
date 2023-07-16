@@ -76,14 +76,38 @@ export abstract class LocalStroage {
         }
     };
 
-    /** 获取存档序列化后的json字符串 */
-    getSerializeJsonStr() {
-        this.time = Date.now();
-        return JSON.stringify(this);
+    private static defaultInst: LocalStroage;//保存玩家数据默认值
+
+    /** 获取存档序列化后的字符串 */
+    static getSerializeStr(compress = true) {
+        let inst: LocalStroage = this['_inst'];
+        inst.time = Date.now();
+        let str = JSON.stringify(inst);
+        return compress ? jsonCrush.crush(str) : str;
     }
 
-    /** 从本地缓存读取存档 */
-    public static deserialize<T extends LocalStroage>(inst: T): T {
+    /** 通过字符串反序列化存档 */
+    static deserializeByStr<T extends LocalStroage>(strData: string, isCompress = true): T {
+        if (isCompress) strData = jsonCrush.uncrush(strData);
+        try {
+            return JSON.parse(strData);
+        } catch (error) {
+            console.error(error);
+        }
+        return null;
+    }
+
+    /** 替换本地存档 */
+    static replaceGameData(strData: string, isCompress = true) {
+        if (isCompress) strData = jsonCrush.uncrush(strData);
+        StroageMgr.setValue(this.name, strData);
+        this['_inst'] = this.deserialize();
+
+    }
+
+    /** 从本地缓存读取存档 (替换存档不需要传参数)*/
+    public static deserialize<T extends LocalStroage>(inst?: T): T {
+        if (inst) this.defaultInst = inst;
         return StroageMgr.deserialize(inst);
     }
 }

@@ -40,7 +40,7 @@ export class AutoBindProperty extends Component {
                 return;
             }
         }
-        console.warn(`节点上未找到指定方法 ${methodName} ${CCUtils.GetNodePath(this.node)}`);
+        console.warn(`节点上未找到指定方法 ${methodName} ${CCUtils.getNodePath(this.node)}`);
     }
 
     /** 调用祖先节点上组件的方法 */
@@ -55,20 +55,19 @@ export class AutoBindProperty extends Component {
             }
             node = node.parent;
         }
-        console.warn(`祖先节点上未找到指定方法 ${methodName} ${CCUtils.GetNodePath(this.node)}`);
+        console.warn(`祖先节点上未找到指定方法 ${methodName} ${CCUtils.getNodePath(this.node)}`);
     }
 
 
     protected onDestroy(): void {
         if (!EDITOR) return;
         this.scriptName = this.getCompName(this);
-        log("hahha="+this.scriptName)
         this.checkAutoBind();
     }
 
     //#region 自定绑定属性代码
 
-    private prefix = "bp_";
+    private prefix = "$";
     private scriptName: string = "";
 
     private checkAutoBind() {
@@ -141,7 +140,7 @@ export class AutoBindProperty extends Component {
 
     private getNodePath(n: Node) {
         if (!EDITOR) return;
-        let path = CCUtils.GetNodePath(n);
+        let path = CCUtils.getNodePath(n);
         let tag = "/" + this.scriptName + "/";
         return path.substring(path.indexOf(tag) + tag.length);
     }
