@@ -50,19 +50,6 @@ export class CCUtils {
         return n.getComponent(type);
     }
 
-    static getNodePath(node: Node) {
-        let arr: string[] = [];
-        arr.push(node.name);
-        while (node.parent) {
-            node = node.parent;
-            arr.push(node.name);
-        }
-        if (arr[arr.length - 1] = "New Node") {
-            arr = arr.slice(0, arr.length - 1);
-        }
-        return arr.reverse().join("/");
-    }
-
     /** 将node1本地坐标系的位置转化为node2本地坐标下的位置 */
     static NodePosToNodeAxisPos(node1: Node, node2: Node, vec?: Vec3) {
         // if (!vec) {
