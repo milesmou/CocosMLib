@@ -51,6 +51,10 @@ export class Loading extends Component {
         }
     }
 
+    loadGameData(){
+        
+    }
+
     checkVersion() {
         HotUpdate.Inst.start(
             App.config.hotupdateManifest,

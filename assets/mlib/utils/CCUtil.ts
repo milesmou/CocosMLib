@@ -73,7 +73,7 @@ export class CCUtils {
     }
 
     /** Scrollview左右翻页  turnType -1:上一页 1:下一页*/
-    static ScrollViewTurnPage(scrollView: ScrollView, turnType: -1 | 1, dur = 0.15) {
+    static scrollViewTurnPage(scrollView: ScrollView, turnType: -1 | 1, dur = 0.15) {
         // let currentOffset = scrollView.getScrollOffset();
         // let maxOffset = scrollView.getMaxScrollOffset();
         // let x = 0;
@@ -85,7 +85,7 @@ export class CCUtils {
         // scrollView.scrollToOffset(v2(-x, currentOffset.y), dur);
     }
 
-    static GetNodePath(node: Node) {
+    static getNodePath(node: Node) {
         let arr = [];
         arr.push(node.name);
         while (node.parent) {

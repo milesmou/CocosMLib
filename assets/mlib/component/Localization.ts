@@ -87,7 +87,7 @@ export class Localization extends Component {
                 }
             }
         } else {
-            console.error(`Localization ${App.lang} 节点不存在 ${CCUtils.GetNodePath(this.node)}`);
+            console.error(`Localization ${App.lang} 节点不存在 ${CCUtils.getNodePath(this.node)}`);
         }
     }
 

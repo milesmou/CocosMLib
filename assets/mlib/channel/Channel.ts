@@ -89,7 +89,6 @@ export class Channel implements IChannel {
 
     requestIAP(args: RequestIAPArgs) {
         SDKCallback.inAppPurchase.success(args.id);
-        app
         // Inst.showToast("测试环境 直接内购成功!");
     }
 

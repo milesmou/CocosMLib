@@ -4,6 +4,7 @@ import { App } from '../../../mlib/App';
 import { UIBase } from '../../../mlib/component/UIBase';
 import { AssetMgr } from '../../../mlib/manager/AssetMgr';
 import { UIConstant } from '../../gen/UIConstant';
+import { GameData } from '../../base/GameData';
 
 const { ccclass, property } = _decorator;
 
@@ -27,6 +28,7 @@ export class UIHUD extends UIBase {
         }).start();
 
         console.log(AssetMgr.projectBundles);
+        console.log(GameData.getSerializeStr());
     }
 
     onClickAudioMgr() {
