@@ -7,7 +7,8 @@ export const methods: { [key: string]: (...any: any) => any } = {
     loadExcel: CmdExecute.loadExcel,
     genConst:CmdExecute.genConst,
     autoBind:CmdExecute.autoBind,
-    formatProject:CmdExecute.formatProject
+    formatProject:CmdExecute.formatProject,
+    testSelection:CmdExecute.testSelection
 };
 
 /**

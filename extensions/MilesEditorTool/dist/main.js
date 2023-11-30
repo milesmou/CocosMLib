@@ -10,7 +10,8 @@ exports.methods = {
     loadExcel: CmdExecute_1.CmdExecute.loadExcel,
     genConst: CmdExecute_1.CmdExecute.genConst,
     autoBind: CmdExecute_1.CmdExecute.autoBind,
-    formatProject: CmdExecute_1.CmdExecute.formatProject
+    formatProject: CmdExecute_1.CmdExecute.formatProject,
+    testSelection: CmdExecute_1.CmdExecute.testSelection
 };
 /**
  * @en Hooks triggered after extension loading is complete

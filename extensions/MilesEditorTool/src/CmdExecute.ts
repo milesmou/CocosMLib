@@ -140,4 +140,12 @@ export class CmdExecute {
             MLogger.debug(`[${scriptName}] 自动绑定成功`);
         }
     }
+
+    static testSelection(){
+        
+        let type =  Editor.Selection.getLastSelectedType();
+        MLogger.debug("getLastSelectedType",type);
+        let res = Editor.Selection.getLastSelected(type)
+        MLogger.debug("getLastSelected",res);
+    }
 }

@@ -28,6 +28,12 @@
                 "methods": [
                     "autoBind"
                 ]
+            },
+            "testSelection": {
+                "public": true,
+                "methods": [
+                    "testSelection"
+                ]
             }
         },
         "menu": [
@@ -48,6 +54,12 @@
                 "label": "生成常量",
                 "icon": "./static/icon.png",
                 "message": "genConst"
+            },
+            {
+                "path": "MTools",
+                "label": "测试选中",
+                "icon": "./static/icon.png",
+                "message": "testSelection"
             }
         ],
         "shortcuts": [
@@ -60,6 +72,10 @@
                 "message": "genConst",
                 "win": "ctrl+shift+g",
                 "mac": "ctrl+shift+g"
+            },{
+                "message": "testSelection",
+                "win": "ctrl+alt+s",
+                "mac": "ctrl+alt+s"
             }
         ]
     },

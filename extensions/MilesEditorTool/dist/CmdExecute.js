@@ -142,5 +142,11 @@ class CmdExecute {
             MLogger_1.MLogger.debug(`[${scriptName}] 自动绑定成功`);
         }
     }
+    static testSelection() {
+        let type = Editor.Selection.getLastSelectedType();
+        MLogger_1.MLogger.debug("getLastSelectedType", type);
+        let res = Editor.Selection.getLastSelected(type);
+        MLogger_1.MLogger.debug("getLastSelected", res);
+    }
 }
 exports.CmdExecute = CmdExecute;
