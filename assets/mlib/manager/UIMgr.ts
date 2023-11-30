@@ -1,96 +1,115 @@
-import { Component, instantiate, Node, Prefab, SpriteFrame, _decorator } from 'cc';
-import { EventKey } from '../../script/base/GameEnum';
-import { UIConstant } from '../../script/gen/UIConstant';
-import { UIGuide } from '../../script/ui/base/UIGuide';
-import { UITipMsg } from '../../script/ui/base/UITipMsg';
+import { Component, Node, Prefab, SpriteFrame, UITransform, _decorator, instantiate, v3, view } from 'cc';
+
 const { ccclass, property } = _decorator;
 
+import { EventKey } from '../../scripts/base/GameEnum';
+import { UITipMsg } from '../../scripts/base/ui/UITipMsg';
+import { UIGuide } from '../../scripts/base/ui/guide/UIGuide';
+import { UIConstant } from '../../scripts/gen/UIConstant';
 import { EPassiveType, UIBase } from "../component/UIBase";
+import { EventMgr } from '../module/event/EventMgr';
+import { L10nMgr } from '../module/l10n/L10nMgr';
+import { MLogger } from '../module/logger/MLogger';
 import { Utils } from '../utils/Utils';
 import { AssetMgr } from './AssetMgr';
-import { EventMgr } from './EventMgr';
 
-@ccclass('UIMgr')
+@ccclass
 export class UIMgr extends Component {
     public static Inst: UIMgr;
     /** 普通的UI页面 */
     @property(Node)
-    private normal: Node;
+    private normal: Node = null;
     /** 比较上层的UI界面(如切换地图或UI时的加载界面)不参与UI堆栈 */
     @property(Node)
-    private higher: Node;
+    private higher: Node = null;
     /** 常驻在最上层的UI界面(如提示信息、引导)不参与UI堆栈 */
     @property(Node)
-    private resident: Node;
+    private resident: Node = null;
     /** 拦截所有UI事件的组件 */
     @property(Node)
-    private blockInput: Node;
-
-    @property(SpriteFrame)
-    public whiteSplash: SpriteFrame;
-    /* UI的缓存Dict */
+    private blockInput: Node = null;
+    /** 纯白色贴图 */
+    public defaultSprite: SpriteFrame = null;
+    /** UI的缓存Dict */
     private uiDict: Map<string, UIBase> = new Map();
-    /* 加载完成的UI栈 */
+    /** 加载完成的UI栈 */
     private uiStack: UIBase[] = [];
-    /* 所有打开的UI的列表,包含堆栈的普通UI、子UI等等 */
-    private uiList: string[] = [];
+    /** 加载完成的子UI栈 */
+    private subUIStack: UIBase[] = [];
 
-    /* 描屏蔽用户输入事件时间,小于0表示立即停止屏蔽事件述 */
+    /** 最上层的UI */
+    public get topUI() {
+        return this.uiStack[this.uiStack.length - 1];
+    }
+
     private _blockTime = 0;
+    /** 描屏蔽用户输入事件时间(秒),小于0表示立即停止屏蔽事件述 */
     public set blockTime(value: number) {
-
         if (value > this._blockTime) this._blockTime = value;
         if (value <= 0) this._blockTime = 0.1;
+
     }
     /** 记录上一次请求打开UI的时间 抛出短时间内(0.1s)连续打开同一UI的警告 */
     private openUITime: Map<string, number> = new Map();
 
-    /* UI参数缓存 方便可以在onLoad时手动拿到参数 */
+    /** UI参数缓存 方便可以在onLoad时手动拿到参数 */
     private uiArgs: Map<string, object> = new Map();
 
+    //常驻高层UI
+    public guide: UIGuide;
     private tipMsg: UITipMsg;
-    private guide: UIGuide;
 
     onLoad() {
         UIMgr.Inst = this;
+        this.normal.getComponent(UITransform).setContentSize(view.getVisibleSize());
+        this.higher.getComponent(UITransform).setContentSize(view.getVisibleSize());
+        this.resident.getComponent(UITransform).setContentSize(view.getVisibleSize());
+        AssetMgr.loadAsset("DefaultSprite/spriteFrame", SpriteFrame).then(sp => {
+            this.defaultSprite = sp;
+        });
+        //添加提示信息界面
+        // this.instNode(UIConstant.UITipMsg, this.resident).then(n => {
+        //     this.tipMsg = n.getComponent(UITipMsg);
+        // });
     }
-
 
     /** 初始化 */
     public async init() {
-        //添加上层ui
-        this.guide = (await this.instNode(UIConstant.UIGuide, this.resident)).getComponent(UIGuide);
-        this.tipMsg = (await this.instNode(UIConstant.UITipMsg, this.resident)).getComponent(UITipMsg);
+        //添加引导ui
+        // this.guide = (await this.instNode(UIConstant.UIGuide, this.resident)).getComponent(UIGuide);
+        // this.tipMsg.node.setSiblingIndex(99999);
     }
 
-    public async show<T extends UIBase>(uiName: string, obj: { args?: any, blockTime?: number, visible?: boolean, parent?: Node } = {}): Promise<T> {
-
-        let { args, blockTime, visible, parent } = obj;
+    public async show<T extends UIBase>(uiName: string, obj: { args?: any, blockTime?: number, parent?: Node, playAnim?: boolean, visible?: boolean } = {}): Promise<T> {
+        let { args, blockTime, parent, playAnim, visible } = obj;
         blockTime = blockTime === undefined ? 0.2 : blockTime;
+        playAnim = playAnim === undefined ? true : visible;
         visible = visible === undefined ? true : visible;
         this.checkShowUI(uiName);
         this.blockTime = blockTime;
-        Utils.delItemFromArray(this.uiList, uiName);
         EventMgr.emit(EventKey.OnUIInitBegin, uiName);
         this.uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this.normal, visible);
-        Utils.delItemFromArray(this.uiStack, ui);
-        if (!parent) {
+        if (!parent) {//主UI
+            Utils.delItemFromArray(this.uiStack, ui);
             if (visible) this.uiStack.push(ui);
-            else this.uiStack.unshift(ui);
+        } else {//子UI
+            Utils.delItemFromArray(this.subUIStack, ui);
+            if (visible) this.subUIStack.push(ui);
         }
         ui.setArgs(args);
-        if (visible) ui.node.setSiblingIndex(999999);
-        else ui.node.setSiblingIndex(0);
         if (visible) {
             let belowUI = this.uiStack[this.uiStack.length - 2];
             ui.onShowBegin();
             belowUI?.onPassive(EPassiveType.HideBegin, ui);
             EventMgr.emit(EventKey.OnUIShowBegin, ui);
-            await ui.playShowAnim();
+            if (playAnim) await ui.playShowAnim();
             ui.onShow();
             belowUI?.onPassive(EPassiveType.Hide, ui);
             EventMgr.emit(EventKey.OnUIShow, ui);
+        } else {
+            ui.onShowBegin();
+            ui.onShow();
         }
         return ui as T;
     }
@@ -103,40 +122,55 @@ export class UIMgr extends Component {
             if (ui.destroyNode) {
                 ui.node.destroy();
                 this.uiDict.delete(uiName);
+                AssetMgr.DecRef(uiName);
             }
             else {
                 ui.node.active = false;
             }
         };
         let index = this.uiStack.indexOf(ui)
-        if (index > -1) {
-            Utils.delItemFromArray(this.uiList, uiName);
+        if (index > -1) {//关闭主UI
             Utils.delItemFromArray(this.uiStack, ui);
-            if (index == this.uiStack.length) {
+            if (index == this.uiStack.length) {//关闭最上层UI
                 let topUI = this.uiStack[this.uiStack.length - 1];
                 ui.onHideBegin();
                 topUI?.onPassive(EPassiveType.ShowBegin, ui);
                 EventMgr.emit(EventKey.OnUIHideBegin, ui);
-                if (fastHide) {
-                    ui.onHide();
-                    topUI?.onPassive(EPassiveType.Show, ui);
-                    EventMgr.emit(EventKey.OnUIHide, ui);
-                    hideUI();
-                } else {
-                    await ui.playHideAnim();
-                    ui.onHide();
-                    topUI?.onPassive(EPassiveType.Show, ui);
-                    EventMgr.emit(EventKey.OnUIHide, ui);
-                    hideUI();
-                }
-            }
-        } else {
-            index = this.uiList.indexOf(uiName);
-            if (index > -1) {
-                Utils.delItemFromArray(this.uiList, uiName);
+                if (!fastHide) await ui.playHideAnim();
+                ui.onHide();
                 hideUI();
+                topUI?.onPassive(EPassiveType.Show, ui);
+                EventMgr.emit(EventKey.OnUIHide, ui);
+            } else {//快速关闭非最上层UI 不播动画
+                EventMgr.emit(EventKey.OnUIHideBegin, ui);
+                ui.onHide();
+                hideUI();
+                EventMgr.emit(EventKey.OnUIHide, ui);
             }
+            return;
         }
+        index = this.subUIStack.indexOf(ui)
+        if (index > -1) {//关闭子UI
+            Utils.delItemFromArray(this.subUIStack, ui);
+            if (index == this.subUIStack.length) {//关闭最上层UI
+                let topUI = this.subUIStack[this.subUIStack.length - 1];
+                ui.onHideBegin();
+                topUI?.onPassive(EPassiveType.ShowBegin, ui);
+                EventMgr.emit(EventKey.OnUIHideBegin, ui);
+                if (!fastHide) await ui.playHideAnim();
+                ui.onHide();
+                hideUI();
+                topUI?.onPassive(EPassiveType.Show, ui);
+                EventMgr.emit(EventKey.OnUIHide, ui);
+            } else {//快速关闭非最上层UI
+                EventMgr.emit(EventKey.OnUIHideBegin, ui);
+                ui.onHide();
+                hideUI();
+                EventMgr.emit(EventKey.OnUIHide, ui);
+            }
+            return;
+        }
+
     }
 
     public async showHigher(uiName: string, args?: any) {
@@ -166,36 +200,35 @@ export class UIMgr extends Component {
     public hideAll(...exclude: string[]) {
         var hideList = this.uiStack.filter(ui => exclude.indexOf(ui.uiName) == -1);
         hideList.forEach(ui => {
-            this.hide(ui.uiName);
+            this.hide(ui.uiName, 0.2, true);
         });
     }
 
     public async initUI(uiName: string, parent: Node, visible = true): Promise<UIBase> {
         let ui = this.uiDict.get(uiName);
         if (!ui?.isValid) {
-            let node = await this.instNode(uiName, parent, visible);
+            let node = await this.instNode(uiName, parent);
             ui = node.getComponent(UIBase)!;
             ui.init(uiName);
             this.uiDict.set(uiName, ui);
         }
         ui.node.active = true;
+        ui.setVisible(visible);
+        if (visible) {
+            ui.node.setSiblingIndex(999999);
+            ui.node.position = v3(0, 0, 0);
+        } else {
+            ui.node.setSiblingIndex(0);
+            ui.node.position = v3(-10086, 0, 0);
+        }
         return ui;
     }
 
-    private async instNode(uiName: string, parent: Node, visible = true): Promise<Node> {
-        if (this.uiDict.has(uiName)) {
-            var ui = this.uiDict.get(uiName);
-            if (ui?.isValid) {
-                if (visible) ui.node.setSiblingIndex(999999);
-                return ui.node;
-            }
-        }
-        let prefab = await AssetMgr.loadAsset("uiPrefab/" + uiName, Prefab);
+    private async instNode(uiName: string, parent: Node): Promise<Node> {
+        let prefab = await AssetMgr.loadAsset(uiName, Prefab);
         var uiObj = instantiate(prefab);
-        var uiObj2 = instantiate(prefab);
-        var uiObj3 = instantiate(prefab);
+        uiObj.getComponent(UITransform).setContentSize(view.getVisibleSize());
         uiObj.parent = parent;
-        if (!visible) uiObj.setSiblingIndex(0);
         return uiObj;
     }
 
@@ -204,10 +237,10 @@ export class UIMgr extends Component {
     }
 
     public isTopUI(uiName: string) {
-        if (this.uiStack.length == 0) return false;
+        if (this.uiStack.length == 0 && this.subUIStack.length == 0) return false;
         let ui = this.uiDict.get(uiName);
         if (!ui?.isValid) return false;
-        return this.uiStack[this.uiStack.length - 1] == ui;
+        return this.uiStack[this.uiStack.length - 1] == ui || this.subUIStack[this.subUIStack.length - 1] == ui;
     }
 
     public getUI<T extends UIBase>(name: string) {
@@ -264,16 +297,15 @@ export class UIMgr extends Component {
         if (this.openUITime.has(uiName)) {
             let lastTime = this.openUITime[uiName];
             if (now - lastTime < 100) {
-                console.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
+                MLogger.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
                 this.openUITime.delete(uiName);
             }
-
             this.openUITime[uiName] = now;
         }
         else this.openUITime.set(uiName, now);
     }
 
-    lateUpdate(dt: number) {
+    update(dt: number) {
         if (this._blockTime > 0) this._blockTime -= dt;
         this.blockInput.active = this._blockTime > 0;
     }
@@ -284,11 +316,14 @@ export class UIMgr extends Component {
         this.tipMsg && this.tipMsg.showTip(content);
     }
 
-    showToast(content: string) {
+    showToast(content: string, isLanguageKey = false, ...languageArgs: any[]) {
+        if (isLanguageKey) {
+            content = L10nMgr.getStringByKey(content, languageArgs);
+        }
         this.tipMsg && this.tipMsg.showToast(content);
     }
 
-    showConfirm(content: string, boxType = 2, cbOk?: Function, cbCancel?: Function) {
+    showConfirm(content: string, boxType: 1 | 2 = 2, cbOk?: Function, cbCancel?: Function) {
         this.tipMsg && this.tipMsg.showConfirm(content, boxType, cbOk, cbCancel);
     }
 

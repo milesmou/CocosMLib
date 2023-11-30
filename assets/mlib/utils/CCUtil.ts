@@ -1,4 +1,4 @@
-import { Component, instantiate, Node, Prefab, ScrollView, Vec3, Widget } from "cc";
+import { Node, Camera, Component, Prefab, Scene, ScrollView, Vec3, Widget, instantiate, misc, sp, tween, v2, v3, view, UITransform } from "cc";
 import { Utils } from "./Utils";
 
 export class CCUtils {
@@ -13,10 +13,18 @@ export class CCUtils {
         return null;
     }
 
-    /** 从自身或者父节点获取指定组件 */
-    static getComponentInParent<T extends Component>(node: Node, type: new (...args: any[]) => T): T {
+    /*
+     * 从父节点获取指定组件 
+     * @param [includeCurNode=false] 是否包含当前节点上的组件
+     */
+    static getComponentInParent<T extends Component>(node: Node, type: new (...args: any[]) => T, includeCurNode = false): T {
         let n = node;
+        if (!n.parent) {
+            throw new Error("父节点不存在");
+        }
+        if (!includeCurNode) n = n.parent;
         while (n) {
+            if (n instanceof Scene) break;
             let comp = n.getComponent(type);
             if (comp) return comp;
             n = n.parent;
@@ -24,11 +32,19 @@ export class CCUtils {
         return null;
     }
 
-    /** 从自身或者父节点获取指定组件 */
-    static getComponentsInParent<T extends Component>(node: Node, type: new (...args: any[]) => T): T[] {
+    /*
+    * 从父节点获取指定组件 
+    * @param [includeCurNode=false] 是否包含当前节点上的组件
+    */
+    static getComponentsInParent<T extends Component>(node: Node, type: new (...args: any[]) => T, includeCurNode = false): T[] {
         let arr: T[] = [];
         let n = node;
+        if (!n.parent) {
+            throw new Error("父节点不存在");
+        }
+        if (!includeCurNode) n = n.parent;
         while (n) {
+            if (n instanceof Scene) break;
             let comp = n.getComponent(type);
             if (comp) arr.push(comp);
             n = n.parent;
@@ -50,34 +66,68 @@ export class CCUtils {
         return n.getComponent(type);
     }
 
+    /** 通过路径获取指定节点(路径不包含根节点) */
+    static getNodeAtPath(node: Node, path: string) {
+        path = Utils.trim(path.trim(), "/");
+        let arr = path.split("/");
+        let n = node;
+        if (arr.length > 0) {
+            for (const name of arr) {
+                n = n.getChildByName(name);
+                if (!n?.isValid) return null;
+            }
+        }
+        return n;
+    }
+
     /** 将node1本地坐标系的位置转化为node2本地坐标下的位置 */
-    static NodePosToNodeAxisPos(node1: Node, node2: Node, vec?: Vec3) {
-        // if (!vec) {
-        //     vec = v3(0, 0);
-        // }
+    static nodePosToNodeAxisPos(node1: Node, node2: Node, vec?: Vec3) {
+        if (!vec) {
+            vec = v3(0, 0);
+        }
         // let worldPos = node1.convertToWorldSpaceAR(vec);
         // return node2.convertToNodeSpaceAR(worldPos);
+        return vec;
+    }
+
+    /** 获取非UI摄像机下的节点在屏幕中的坐标(屏幕中心为原点) */
+    static getNodeScreenPosCenter(node: Node, camera: Camera) {
+        // let pos = node.convertToWorldSpaceAR(v2(0, 0));
+        // let cameraPos = camera.node.convertToWorldSpaceAR(v2(0, 0));
+        // pos.subSelf(cameraPos).mulSelf(camera.zoomRatio);
+        // return pos;
+    }
+
+    /** 获取非UI摄像机下的节点在屏幕中的坐标(屏幕左下角为原点) */
+    static getNodeScreenPos(node: Node, camera: Camera) {
+        // let pos = this.getNodeScreenPosCenter(node, camera);
+        // let size = view.getVisibleSize();
+        // pos.x += size.width / 2;
+        // pos.y += size.height / 2;
+        // return pos;
     }
 
     /** Scrollview左右翻页  turnType -1:上一页 1:下一页*/
     static scrollViewTurnPage(scrollView: ScrollView, turnType: -1 | 1, dur = 0.15) {
-        // let currentOffset = scrollView.getScrollOffset();
-        // let maxOffset = scrollView.getMaxScrollOffset();
-        // let x = 0;
-        // if (turnType == -1) {
-        //     x = misc.clampf(currentOffset.x + scrollView.node.width, - maxOffset.x, 0);
-        // } else {
-        //     x = misc.clampf(currentOffset.x - scrollView.node.width, - maxOffset.x, 0);
-        // }
-        // scrollView.scrollToOffset(v2(-x, currentOffset.y), dur);
+        let trans = scrollView.getComponent(UITransform);
+        let currentOffset = scrollView.getScrollOffset();
+        let maxOffset = scrollView.getMaxScrollOffset();
+        let x = 0;
+        if (turnType == -1) {
+            x = misc.clampf(currentOffset.x + trans.width, - maxOffset.x, 0);
+        } else {
+            x = misc.clampf(currentOffset.x - trans.width, - maxOffset.x, 0);
+        }
+        scrollView.scrollToOffset(v2(-x, currentOffset.y), dur);
     }
 
     static getNodePath(node: Node) {
-        let arr = [];
-        arr.push(node.name);
-        while (node.parent) {
-            node = node.parent;
-            arr.push(node.name);
+        let arr: string[] = [];
+        let n = node;
+        while (n) {
+            if (n instanceof Scene) break;
+            arr.push(n.name);
+            n = n.parent;
         }
         return arr.reverse().join("/");
     }
@@ -97,8 +147,8 @@ export class CCUtils {
         widget.right = 0;
     }
 
-    static loadList<T>(content: Node, listData: T[], action?: (T, Node, number) => void,
-        item: Prefab = null, frameTimeMS = 4) {
+    static loadList<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
+        item: Prefab = null, frameTimeMS = 2) {
 
         return new Promise<void>((resolve, reject) => {
             if (!content || listData == null) return;
@@ -115,9 +165,9 @@ export class CCUtils {
                 }
             }
 
-            let comp = content.getComponent(Component);
+            let comp = this.getComponentInParent(content, Component);
 
-            let gen = this.listGenerator(content, listData, action);
+            let gen = this.listGenerator(content, listData, action, item);
 
             let execute = () => {
                 let startMS = Date.now();
@@ -127,6 +177,8 @@ export class CCUtils {
                     if (iter == null || iter.done) {
                         resolve();
                         return;
+                    } else {
+                        iter.value;
                     }
 
                     if (Date.now() - startMS > frameTimeMS) {
@@ -143,16 +195,17 @@ export class CCUtils {
         });
     }
 
-    private static *listGenerator<T>(content: Node, listData: T[], action?: (T, Node, number) => void,
+    private static *listGenerator<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
         item: Prefab = null) {
         let instNode = (index: number) => {
             if (!content?.isValid) return;
             let child: Node;
             if (content.children.length > index) {
-                child = content[index];
+                child = content.children[index];
             }
             else {
                 child = item ? instantiate(item) : instantiate(content.children[0]);
+                child.parent = content;
             }
 
             child.active = true;
@@ -163,4 +216,43 @@ export class CCUtils {
             yield instNode(i);
         }
     }
+
+    /** 针对节点下只有一个子节点 并需要动态切换 */
+    public static loadSingleNode(parent: Node, prefab: Prefab) {
+        if (parent.children.length > 0) {
+            if (parent.children[0].name == prefab.name) return;
+            else {
+                parent.destroyAllChildren();
+            }
+        }
+        let node = instantiate(prefab);
+        node.parent = parent;
+        node.active = true;
+    }
+
+    /** 缓动一个number */
+    public static tweenNumber(start: number, end: number, duration: number, onUpdate: (v: number) => void, easing?: string) {
+        // let o = { v: start };
+        // tween(o).to(duration, { v: end }, {
+        //     progress: function (s, e, t, c) {
+        //         onUpdate && onUpdate(c);
+        //     },
+        //     easing: easing
+        // }).start();
+    }
+
+    /** 设置spine各动画之间的融合时间 */
+    public static setSpineCommonMix(spine: sp.Skeleton, dur: number) {
+        if (!spine) return;
+        let anims: any[] = spine["_skeleton"]["data"]["animations"];
+        if (anims?.length) {
+            for (let i = 0; i < anims.length - 1; i++) {
+                for (let j = i + 1; j < anims.length; j++) {
+                    spine.setMix(anims[i].name, anims[j].name, dur);
+                    spine.setMix(anims[j].name, anims[i].name, dur);
+                }
+            }
+        }
+    }
+
 }

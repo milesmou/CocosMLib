@@ -1,10 +1,18 @@
-//注意：修改热更新工具使导出的Manifest文件中的packageUrl地址追加版本号(manifest-gen.js中packageUrl:t替换为packageUrl:t+"/"+e)
-//注意：整包更新清除本地热更缓存 否则覆盖安装的包不会生效，执行以下两步
-//1.修改热更新工具main_code.js中的搜索路径：var hotUpdateSearchPaths = localStorage.getItem('HotUpdateSearchPaths');中的HotUpdateSearchPaths
-//2.修改当前脚本中的搜索路径：cc.sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));中的HotUpdateSearchPaths，与步骤1的key保持一致
 
-import { _decorator, Asset, sys, assetManager, native } from 'cc';
-export enum HotUpdateCode {
+//1.在 main.js 的开头添加链接中代码(https://docs.cocos.com/creator/2.4/manual/zh/advanced-topics/hot-update.html)
+//2.修改main.js和当前脚本的搜索路径key，使其保持一致
+//3.通常使用3位版本号(x.x.x)作为存储搜索路径的key
+
+import { Asset, native, sys } from "cc";
+import { MLogger } from "../module/logger/MLogger";
+
+export enum EHotUpdateState {
+    CheckUpdate,//检查更新
+    DownloadFiles,//下载更新
+    Finished,//结束更新
+}
+
+export enum EHotUpdateResult {
     UpToDate,//已经是最新版本
     ManifestError,//manifest文件异常
     Success,//更新成功
@@ -12,56 +20,48 @@ export enum HotUpdateCode {
 }
 
 export class HotUpdate {
-    private readonly TAG = "[HotUpdate]";
+
     private constructor() { }
     private static inst: HotUpdate;
     public static get Inst() { return this.inst || (this.inst = new HotUpdate()) }
-    manifest: Asset | null = null;//本地project.manifest文件
-    assetsMgr!: native.AssetsManager;//jsb资源管理器
-    updating = false; //更新中
-    failCount = 3;//更新失败重试次数
-    setTips!: (content: string) => void;
-    progress!: (loaded: number, total: number) => void;
-    complete!: (code: HotUpdateCode) => void;
-    start(manifest: Asset, setTips: (content: string) => void, progress: (loaded: number, total: number) => void, complete: (code: HotUpdateCode) => void) {
+    private _logger = new MLogger("HotUpdate")
+    private _manifest: Asset = null;//本地project.manifest文件
+    private _version: string;//游戏主版本号 只有三位
+    private _assetsMgr: jsb.AssetsManager;//jsb资源管理器
+    private _updating = false; //更新中
+    private _failCount = 3;//更新失败重试次数
+    private _onStateChange: (code: EHotUpdateState) => void;
+    private _onDownloadProgress: (loaded: number, total: number) => void;
+    private _onComplete: (code: EHotUpdateResult) => void;
+
+    public start(manifest: Asset, version: string, onStateChange: (code: EHotUpdateState) => void, onDownloadProgress: (loaded: number, total: number) => void, onComplete: (code: EHotUpdateResult) => void) {
         if (!sys.isNative) {
-            console.warn(this.TAG, "非原生环境");
+            this._logger.warn("非原生环境");
             return;
         }
-        this.manifest = manifest;
-        this.setTips = setTips;
-        this.progress = progress;
-        this.complete = complete;
+        this._manifest = manifest;
+        this._version = version;
+        this._onStateChange = onStateChange;
+        this._onDownloadProgress = onDownloadProgress;
+        this._onComplete = onComplete;
 
         let storagePath = ((native.fileUtils ? native.fileUtils.getWritablePath() : '/') + 'miles_remote_asset');
-        console.log(this.TAG, '热更新资源存放路径：' + storagePath);
+        this._logger.print('热更新资源存放路径：' + storagePath);
 
-        this.setTips("Checking For Update");
-        this.assetsMgr = new native.AssetsManager("", storagePath, this.versionCompareHandle.bind(this));
-        this.assetsMgr.setVerifyCallback(this.VerifyHandle.bind(this));
-        this.checkHotUpdate();
+        this._onStateChange(EHotUpdateState.CheckUpdate);
+
+        this._assetsMgr = new jsb.AssetsManager("", storagePath, this.versionCompareHandle.bind(this));
+        this._assetsMgr.setVerifyCallback(this.VerifyHandle.bind(this));
+        this.checkUpdate();
     }
+
     versionCompareHandle(versionA: string, versionB: string) {
-        console.log(this.TAG, "客户端版本: " + versionA + ', 当前最新版本: ' + versionB);
-        let vA = versionA.split('.');
-        let vB = versionB.split('.');
-        for (let i = 0; i < vA.length; ++i) {
-            let a = parseInt(vA[i]);
-            let b = parseInt(vB[i]);
-            if (a === b) {
-                continue;
-            } else {
-                return a - b;
-            }
-        }
-        if (vB.length > vA.length) {
-            return -1;
-        } else {
-            return 0;
-        }
+        this._logger.print("客户端版本: " + versionA + ', 当前最新版本: ' + versionB);
+        if (versionA != versionB) return -1;
+        return 0;
     }
 
-    VerifyHandle(path: string, asset: native.ManifestAsset) {
+    VerifyHandle(path: string, asset: jsb.ManifestAsset) {
         let { compressed } = asset;
         if (compressed) {
             return true;
@@ -70,97 +70,129 @@ export class HotUpdate {
         }
     }
 
-    checkHotUpdate() {
-        if (this.updating) {
+    /** 检查更新 */
+    checkUpdate() {
+        this._logger.debug("检查更新");
+        if (this._updating) {
             return;
         }
-        if (this.assetsMgr.getState() === native.AssetsManager.State.UNINITED) {
-            let url = this.manifest!.nativeUrl;
+        if (this._assetsMgr.getState() === jsb.AssetsManager.State.UNINITED) {
+            let url = this._manifest!.nativeUrl;
             // if (assetManager.md5Pipe) {
             //     url = loader.md5Pipe.transformURL(url);
             // }
-            this.assetsMgr.loadLocalManifest(url);
+            this._assetsMgr.loadLocalManifest(url);
         }
-        if (!this.assetsMgr.getLocalManifest() || !this.assetsMgr.getLocalManifest().isLoaded()) {
-            console.log(this.TAG, "加载本地project.manifest文件失败");
-            this.onUpdateComplete(HotUpdateCode.ManifestError);
+        if (!this._assetsMgr.getLocalManifest() || !this._assetsMgr.getLocalManifest().isLoaded()) {
+            this._logger.error("加载本地project.manifest文件失败");
+            this.onUpdateComplete(EHotUpdateResult.ManifestError);
             return;
         }
-        this.assetsMgr.setEventCallback(this.hotUpdateCb.bind(this, 0));
-        this.assetsMgr.checkUpdate();
+        this._logger.debug("搜索路径:", JSON.stringify(this._assetsMgr.getLocalManifest().getSearchPaths()))
+        this._assetsMgr.setEventCallback(this.checkUpdateCb.bind(this));
+        this._assetsMgr.checkUpdate();
     }
 
-    hotUpdate() {
-        if (!this.updating) {
-            this.assetsMgr.setEventCallback(this.hotUpdateCb.bind(this, 1));
-            this.assetsMgr.update();
-            this.updating = true;
+    /** 下载更新文件 */
+    downloadFiles() {
+        this._onStateChange(EHotUpdateState.DownloadFiles);
+        this._logger.debug("下载更新");
+        if (!this._updating) {
+            this._assetsMgr.setEventCallback(this.downloadFilesCb.bind(this));
+            this._assetsMgr.update();
+            this._updating = true;
         }
     }
 
-    /** 0:检测更新 1:下载更新 */
-    hotUpdateCb(state: 0 | 1, event: native.EventAssetsManager) {
+
+    /** 检查更新回调 */
+    checkUpdateCb(event: jsb.EventAssetsManager) {
         switch (event.getEventCode()) {
-            case native.EventAssetsManager.UPDATE_PROGRESSION:
-                state == 1 && this.setTips("Downloading Updates");
-                console.log(this.TAG, `下载进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()} `);
-                this.progress(event.getDownloadedFiles(), event.getTotalFiles());
+            case jsb.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
+                this._logger.error('manifest文件异常 ERROR_NO_LOCAL_MANIFEST', event.getMessage());
+                this.onUpdateComplete(EHotUpdateResult.ManifestError);
                 break;
-            case native.EventAssetsManager.NEW_VERSION_FOUND:
-                console.log(this.TAG, "New Version Found");
-                state == 0 && this.setTips("发现新版本，准备下载");
-                this.hotUpdate();
+            case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
+                this._logger.error('manifest文件异常 ERROR_DOWNLOAD_MANIFEST', event.getMessage());
+                this.onUpdateComplete(EHotUpdateResult.ManifestError);
                 break;
-            case native.EventAssetsManager.ALREADY_UP_TO_DATE:
-                state == 0 && this.setTips("Already Up To Date");
-                console.log(this.TAG, '已经是最新版本');
-                this.onUpdateComplete(HotUpdateCode.UpToDate);
+            case jsb.EventAssetsManager.ERROR_PARSE_MANIFEST:
+                this._logger.error('manifest文件异常 ERROR_PARSE_MANIFEST', event.getMessage());
+                this.onUpdateComplete(EHotUpdateResult.ManifestError);
                 break;
-            case native.EventAssetsManager.UPDATE_FINISHED:
-                state == 1 && this.setTips("Finished，Ready To Restart Game");
-                console.log(this.TAG, '更新完成', event.getMessage());
-                this.onUpdateComplete(HotUpdateCode.Success);
+            case jsb.EventAssetsManager.NEW_VERSION_FOUND:
+                this._logger.debug("发现新版本，准备下载");
+                this.downloadFiles();
                 break;
-            case native.EventAssetsManager.UPDATE_FAILED:
-                state == 1 && console.log(this.TAG, '更新失败', event.getMessage());
-                this.updating = false;
-                this.failCount--;
-                if (this.failCount >= 0) {
-                    this.hotUpdate();
+            case jsb.EventAssetsManager.ALREADY_UP_TO_DATE:
+                this._logger.debug('已经是最新版本');
+                this.onUpdateComplete(EHotUpdateResult.UpToDate);
+                break;
+            case jsb.EventAssetsManager.UPDATE_PROGRESSION:
+                this._logger.debug('下载清单文件进度', event.getDownloadedFiles(), event.getTotalFiles());
+                break;
+            default:
+                this._logger.debug("checkUpdateCb 未处理的情况", event.getEventCode(), event.getMessage());
+        }
+    }
+
+    /** 下载更新文件回调 */
+    downloadFilesCb(event: jsb.EventAssetsManager) {
+        switch (event.getEventCode()) {
+            case jsb.EventAssetsManager.UPDATE_PROGRESSION:
+                this._logger.debug(`下载更新文件进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()} `);
+                this._onDownloadProgress(event.getDownloadedFiles(), event.getTotalFiles());
+                break;
+            case jsb.EventAssetsManager.ASSET_UPDATED:
+                break;
+            case jsb.EventAssetsManager.UPDATE_FINISHED:
+                this._logger.debug('更新完成', event.getMessage());
+                this.onUpdateComplete(EHotUpdateResult.Success);
+                break;
+            case jsb.EventAssetsManager.UPDATE_FAILED:
+                this._logger.debug('更新失败', event.getMessage());
+                this._updating = false;
+                this._failCount--;
+                if (this._failCount >= 0) {
+                    this.downloadFiles();
                 } else {
                     this.onUpdateFail();
                 }
                 break;
-            case native.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
-            case native.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
-            case native.EventAssetsManager.ERROR_PARSE_MANIFEST:
-                console.log(this.TAG, 'manifest文件异常', event.getMessage());
-                this.onUpdateComplete(HotUpdateCode.ManifestError);
-                break;
-            case native.EventAssetsManager.ERROR_UPDATING:
-            case native.EventAssetsManager.ERROR_DECOMPRESS:
-                console.warn(this.TAG, '更新出错', event.getEventCode(), event.getMessage());
+
+            case jsb.EventAssetsManager.ERROR_UPDATING:
+                this._logger.error('更新出错 ERROR_UPDATING', event.getMessage());
                 this.onUpdateFail();
                 break;
+            case jsb.EventAssetsManager.ERROR_DECOMPRESS:
+                this._logger.error('更新出错 ERROR_DECOMPRESS', event.getMessage());
+                this.onUpdateFail();
+                break;
+
+
+
+            default:
+                this._logger.debug("downloadFilesCb 未处理的情况", event.getEventCode(), event.getMessage());
         }
     }
 
-    onUpdateComplete(code: HotUpdateCode.UpToDate | HotUpdateCode.Success | HotUpdateCode.ManifestError) {
-        if (code == HotUpdateCode.Success) {
+    onUpdateComplete(code: EHotUpdateResult.UpToDate | EHotUpdateResult.Success | EHotUpdateResult.ManifestError) {
+        this._onStateChange(EHotUpdateState.Finished);
+        if (code == EHotUpdateResult.Success) {
             let searchPaths = native.fileUtils.getSearchPaths();
-            let newPaths = this.assetsMgr.getLocalManifest().getSearchPaths();
-            console.log(this.TAG, "搜索路径: " + JSON.stringify(newPaths));
+            let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
+            this._logger.debug(`搜索路径 k=${this._version} v=${JSON.stringify(newPaths)}`);
             Array.prototype.unshift.apply(searchPaths, newPaths);//追加脚本搜索路径
             // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
-            sys.localStorage.setItem('HotUpdateSearchPaths', JSON.stringify(searchPaths));
+            sys.localStorage.setItem(this._version, JSON.stringify(searchPaths));
             native.fileUtils.setSearchPaths(searchPaths);
         }
-        this.assetsMgr.setEventCallback(null!);
-        this.complete(code);
+        this._assetsMgr.setEventCallback(null);
+        this._onComplete(code);
     }
 
     onUpdateFail() {
-        this.assetsMgr.setEventCallback(null!);
-        this.complete(HotUpdateCode.Fail);
+        this._assetsMgr.setEventCallback(null);
+        this._onComplete(EHotUpdateResult.Fail);
     }
 }

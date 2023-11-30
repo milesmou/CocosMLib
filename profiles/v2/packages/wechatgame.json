@@ -1,12 +1,13 @@
 {
-  "__version__": "1.0.2",
+  "__version__": "1.0.4",
   "builder": {
     "common": {
       "buildPath": "project://build",
       "outputName": "wechatgame",
       "mainBundleCompressionType": "merge_dep",
       "platform": "wechatgame",
-      "replaceSplashScreen": true
+      "replaceSplashScreen": true,
+      "useSplashScreen": true
     }
   }
 }

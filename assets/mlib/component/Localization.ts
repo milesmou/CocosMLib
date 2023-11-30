@@ -1,5 +1,5 @@
 import { Component, Enum, Label, Node, RichText, Sprite, _decorator } from 'cc';
-import GameTable from '../../script/base/GameTable';
+import GameTable from '../../scripts/base/GameTable';
 const { ccclass, property } = _decorator;
 
 import { App } from "../App";

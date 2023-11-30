@@ -1,4 +1,6 @@
 import { Asset, AssetManager, assetManager, ImageAsset, resources, Sprite, SpriteFrame, sys } from "cc";
+import { GameConfig } from "../../scripts/base/GameConfig";
+import { MLogger } from "../module/logger/MLogger";
 import { SingletonFactory } from "../utils/SingletonFactory";
 
 class AssetCache {
@@ -9,9 +11,7 @@ class AssetCache {
 class BundleMgr {
 
     public static get Inst() {
-        return SingletonFactory.getInstance<BundleMgr>(BundleMgr, t => {
-            t.resolveResources();
-        });
+        return SingletonFactory.getInstance<BundleMgr>(BundleMgr);
     }
 
     //bundle名字:Bundle
@@ -19,21 +19,38 @@ class BundleMgr {
 
     //资源地址:Bundle名字
     private address: Map<string, string> = new Map();
+    //资源目录:资源地址数组
+    private dirAddress: Map<string, string[]> = new Map();
 
+    private onInst() {
+        this.resolveResources();
+    }
 
+    /** 获取远程bundle的版本 */
+    private getBundleVersion(bundleName: string) {
+        return GameConfig.bundleVersion.get(bundleName);
+    }
 
     private resolveResources() {
-        this.resolveBundle(resources);
+        if (resources) this.resolveBundle(resources);
     }
 
     private resolveBundle(bundle: AssetManager.Bundle) {
         this.bundles.set(bundle.name, bundle);
         bundle["_config"].paths.forEach(v => {
             v.forEach(v1 => {
-                if (!this.address.has(v1.path))
-                    this.address.set(v1.path, bundle.name);
-                else
-                    console.error(`资源地址不能重复  ${bundle.name}  ${v1.path}`);
+                let path: string = v1.path;
+                MLogger.debug(path);
+                let dir = path.substring(0, path.lastIndexOf("/"));
+                if (!this.dirAddress.get(dir)) this.dirAddress.set(dir, []);
+                this.dirAddress.get(dir).push(path);
+
+                if (!this.address.has(path)) {
+                    this.address.set(path, bundle.name);
+                }
+                else {
+                    MLogger.error(`资源地址不能重复  ${bundle.name}  ${v1.path}`);
+                }
             });
         });
     }
@@ -53,10 +70,10 @@ class BundleMgr {
     public loadBundle(bundleName: string, onFileProgress?: (loaded: number, total: number) => void) {
         let p = new Promise<AssetManager.Bundle>((resolve, reject) => {
             assetManager.loadBundle(bundleName,
-                { onFileProgress: onFileProgress },
+                { version: this.getBundleVersion(bundleName), onFileProgress: onFileProgress },
                 (err, bundle) => {
                     if (err) {
-                        console.log(err);
+                        MLogger.error(err);
                         reject(err);
                     } else {
                         this.resolveBundle(bundle);
@@ -77,8 +94,6 @@ class BundleMgr {
             let bundleArr: AssetManager.Bundle[] = [];
             for (let i = 0; i < bundleNames.length; i++) {
                 let bundleName = bundleNames[i];
-                console.log("bundleName=" + bundleName);
-
                 assetManager.loadBundle(bundleName,
                     {
                         onFileProgress: (loaded: number, total: number) => {
@@ -94,7 +109,7 @@ class BundleMgr {
                     },
                     (err, bundle) => {
                         if (err) {
-                            console.log(err);
+                            MLogger.error(err);
                             reject(err)
                         } else {
                             bundleArr.push(bundle);
@@ -110,6 +125,10 @@ class BundleMgr {
         return p;
     }
 
+    public isAssetExists(location: string) {
+        return this.address.has(location);
+    }
+
     public getBundleByLocation(location: string): AssetManager.Bundle {
         let ab: AssetManager.Bundle = null;
         if (this.address.has(location)) {
@@ -121,12 +140,16 @@ class BundleMgr {
         }
         return ab;
     }
+
+    public getDirectoryAddress(location: string): string[] {
+        return this.dirAddress.get(location);
+    }
 }
 
 /**
- * 资源加载管理类
+ * 资源加载管理类 
  * 每调用一次资源加载接口,资源引用次数+1
- * 若需要自动释放资源,请使用UI来加载资源
+ * 若需要自动释放资源,请使用继承AssetHandler的组件来加载资源,组件所在节点销毁时,通过组件加载的资源引用计数-1
  */
 export class AssetMgr {
 
@@ -141,6 +164,12 @@ export class AssetMgr {
     static loadAllBundle(bundleNames?: string[], onFileProgress?: (loaded: number, total: number) => void) {
         return BundleMgr.Inst.loadAllBundle(bundleNames, onFileProgress);
     }
+
+    static isAssetExists(location: string) {
+        return BundleMgr.Inst.isAssetExists(location);
+    }
+
+
 
     static loadAsset<T extends Asset>(location: string, type?: new (...args: any[]) => T) {
         let p = new Promise<T>((resolve, reject) => {
@@ -166,12 +195,26 @@ export class AssetMgr {
         return p;
     }
 
+    static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+        let list = BundleMgr.Inst.getDirectoryAddress(location);
+        if (!list || list.length == 0) {
+            MLogger.error("目录中无资源");
+            return;
+        }
+
+        let result: T[] = [];
+        for (const address of list) {
+            let asset = await this.loadAsset(address, type);
+            result.push(asset);
+        }
+        return result;
+    }
+
     static loadRemoteAsset<T extends Asset>(url: string) {
         let p = new Promise<T>((resolve, reject) => {
             let casset = this.cache.get(url) as T;
             if (casset?.isValid) {
                 casset.addRef();
-                casset.decRef
                 resolve(casset);
                 return;
             }
@@ -190,14 +233,20 @@ export class AssetMgr {
         return p;
     }
 
-    static loadSpriteFrame(location: string) {
-        return this.loadAsset<SpriteFrame>(location, SpriteFrame);
-    }
+
 
     static async loadRemoteSpriteFrame(url: string) {
+        let casset = this.cache.get(url);
+        if (casset?.isValid) {
+            return casset as SpriteFrame;
+        }
         let img = await this.loadRemoteAsset<ImageAsset>(url);
         if (img) {
-            return SpriteFrame.createWithImage(img);
+
+            let spFrame = SpriteFrame.createWithImage(img);
+            spFrame.addRef();
+            this.cache.set(url, spFrame);
+            return spFrame;
         }
         return null;
     }
@@ -216,7 +265,7 @@ export class AssetMgr {
             let spFrame = await this.loadRemoteSpriteFrame(location);
             sprite.spriteFrame = spFrame;
         } else {
-            let spFrame = await this.loadSpriteFrame(location);
+            let spFrame = await this.loadAsset(location, SpriteFrame);
             sprite.spriteFrame = spFrame;
         }
     }
@@ -251,7 +300,7 @@ export class AssetMgr {
         return p;
     }
 
-    //让资源引用计数增加 避免自动管理释放
+    /** 让资源引用计数增加 */
     static AddRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
@@ -259,10 +308,11 @@ export class AssetMgr {
                 asset.addRef();
             }
         } else {
-            console.warn(`[AddRef] 资源已销毁 ${location}`);
+            MLogger.warn(`[AddRef] 资源已销毁 ${location}`);
         }
     }
 
+    /** 让资源引用计数减少 */
     static DecRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
@@ -270,7 +320,19 @@ export class AssetMgr {
                 asset.decRef();
             }
         } else {
-            console.warn(`[DecRef] 资源已销毁 ${location}`);
+            MLogger.warn(`[DecRef] 资源已销毁 ${location}`);
+        }
+    }
+
+    /** 让目录下所有资源引用计数减少 */
+    static DecDirRef(location: string, decCount = 1) {
+        let list = BundleMgr.Inst.getDirectoryAddress(location);
+        if (!list || list.length == 0) {
+            MLogger.error("目录中无资源");
+            return;
+        }
+        for (const v of list) {
+            this.DecRef(v, decCount);
         }
     }
 

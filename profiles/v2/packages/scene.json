@@ -14,27 +14,13 @@
     ],
     "isIconGizmo3D": false,
     "iconGizmoSize": 2,
-    "isGridVisible": true
+    "isGridVisible": true,
+    "transformToolName": "position",
+    "pivot": "pivot",
+    "coordinate": "local",
+    "toolsVisibility3d": true
   },
   "camera-infos": {
-    "f46876e4-e81b-4931-b493-6d367be385e7": {
-      "position": {
-        "x": 532.5,
-        "y": 412.5,
-        "z": 5000
-      },
-      "rotation": {
-        "x": 0,
-        "y": 0,
-        "z": 0,
-        "w": 1
-      },
-      "viewCenter": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      }
-    },
     "726e5630-312f-4c6c-b8be-8b9a51d9881c": {
       "position": {
         "x": 640,
@@ -107,24 +93,6 @@
         "z": 0
       }
     },
-    "0e09b2b3-90f0-4f74-802f-17a05e082e6a": {
-      "position": {
-        "x": 419.408023451733,
-        "y": 678.3679280614882,
-        "z": 5000
-      },
-      "rotation": {
-        "x": 0,
-        "y": 0,
-        "z": 0,
-        "w": 1
-      },
-      "viewCenter": {
-        "x": 0,
-        "y": 0,
-        "z": 0
-      }
-    },
     "65a18c02-004d-4f76-8e47-a6b2db33f1cf": {
       "position": {
         "x": 360,
@@ -160,9 +128,60 @@
         "y": 0,
         "z": 0
       }
+    },
+    "f46876e4-e81b-4931-b493-6d367be385e7": {
+      "position": {
+        "x": -10,
+        "y": 10,
+        "z": 5000
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "viewCenter": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "contentRect": {
+        "x": -10,
+        "y": 10,
+        "width": 0,
+        "height": 0
+      },
+      "scale": 1
+    },
+    "0e09b2b3-90f0-4f74-802f-17a05e082e6a": {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 5000
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "viewCenter": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "contentRect": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scale": 1
     }
   },
   "camera-uuids": [
+    "f46876e4-e81b-4931-b493-6d367be385e7",
     "0e09b2b3-90f0-4f74-802f-17a05e082e6a"
   ],
   "float-window": {
@@ -182,22 +201,25 @@
     "native": false
   },
   "camera": {
-    "fov": 45,
-    "far": 10000,
-    "near": 0.01,
     "color": [
       48,
       48,
       48,
       255
     ],
+    "fov": 45,
+    "far": 10000,
+    "near": 0.01,
     "wheelSpeed": 0.01,
     "wanderSpeed": 10,
     "enableAcceleration": true,
+    "size": "__default_design__",
     "far2D": 10000,
     "near2D": 1,
     "wheelSpeed2D": 6,
-    "size": "__default_design__"
+    "iso": 0,
+    "aperture": 19,
+    "shutter": 7
   },
   "game-view": {
     "scaleValue": 55,
@@ -209,5 +231,21 @@
   },
   "": {
     "sculpt_brush_rotate": 0
+  },
+  "snap-configs": {
+    "position": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "rotation": 1,
+    "scale": 1,
+    "isPositionSnapEnabled": false,
+    "isRotationSnapEnabled": false,
+    "isScaleSnapEnabled": false
+  },
+  "rect-snap-configs": {
+    "enableSnapping": true,
+    "snapThreshold": 4
   }
 }

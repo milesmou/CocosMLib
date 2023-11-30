@@ -80,7 +80,8 @@ export class PlayerTask {
         }
     }
 
-    public updateTaskProgress(taskTargetType: number, param1 = 1, param2 = 1) {
+    /** 通过事件刷新任务进度 */
+    protected updateTaskProgress(taskTargetType: number, param1 = 1, param2 = 1) {
         var tasks = this._localStroage.task.filter(v => {
             if (v.state == TaskState.Complete || v.state == TaskState.Finished) return false;
             // var dailyTask = DataManager.Data.TbDailyTask.GetOrDefault(v.id);

@@ -1,7 +1,7 @@
 import { Asset, ImageAsset, Sprite, SpriteFrame, _decorator } from "cc";
 import { EDITOR } from "cc/env";
 import { AssetMgr } from "../manager/AssetMgr";
-import { AutoBindProperty } from "./AutoBindProperty";
+import { AutoBindProperty } from "../module/ui/AutoBindProperty";
 
 const { ccclass } = _decorator;
 

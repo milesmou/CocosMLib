@@ -2,28 +2,36 @@ import { sys, tween } from "cc";
 import { InventoryItemSO } from "../misc/PlayerInventory";
 import { TaskItemSO } from "../misc/PlayerTask";
 import { Utils } from "../utils/Utils";
+import { LZString } from "../thirdPart/lzstring/LZString";
+import { MLogger } from "../module/logger/MLogger";
 
 
 export abstract class LocalStroage {
+
     public abstract name: string;
     /** 存档描述(多存档时使用) */
     public desc = "";
     /** 存档时间最后一次保存时间(时间戳) */
     public time = 0;
     /** 准备延迟存档,忽略其它存档请求 */
-    private readySave = false;
+    private _readySave = false;
     /** 自增uid */
-    private uid = 0;
-    /** 是否是全新存档 */
-    private origin = true;
+    private _uid = 0;
+    /** 存档创建日期 */
+    private _createDate = 0;
     /** 上一次重置每日数据日期 */
-    private date = 0;
+    private _date = 0;
 
     /** 自增且唯一的UID */
     get newUid() {
-        this.uid++;
+        this._uid++;
         this.delaySave();
-        return this.uid;
+        return this._uid;
+    }
+
+    /** 是否当天进来的新用户 */
+    public get isNewUser() {
+        return this._createDate == Utils.getDate();
     }
 
     /** 用户id */
@@ -35,106 +43,91 @@ export abstract class LocalStroage {
     /** 任务数据存档 */
     public task: TaskItemSO[] = [];
 
-    /** 标记存档 */
-    public flag: Map<string, string> = new Map;
+    /** 引导数据存档 */
+    public guide: number[] = [];
 
-    /** 初始化 */
-    init() {
-        if (this.origin) {
-            this.origin = false;
-            this.setInitialData()
+    /** 标记存档 */
+    public flag: { [key: string]: string } = {};
+
+    /**
+     * 初始化
+     * @param onInit 初始化回调
+     * @param onNewUser 新用户回调
+     * @param onDateChange 日期变化回调
+     */
+    init(onInit: () => void, onNewUser: () => void, onDateChange: (lastDate: number, today: number) => void) {
+        onInit && onInit();
+        if (!this._createDate) {
+            this._createDate = Utils.getDate();
+            onNewUser && onNewUser();
             this.delaySave();
         }
-        let today = Utils.getToday();
-        if (today > this.date) {
-            this.onDateChange(this.date, today);
-            this.date = today;
+        let today = Utils.getDate();
+        if (today > this._date) {
+            onDateChange && onDateChange(this._date, today);
+            this._date = today;
             this.delaySave();
         }
     }
 
-    /** 为新玩家设置初始数据 */
-    abstract setInitialData(): void;
-
-    /** 日期发生变化 */
-    abstract onDateChange(lastDate: number, today: number): void;
-
     /** 立即存档 */
     save() {
-        this.origin = false;
         this.time = Date.now();
         StroageMgr.serialize(this);
     }
     /** 延迟存档 */
     delaySave() {
-        if (!this.readySave) {
-            this.readySave = true;
+        if (!this._readySave) {
+            this._readySave = true;
             tween({}).delay(0.01).call(() => {
-                this.readySave = false;
+                this._readySave = false;
                 this.save();
             }).start();
         }
-    };
-
-    private static defaultInst: LocalStroage;//保存玩家数据默认值
-
-    /** 获取存档序列化后的字符串 */
-    static getSerializeStr(compress = true) {
-        let inst: LocalStroage = this['_inst'];
-        inst.time = Date.now();
-        let str = JSON.stringify(inst);
-        return compress ? jsonCrush.crush(str) : str;
     }
 
-    /** 通过字符串反序列化存档 */
-    static deserializeByStr<T extends LocalStroage>(strData: string, isCompress = true): T {
-        if (isCompress) strData = jsonCrush.uncrush(strData);
-        try {
-            return JSON.parse(strData);
-        } catch (error) {
-            console.error(error);
-        }
-        return null;
+
+    /** 获取存档序列化后的字符串 compress默认true */
+    getSerializeStr(compress = true) {
+        this.time = Date.now();
+        let str = JSON.stringify(this);
+        return compress ? LZString.compressToUTF16(str) : str;
     }
 
     /** 替换本地存档 */
-    static replaceGameData(strData: string, isCompress = true) {
-        if (isCompress) strData = jsonCrush.uncrush(strData);
+    replaceGameData(strData: string, isCompress = true) {
+        if (strData && isCompress) strData = LZString.decompressFromUTF16(strData);
         StroageMgr.setValue(this.name, strData);
-        this['_inst'] = this.deserialize();
-
     }
 
     /** 从本地缓存读取存档 (替换存档不需要传参数)*/
-    public static deserialize<T extends LocalStroage>(inst?: T): T {
-        if (inst) this.defaultInst = inst;
+    public static deserialize<T extends LocalStroage>(inst: T): T {
         return StroageMgr.deserialize(inst);
     }
 }
 
 /**
- * 本地存储工具类
+ * 本地存储工具类 (以__开头的字段不会被存档)
  */
 export class StroageMgr {
-
 
     //用户自定义语言存档的Key
     public static readonly UserLanguageCodeKey = "UserLanguageCodeKey";
     /** 字典或数组集合的元素的key的后缀 */
-    public static readonly CollectionItemSuffix = "_item";
+    public static readonly CollectionItemSuffix = "$item";
 
     /** 从本地缓存读取存档 */
     public static deserialize<T extends LocalStroage>(inst: T): T {
         Reflect.defineProperty(inst, "name", { enumerable: false });
-        Reflect.defineProperty(inst, "readySave", { enumerable: false });
+        Reflect.defineProperty(inst, "_readySave", { enumerable: false });
         let name = inst.name;
         let jsonStr = this.getValue(name, "");
         if (jsonStr) {
             try {
-                let obj = JSON.parse(jsonStr);
+                let obj = JSON.parse(jsonStr) || {};
                 this.mergeValue(inst, obj);
             } catch (err) {
-                console.error(err);
+                MLogger.error(err);
             }
         }
         return inst;
@@ -144,7 +137,8 @@ export class StroageMgr {
     public static serialize<T extends LocalStroage>(inst: T) {
         let name = inst.name;
         let jsonStr = JSON.stringify(inst, function (key, value) {
-            if (key.endsWith(this.CollectionItemSuffix)) return undefined;
+            if (key.startsWith("__")) return;
+            if (key.endsWith(StroageMgr.CollectionItemSuffix)) return;
             return value;
         });
         this.setValue(name, jsonStr);
@@ -154,6 +148,7 @@ export class StroageMgr {
     private static mergeValue(target: object, source: object) {
         for (const key in target) {
             if (Reflect.has(source, key)) {
+                if (key.endsWith(this.CollectionItemSuffix)) continue;
                 if (Object.prototype.toString.call(target[key]) === "[object Object]" && Object.prototype.toString.call(source[key]) === "[object Object]") {//对象拷贝
                     if (JSON.stringify(target[key]) === "{}") {//使用空字典存储,完整赋值
                         target[key] = source[key];
@@ -205,7 +200,7 @@ export class StroageMgr {
         if (typeof defaultV === "number") {
             let v = parseFloat(value);
             if (isNaN(v)) {
-                console.error(stroageKey, ": 转化为数字类型错误 ", value);
+                MLogger.error(stroageKey, ": 转化为数字类型错误 ", value);
                 value = defaultV;
             } else {
                 value = v;
@@ -218,7 +213,7 @@ export class StroageMgr {
             try {
                 value = JSON.parse(value);
             } catch (err) {
-                console.error(stroageKey, ": 转化对象类型错误 ", value);
+                MLogger.error(stroageKey, ": 转化对象类型错误 ", value);
                 value = defaultV;
             }
         }

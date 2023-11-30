@@ -1,7 +1,7 @@
 import { _decorator } from "cc";
 import { CCUtils } from "../utils/CCUtil";
-import { AutoBindProperty } from "./AutoBindProperty";
 import { UIBase } from "./UIBase";
+import { AutoBindProperty } from "../module/ui/AutoBindProperty";
 
 const { property, ccclass, requireComponent } = _decorator;
 

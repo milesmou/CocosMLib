@@ -1,13 +1,14 @@
 {
-  "__version__": "1.0.4",
+  "__version__": "1.0.6",
   "script": {
     "useDefineForClassFields": false,
-    "allowDeclareFields": false
+    "allowDeclareFields": false,
+    "preserveSymlinks": true
   },
   "general": {
     "designResolution": {
-      "width": 720,
-      "height": 1280,
+      "width": 1080,
+      "height": 1920,
       "fitWidth": true,
       "fitHeight": false
     }

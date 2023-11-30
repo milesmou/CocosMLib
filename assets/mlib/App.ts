@@ -1,14 +1,17 @@
-import { Asset, Component, Enum, TextAsset, _decorator, director, game, sys } from 'cc';
+import { Asset, Component, Enum, _decorator, director, js, sys } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { EChannel } from '../script/base/GameEnum';
-import { Channel, IChannel } from "./channel/Channel";
+import { EChannel, Publish } from '../scripts/base/publish/Publish';
+import { Channel } from "./sdk/Channel";
 import { AudioMgr } from "./manager/AudioMgr";
-import { EventMgr } from "./manager/EventMgr";
+import { EventMgr } from "./module/event/EventMgr";
 import { PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
 import { UIMgr } from "./manager/UIMgr";
+import { MLogger } from './module/logger/MLogger';
 import { SingletonFactory } from './utils/SingletonFactory';
+import { TimeMgr } from './manager/TimeMgr';
+import { L10nMgr } from './module/l10n/L10nMgr';
 
 const ELanguage = Enum({
     Auto: 0,
@@ -25,13 +28,15 @@ enum LanguageCode {
 
 export const EGameConfigType = Enum({
     Local: 0,
-    Remote: 1,
-    PreferRemote: 2,
+    Remote: 1
 })
 
-/** 应用程序 */
+/** 应用程序启动入口 */
 @ccclass('App')
 export class App extends Component {
+
+    public static Inst: App;
+
     @property({
         displayName: "语言",
         type: ELanguage
@@ -49,69 +54,72 @@ export class App extends Component {
         displayName: "渠道",
         type: EChannel
     })
-    private platformId = EChannel.Debug;
+    private channelId = EChannel.Dev;
     @property({
-        displayName: "版本"
+        displayName: "版本",
+        tooltip: "整包使用3位版本号(x.x.x),补丁包使用4位版本号(x.x.x.x)\n与远程资源相关的都只会使用前3位版本号"
     })
     private version = "1.0.0";
 
     @property({
-        type: TextAsset,
-        displayName: "本地配置文件",
-        visible: function () { return this.gameConfigType == EGameConfigType.Local; }
+        displayName: "CDN",
+        tooltip: "项目的CDN地址"
     })
-    private gameConfigAsset: TextAsset = null;
+    private cdnUrl = "";
 
     @property({
-        displayName: "配置地址",
-        tooltip: "远程配置的地址,地址中的渠道使用{0}替代",
-        visible: function () { return this.gameConfigType != EGameConfigType.Local; }
+        displayName: "热更",
+        tooltip: "开启热更需要再resources中放入本地project.manifest清单文件",
     })
-    private gameConfigUrl = "";
-
-    @property({
-        type: Asset,
-        displayName: "热更清单文件",
-        tooltip: "本地project.manifest清单文件",
-    })
-    private hotupdateManifest: Asset = null;
+    private hotupdate = true;
 
     //environment
-    public static config: { gameConfigType: number, gameConfigText: string, gameConfigUrl: string, hotupdateManifest: Asset, channel: string, version: string }
+    public static config: {
+        projectName: string, gameConfigType: number, gameConfigUrl: string, remoteResUrl: string,
+        hotupdate: boolean, channel: string, version: string, mainVersion: string
+    }
     public static lang: LanguageCode;
-    public static chan: IChannel;
+    public static chan: Channel;
     //manager
+    public static time: TimeMgr;
     public static stroage = StroageMgr;
     public static event = EventMgr;
     public static pool = PoolMgr;
     public static audio: AudioMgr;
     public static ui: UIMgr;
+    public static l10n = L10nMgr;
 
     onLoad() {
+        App.Inst = this;
         director.addPersistRootNode(this.node);
-        game.frameRate = 45;
         App.config = {
-            gameConfigType: this.gameConfigType, gameConfigText: this.gameConfigAsset.text,
-            gameConfigUrl: this.gameConfigUrl.replace("{0}", EChannel[this.platformId]),
-            hotupdateManifest: this.hotupdateManifest, channel: EChannel[this.platformId], version: this.version
+            projectName: "HeroFactory",
+            gameConfigType: this.gameConfigType,
+            gameConfigUrl: `${this.cdnUrl}/Channel/${EChannel[this.channelId]}/${this.getMainVersion()}/GameConfig.txt`,
+            remoteResUrl: `${this.cdnUrl}/Resources`,
+            hotupdate: this.hotupdate,
+            channel: EChannel[this.channelId],
+            version: this.version,
+            mainVersion: this.getMainVersion()
         };
-        this.gameConfigAsset.destroy();
         App.lang = this.getLanguage();
-        App.chan = Channel.getInstance(this.platformId);
-        console.log(`Channel=${App.config.channel} Version=${App.config.version} Language=${App.lang}`);
+        App.chan = Publish.getChannelInstance(this.channelId);
+        MLogger.print(`Channel=${App.config.channel}|${js.getClassName(App.chan)} Version=${App.config.version} Language=${App.lang}`);
+    }
+
+    
+    start() {
+        App.audio = AudioMgr.Inst;
+        App.ui = UIMgr.Inst;
     }
 
     onDestroy() {
 
     }
 
-    start() {
-        App.audio = AudioMgr.Inst;
-        App.ui = UIMgr.Inst;
-    }
 
     /** 获取语言环境 */
-    getLanguage(): LanguageCode {
+    private getLanguage(): LanguageCode {
         let v: LanguageCode = LanguageCode.ChineseSimplified;
         if (this.languageId == ELanguage.Auto) {
             let code = StroageMgr.getValue(StroageMgr.UserLanguageCodeKey, "");
@@ -133,12 +141,25 @@ export class App extends Component {
         return v;
     }
 
-    static init() {
-
+    /** 切换语言 */
+    public static switchLanguage(languageCode: LanguageCode) {
+        if (App.lang == languageCode) return;
+        App.lang = languageCode;
+        StroageMgr.setValue(StroageMgr.UserLanguageCodeKey, App.lang);
+        App.l10n.switchLanguage();
     }
 
-    static getSingleInst<T>(clazz: { new(): T }, onInst?: (t: T) => void) {
-        return SingletonFactory.getInstance(clazz, onInst);
+    /** 主版本号 取前三位 */
+    private getMainVersion() {
+        let versionArr = this.version.split(".");
+        if (versionArr.length == 4) {
+            return versionArr.slice(0, 3).join(".");
+        }
+        return this.version;
+    }
+
+    public static getSingleInst<T>(clazz: { new(): T }) {
+        return SingletonFactory.getInstance(clazz);
     }
 }
 

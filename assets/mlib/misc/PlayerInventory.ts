@@ -1,5 +1,6 @@
 import { tween } from "cc";
 import { LocalStroage } from "../manager/StroageMgr";
+import { MLogger } from "../module/logger/MLogger";
 
 /** 背包物品的基本信息 */
 export class InventoryItemSO {
@@ -15,7 +16,6 @@ export class InventoryItemSO {
 
     /** 物品数量 */
     public amount: number;
-
 
     /** 物品被谁持有 */
     public holder: number;
@@ -39,49 +39,49 @@ export class PlayerInventory {
 
 
     /** 获取奖励，添加到背包 */
-    public getReward(reawrds: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, args?: string) {
+    public getReward(reawrds: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
+        let { multiple, tag } = args || {};
+        multiple = multiple || 1;
         if (reawrds.length == 0) return
-        let items: number[][];
-        if (Array.isArray(reawrds) && Array.isArray(reawrds[0])) items = reawrds as any;
-        else items = ParseItemTool.parseGameItem(reawrds as any);
-        items = this.postParseRewards(items, args);
+        let items = this.formatItems(reawrds);
+        items = this.postParseRewards(items, tag);
         if (items.length > 0) {
             for (let item of items) {
-                item = this.postParseSingleItem(item, args);
+                item = this.postParseSingleItem(item, tag);
                 this.addGameItem(item[0], item[1], item[2] * multiple);
-                this.onGetRewardItem(item[0], item[1], item[2] * multiple, showTips, showTipsNow, args);
+                this.onGetRewardItem(item[0], item[1], item[2] * multiple, tag);
             }
             this.saveInventory();
         }
     }
 
     /**可重写 解析配置的奖励 部分奖励需要特殊处理(如掉落池之类) */
-    protected postParseRewards(reawrds: number[][], args?: string) {
+    protected postParseRewards(reawrds: number[][], tag?: any) {
         return reawrds;
     }
 
     /**可重写 最后解析物品，在获得奖励、计算数量是否足够、消耗物品时会调用 */
-    protected postParseSingleItem(reawrds: number[], args?: string) {
-        return reawrds;
+    protected postParseSingleItem(reawrd: number[], tag?: any) {
+        return reawrd;
     }
 
     /**可重写 重写该方法处理获取奖励的提示信息 */
-    protected onGetRewardItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, args?: string) {
+    protected onGetRewardItem(type: number, itemId: number, itemNum: number, tag?: any) {
 
     }
 
     /** 消耗背包中的物品 */
-    public delCost(costs: string | string[] | number[][], multiple = 1, showTips = true, showTipsNow = true, args?: string) {
+    public delCost(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
+        let { multiple, tag } = args || {};
+        multiple = multiple || 1;
         if (costs.length == 0) return;
-        let items: number[][];
-        if (Array.isArray(costs) && Array.isArray(costs[0])) items = costs as any;
-        else items = ParseItemTool.parseGameItem(costs as any);
+        let items = this.formatItems(costs);
         for (let item of items) {
-            item = this.postParseSingleItem(item, args);
+            item = this.postParseSingleItem(item, tag);
             let type = item[0];
             let id = item[1];
             let num = item[2] * multiple;
-            this.onDelCostItem(type, id, num, showTips, showTipsNow, args);
+            this.onDelCostItem(type, id, num, tag);
             let itemSO = this.getCacheItemSO(type, id);
             if (itemSO) {
                 this.delGameItem(itemSO, num);
@@ -106,19 +106,19 @@ export class PlayerInventory {
     }
 
     /**可重写 重写该方法处理获消耗物品的提示信息 */
-    protected onDelCostItem(type: number, itemId: number, itemNum: number, showTips = true, showTipsNow = true, args?: string) {
+    protected onDelCostItem(type: number, itemId: number, itemNum: number, tag?: any) {
     }
 
     /** 背包物品是否足够 */
-    public isCostEnough(costs: string | string[] | number[][], multiple = 1, args?: string) {
+    public isCostEnough(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
+        let { multiple, tag } = args || {};
+        multiple = multiple || 1;
         if (costs.length == 0) return true;
-        let cost: number[][];
-        if (Array.isArray(costs) && Array.isArray(costs[0])) cost = costs as any;
-        else cost = ParseItemTool.parseGameItem(costs as any);
-        for (let i = 0; i < cost.length; i++) {
-            var arr = cost[i];
+        let items = this.formatItems(costs);
+        for (let i = 0; i < items.length; i++) {
+            var arr = items[i];
             if (arr.length == 3) {
-                arr = this.postParseSingleItem(arr, args);
+                arr = this.postParseSingleItem(arr, tag);
                 var ownNum = this.getItemAmount(arr[0], arr[1]);
                 if (ownNum < arr[2] * multiple) return false;
             }
@@ -240,6 +240,27 @@ export class PlayerInventory {
         this.saveInventory();
     }
 
+    /** 格式化不同方式的道具配置 */
+    private formatItems(items: string | string[] | number[] | number[][]) {
+        let result: number[][];
+        if (Array.isArray(items) && Array.isArray(items[0])) {
+            result = [];
+            for (const item of items) {
+                if ((item as number[]).length < 3) result.push([1, ...item as number[]]);
+                else result.push(item as number[]);
+            }
+        }
+        else if (Array.isArray(items) && typeof items[0] === "number") {
+            result = [];
+            if (items.length < 3) result.push([1, ...items as number[]]);
+            else result.push(items as number[]);
+        }
+        else {
+            result = ParseItemTool.parseGameItem(items as any);
+        }
+        return result;
+    }
+
     /** 合并背包中的物品堆叠 */
     private mergeInventoryItem() {
         let map: { [key: string]: InventoryItemSO[] } = {};
@@ -338,10 +359,10 @@ export class ParseItemTool {
             for (let i = start; i < 3; i++) {
                 let v = parseFloat(arr[i + di]);
                 if (!isNaN(v)) result[i] = v;
-                else console.error("请检查物品配置:", str);
+                else MLogger.error("请检查物品配置:", str);
             }
         } else {
-            console.error("请检查物品配置:", str);
+            MLogger.error("请检查物品配置:", str);
         }
         return result;
     }

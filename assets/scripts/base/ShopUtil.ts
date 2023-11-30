@@ -1,0 +1,171 @@
+import { App } from "../../mlib/App";
+import { MLogger } from "../../mlib/module/logger/MLogger";
+import { EIAPResult, SDKCallback } from "../../mlib/sdk/MSDKWrapper";
+// import UIWait from "../ui/UIWait";
+
+export class ProductDetail {
+
+    public static productDetailMap: Map<string, ProductDetail>;
+
+    /** 商品ID */
+    public productId: string;
+
+    /** 名字 */
+    public name: string;
+
+    /** 描述 */
+    public desc: string;
+
+    /** 是否订阅商品 */
+    public isSub: boolean;
+
+    /** 价格 */
+    public formattedPrice: string;
+
+    public static fromProductId(productId: string) {
+        if (!this.productDetailMap) return null;
+        return this.productDetailMap.get(productId);
+    }
+
+    public static getFormattedPrice(productId: string) {
+        let product = this.fromProductId(productId);
+        if (!product) return "???";
+        return product.formattedPrice;
+    }
+}
+
+/** 统一处理内购 */
+export class ShopUtil {
+
+    private static isInit;
+
+    /** 请在合适的时机调用，可能会有延迟到账的商品 */
+    public static initPurchase() {
+        if (this.isInit) return;
+        this.isInit = true;
+        SDKCallback.onStartInAppPurchase = this.onStartInAppPurchase.bind(this);
+        SDKCallback.inAppPurchase = this.onPurchaseUpdate.bind(this);
+        this.reqProductDetail();
+        App.chan.restoreIAP();
+    }
+
+
+
+    /** 获取商品详情 */
+    private static reqProductDetail() {
+        if (ProductDetail.productDetailMap) return;
+        let ids: string[] = [];
+        // let list1 = GameTable.Inst.Table.TbStore.getDataList();
+        // list1.forEach(v => {
+        //     if (v.IAPID) ids.push(v.IAPID);
+        // });
+        // let list2 = GameTable.Inst.Table.TbGiftBag.getDataList();
+        // list2.forEach(v => {
+        //     if (v.IAPID) ids.push(v.IAPID);
+        // });
+        App.chan.reqProductDetails(ids.join("|"));
+        App.Inst.scheduleOnce(this.reqProductDetail.bind(this), 5);
+    }
+
+    private static onStartInAppPurchase(productId: string) {
+        // UIWait.Inst.show();
+        App.chan.reportEvent("iap_start", { k: productId });
+    }
+
+    private static onPurchaseUpdate(code: EIAPResult, arg: string) {
+        if (code != EIAPResult.DelaySuccess && code != EIAPResult.ProductDetail) {
+            // UIWait.Inst.hide();
+        }
+        switch (code) {
+            case EIAPResult.NoEnv:
+                // App.ui.showToast("IAP0001", true);
+                App.chan.reportEvent("iap_fail", { k: arg });
+                break;
+            case EIAPResult.NoProduct:
+                // App.ui.showToast("IAP0002", true);
+                App.chan.reportEvent("iap_fail", { k: arg });
+                break;
+            case EIAPResult.Success:
+                this.purchaseSuccess(arg, true);
+                break;
+            case EIAPResult.DelaySuccess:
+                this.purchaseSuccess(arg, false);
+                break;
+            case EIAPResult.Fail:
+                // App.ui.showToast("IAP0004", true);//支付失败
+                App.chan.reportEvent("iap_fail", { k: arg });
+                break;
+            case EIAPResult.VerifyFail:
+                // App.ui.showToast("IAP0003", true);//验证失败，支付结果可能会有延迟
+                break;
+            case EIAPResult.ProductDetail:
+                this.onGetProductDetail(arg);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /** 从后台获取商品详情 default:使用数据表的商品详情*/
+    private static onGetProductDetail(content: string) {
+        MLogger.debug("onGetProductDetail");
+        try {
+            if (content == "default") {
+                ProductDetail.productDetailMap = new Map();
+                // let list1 = GameTable.Inst.Table.TbStore.getDataList();
+                // list1.forEach(v => {
+                //     if (v.IAPID) {
+                //         let p = new ProductDetail();
+                //         p.productId = v.IAPID;
+                //         p.isSub = false;
+                //         p.name = v.Des;
+                //         p.desc = v.Des;
+                //         p.formattedPrice = v.Symbol + "" + v.Price;
+                //         ProductDetail.productDetailMap.set(p.productId, p);
+                //     }
+                // });
+                // let list2 = GameTable.Inst.Table.TbGiftBag.getDataList();
+                // list2.forEach(v => {
+                //     if (v.IAPID) {
+                //         let p = new ProductDetail();
+                //         p.productId = v.IAPID;
+                //         p.isSub = false;
+                //         p.formattedPrice = v.Symbol + "" + v.Price;
+                //         ProductDetail.productDetailMap.set(p.productId, p);
+                //     }
+                // });
+
+            } else {
+                let arr: ProductDetail[] = JSON.parse(content);
+                ProductDetail.productDetailMap = new Map();
+                for (const v of arr) {
+                    ProductDetail.productDetailMap.set(v.productId, v);
+                }
+            }
+
+        } catch (error) {
+            MLogger.error(error);
+        }
+    }
+
+    /** 支付成功 */
+    private static purchaseSuccess(productId: string, showReward: boolean) {
+        MLogger.debug("purchaseSuccess");
+        this.settleProduct(productId, showReward);
+    }
+
+    /** 结算商品，内部需要处理所有IAPID的购买逻辑 */
+    private static settleProduct(productId: string, showReward: boolean) {
+        // App.ui.showToast(`支付成功 ${productId} ${showReward}`);
+
+
+    }
+
+
+
+    private static restoreSuccess(goodsIds: string[]) {
+        MLogger.debug("restoreSuccess");
+    }
+}
+
+

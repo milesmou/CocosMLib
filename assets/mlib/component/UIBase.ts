@@ -1,12 +1,14 @@
-import { Animation, BlockInputEvents, Button, Enum, Node, Sprite, UIOpacity, UITransform, Widget, _decorator, color, tween } from 'cc';
-import { EventKey } from '../../script/base/GameEnum';
+import { Animation, BlockInputEvents, Button, Color, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, tween, view } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
-import { EDITOR } from 'cc/env';
+import { EventKey } from "../../scripts/base/GameEnum";
 import { App } from "../App";
 import { AssetHandler } from '../component/AssetHandler';
-import { AssetMgr } from '../manager/AssetMgr';
-import { CCUtils } from '../utils/CCUtil';
+import { MEvent } from "../module/event/MEvent";
+import { MLogger } from '../module/logger/MLogger';
+import { AutoBindPropertyEditor } from "../module/ui/AutoBindPropertyEditor";
+import { CCUtils } from "../utils/CCUtil";
+
 const EUIAnim = Enum({
     NONE: 0,
     OPEN: 1,
@@ -21,8 +23,9 @@ export enum EPassiveType {
     Hide,
 }
 
-@ccclass('UIBase')
-@requireComponent([UIOpacity, Widget])
+@ccclass
+@requireComponent(AutoBindPropertyEditor)
+@requireComponent(UIOpacity)
 export class UIBase extends AssetHandler {
     @property({
         displayName: "销毁",
@@ -36,7 +39,7 @@ export class UIBase extends AssetHandler {
     showShade = false;
     @property({
         displayName: "全屏",
-        tooltip: "有时需要根据是弹窗还是全屏UI来判断是否隐藏下层UI,和触发UI的显示隐藏事件"
+        tooltip: "有时需要根据是弹窗还是全屏UI来判断是否显示或隐藏下层UI"
     })
     fullScreen = false;
     @property({
@@ -64,53 +67,53 @@ export class UIBase extends AssetHandler {
     })
     closeBtn: Button = null;
 
-    public transform: UITransform;
     public uiName: string = null;
     protected animation: Animation;
-    private uiOpacity: UIOpacity;
-    private shadeOpacity: UIOpacity;
+    private shadeNode: Node;
 
-    private _isAnimEnd = false;
+    private _isAnimEnd = true;
     public get isAnimEnd() { return this._isAnimEnd; }
+    public onAnimEnd: MEvent = new MEvent();
+
+    protected visible: boolean;
     protected args: any = null;
 
     protected onDestroy() {
         super.onDestroy();
-        if (!EDITOR) AssetMgr.DecRef("uiPrefab/" + this.uiName);
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
-    public init(uiName: string) {
+    init(uiName: string) {
         if (this.uiName) return;
         this.uiName = uiName;
-
-        this.transform = this.getComponent(UITransform);
-        this.uiOpacity = this.getComponent(UIOpacity);
-
-        CCUtils.uiNodeMatchParent(this.node);
 
         if (this.showShade) this.initShade();
         if (this.autoHide) this.enableAutoHide();
         if (this.blockInputEvent) this.addComponent(BlockInputEvents);
 
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
-        this.animation = CCUtils.getComponentInChildren(this.node, Animation);
+        this.animation = this.getComponent(Animation) || CCUtils.getComponentInChildren(this.node, Animation);
+
+        this.getComponentsInChildren(Button).forEach(v => v.node.on("click", () => {
+            this.onClickButton(v.node.name)
+        }));
     }
 
     private initShade() {
         if (this.node.children[0].name == "shade") {
-            this.shadeOpacity = this.node.children[0].getComponent(UIOpacity);
+            this.shadeNode = this.node.children[0];
         } else {
-            let n = new Node("shade");
-            n.addComponent(UITransform);
-            CCUtils.uiNodeMatchParent(n);
-            let sp = n.addComponent(Sprite);
-            sp.spriteFrame = App.ui.whiteSplash;
-            sp.color = color(0, 0, 0, 150);
-            this.shadeOpacity = n.addComponent(UIOpacity);
-            n.layer = this.node.layer;
-            n.parent = this.node;
-            n.setSiblingIndex(0);
+            let shade = new Node("shade");
+            shade.parent = this.node;
+            shade.setSiblingIndex(0);
+            let imgNode = new Node("img");
+            imgNode.layer = Layers.Enum.UI_2D;
+            imgNode.parent = shade;
+            imgNode.addComponent(UITransform).setContentSize(view.getVisibleSize());
+            imgNode.addComponent(UIOpacity).opacity = 150;
+            let sp = imgNode.addComponent(Sprite);
+            sp.spriteFrame = App.ui.defaultSprite;
+            sp.color = Color.BLACK;
         }
     }
 
@@ -120,11 +123,12 @@ export class UIBase extends AssetHandler {
     }
 
     public setVisible(visible: boolean) {
+        this.visible = visible;
         if (visible) {
-            this.uiOpacity.opacity = 255;
+            this.getComponent(UIOpacity).opacity = 255;
             this.node.active = true;
         } else {
-            this.uiOpacity.opacity = 0;
+            this.getComponent(UIOpacity).opacity = 0;
         }
     }
 
@@ -148,10 +152,12 @@ export class UIBase extends AssetHandler {
         }, null, this.uiName);
     }
 
-    playShowAnim() {
+    public playShowAnim() {
+        this._isAnimEnd = false;
         let p = new Promise<void>((resovle, reject) => {
             let callback = () => {
                 this._isAnimEnd = true;
+                this.onAnimEnd.dispatch();
                 resovle();
             };
             if (Boolean(this.action & EUIAnim.OPEN)) {
@@ -162,12 +168,13 @@ export class UIBase extends AssetHandler {
                         this.animation.stop();
                         this.animation.once(Animation.EventType.FINISHED, callback);
                         this.animation.play(clip.name);
-                        if (this.shadeOpacity) {
-                            this.shadeOpacity.opacity = 0;
-                            tween(this.shadeOpacity).to(clip.duration, { opacity: 255 }).start();
+                        if (this.shadeNode) {
+                            let uiOpacity = this.shadeNode.getComponent(UIOpacity);
+                            uiOpacity.opacity = 0;
+                            tween(uiOpacity).to(clip.duration, { opacity: 255 }).start();
                         }
                     } else {
-                        console.warn(this.node.name, "无UI打开动画文件");
+                        MLogger.warn(this.node.name, "无UI打开动画文件");
                         callback();
                     }
                 } else {
@@ -180,11 +187,12 @@ export class UIBase extends AssetHandler {
         return p;
     }
 
-    playHideAnim() {
+    public playHideAnim() {
         this._isAnimEnd = false;
         let p = new Promise<boolean>((resovle, reject) => {
             let callback = () => {
                 this._isAnimEnd = true;
+                this.onAnimEnd.dispatch();
                 resovle(true);
             };
             if (Boolean(this.action & EUIAnim.CLOSE)) {
@@ -194,9 +202,12 @@ export class UIBase extends AssetHandler {
                         this.animation.stop();
                         this.animation.once(Animation.EventType.FINISHED, callback);
                         this.animation.play(clip.name);
-                        if (this.shadeOpacity) tween(this.shadeOpacity).to(clip.duration, { opacity: 0 }).start();
+                        if (this.shadeNode) {
+                            let uiOpacity = this.shadeNode.getComponent(UIOpacity);
+                            tween(uiOpacity).to(clip.duration, { opacity: 0 }).start();
+                        }
                     } else {
-                        console.warn(this.node.name, "无UI关闭动画文件");
+                        MLogger.warn(this.node.name, "无UI关闭动画文件");
                         callback();
                     }
                 } else {
@@ -212,6 +223,10 @@ export class UIBase extends AssetHandler {
     /** 关闭UI时调用此方法 */
     protected safeClose() {
         App.ui.hide(this.uiName);
+    }
+
+    protected onClickButton(btnName: string) {
+
     }
 
     /** UI准备打开时触发 (UI打开动画播放前) */

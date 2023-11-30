@@ -1,16 +1,16 @@
+import { MLogger } from "../module/logger/MLogger";
+
 /**
  * 常用的一些方法工具类
  */
 export class Utils {
 
-    /**
-     * 返回今天的日期,格式20200101
-     */
-    static getToday() {
+    /** 获取日期(格式:20220101) 默认获取当天日期 */
+    static getDate(timeMS?: number) {
         let lt10 = (v: number) => {
-            return v < 10 ? "0" + v : "" + v;
+            return v < 10 ? "0" + v : v.toString();
         }
-        let date = new Date();
+        let date = timeMS >= 0 ? new Date(timeMS) : new Date();
         let str = date.getFullYear() + lt10(date.getMonth() + 1) + lt10(date.getDate());
         return parseInt(str);
     }
@@ -19,62 +19,48 @@ export class Utils {
      * 计算两个日期的天数差 日期格式20200101
      */
     static deltaDay(date1: number, date2: number) {
-        let str1 = date1.toString();
-        let str2 = date2.toString();
-        if (str1.length == 8 && str2.length == 8) {
-            let d1 = new Date(str1.substring(4, 2) + "/" + str1.substring(6, 2) + "/" + str1.substring(0, 4));
-            let d2 = new Date(str2.substring(4, 2) + "/" + str2.substring(6, 2) + "/" + str2.substring(0, 4));
-            let days = Math.abs(d1.getTime() - d2.getTime()) / (24 * 60 * 60 * 1000);
-            return Math.floor(days);
-        } else {
-            console.error("日期格式不正确");
-            return -1;
-        }
+        let d1 = new Date();
+        d1.setFullYear(Math.floor(date1 / 10000), Math.floor(date1 % 10000 / 100) - 1, date1 % 100);
+        d1.setHours(0, 0, 0, 0);
+        let d2 = new Date();
+        d2.setFullYear(Math.floor(date2 / 10000), Math.floor(date2 % 10000 / 100) - 1, date2 % 100);
+        d2.setHours(0, 0, 0, 0);
+        let days = Math.abs(d1.getTime() - d2.getTime()) / (24 * 60 * 60 * 1000);
+        return Math.floor(days);
     }
 
     /**
-    * 将事件戳转化为日期格式,适用于显示倒计时
-    * @param timeMS 倒计时的时间戳(MS)
-    * @param template 模板 1(HH:MM:SS) 2(HH时MM分SS秒) 3(HH?:MM:SS) 4(HH?时MM分SS秒)
-    * @param separator 分隔符 默认(:)
+    * 将剩余时间(毫秒)转化为时分秒格式
+    * @param timeMS 倒计时的时间
+    * @param format hh:时 mm:分 ss:秒
+    * @returns 格式化的字符串 hh:mm:ss 返回 00:30:30
     */
-    static formatCountDownMS(timeMS: number, template: 1 | 2 | 3 | 4, separator = ":") {
-        let str: string;
-        let lt10 = v => {
-            return v < 10 ? "0" + v : v;
+    static formatCountdown(timeMS: number, format: string) {
+        let lt10 = (v: number) => {
+            return v < 10 ? "0" + v : v.toString();
         }
-        let date = new Date();
-        let offset = date.getTimezoneOffset();//时区差异 minutes
-        date.setTime(timeMS + offset * 60 * 1000);
-        let days = date.getDate() - 1;
-        let hours = date.getHours() + days * 24;
-        let minutes = date.getMinutes();
-        let seconds = date.getSeconds();
-        if (template == 1) {
-            str = `${lt10(hours)}${separator}${lt10(minutes)}${separator}${lt10(seconds)}`;
-        } else if (template == 2) {
-            str = `${lt10(hours)}时${lt10(minutes)}分${lt10(seconds)}秒`;
-        } else if (template == 3) {
-            str = hours > 0 ? `${lt10(hours)}${separator}` : "";
-            str += `${lt10(minutes)}${separator}${lt10(seconds)}`;
-        } else if (template == 4) {
-            str = hours > 0 ? `${lt10(hours)}时` : "";
-            str += `${lt10(minutes)}分${lt10(seconds)}秒`;
-        }
-        return str;
+        timeMS = Math.floor(timeMS / 1000);
+        let hours = Math.floor(timeMS / 3600);
+        let minutes = Math.floor((timeMS - hours * 3600) / 60);
+        let seconds = timeMS - hours * 3600 - minutes * 60;
+        format = format.replace("hh", lt10(hours));
+        format = format.replace("mm", lt10(minutes));
+        format = format.replace("ss", lt10(seconds));
+        return format;
     }
+
 
     /**
      * 返回一个格式化的时间字符串
-     * 占位符 YYYY:年 MM:月 DD:日 hh:时 mm:分 ss:秒
-     * @param formatStr 格式化的字符串 例 YYYY-MM-DD hh:mm:ss 返回 2022-01-01 12:30:30
+     * @param format 占位符 YYYY:年 MM:月 DD:日 hh:时 mm:分 ss:秒
+     * @returns 格式化的字符串 例 YYYY-MM-DD hh:mm:ss 返回 2022-01-01 12:30:30
      */
-    static formatTime(formatStr: string, date?: Date) {
+    static formatTime(format: string, date?: Date) {
         if (date == undefined) {
             date = new Date();
         }
-        let lt10 = v => {
-            return v < 10 ? "0" + v : v;
+        let lt10 = (v: number) => {
+            return v < 10 ? "0" + v : v.toString();
         }
         let year = date.getFullYear();
         let month = date.getMonth() + 1;
@@ -82,44 +68,13 @@ export class Utils {
         let hour = date.getHours();
         let minute = date.getMinutes();
         let second = date.getSeconds();
-        formatStr = formatStr.replace("YYYY", year.toString());
-        formatStr = formatStr.replace("MM", lt10(month).toString());
-        formatStr = formatStr.replace("DD", lt10(day).toString());
-        formatStr = formatStr.replace("hh", lt10(hour).toString());
-        formatStr = formatStr.replace("mm", lt10(minute).toString());
-        formatStr = formatStr.replace("ss", lt10(second).toString());
-        return formatStr;
-    }
-
-    /**
-     * 格式化时间戳，返回：XXXX年XX月XX日XX时XX分XX秒
-     */
-    static formatTime2(times: number) {
-        const date = new Date(times);
-        let lt10 = v => {
-            return v < 10 ? "0" + v : v;
-        }
-        let year = date.getFullYear();
-        let month = date.getMonth() + 1;
-        let day = date.getDate();
-        let hour = date.getHours();
-        let minute = date.getMinutes();
-        let second = date.getSeconds();
-        return `${year}年${lt10(month)}月${lt10(day)}日${lt10(hour)}时${lt10(minute)}分${lt10(second)}秒`;;
-    }
-
-    /**
-     * 格式化时间戳，返回：XXXX年XX月XX日
-     */
-    static formatTime3(times: number) {
-        const date = new Date(times);
-        let lt10 = v => {
-            return v < 10 ? "0" + v : v;
-        }
-        let year = date.getFullYear();
-        let month = date.getMonth() + 1;
-        let day = date.getDate();
-        return `${year}年${lt10(month)}月${lt10(day)}日`;;
+        format = format.replace("YYYY", year.toString());
+        format = format.replace("MM", lt10(month));
+        format = format.replace("DD", lt10(day));
+        format = format.replace("hh", lt10(hour));
+        format = format.replace("mm", lt10(minute));
+        format = format.replace("ss", lt10(second));
+        return format;
     }
 
     /**
@@ -133,7 +88,7 @@ export class Utils {
         let suffix = "";
         value = Math.abs(value);
         if (value >= 0 && value < Math.pow(10, 3)) {
-            v = value.toString();
+            v = this.fixFloat(value, fractionDigits, canEndWithZero);
         } else if (value >= Math.pow(10, 3) && value < Math.pow(10, 6)) {
             v = this.fixFloat(value / Math.pow(10, 3), fractionDigits, canEndWithZero);
             suffix = "K";
@@ -149,6 +104,28 @@ export class Utils {
             suffix = "T";
         }
         return prefix + v + suffix;
+    }
+
+
+    static splitString(str: string, sep = ","): number[] {
+        let arr: number[] = [];
+        let sArr = str.trim().split(sep);
+        for (const s of sArr) {
+            let v = parseFloat(s);
+            if (!isNaN(v)) arr.push(v);
+        }
+        return arr;
+    }
+
+    static splitStrings(strs: string, sep1 = ";", sep2 = ","): number[][] {
+        let arr: number[][] = [];
+        let sArr = strs.trim().split(sep1);
+        for (const s of sArr) {
+            if (s.trim()) {
+                arr.push(this.splitString(s));
+            }
+        }
+        return arr;
     }
 
     /**
@@ -192,13 +169,13 @@ export class Utils {
         return str;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="list">集合</param>
-    /// <param name="weight">获取item权重</param>
-    /// <param name="num">返回item数量委托</param>
-    /// <param name="compare">若需要不重复item,则传入比较两个元素的委托</param>
+    /** 从list中随机出一个值 */
+    public static randomValue<T>(list: T[]) {
+        let arr = this.randomValueByWeight(list, 1, v => 1);
+        if (arr.length > 0) return arr[0];
+        return null;
+    }
+
     /**
      * 从带权重的集合中随机获取指定数量的元素
      * @param list 集合
@@ -210,7 +187,7 @@ export class Utils {
     public static randomValueByWeight<T>(list: T[], num = 1, weight?: (item: T) => number, canRepeat = false) {
         let result: T[] = [];
         if (!list || list.length == 0) return result;
-        if (list.length < num) console.warn("需要返回的item数量大于集合长度");
+        if (list.length < num) MLogger.warn("需要返回的item数量大于集合长度");
         if (!weight) weight = (item: T) => 1;
 
         let count: number = Math.min(list.length, num);
@@ -311,6 +288,15 @@ export class Utils {
             let v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
+    }
+
+    /** 迭代器转化为数组 */
+    static iterator2Array<T>(iterator: IterableIterator<T>) {
+        let result: T[] = [];
+        for (let iter = iterator.next(); !iter.done; iter = iterator.next()) {
+            result.push(iter.value);
+        }
+        return result;
     }
 
     /**
