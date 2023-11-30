@@ -1,7 +1,7 @@
 import { Node, _decorator, misc, v3 } from "cc";
 import { App } from "../../../../mlib/App";
 import { MComponent } from "../../../../mlib/component/MComponent";
-import { UIBase } from "../../../../mlib/component/UIBase";
+import { UIBase } from "../../../../mlib/module/ui/manager/UIBase";
 import { EventKey } from "../../../base/GameEnum";
 import GameTable from "../../../base/GameTable";
 import { UIConstant } from "../../../gen/UIConstant";

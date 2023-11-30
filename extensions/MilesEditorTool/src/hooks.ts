@@ -1,10 +1,11 @@
-import fs from "fs";
+import fs from "fs-extra";
 import path from "path";
 import { BuildHook, IBuildResult, IBuildTaskOption } from '../@types';
-import { util } from './util';
+import { Utils } from './tools/Utils';
+import { MLogger } from "./tools/MLogger";
 
 const TAG = 'miles-build';
-const TemplatePrefix = util.ProjectPath + "/assets/publish/";
+const TemplatePrefix = Utils.ProjectPath + "/assets/publish/";
 
 function log(...arg: any[]) {
     return console.log(`[${TAG}] `, ...arg);
@@ -12,30 +13,30 @@ function log(...arg: any[]) {
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    util.mkDirIfNotExists(TemplatePrefix + options.platform);
-    appendMBuildLog("Build Start");
+    fs.emptyDirSync(TemplatePrefix + options.platform);
+    MLogger.debug("Build Start");
 
 };
 
 export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    appendMBuildLog('get settings test', result.settings);
+    MLogger.debug('get settings test', result.settings);
 };
 
 export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    appendMBuildLog('webTestOption ' + 'onAfterCompressSettings');
+    MLogger.debug('webTestOption ' + 'onAfterCompressSettings');
 };
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
-    appendMBuildLog("onAfterBuild");
+    MLogger.debug("onAfterBuild");
     let templatePath = TemplatePrefix + options.platform;
-    let buildPath = util.toUniSeparator(result.dest);
-    let files = util.getAllFiles(templatePath);
+    let buildPath = Utils.toUniSeparator(result.dest);
+    let files = Utils.getAllFiles(templatePath);
     for (const file of files) {
         let newFile = buildPath + file.replace(templatePath, "");
-        util.mkDirIfNotExists(path.dirname(newFile));
-        fs.copyFileSync(file, util.fixupFilePath(newFile));
+        fs.emptyDirSync(path.dirname(newFile));
+        fs.copyFileSync(file, Utils.fixupFilePath(newFile));
         appendMBuildLog(`copy ${file} to ${newFile}`);
     }
 };
@@ -54,7 +55,7 @@ export const onAfterMake: BuildHook.onAfterMake = async function (root, options)
 };
 
 const appendMBuildLog = function (...strs: any[]) {
-    let filePath = util.ProjectPath + "/temp/builder/mbuildlog.txt";
+    let filePath = Utils.ProjectPath + "/temp/builder/mbuildlog.txt";
     let content = `[${TAG}] ${new Date().toLocaleString()} ${strs.join(" ")} \n`;
     fs.appendFileSync(filePath, content);
 }

@@ -1,8 +1,9 @@
-import child from "child_process";
+import child_process from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
-export class util {
+import { MLogger } from "./MLogger";
+export class Utils {
 
     private static projectPath: string;
     static get ProjectPath() {
@@ -10,20 +11,28 @@ export class util {
         return this.projectPath;
     }
 
-    static exeCMD(workDir: string, cmd: string, onMsg?: (msg: string) => void, onError?: (err: string) => void, onExit?: () => void) {
-
-        let result = child.spawn(cmd, { cwd: workDir });
-        result.stdout.on("data", (data) => {
-            let msg = data.toString();
-            onMsg && onMsg(msg);
-            if (msg == "Press any key to continue . . . ") {
-                result.kill();
-                onExit && onExit();
-            }
+    static exeCMD(workDir: string, cmd, onMsg: (msg: string) => void) {
+        let p = new Promise((resolve, reject) => {
+            let result = child_process.exec(cmd, { cwd: workDir });
+            result.stdout.on("data", (data) => {
+                let d = data.toString();
+                onMsg && onMsg(d);
+                if (d.indexOf("continue") > -1) {
+                    result.kill();
+                }
+            });
+            result.stderr.on("data", (data) => {
+                if (globalThis['Editor']) {
+                    MLogger.error(data.toString());
+                } else {
+                    MLogger.error(data.toString());
+                }
+            });
+            result.on("close", (code) => {
+                resolve(code ? code : 0);
+            });
         })
-        result.stderr.on("data", (data) => {
-            onError && onError(data.toString());
-        })
+        return p;
     }
 
     static getAllFiles(dir: string, suffix?: string[]) {
@@ -72,6 +81,10 @@ export class util {
         return result;
     }
 
+    static refreshAsset(path) {
+        Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
+    }
+
     static toAssetDBUrl(path: string) {
         if (path.startsWith("db://")) return path;
         else return path.replace(this.ProjectPath + "/", "db://");
@@ -86,19 +99,19 @@ export class util {
         return path.replace(/\\/g, "/");
     }
 
-    static mkDirIfNotExists(dir: string) {
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    static splitLines(content: string) {
+        let result: string[] = [];
+        let arr = content.split("\r\n");
+        for (const str of arr) {
+            let arr1 = str.split("\n");
+            result.push(...arr1);
+        }
+        return result;
     }
 
     static get returnSymbol() {
         switch (os.platform()) {
             case 'win32': return '\r\n' // windows
-            case 'darwin':
-            case 'linux':
-            case 'aix':
-            case 'freebsd':
-            case 'openbsd':
-            case 'sunos':
             default: return '\n'
         }
     }

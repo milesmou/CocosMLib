@@ -1,13 +1,13 @@
 import { Animation, BlockInputEvents, Button, Color, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, tween, view } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
-import { EventKey } from "../../scripts/base/GameEnum";
-import { App } from "../App";
-import { AssetHandler } from '../component/AssetHandler';
-import { MEvent } from "../module/event/MEvent";
-import { MLogger } from '../module/logger/MLogger';
-import { AutoBindPropertyEditor } from "../module/ui/AutoBindPropertyEditor";
-import { CCUtils } from "../utils/CCUtil";
+import { EventKey } from "../../../../scripts/base/GameEnum";
+import { App } from "../../../App";
+import { AssetHandler } from '../../../component/AssetHandler';
+import { MEvent } from "../../event/MEvent";
+import { MLogger } from '../../logger/MLogger';
+import { AutoBindPropertyEditor } from "../AutoBindPropertyEditor";
+import { CCUtils } from "../../../utils/CCUtil";
 
 const EUIAnim = Enum({
     NONE: 0,

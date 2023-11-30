@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "name": "miles-editor-tool",
     "contributions": {
-		"builder": "./dist/builder.js",
+        "builder": "./dist/builder.js",
         "messages": {
             "formatProject": {
                 "public": false,
@@ -11,7 +11,7 @@
                     "formatProject"
                 ]
             },
-             "loadExcel": {
+            "loadExcel": {
                 "public": true,
                 "methods": [
                     "loadExcel"
@@ -58,8 +58,8 @@
             },
             {
                 "message": "genConst",
-                "win": "shift+g",
-                "mac": "shift+g"
+                "win": "ctrl+shift+g",
+                "mac": "ctrl+shift+g"
             }
         ]
     },
@@ -67,12 +67,16 @@
     "main": "./dist/main.js",
     "devDependencies": {
         "@types/node": "^16.0.1",
-        "typescript": "^4.3.4"
+        "typescript": "^4.3.4",
+        "@types/fs-extra": "^11.0.4"
     },
     "author": "Miles",
     "editor": ">=3.6.3",
     "scripts": {
         "build": "tsc -b",
         "watch": "tsc -w"
+    },
+    "dependencies": {
+        "fs-extra": "^11.2.0"
     }
 }

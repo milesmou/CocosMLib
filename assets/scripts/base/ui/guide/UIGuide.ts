@@ -1,6 +1,6 @@
 import { Node, Component, _decorator, Label, Prefab, Size, Tween, Vec3, instantiate, misc, tween, v3 } from 'cc';
 import { App } from '../../../../mlib/App';
-import { UIBase } from '../../../../mlib/component/UIBase';
+import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 import { AssetMgr } from '../../../../mlib/manager/AssetMgr';
 import { LoggerLevel, MLogger } from '../../../../mlib/module/logger/MLogger';
 import { EventKey } from '../../../base/GameEnum';

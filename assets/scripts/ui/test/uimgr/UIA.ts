@@ -1,7 +1,7 @@
 
 import { Label, _decorator } from 'cc';
 import { App } from '../../../../mlib/App';
-import { UIBase } from '../../../../mlib/component/UIBase';
+import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../../../gen/UIConstant';
 
 const { ccclass, property } = _decorator;

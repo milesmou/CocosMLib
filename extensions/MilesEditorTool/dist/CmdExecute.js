@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mExec = void 0;
+exports.CmdExecute = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const MLogger_1 = require("./tools/MLogger");
 const Utils_1 = require("./tools/Utils");
-class mExec {
+class CmdExecute {
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录
@@ -40,8 +40,10 @@ class mExec {
         let logger = new MLogger_1.MLogger("LoadExcel");
         let workDir = Utils_1.Utils.ProjectPath + "/excel";
         let batPath = "gen_code_json.bat";
-        let jsonDir = "db://assets/bundle/dynamic/table";
-        let tsDir = "db://assets/script/gen/table";
+        let jsonDir = "db://assets/bundles/dynamic/table";
+        let tsDir = "db://assets/scripts/gen/table";
+        fs_extra_1.default.emptyDirSync(jsonDir);
+        fs_extra_1.default.emptyDirSync(tsDir);
         logger.debug(workDir);
         Utils_1.Utils.exeCMD(workDir, batPath, msg => {
             logger.debug(msg);
@@ -99,7 +101,7 @@ class mExec {
         let save = false;
         let filePath = Utils_1.Utils.getAllFiles(Utils_1.Utils.ProjectPath, [scriptName + ".ts"])[0];
         let content = fs_extra_1.default.readFileSync(filePath).toString();
-        let lines = content.split(Utils_1.Utils.returnSymbol);
+        let lines = Utils_1.Utils.splitLines(content);
         let classTag = `class ${scriptName}`;
         let classIndex = -1, genStartIndex = -1, genEndIndex = -1;
         for (let index = 0; index < lines.length; index++) {
@@ -112,6 +114,8 @@ class mExec {
                 genEndIndex = index;
         }
         if (genStartIndex == -1) { //直接生成
+            if (strs.length == 0)
+                return;
             lines.splice(classIndex + 1, 0, start, ...strs, end);
             save = true;
         }
@@ -134,8 +138,9 @@ class mExec {
         }
         if (save) {
             fs_extra_1.default.writeFileSync(filePath, lines.join(Utils_1.Utils.returnSymbol));
-            console.log(`[${scriptName}] 自动绑定成功`);
+            Utils_1.Utils.refreshAsset(filePath);
+            MLogger_1.MLogger.debug(`[${scriptName}] 自动绑定成功`);
         }
     }
 }
-exports.mExec = mExec;
+exports.CmdExecute = CmdExecute;

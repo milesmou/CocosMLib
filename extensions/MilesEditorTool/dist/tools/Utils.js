@@ -3,13 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.util = void 0;
+exports.Utils = void 0;
 const child_process_1 = __importDefault(require("child_process"));
 const fs_1 = __importDefault(require("fs"));
 const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
 const MLogger_1 = require("./MLogger");
-class util {
+class Utils {
     static get ProjectPath() {
         if (!this.projectPath)
             this.projectPath = this.toUniSeparator(Editor.Project.path);
@@ -107,17 +107,20 @@ class util {
     static toUniSeparator(path) {
         return path.replace(/\\/g, "/");
     }
+    static splitLines(content) {
+        let result = [];
+        let arr = content.split("\r\n");
+        for (const str of arr) {
+            let arr1 = str.split("\n");
+            result.push(...arr1);
+        }
+        return result;
+    }
     static get returnSymbol() {
         switch (os_1.default.platform()) {
             case 'win32': return '\r\n'; // windows
-            case 'darwin':
-            case 'linux':
-            case 'aix':
-            case 'freebsd':
-            case 'openbsd':
-            case 'sunos':
             default: return '\n';
         }
     }
 }
-exports.util = util;
+exports.Utils = Utils;

@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mExec = void 0;
+exports.Execute = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const MLogger_1 = require("./tools/MLogger");
 const Utils_1 = require("./tools/Utils");
-class mExec {
+class Execute {
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录
@@ -138,4 +138,4 @@ class mExec {
         }
     }
 }
-exports.mExec = mExec;
+exports.Execute = Execute;

@@ -1,7 +1,7 @@
 
 import { Sprite, tween, _decorator } from 'cc';
 import { App } from '../../../mlib/App';
-import { UIBase } from '../../../mlib/component/UIBase';
+import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { AssetMgr } from '../../../mlib/manager/AssetMgr';
 import { UIConstant } from '../../gen/UIConstant';
 import { GameData } from '../GameData';

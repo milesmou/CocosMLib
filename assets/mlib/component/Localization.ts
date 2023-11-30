@@ -6,7 +6,7 @@ import { App } from "../App";
 import { AssetMgr } from '../manager/AssetMgr';
 import { CCUtils } from '../utils/CCUtil';
 import { Utils } from "../utils/Utils";
-import { UIBase } from './UIBase';
+import { UIBase } from '../module/ui/manager/UIBase';
 
 interface Language {
     sc: string;

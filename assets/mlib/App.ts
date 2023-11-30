@@ -7,7 +7,7 @@ import { AudioMgr } from "./manager/AudioMgr";
 import { EventMgr } from "./module/event/EventMgr";
 import { PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
-import { UIMgr } from "./manager/UIMgr";
+import { UIMgr } from "./module/ui/manager/UIMgr";
 import { MLogger } from './module/logger/MLogger';
 import { SingletonFactory } from './utils/SingletonFactory';
 import { TimeMgr } from './manager/TimeMgr';

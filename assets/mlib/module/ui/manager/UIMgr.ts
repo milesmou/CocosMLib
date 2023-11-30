@@ -2,16 +2,16 @@ import { Component, Node, Prefab, SpriteFrame, UITransform, _decorator, instanti
 
 const { ccclass, property } = _decorator;
 
-import { EventKey } from '../../scripts/base/GameEnum';
-import { UITipMsg } from '../../scripts/base/ui/UITipMsg';
-import { UIGuide } from '../../scripts/base/ui/guide/UIGuide';
-import { UIConstant } from '../../scripts/gen/UIConstant';
-import { EPassiveType, UIBase } from "../component/UIBase";
-import { EventMgr } from '../module/event/EventMgr';
-import { L10nMgr } from '../module/l10n/L10nMgr';
-import { MLogger } from '../module/logger/MLogger';
-import { Utils } from '../utils/Utils';
-import { AssetMgr } from './AssetMgr';
+import { EventKey } from '../../../../scripts/base/GameEnum';
+import { UITipMsg } from '../../../../scripts/base/ui/UITipMsg';
+import { UIGuide } from '../../../../scripts/base/ui/guide/UIGuide';
+import { UIConstant } from '../../../../scripts/gen/UIConstant';
+import { EPassiveType, UIBase } from "./UIBase";
+import { EventMgr } from '../../event/EventMgr';
+import { L10nMgr } from '../../l10n/L10nMgr';
+import { MLogger } from '../../logger/MLogger';
+import { Utils } from '../../../utils/Utils';
+import { AssetMgr } from '../../../manager/AssetMgr';
 
 @ccclass
 export class UIMgr extends Component {
