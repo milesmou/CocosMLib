@@ -9,27 +9,31 @@ export class CmdExecute {
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/localization");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/localization/sc");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/localization/tc");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/localization/en");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/static");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/static/anim");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/static/font");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/static/uiSprite");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/dynamic");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/audio");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/table");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/sprite");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/prefab");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/uiPrefab");//资源包目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/scripts");//脚本目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/scripts/base");//脚本目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/scripts/gen");//脚本目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/scripts/ui");//脚本目录
-        fs.emptyDirSync(Utils.ProjectPath + "/assets/scenes");//场景目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/sc");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/tc");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/en");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/anim");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/font");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/uiSprite");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/audio");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/table");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/sprite");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/prefab");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/uiPrefab");//资源包目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts");//脚本目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/base");//脚本目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/gen");//脚本目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/ui");//脚本目录
+        fs.ensureDirSync(Utils.ProjectPath + "/assets/scenes");//场景目录
+        Utils.refreshAsset(Utils.ProjectPath + "/assets/build-template");
+        Utils.refreshAsset(Utils.ProjectPath + "/assets/bundles");
+        Utils.refreshAsset(Utils.ProjectPath + "/assets/scripts");
+        Utils.refreshAsset(Utils.ProjectPath + "/assets/scenes");
         //拷贝资源
     }
 
@@ -40,8 +44,8 @@ export class CmdExecute {
         let batPath = "gen_code_json.bat";
         let jsonDir = Utils.ProjectPath + "/assets/bundles/dynamic/table";
         let tsDir = Utils.ProjectPath + "/assets/scripts/gen/table";
-        fs.emptyDirSync(jsonDir);
-        fs.emptyDirSync(tsDir);
+        fs.ensureDirSync(jsonDir);
+        fs.ensureDirSync(tsDir);
         logger.debug(workDir)
         Utils.exeCMD(workDir, batPath,
             msg => {

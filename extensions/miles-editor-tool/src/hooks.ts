@@ -13,7 +13,7 @@ function log(...arg: any[]) {
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    fs.emptyDirSync(TemplatePrefix + options.platform);
+    fs.ensureDirSync(TemplatePrefix + options.platform);
     MLogger.debug("Build Start");
 
 };
@@ -35,7 +35,7 @@ export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBu
     let files = Utils.getAllFiles(templatePath);
     for (const file of files) {
         let newFile = buildPath + file.replace(templatePath, "");
-        fs.emptyDirSync(path.dirname(newFile));
+        fs.ensureDirSync(path.dirname(newFile));
         fs.copyFileSync(file, Utils.fixupFilePath(newFile));
         appendMBuildLog(`copy ${file} to ${newFile}`);
     }
