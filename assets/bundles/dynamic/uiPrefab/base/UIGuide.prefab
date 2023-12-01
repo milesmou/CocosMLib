@@ -3,6 +3,7 @@
     "__type__": "cc.Prefab",
     "_name": "UIGuide",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_native": "",
     "data": {
       "__id__": 1
@@ -75,6 +76,7 @@
     "__type__": "cc.Node",
     "_name": "mask",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -127,6 +129,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 2
     },
@@ -154,6 +157,7 @@
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 2
     },
@@ -195,9 +199,10 @@
     "fileId": "20UGQn4U9GUoln0NJQTkbG"
   },
   {
-    "__type__": "9283cO4yP9K0rb7i7oplG+0",
+    "__type__": "278cbjIVg1LPqaMasPgoErs",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 2
     },
@@ -205,15 +210,12 @@
     "__prefab": {
       "__id__": 8
     },
-    "hollowShader": {
-      "__uuid__": "ac4b1fda-039f-4fe5-b15a-4f445a203193",
-      "__expectedType__": "cc.EffectAsset"
-    },
+    "hollowOut": null,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "6aqyRwOe5Kl6i18+8tPbce"
+    "fileId": "25jOAPgiVAXZ/F1j/VDm0K"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -232,6 +234,7 @@
     "__type__": "cc.Node",
     "_name": "btnScreen",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -284,6 +287,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 10
     },
@@ -311,6 +315,7 @@
     "__type__": "cc.Widget",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 10
     },
@@ -346,6 +351,7 @@
     "__type__": "cc.Button",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 10
     },
@@ -414,6 +420,7 @@
     "__type__": "cc.Node",
     "_name": "tips",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -473,6 +480,7 @@
     "__type__": "cc.Node",
     "_name": "content",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 18
     },
@@ -525,6 +533,7 @@
     "__type__": "cc.Label",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 19
     },
@@ -572,6 +581,7 @@
     "__type__": "cc.UIOpacity",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 19
     },
@@ -590,6 +600,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 19
     },
@@ -630,6 +641,7 @@
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 18
     },
@@ -677,6 +689,7 @@
     "__type__": "cc.Layout",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 18
     },
@@ -714,6 +727,7 @@
     "__type__": "cc.UIOpacity",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 18
     },
@@ -732,6 +746,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 18
     },
@@ -772,6 +787,7 @@
     "__type__": "cc.Node",
     "_name": "finger",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 1
     },
@@ -825,6 +841,7 @@
     "__type__": "cc.Node",
     "_name": "sp",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "_parent": {
       "__id__": 36
     },
@@ -877,6 +894,7 @@
     "__type__": "cc.Sprite",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 37
     },
@@ -921,6 +939,7 @@
     "__type__": "cc.UIOpacity",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 37
     },
@@ -939,6 +958,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 37
     },
@@ -979,6 +999,7 @@
     "__type__": "cc.UIOpacity",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 36
     },
@@ -997,6 +1018,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 36
     },
@@ -1037,6 +1059,7 @@
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },
@@ -1061,9 +1084,10 @@
     "fileId": "a6JZxexXdIDKJqxcEUWl16"
   },
   {
-    "__type__": "7f06be6f2RDo5qVapVwubZQ",
+    "__type__": "ff51akr6iFDJKBorwFbuPmS",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {},
     "node": {
       "__id__": 1
     },
@@ -1071,31 +1095,18 @@
     "__prefab": {
       "__id__": 53
     },
-    "destroyNode": false,
-    "showShade": false,
-    "fullScreen": false,
-    "autoHide": false,
-    "blockInputEvent": false,
-    "action": 0,
-    "closeBtn": null,
     "mask": null,
-    "shade": {
-      "__id__": 2
-    },
-    "btnScreen": {
-      "__id__": 10
-    },
-    "tip": {
-      "__id__": 18
-    },
-    "finger": {
-      "__id__": 36
-    },
+    "ring": null,
+    "finger": null,
+    "tip": null,
+    "hollowTarget": null,
+    "btnScreen": null,
+    "prefabParent": null,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "a75+wuTeFGiof22bHqaK+z"
+    "fileId": "8cypp8C5pHkrjTANGrjf1M"
   },
   {
     "__type__": "cc.PrefabInfo",

@@ -1,13 +1,14 @@
-import { Animation, BlockInputEvents, Button, Color, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, tween, view } from "cc";
+import { Animation, BlockInputEvents, Button, Color, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, js, tween, view } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
 import { EventKey } from "../../../../scripts/base/GameEnum";
 import { App } from "../../../App";
-import { AssetHandler } from '../../../component/AssetHandler';
+import { AssetHandler } from "../../../component/AssetHandler";
+import { CCUtils } from "../../../utils/CCUtil";
 import { MEvent } from "../../event/MEvent";
 import { MLogger } from '../../logger/MLogger';
-import { AutoBindPropertyEditor } from "../AutoBindPropertyEditor";
-import { CCUtils } from "../../../utils/CCUtil";
+import { GenProperty } from "../property/GenProperty";
+import { PropertyBase } from "../property/PropertyBase";
 
 const EUIAnim = Enum({
     NONE: 0,
@@ -23,10 +24,9 @@ export enum EPassiveType {
     Hide,
 }
 
-@ccclass
-@requireComponent(AutoBindPropertyEditor)
+@ccclass("UIBase")
 @requireComponent(UIOpacity)
-export class UIBase extends AssetHandler {
+export  class UIBase extends GenProperty {
     @property({
         displayName: "销毁",
         tooltip: "UI关闭时销毁"
@@ -78,12 +78,18 @@ export class UIBase extends AssetHandler {
     protected visible: boolean;
     protected args: any = null;
 
+    protected assetHandler: AssetHandler;
+
+    protected onLoad(): void {
+        this.assetHandler = new AssetHandler(this.node);
+    }
+
     protected onDestroy() {
         super.onDestroy();
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
-    init(uiName: string) {
+    public init(uiName: string) {
         if (this.uiName) return;
         this.uiName = uiName;
 
@@ -94,9 +100,7 @@ export class UIBase extends AssetHandler {
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.animation = this.getComponent(Animation) || CCUtils.getComponentInChildren(this.node, Animation);
 
-        this.getComponentsInChildren(Button).forEach(v => v.node.on("click", () => {
-            this.onClickButton(v.node.name)
-        }));
+        this.getComponentsInChildren(Button).forEach(v => v.node.on("click", this.onClickButton.bind(this, v.node.name)));
     }
 
     private initShade() {

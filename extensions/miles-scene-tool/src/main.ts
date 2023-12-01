@@ -1,7 +1,7 @@
 
 import { join } from 'path';
 module.paths.push(join(Editor.App.path, 'node_modules'));
-import { AutoGenProperty } from './AutoGenProperty';
+import { GenProperty } from './GenProperty';
 
 // 临时在当前模块增加编辑器内的模块为搜索路径，为了能够正常 require 到 cc 模块，后续版本将优化调用方式
 import { director } from 'cc';
@@ -11,7 +11,7 @@ import { director } from 'cc';
  * @zh 为扩展的主进程的注册方法
  */
 export const methods: { [key: string]: (...any: any) => any } = {
-    autoGenProperty: AutoGenProperty.gen
+    autoGenProperty: GenProperty.gen.bind(GenProperty)
 };
 
 /**

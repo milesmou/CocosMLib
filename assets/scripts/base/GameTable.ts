@@ -8,7 +8,7 @@ import { Tables } from '../gen/table/Types';
 export default class GameTable {
     public static get Inst() { return SingletonFactory.getInstance<GameTable>(GameTable); }
 
-    public Table: Tables = null!;
+    public Table: Tables = null;
 
     async initData() {
         let dir = "table";

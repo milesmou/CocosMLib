@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
+import { ExecuteSceneScriptMethodOptions } from "../@types/packages/scene/@types/public";
 import { MLogger } from "./tools/MLogger";
 import { Utils } from "./tools/Utils";
 
@@ -37,8 +38,8 @@ export class CmdExecute {
         let logger = new MLogger("LoadExcel");
         let workDir = Utils.ProjectPath + "/excel";
         let batPath = "gen_code_json.bat";
-        let jsonDir = "db://assets/bundles/dynamic/table";
-        let tsDir = "db://assets/scripts/gen/table";
+        let jsonDir = Utils.ProjectPath + "/assets/bundles/dynamic/table";
+        let tsDir = Utils.ProjectPath + "/assets/scripts/gen/table";
         fs.emptyDirSync(jsonDir);
         fs.emptyDirSync(tsDir);
         logger.debug(workDir)
@@ -101,16 +102,21 @@ export class CmdExecute {
     }
 
 
-    static autoGenProperty() {
-
+    static async autoGenProperty() {
         let nodeUuid = "";
         let type = Editor.Selection.getLastSelectedType();
         if (type == "node") {
             nodeUuid = Editor.Selection.getLastSelected(type);
         }
-        MLogger.debug("getLastSelected", nodeUuid);
-        Editor.Message.send("miles-scene-tool", "autoGenProperty", nodeUuid);
-        MLogger.debug("Editor.Message.send", nodeUuid);
+
+        const options: ExecuteSceneScriptMethodOptions = {
+            name: "miles-scene-tool",
+            method: 'autoGenProperty',
+            args: [nodeUuid],
+        };
+
+        MLogger.info("SelectNodeUUID", nodeUuid);
+        Editor.Message.request('scene', 'execute-scene-script', options);
     }
 
 }

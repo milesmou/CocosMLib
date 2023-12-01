@@ -1,21 +1,28 @@
 
-import { Sprite, tween, _decorator } from 'cc';
+import { _decorator, tween } from 'cc';
 import { App } from '../../../mlib/App';
-import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { AssetMgr } from '../../../mlib/manager/AssetMgr';
+import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../../gen/UIConstant';
+import { UIHUDProperty } from '../../gen/property/UIHUDProperty';
 import { GameData } from '../GameData';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHUD')
 export class UIHUD extends UIBase {
-    //gen property start don't modify this area
-    //gen property end don't modify this area 
-    @property(Sprite)
-    bg1!: Sprite;
+    protected property: UIHUDProperty;
+
+    // pro
 
     onLoad() {
+        super.onLoad();
+        this.property = new UIHUDProperty(this.node);
+        console.log(this.property.node222Tf);
+        
+
+        
+        // this.property.n
         // Utils.loadSprite(this.bg1, "texture/bg1");
         // Utils.loadSprite(this.bg1,"https://yourdomain.com/1.jpg");
 

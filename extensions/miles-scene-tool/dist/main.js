@@ -3,13 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.unload = exports.load = exports.methods = void 0;
 const path_1 = require("path");
 module.paths.push((0, path_1.join)(Editor.App.path, 'node_modules'));
-const AutoGenProperty_1 = require("./AutoGenProperty");
+const GenProperty_1 = require("./GenProperty");
 /**
  * @en Registration method for the main process of Extension
  * @zh 为扩展的主进程的注册方法
  */
 exports.methods = {
-    autoGenProperty: AutoGenProperty_1.AutoGenProperty.gen
+    autoGenProperty: GenProperty_1.GenProperty.gen.bind(GenProperty_1.GenProperty)
 };
 /**
  * @en Hooks triggered after extension loading is complete

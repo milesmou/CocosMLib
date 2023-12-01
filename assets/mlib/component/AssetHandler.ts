@@ -1,19 +1,18 @@
-import { Asset, ImageAsset, Sprite, SpriteFrame, _decorator } from "cc";
-import { EDITOR } from "cc/env";
+import { Asset, ImageAsset, Node, Sprite, SpriteFrame } from "cc";
 import { AssetMgr } from "../manager/AssetMgr";
-import { AutoBindProperty } from "../module/ui/AutoBindProperty";
 
-const { ccclass } = _decorator;
 
-@ccclass('AssetHandler')
-export class AssetHandler extends AutoBindProperty {
+export class AssetHandler {
+
+    constructor(target: Node) {
+        target.on(Node.EventType.NODE_DESTROYED, this.onDestroy, this);
+    }
 
     //Location:Asset
     private cache: Map<string, Asset> = new Map();
 
-    protected onDestroy() {
-        super.onDestroy();
-        if (!EDITOR) this.decRefCount();
+    private onDestroy() {
+        this.decRefCount();
     }
 
     private decRefCount() {

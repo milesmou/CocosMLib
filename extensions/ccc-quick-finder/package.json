@@ -78,8 +78,8 @@
     "shortcuts": [
       {
         "message": "open-search-bar",
-        "win": "F1",
-        "mac": "F1"
+        "win": "ctrl+k",
+        "mac": "ctrl+k"
       }
     ]
   },

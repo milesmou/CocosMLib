@@ -40,8 +40,8 @@ class CmdExecute {
         let logger = new MLogger_1.MLogger("LoadExcel");
         let workDir = Utils_1.Utils.ProjectPath + "/excel";
         let batPath = "gen_code_json.bat";
-        let jsonDir = "db://assets/bundles/dynamic/table";
-        let tsDir = "db://assets/scripts/gen/table";
+        let jsonDir = Utils_1.Utils.ProjectPath + "/assets/bundles/dynamic/table";
+        let tsDir = Utils_1.Utils.ProjectPath + "/assets/scripts/gen/table";
         fs_extra_1.default.emptyDirSync(jsonDir);
         fs_extra_1.default.emptyDirSync(tsDir);
         logger.debug(workDir);
@@ -97,15 +97,19 @@ class CmdExecute {
         Utils_1.Utils.refreshAsset(outFile);
         MLogger_1.MLogger.print("生成UIConstant成功");
     }
-    static autoGenProperty() {
+    static async autoGenProperty() {
         let nodeUuid = "";
         let type = Editor.Selection.getLastSelectedType();
         if (type == "node") {
             nodeUuid = Editor.Selection.getLastSelected(type);
         }
-        MLogger_1.MLogger.debug("getLastSelected", nodeUuid);
-        Editor.Message.send("miles-scene-tool", "autoGenProperty", nodeUuid);
-        MLogger_1.MLogger.debug("Editor.Message.send", nodeUuid);
+        const options = {
+            name: "miles-scene-tool",
+            method: 'autoGenProperty',
+            args: [nodeUuid],
+        };
+        MLogger_1.MLogger.info("SelectNodeUUID", nodeUuid);
+        Editor.Message.request('scene', 'execute-scene-script', options);
     }
 }
 exports.CmdExecute = CmdExecute;
