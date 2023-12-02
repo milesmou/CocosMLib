@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.unload = exports.load = exports.methods = void 0;
 const CmdExecute_1 = require("./CmdExecute");
+const HotUpdate_1 = require("./postbuild/HotUpdate");
 /**
  * @en Registration method for the main process of Extension
  * @zh 为扩展的主进程的注册方法
@@ -16,7 +17,7 @@ exports.methods = {
     openBuildTemplate: CmdExecute_1.CmdExecute.openBuildTemplate,
     closeBuildTemplate: CmdExecute_1.CmdExecute.closeBuildTemplate,
     saveHotUpdateConfig: CmdExecute_1.CmdExecute.saveHotUpdateConfig,
-    genHotUpdateRes: CmdExecute_1.CmdExecute.genHotUpdateRes,
+    genHotUpdateRes: HotUpdate_1.HotUpdate.genHotUpdateRes.bind(HotUpdate_1.HotUpdate),
 };
 /**
  * @en Hooks triggered after extension loading is complete

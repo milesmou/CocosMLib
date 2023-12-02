@@ -1,36 +1,40 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = void 0;
-const MLogger_1 = require("./tools/MLogger");
+const BuildTemplate_1 = require("./postbuild/BuildTemplate");
+const HotUpdate_1 = require("./postbuild/HotUpdate");
+const LogToFile_1 = require("./tools/LogToFile");
 const onBeforeBuild = async function (options, result) {
     // Todo some thing
-    MLogger_1.MLogger.debug("Build Start");
+    LogToFile_1.LogToFile.log("Build Start");
 };
 exports.onBeforeBuild = onBeforeBuild;
 const onBeforeCompressSettings = async function (options, result) {
     // Todo some thing
-    MLogger_1.MLogger.debug('get settings test', result.settings);
+    LogToFile_1.LogToFile.log('get settings test', result.settings);
 };
 exports.onBeforeCompressSettings = onBeforeCompressSettings;
 const onAfterCompressSettings = async function (options, result) {
     // Todo some thing
-    MLogger_1.MLogger.debug('webTestOption ' + 'onAfterCompressSettings');
+    LogToFile_1.LogToFile.log('webTestOption ' + 'onAfterCompressSettings');
 };
 exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = async function (options, result) {
-    MLogger_1.MLogger.debug("onAfterBuild");
+    LogToFile_1.LogToFile.log("onAfterBuild");
+    BuildTemplate_1.BuildTemplate.copy(options, result);
+    HotUpdate_1.HotUpdate.modifyMainJs(options, result);
 };
 exports.onAfterBuild = onAfterBuild;
 const onError = async function (options, result) {
     // Todo some thing
-    MLogger_1.MLogger.debug("run onError");
+    LogToFile_1.LogToFile.log("run onError");
 };
 exports.onError = onError;
 const onBeforeMake = async function (root, options) {
-    MLogger_1.MLogger.debug(`onBeforeMake: root: ${root}, options: ${options}`);
+    LogToFile_1.LogToFile.log(`onBeforeMake: root: ${root}, options: ${options}`);
 };
 exports.onBeforeMake = onBeforeMake;
 const onAfterMake = async function (root, options) {
-    MLogger_1.MLogger.debug(`onAfterMake: root: ${root}, options: ${options}`);
+    LogToFile_1.LogToFile.log(`onAfterMake: root: ${root}, options: ${options}`);
 };
 exports.onAfterMake = onAfterMake;

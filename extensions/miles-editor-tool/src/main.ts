@@ -1,4 +1,5 @@
 import { CmdExecute } from "./CmdExecute";
+import { HotUpdate } from "./postbuild/HotUpdate";
 
 
 /**
@@ -15,7 +16,7 @@ export const methods: { [key: string]: (...any: any) => any } = {
     openBuildTemplate: CmdExecute.openBuildTemplate,
     closeBuildTemplate: CmdExecute.closeBuildTemplate,
     saveHotUpdateConfig: CmdExecute.saveHotUpdateConfig,
-    genHotUpdateRes: CmdExecute.genHotUpdateRes,
+    genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
 };
 
 /**

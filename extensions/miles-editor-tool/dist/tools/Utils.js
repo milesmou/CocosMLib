@@ -15,6 +15,9 @@ class Utils {
             this.projectPath = this.toUniSeparator(Editor.Project.path);
         return this.projectPath;
     }
+    static isNative(platform) {
+        return platform == "win32" || platform == "android" || platform == "ios";
+    }
     static exeCMD(workDir, cmd, onMsg) {
         let p = new Promise((resolve, reject) => {
             let result = child_process_1.default.exec(cmd, { cwd: workDir });
@@ -67,28 +70,6 @@ class Utils {
         });
         return files;
     }
-    static fixupFilePath(filePath) {
-        if (filePath.endsWith(".tpl"))
-            filePath = filePath.replace(".tpl", "");
-        let result = "";
-        let dir = path_1.default.dirname(filePath);
-        let extname = path_1.default.extname(filePath);
-        let basename = path_1.default.basename(filePath, extname) + ".";
-        let arr = fs_1.default.readdirSync(dir, { withFileTypes: true });
-        for (const dirent of arr) {
-            if (dirent.isFile()) {
-                let name = dirent.name;
-                let p = path_1.default.join(dir, name);
-                if (name.startsWith(basename) && name.endsWith(extname)) {
-                    result = this.toUniSeparator(p);
-                    break;
-                }
-            }
-        }
-        if (!result)
-            result = filePath;
-        return result;
-    }
     static refreshAsset(path) {
         Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
     }
@@ -98,11 +79,13 @@ class Utils {
         else
             return path.replace(this.ProjectPath + "/", "db://");
     }
-    static toAbsolutePath(dbUrl) {
-        if (dbUrl.startsWith("db://"))
-            return dbUrl.replace("db://", this.ProjectPath + "/");
+    static toAbsolutePath(dbUrlOrprojUrl) {
+        if (dbUrlOrprojUrl.startsWith("db://"))
+            return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
+        else if (dbUrlOrprojUrl.startsWith("project://"))
+            return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
         else
-            return dbUrl;
+            return dbUrlOrprojUrl;
     }
     static toUniSeparator(path) {
         return path.replace(/\\/g, "/");

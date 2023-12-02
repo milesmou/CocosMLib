@@ -219,8 +219,4 @@ export class CmdExecute {
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
 
-    static genHotUpdateRes() {
-
-    }
-
 }

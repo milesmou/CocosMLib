@@ -204,7 +204,5 @@ class CmdExecute {
         MLogger_1.MLogger.info("SelectNodeUUID", nodeUuid);
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
-    static genHotUpdateRes() {
-    }
 }
 exports.CmdExecute = CmdExecute;

@@ -2,35 +2,14 @@ cmake_minimum_required(VERSION 3.8)
 
 option(APP_NAME "Project Name" "NewProject3")
 project(${APP_NAME} CXX)
+set(CC_LIB_NAME cocos)
+set(CC_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(CC_PROJ_SOURCES)
+set(CC_COMMON_SOURCES)
+set(CC_ALL_SOURCES)
 
 include(${CMAKE_CURRENT_LIST_DIR}/../common/CMakeLists.txt)
 
-
-set(LIB_NAME cocos)
-
-set(PROJ_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.h
-    ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/jni/main.cpp
-)
-
-
-if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/jsb_module_register.cpp)
-    file(COPY "${COCOS_X_PATH}/cocos/bindings/manual/jsb_module_register.cpp"
-        DESTINATION ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/)
-endif()
-
-list(APPEND PROJ_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/jsb_module_register.cpp
-)
-
-add_library(${LIB_NAME} SHARED ${PROJ_SOURCES})
-
-target_link_libraries(${LIB_NAME}
-    "-Wl,--whole-archive" cocos2d_jni "-Wl,--no-whole-archive"
-    cocos2d
-)
-
-target_include_directories(${LIB_NAME} PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/../common/Classes
-)
+cc_android_before_target(${CC_LIB_NAME})
+add_library(${CC_LIB_NAME} SHARED ${CC_ALL_SOURCES})
+cc_android_after_target(${CC_LIB_NAME})

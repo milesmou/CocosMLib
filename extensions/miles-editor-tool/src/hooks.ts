@@ -1,38 +1,41 @@
 import { BuildHook, IBuildResult, IBuildTaskOption } from '../@types';
-import { MLogger } from "./tools/MLogger";
+import { BuildTemplate } from './postbuild/BuildTemplate';
+import { HotUpdate } from './postbuild/HotUpdate';
+import { LogToFile } from './tools/LogToFile';
 
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    MLogger.debug("Build Start");
+    LogToFile.log("Build Start");
 
 };
 
 export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    MLogger.debug('get settings test', result.settings);
+    LogToFile.log('get settings test', result.settings);
 };
 
 export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    MLogger.debug('webTestOption ' + 'onAfterCompressSettings');
+    LogToFile.log('webTestOption ' + 'onAfterCompressSettings');
 };
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
-    MLogger.debug("onAfterBuild");
-    
+    LogToFile.log("onAfterBuild");
+    BuildTemplate.copy(options, result);
+    HotUpdate.modifyMainJs(options, result);
 
 };
 
 export const onError: BuildHook.onError = async function (options, result) {
     // Todo some thing
-    MLogger.debug("run onError");
+    LogToFile.log("run onError");
 };
 
 export const onBeforeMake: BuildHook.onBeforeMake = async function (root, options) {
-    MLogger.debug(`onBeforeMake: root: ${root}, options: ${options}`);
+    LogToFile.log(`onBeforeMake: root: ${root}, options: ${options}`);
 };
 
 export const onAfterMake: BuildHook.onAfterMake = async function (root, options) {
-    MLogger.debug(`onAfterMake: root: ${root}, options: ${options}`);
+    LogToFile.log(`onAfterMake: root: ${root}, options: ${options}`);
 };

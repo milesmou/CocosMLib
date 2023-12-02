@@ -1,7 +1,8 @@
 {
-    "build-template": false,
+    "build-template": true,
     "hotupdate": {
         "url": "/Channel/Dev/1.0.0/ResPkg",
-        "version": "1.0.0.1"
+        "version": "1.0.0.1",
+        "src": "D:/Workspace/CocosMLib/build/android"
     }
 }

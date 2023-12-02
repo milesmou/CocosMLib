@@ -9,7 +9,7 @@ export class MLogger {
     private static globalTag = "MilesEditorTool";
     private static globalLevel: LoggerLevel;
 
-    public static setLevel(level: LoggerLevel) {        
+    public static setLevel(level: LoggerLevel) {
         this.info = level > LoggerLevel.Info ? this.none : console.log.bind(console, `[${this.globalTag} Info]`);
         this.debug = level > LoggerLevel.Debug ? this.none : console.log.bind(console, `[${this.globalTag} Debug]`);
         this.warn = level > LoggerLevel.Warn ? this.none : console.warn.bind(console, `[${this.globalTag} Warn]`);
@@ -31,6 +31,8 @@ export class MLogger {
     public static trace: (...data) => void;
 
     private static none(...data) { }
+
+   
 
     //日志打印对象
     constructor(tag: string, level: LoggerLevel = LoggerLevel.Info) {
