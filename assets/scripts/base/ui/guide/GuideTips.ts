@@ -1,11 +1,10 @@
-import { _decorator, Node, Label } from "cc";
+import { _decorator, Node, Label, Component } from "cc";
 import { App } from "../../../../mlib/App";
-import { MComponent } from "../../../../mlib/component/MComponent";
 
 const { ccclass, property } = _decorator;
 
 @ccclass
-export default class GuideTips extends MComponent {
+export default class GuideTips extends Component {
 
     @property(Node)
     private c_TipText1: Node = null;

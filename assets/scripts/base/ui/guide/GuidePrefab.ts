@@ -1,10 +1,10 @@
-import { MComponent } from "../../../../mlib/component/MComponent";
+import { Component } from "cc";
 import { MEvent } from "../../../../mlib/module/event/MEvent";
 
 
 
-export abstract class 
-GuidePrefab extends MComponent {
+export abstract class
+    GuidePrefab extends Component {
 
     public onClose: MEvent = new MEvent();
 

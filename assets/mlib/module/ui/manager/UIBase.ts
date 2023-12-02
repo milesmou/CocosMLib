@@ -84,10 +84,6 @@ export  class UIBase extends GenProperty {
         this.assetHandler = new AssetHandler(this.node);
     }
 
-    protected onDestroy() {
-        super.onDestroy();
-    }
-
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     public init(uiName: string) {
         if (this.uiName) return;

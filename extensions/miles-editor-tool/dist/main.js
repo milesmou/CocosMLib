@@ -11,6 +11,12 @@ exports.methods = {
     genConst: CmdExecute_1.CmdExecute.genConst,
     formatProject: CmdExecute_1.CmdExecute.formatProject,
     autoGenProperty: CmdExecute_1.CmdExecute.autoGenProperty,
+    closeTexCompress: CmdExecute_1.CmdExecute.closeTexCompress,
+    setTexCompress: CmdExecute_1.CmdExecute.setTexCompress,
+    openBuildTemplate: CmdExecute_1.CmdExecute.openBuildTemplate,
+    closeBuildTemplate: CmdExecute_1.CmdExecute.closeBuildTemplate,
+    saveHotUpdateConfig: CmdExecute_1.CmdExecute.saveHotUpdateConfig,
+    genHotUpdateRes: CmdExecute_1.CmdExecute.genHotUpdateRes,
 };
 /**
  * @en Hooks triggered after extension loading is complete

@@ -10,6 +10,12 @@ export const methods: { [key: string]: (...any: any) => any } = {
     genConst: CmdExecute.genConst,
     formatProject: CmdExecute.formatProject,
     autoGenProperty: CmdExecute.autoGenProperty,
+    closeTexCompress: CmdExecute.closeTexCompress,
+    setTexCompress: CmdExecute.setTexCompress,
+    openBuildTemplate: CmdExecute.openBuildTemplate,
+    closeBuildTemplate: CmdExecute.closeBuildTemplate,
+    saveHotUpdateConfig: CmdExecute.saveHotUpdateConfig,
+    genHotUpdateRes: CmdExecute.genHotUpdateRes,
 };
 
 /**

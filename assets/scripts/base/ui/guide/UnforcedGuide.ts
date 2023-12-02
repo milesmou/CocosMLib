@@ -1,6 +1,5 @@
-import { Node, _decorator, misc, v3 } from "cc";
+import { Component, Node, _decorator, misc, v3 } from "cc";
 import { App } from "../../../../mlib/App";
-import { MComponent } from "../../../../mlib/component/MComponent";
 import { UIBase } from "../../../../mlib/module/ui/manager/UIBase";
 import { EventKey } from "../../../base/GameEnum";
 import GameTable from "../../../base/GameTable";
@@ -12,8 +11,8 @@ type TUnforcedGuide = any;
 
 const { ccclass, property } = _decorator;
 
-@ccclass
-export default class UnforcedGuide extends MComponent {
+@ccclass('UnforcedGuide')
+export default class UnforcedGuide extends Component {
 
     @property(Node)
     private finger: Node = null;

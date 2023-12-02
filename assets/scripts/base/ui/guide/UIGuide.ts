@@ -1,8 +1,8 @@
 import { Node, Component, _decorator, Label, Prefab, Size, Tween, Vec3, instantiate, misc, tween, v3 } from 'cc';
 import { App } from '../../../../mlib/App';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
-import { AssetMgr } from '../../../../mlib/manager/AssetMgr';
-import { LoggerLevel, MLogger } from '../../../../mlib/module/logger/MLogger';
+import { AssetMgr } from '../../../../mlib/module/asset/AssetMgr';
+import { ELoggerLevel, MLogger } from '../../../../mlib/module/logger/MLogger';
 import { EventKey } from '../../../base/GameEnum';
 import GameTable from '../../../base/GameTable';
 import { UIConstant } from '../../../gen/UIConstant';
@@ -18,7 +18,7 @@ export class UIGuide extends Component {
 
     public static Inst: UIGuide;
 
-    _logger = new MLogger("Guide Log", LoggerLevel.Warn);
+    _logger = new MLogger("Guide Log", ELoggerLevel.Warn);
 
     @property(GuideMask)
     mask: GuideMask = null;

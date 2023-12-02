@@ -1,4 +1,5 @@
 import { Component, Enum, sys, view, _decorator } from 'cc';
+import { PREVIEW } from 'cc/env';
 const { ccclass, property } = _decorator;
 
 
@@ -39,6 +40,9 @@ export class SafeArea extends Component {
             safeAreaGap.bottom = rect.y;
             safeAreaGap.right = size.width - rect.width - rect.x;
             safeAreaGap.top = size.height - rect.height - rect.y;
+            if(PREVIEW){
+                safeAreaGap.top = 50;//预览时模拟有刘海
+            }
             SafeArea.safeAreaGap = safeAreaGap;
         }
 

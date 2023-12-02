@@ -8,6 +8,7 @@ const fs_extra_1 = __importDefault(require("fs-extra"));
 const cc_1 = require("cc");
 const CCUtil_1 = require("./tools/CCUtil");
 const MLogger_1 = require("./tools/MLogger");
+const SceneTool_1 = require("./tools/SceneTool");
 const Utils_1 = require("./tools/Utils");
 class IPropertyInfo {
 }
@@ -35,7 +36,7 @@ const CCTypes = [
 ];
 class GenProperty {
     static gen(uuid) {
-        let node = this.getNodeByUUid(uuid);
+        let node = SceneTool_1.SceneTool.getNodeByUUid(uuid);
         if (node) {
             let comp = node.getComponent(this.compName);
             if (comp) {
@@ -70,24 +71,6 @@ class GenProperty {
         fs_extra_1.default.writeFileSync(outFile, content);
         Utils_1.Utils.refreshAsset(outFile);
         MLogger_1.MLogger.info(`生成${className}成功`);
-    }
-    /** 获取选中的节点 */
-    static getNodeByUUid(uuid) {
-        let node = cc_1.director.getScene();
-        return this.findNodeInChildren(node, v => v.uuid == uuid);
-    }
-    static findNodeInChildren(node, predicate) {
-        if (node.children.length == 0)
-            return null;
-        for (const n of node.children) {
-            if (predicate(n))
-                return n;
-            else {
-                let nn = this.findNodeInChildren(n, predicate);
-                if (nn)
-                    return nn;
-            }
-        }
     }
     static getNodePath(n) {
         let arr = [];

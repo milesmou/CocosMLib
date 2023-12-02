@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs-extra";
 
 export class Config {
-    private static FilePath = path.join(__dirname, "./config.json");
+    private static FilePath = path.join(Editor.Project.path, "/settings/miles-editor-config.json");
 
     public static get data() {
         if (!fs.existsSync(this.FilePath)) {

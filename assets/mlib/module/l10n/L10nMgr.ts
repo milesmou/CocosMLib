@@ -2,7 +2,7 @@ import { Font, Label, RichText, Sprite, TTFFont } from "cc";
 import { MLogger } from "../logger/MLogger";
 import { IL10n } from "./IL10n";
 import { AssetHandler } from "../../component/AssetHandler";
-import { AssetMgr } from "../../manager/AssetMgr";
+import { AssetMgr } from "../asset/AssetMgr";
 import { App } from "../../App";
 import GameTable from "../../../scripts/base/GameTable";
 import { Utils } from "../../utils/Utils";

@@ -60,4 +60,4 @@ class Config {
     }
 }
 exports.Config = Config;
-Config.FilePath = path_1.default.join(__dirname, "./config.json");
+Config.FilePath = path_1.default.join(Editor.Project.path, "/settings/miles-editor-config.json");

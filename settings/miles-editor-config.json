@@ -1,0 +1,7 @@
+{
+    "build-template": false,
+    "hotupdate": {
+        "url": "/Channel/Dev/1.0.0/ResPkg",
+        "version": "1.0.0.1"
+    }
+}

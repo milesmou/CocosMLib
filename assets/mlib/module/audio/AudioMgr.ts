@@ -1,126 +1,69 @@
-import { AudioClip, AudioSource, Component, misc, Tween, tween, _decorator } from 'cc';
-import { AssetMgr } from './AssetMgr';
-import { StroageMgr } from './StroageMgr';
+import { AudioClip, AudioSource, Component, Director, Node, Tween, _decorator, director, misc, tween } from 'cc';
+import { EDITOR } from 'cc/env';
+import { AssetMgr } from '../asset/AssetMgr';
+import { StroageMgr } from '../../manager/StroageMgr';
+import { AudioState } from './AudioState';
+import { SortedMap } from './SortedMap';
 
 const { ccclass } = _decorator;
-
-class AudioState {
-    public constructor(location: string, audio: AudioSource, volumeScale: number) {
-        this.location = location;
-        this.audio = audio;
-        this.volumeScale = volumeScale;
-        this.audio.playOnAwake = false;
-    }
-    //音频地址
-    public location: string;
-
-    //音源组件
-    public audio: AudioSource;
-
-    //在全局音量基础上的音量缩放
-    public volumeScale: number;
-}
-
-/** 使用object模拟一个可以对key自动排序的Map */
-class SortedMap<T>
-{
-    private _map: { [key: string]: T } = {};
-
-    public get topKey() {
-        let keys = Object.keys(this._map);
-        if (keys.length > 0) return parseFloat(keys[keys.length - 1]);
-        return -1;
-    }
-
-    public get topValue() {
-        let topKey = this.topKey;
-        return this._map[topKey];
-    }
-
-    public isTopKey(key: number) {
-        let topKey = this.topKey;
-        if (topKey === undefined) return false;
-        return key == topKey;
-    }
-
-    public isTop(key: number, item: T) {
-        let topKey = this.topKey;
-        if (topKey === undefined) return false;
-        let topValue = this.topValue;
-        if (topValue === undefined) return false;
-        return key == topKey && item == topValue;
-    }
-
-    public get size() {
-        let keys = Object.keys(this._map);
-        return keys.length;
-    }
-
-    public clear() {
-        this._map = {};
-    }
-
-    public get(key: number) {
-
-        return this._map[key];
-    }
-
-    public set(key: number, item: T) {
-
-        this._map[key] = item;
-    }
-
-    public delete(key: number, item: T) {
-        let v = this._map[key];
-        if (item == v) delete this._map[key];
-    }
-
-    public hasKey(key: number) {
-        let v = this._map[key];
-        return Boolean(v);
-    }
-
-    public has(key: number, item: T) {
-        let v = this._map[key];
-        return item == v;
-    }
-
-    public forEach(predicate: (item: T, key: number) => void) {
-        for (const key in this._map) {
-            let v = this._map[key];
-            predicate && predicate(v, parseFloat(key));
-        }
-    }
-}
 
 /** 音频管理工具类 */
 @ccclass("AudioMgr")
 export class AudioMgr extends Component {
-    public static Inst: AudioMgr;
-    public mVolume: number = 1;
-    public eVolume: number = 1;
-    private sMusicVolume: string = "MusicVolume";
-    private sEffectVolume: string = "EffectVolume";
-    //当前音乐是否暂停
-    private pause = false;
+    /** 音频管理器场景上所在父节点 */
+    private static AudioMgrNode: Node;
+    /** 默认的音频管理器 */
+    public static Default: AudioMgr;
 
-    //音乐的音轨栈
+    public static addToScene() {
+        if (EDITOR) return;
+        let nodeName = "[AudioMgr]";
+        let scene = director.getScene();
+        if (!scene) return;
+        let node = scene.getChildByName(nodeName);
+        if (!node) {
+            node = new Node(nodeName);
+            scene.addChild(node);
+            director.addPersistRootNode(node);
+            this.AudioMgrNode = node;
+            this.Default = this.create("Default");
+        }
+    }
+
+    /** 创建一个音频管理器 */
+    public static create(name: string) {
+        let node = new Node(name);
+        this.AudioMgrNode.addChild(node);
+        return node.addComponent(AudioMgr);
+    }
+
+    private get sMusicVolume() { return "MusicVolume_" + this.node.name; }
+    private get sEffectVolume() { return "EffectVolume_" + this.node.name; };
+
+    /** 音乐音量 */
+    private _mVolume: number = 1;
+    public get mVolume() { return this._mVolume; }
+    /** 音效音量 */
+    private _eVolume: number = 1;
+    public get eVolume() { return this._eVolume; }
+    /** 当前音乐是否暂停 */
+    private _pause = false;
+    public get pause() { return this._pause; }
+
+    /** 音乐的音轨栈 */
     public stack: SortedMap<string> = new SortedMap<string>();
-    //音乐播放状态
+    /** 音乐播放状态 */
     public music: Map<string, AudioState> = new Map<string, AudioState>();
-    //单次播放音效的AudioSource
+    /** 单次播放音效的AudioSource */
     private effectOneShot: AudioSource;
-    //循环播放的音效
+    /** 循环播放的音效 */
     private loopEffect: AudioState[] = [];
 
-    public get isPlayingMusic() { return !this.pause; }
-
     onLoad() {
-        AudioMgr.Inst = this;
-        this.mVolume = StroageMgr.getValue(this.sMusicVolume, 1);
-        this.eVolume = StroageMgr.getValue(this.sEffectVolume, 1);
+        this._mVolume = StroageMgr.getValue(this.sMusicVolume, 1);
+        this._eVolume = StroageMgr.getValue(this.sEffectVolume, 1);
         this.effectOneShot = this.addComponent(AudioSource);
-        this.effectOneShot.volume = this.eVolume;
+        this.effectOneShot.volume = this._eVolume;
     }
 
     private musicGet(priority: number, audioName: string) {
@@ -160,7 +103,7 @@ export class AudioMgr extends Component {
         this.stack.set(priority, location); //加入栈中
         this.musicAdd(priority, location, audioState);
         if (audioState.audio?.isValid && audioState.audio.clip?.isValid) { //恢复音乐
-            if (this.stack.isTop(priority, location) && !this.pause) {
+            if (this.stack.isTop(priority, location) && !this._pause) {
                 this.fadeInMusic(fadeIn, audioState);
             }
         } else { //播放音乐
@@ -172,12 +115,12 @@ export class AudioMgr extends Component {
             }
             onLoadComplete && onLoadComplete(clip);
             audioState.audio.clip = clip;
-            audioState.audio.volume = this.mVolume * volumeScale;
+            audioState.audio.volume = this._mVolume * volumeScale;
             audioState.audio.loop = true;
             if (!this.stack.isTop(priority, location)) {//不是优先级最高的音乐暂停播放 
                 return;
             }
-            if (!this.pause) {
+            if (!this._pause) {
                 if (fadeIn > 0) {
                     audioState.audio.volume = 0;
                     audioState.audio.play();
@@ -203,7 +146,7 @@ export class AudioMgr extends Component {
             let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
             this.loopEffect.push(audioState);
             audioState.audio.clip = clip;
-            audioState.audio.volume = this.eVolume * volumeScale;
+            audioState.audio.volume = this._eVolume * volumeScale;
             audioState.audio.loop = true;
             audioState.audio.play();
             onStart && onStart(clip);
@@ -222,7 +165,7 @@ export class AudioMgr extends Component {
 
     /** 暂停恢复音乐 */
     pauseMusic(isPause: boolean, dur = 0) {
-        this.pause = isPause;
+        this._pause = isPause;
         if (this.stack.size > 0) {
             var audioState = this.musicGet(this.stack.topKey, this.stack.topValue);
             if (isPause) {
@@ -241,7 +184,7 @@ export class AudioMgr extends Component {
     //autoPlay 是否自动播放上一个音乐 默认为true
     //fadeIn 上一个音乐渐入时间
     //fadeOut 当前音乐渐出时间
-    stopMusic(location?: string, priority = 0, autoPlay = true, fadeIn = 0, fadeOut = 0) {
+    public stopMusic(location?: string, priority = 0, autoPlay = true, fadeIn = 0, fadeOut = 0) {
         let isTop = false;
         if (location === undefined) {
             isTop = true;
@@ -257,7 +200,7 @@ export class AudioMgr extends Component {
             this.musicRemove(priority, location);
         }
         //恢复上一个音乐
-        if (autoPlay && isTop && !this.pause) {
+        if (autoPlay && isTop && !this._pause) {
             this.pauseMusic(false, fadeIn);
         }
     }
@@ -320,8 +263,8 @@ export class AudioMgr extends Component {
             }
         }
 
-        this.mVolume = volume;
-        StroageMgr.setValue(this.sMusicVolume, this.mVolume);
+        this._mVolume = volume;
+        StroageMgr.setValue(this.sMusicVolume, this._mVolume);
     }
 
     /** 设置音效音量 */
@@ -331,8 +274,8 @@ export class AudioMgr extends Component {
             if (v.audio) v.audio.volume = v.volumeScale * volume;
         });
         this.effectOneShot.volume = volume;
-        this.eVolume = volume;
-        StroageMgr.setValue(this.sEffectVolume, this.eVolume);
+        this._eVolume = volume;
+        StroageMgr.setValue(this.sEffectVolume, this._eVolume);
     }
 
     private fadeInMusic(dur: number, audioState: AudioState) {
@@ -340,7 +283,7 @@ export class AudioMgr extends Component {
         if (dur > 0) {
             audioState.audio.volume = 0;
             audioState.audio.play();
-            tween(audioState.audio).to(dur, { volume: audioState.volumeScale * this.mVolume }).start();
+            tween(audioState.audio).to(dur, { volume: audioState.volumeScale * this._mVolume }).start();
         }
         else {
             audioState.audio.play();
@@ -374,3 +317,4 @@ export class AudioMgr extends Component {
 
 }
 
+director.on(Director.EVENT_AFTER_SCENE_LAUNCH, AudioMgr.addToScene.bind(AudioMgr));

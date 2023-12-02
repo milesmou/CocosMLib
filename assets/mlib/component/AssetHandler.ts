@@ -1,5 +1,5 @@
 import { Asset, ImageAsset, Node, Sprite, SpriteFrame } from "cc";
-import { AssetMgr } from "../manager/AssetMgr";
+import { AssetMgr } from "../module/asset/AssetMgr";
 
 
 export class AssetHandler {
@@ -37,10 +37,6 @@ export class AssetHandler {
         return asset as T;
     }
 
-    async loadSpriteFrame(location: string) {
-        return await this.loadAsset<SpriteFrame>(location, SpriteFrame);
-    }
-
     async loadRemoteSpriteFrame(url: string) {
         let img = await this.loadRemoteAsset<ImageAsset>(url);
         if (img) {
@@ -63,7 +59,7 @@ export class AssetHandler {
             let spFrame = await this.loadRemoteSpriteFrame(location);
             sprite.spriteFrame = spFrame;
         } else {
-            let spFrame = await this.loadSpriteFrame(location);
+            let spFrame = await this.loadAsset<SpriteFrame>(location, SpriteFrame);
             sprite.spriteFrame = spFrame;
         }
     }

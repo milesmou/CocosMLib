@@ -1,17 +1,17 @@
-import { Asset, Component, Enum, _decorator, director, js, sys } from 'cc';
+import { Component, Enum, _decorator, director, js, sys } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { EChannel, Publish } from '../scripts/base/publish/Publish';
-import { Channel } from "./sdk/Channel";
-import { AudioMgr } from "./manager/AudioMgr";
-import { EventMgr } from "./module/event/EventMgr";
 import { PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
-import { UIMgr } from "./module/ui/manager/UIMgr";
-import { MLogger } from './module/logger/MLogger';
-import { SingletonFactory } from './utils/SingletonFactory';
 import { TimeMgr } from './manager/TimeMgr';
+import { AudioMgr } from "./module/audio/AudioMgr";
+import { EventMgr } from "./module/event/EventMgr";
 import { L10nMgr } from './module/l10n/L10nMgr';
+import { MLogger } from './module/logger/MLogger';
+import { UIMgr } from "./module/ui/manager/UIMgr";
+import { Channel } from "./sdk/Channel";
+import { SingletonFactory } from './utils/SingletonFactory';
 
 const ELanguage = Enum({
     Auto: 0,
@@ -55,6 +55,8 @@ export class App extends Component {
         type: EChannel
     })
     private channelId = EChannel.Dev;
+    private channelEnum = EChannel;//给插件使用的
+
     @property({
         displayName: "版本",
         tooltip: "整包使用3位版本号(x.x.x),补丁包使用4位版本号(x.x.x.x)\n与远程资源相关的都只会使用前3位版本号"
@@ -107,9 +109,9 @@ export class App extends Component {
         MLogger.print(`Channel=${App.config.channel}|${js.getClassName(App.chan)} Version=${App.config.version} Language=${App.lang}`);
     }
 
-    
+
     start() {
-        App.audio = AudioMgr.Inst;
+        App.audio = AudioMgr.Default;
         App.ui = UIMgr.Inst;
     }
 

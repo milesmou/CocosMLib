@@ -32,6 +32,42 @@
                 "methods": [
                     "autoGenProperty"
                 ]
+            },
+            "closeTexCompress": {
+                "public": false,
+                "methods": [
+                    "closeTexCompress"
+                ]
+            },
+            "setTexCompress": {
+                "public": false,
+                "methods": [
+                    "setTexCompress"
+                ]
+            },
+            "openBuildTemplate": {
+                "public": false,
+                "methods": [
+                    "openBuildTemplate"
+                ]
+            },
+            "closeBuildTemplate": {
+                "public": false,
+                "methods": [
+                    "closeBuildTemplate"
+                ]
+            },
+            "saveHotUpdateConfig": {
+                "public": false,
+                "methods": [
+                    "saveHotUpdateConfig"
+                ]
+            },
+            "genHotUpdateRes": {
+                "public": false,
+                "methods": [
+                    "genHotUpdateRes"
+                ]
             }
         },
         "menu": [
@@ -58,6 +94,42 @@
                 "label": "生成属性",
                 "icon": "./static/icon.png",
                 "message": "autoGenProperty"
+            },
+            {
+                "path": "MTools/纹理压缩",
+                "label": "关闭纹理压缩",
+                "icon": "./static/icon.png",
+                "message": "closeTexCompress"
+            },
+            {
+                "path": "MTools/纹理压缩",
+                "label": "设置纹理压缩方案",
+                "icon": "./static/icon.png",
+                "message": "setTexCompress"
+            },
+            {
+                "path": "MTools/构建模板",
+                "label": "启用",
+                "icon": "./static/icon.png",
+                "message": "openBuildTemplate"
+            },
+            {
+                "path": "MTools/构建模板",
+                "label": "禁用",
+                "icon": "./static/icon.png",
+                "message": "closeBuildTemplate"
+            },
+            {
+                "path": "MTools/热更",
+                "label": "保存热更配置",
+                "icon": "./static/icon.png",
+                "message": "saveHotUpdateConfig"
+            },
+            {
+                "path": "MTools/热更",
+                "label": "生成热更资源",
+                "icon": "./static/icon.png",
+                "message": "genHotUpdateRes"
             }
         ],
         "shortcuts": [
@@ -90,5 +162,4 @@
         "build": "tsc -b",
         "watch": "tsc -w"
     }
-    
 }

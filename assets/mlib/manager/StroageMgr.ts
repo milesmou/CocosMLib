@@ -2,7 +2,7 @@ import { sys, tween } from "cc";
 import { InventoryItemSO } from "../misc/PlayerInventory";
 import { TaskItemSO } from "../misc/PlayerTask";
 import { Utils } from "../utils/Utils";
-import { LZString } from "../thirdPart/lzstring/LZString";
+import { LZString } from "../third/lzstring/LZString";
 import { MLogger } from "../module/logger/MLogger";
 
 

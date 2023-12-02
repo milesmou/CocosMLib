@@ -264,4 +264,4 @@ export class TimeMgr extends Component {
 
 }
 
-director.on(Director.EVENT_AFTER_SCENE_LAUNCH, TimeMgr.addToScene);
+director.on(Director.EVENT_AFTER_SCENE_LAUNCH, TimeMgr.addToScene.bind(TimeMgr));

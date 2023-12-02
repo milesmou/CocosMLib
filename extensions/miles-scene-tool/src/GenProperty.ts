@@ -1,8 +1,9 @@
 import fs from "fs-extra";
 
-import { Component, Node, director, js } from "cc";
+import { Component, Node, js } from "cc";
 import { CCUtils } from "./tools/CCUtil";
 import { MLogger } from "./tools/MLogger";
+import { SceneTool } from "./tools/SceneTool";
 import { Utils } from "./tools/Utils";
 
 
@@ -53,7 +54,7 @@ export class GenProperty {
     private static prefix = "$";
 
     public static gen(uuid: string) {
-        let node = this.getNodeByUUid(uuid);
+        let node = SceneTool.getNodeByUUid(uuid);
         if (node) {
             let comp = node.getComponent(this.compName);
             if (comp) {
@@ -93,22 +94,6 @@ export class GenProperty {
         MLogger.info(`生成${className}成功`);
     }
 
-    /** 获取选中的节点 */
-    private static getNodeByUUid(uuid: string) {
-        let node = director.getScene();
-        return this.findNodeInChildren(node, v => v.uuid == uuid);
-    }
-
-    private static findNodeInChildren(node: Node, predicate: (child: Node) => boolean) {
-        if (node.children.length == 0) return null;
-        for (const n of node.children) {
-            if (predicate(n)) return n;
-            else {
-                let nn = this.findNodeInChildren(n, predicate);
-                if (nn) return nn;
-            }
-        }
-    }
 
     private static getNodePath(n: Node) {
         let arr: string[] = [];

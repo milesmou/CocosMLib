@@ -72,7 +72,7 @@ export class UIAudioMgr extends UIBase {
 
 
     playOrPauseMusic() {
-        if (App.audio.isPlayingMusic) {
+        if (App.audio.pause) {
             App.audio.pauseMusic(true);
         } else {
             App.audio.pauseMusic(false);

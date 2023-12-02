@@ -1,6 +1,6 @@
 import { Component, Enum, _decorator, game, sys } from "cc";
 import { Channel } from "../../../mlib/sdk/Channel";
-import { LoggerLevel, MLogger } from "../../../mlib/module/logger/MLogger";
+import { ELoggerLevel, MLogger } from "../../../mlib/module/logger/MLogger";
 
 const { ccclass, property } = _decorator;
 
@@ -10,7 +10,7 @@ export const EChannel = Enum({
     Trial: 1,
 });
 
-const LogLevel = Enum(LoggerLevel);
+const LogLevel = Enum(ELoggerLevel);
 
 /** 项目发布相关的配置和处理 */
 @ccclass("Publish")

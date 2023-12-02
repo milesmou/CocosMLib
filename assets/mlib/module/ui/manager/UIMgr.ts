@@ -11,7 +11,7 @@ import { EventMgr } from '../../event/EventMgr';
 import { L10nMgr } from '../../l10n/L10nMgr';
 import { MLogger } from '../../logger/MLogger';
 import { Utils } from '../../../utils/Utils';
-import { AssetMgr } from '../../../manager/AssetMgr';
+import { AssetMgr } from '../../asset/AssetMgr';
 
 @ccclass
 export class UIMgr extends Component {

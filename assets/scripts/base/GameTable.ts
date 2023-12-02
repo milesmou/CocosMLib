@@ -1,5 +1,5 @@
 import { JsonAsset } from 'cc';
-import { AssetMgr } from '../../mlib/manager/AssetMgr';
+import { AssetMgr } from '../../mlib/module/asset/AssetMgr';
 import { SingletonFactory } from '../../mlib/utils/SingletonFactory';
 import { Tables } from '../gen/table/Types';
 /**

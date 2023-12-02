@@ -1,7 +1,7 @@
 
 import { _decorator, tween } from 'cc';
 import { App } from '../../../mlib/App';
-import { AssetMgr } from '../../../mlib/manager/AssetMgr';
+import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../../gen/UIConstant';
 import { UIHUDProperty } from '../../gen/property/UIHUDProperty';
@@ -18,10 +18,9 @@ export class UIHUD extends UIBase {
     onLoad() {
         super.onLoad();
         this.property = new UIHUDProperty(this.node);
-        console.log(this.property.node222Tf);
-        
 
-        
+
+
         // this.property.n
         // Utils.loadSprite(this.bg1, "texture/bg1");
         // Utils.loadSprite(this.bg1,"https://yourdomain.com/1.jpg");
@@ -34,24 +33,26 @@ export class UIHUD extends UIBase {
             },
         }).start();
 
-        console.log(AssetMgr.projectBundles);
         console.log(GameData.Inst.getSerializeStr());
     }
 
-    onClickAudioMgr() {
-        App.ui.show(UIConstant.UIAudioMgr);
+    protected onClickButton(btnName: string): void {
+        switch (btnName) {
+            case "AudioMgr":
+                App.ui.show(UIConstant.UIAudioMgr);
+                break;
+            case "UIMgr":
+                App.ui.show(UIConstant.UIUIMgr);
+                break;
+            case "Guide":
+                App.ui.show(UIConstant.UIGuideTest1);
+                break;
+            case "ButtonHelper":
+                App.ui.show(UIConstant.UIButtonHelper);
+                break;
+        }
     }
 
-    onClickUIMgr() {
-        App.ui.show(UIConstant.UIUIMgr);
-    }
-
-    onClickGuide() {
-        App.ui.show(UIConstant.UIGuideTest1);
-    }
-    onClickButtonHelper() {
-        App.ui.show(UIConstant.UIButtonHelper);
-    }
 }
 
 
