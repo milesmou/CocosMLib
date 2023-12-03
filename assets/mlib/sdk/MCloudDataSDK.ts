@@ -8,13 +8,7 @@ export class MCloudDataSDK {
     private static readonly EventHost = "https://zeroplay.cn/gevent/reportevt";
     private static readonly DataHost = "https://zeroplay.cn/gdata/gamedata";
 
-    private static code: string;
-    private static get GameCode() {
-        if (!this.code) {
-            this.code = App.config.projectName + "_" + App.config.channel
-        }
-        return this.code;
-    };
+    public static GameCode: string;
 
     /** 上传存档数据 */
     public static async saveGameData(uid: string, key: string, data: string, commit = "") {

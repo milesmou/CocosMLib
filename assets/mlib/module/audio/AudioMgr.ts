@@ -1,13 +1,13 @@
 import { AudioClip, AudioSource, Component, Director, Node, Tween, _decorator, director, misc, tween } from 'cc';
-import { EDITOR } from 'cc/env';
-import { AssetMgr } from '../asset/AssetMgr';
+import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 import { StroageMgr } from '../../manager/StroageMgr';
+import { AssetMgr } from '../asset/AssetMgr';
 import { AudioState } from './AudioState';
 import { SortedMap } from './SortedMap';
 
 const { ccclass } = _decorator;
 
-/** 音频管理工具类 */
+/** 音频管理类 可以创建多个*/
 @ccclass("AudioMgr")
 export class AudioMgr extends Component {
     /** 音频管理器场景上所在父节点 */
@@ -16,7 +16,7 @@ export class AudioMgr extends Component {
     public static Default: AudioMgr;
 
     public static addToScene() {
-        if (EDITOR) return;
+        if (EDITOR_NOT_IN_PREVIEW) return;
         let nodeName = "[AudioMgr]";
         let scene = director.getScene();
         if (!scene) return;

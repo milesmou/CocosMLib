@@ -1,11 +1,13 @@
-import { Font, Label, RichText, Sprite, TTFFont } from "cc";
-import { MLogger } from "../logger/MLogger";
-import { IL10n } from "./IL10n";
-import { AssetHandler } from "../../component/AssetHandler";
-import { AssetMgr } from "../asset/AssetMgr";
-import { App } from "../../App";
+import { Font, Label, RichText, Sprite, TTFFont, sys } from "cc";
 import GameTable from "../../../scripts/base/GameTable";
+import { App } from "../../App";
+import { AssetHandler } from "../../component/AssetHandler";
+import { StroageMgr } from "../../manager/StroageMgr";
 import { Utils } from "../../utils/Utils";
+import { AssetMgr } from "../asset/AssetMgr";
+import { MLogger } from "../logger/MLogger";
+import { ELanguage, ELanguageCode } from "./ELanguage";
+import { IL10n } from "./IL10n";
 
 
 /** 组件托管时的参数 */
@@ -18,6 +20,7 @@ class CompManagedArgs {
 
 /** 多语言管理器 */
 export class L10nMgr {
+
     private static font: Font | TTFFont;
     private static lastFont: Font | TTFFont;
     private static get fontPath() { return `${App.lang}/font`; }
@@ -30,8 +33,34 @@ export class L10nMgr {
         await this.loadFont();
     }
 
-    /** 切换多语言 */
-    public static async switchLanguage() {
+    /** 获取语言环境 */
+    public static getLanguage(languageId: number): ELanguageCode {
+        let v: ELanguageCode = ELanguageCode.ChineseSimplified;
+        if (languageId == ELanguage.Auto) {
+            let code = StroageMgr.getValue(StroageMgr.UserLanguageCodeKey, "");
+            if (code) {
+                v = code as ELanguageCode;
+            }
+            else {
+                if (sys.languageCode == "zh") v = ELanguageCode.ChineseSimplified;
+                else if (sys.languageCode.startsWith("zh")) v = ELanguageCode.ChineseTraditional;
+                else v = ELanguageCode.English;
+            }
+        } else if (languageId == ELanguage.SimplifiedChinese) {
+            v = ELanguageCode.ChineseSimplified;
+        } else if (languageId == ELanguage.TraditionalChinese) {
+            v = ELanguageCode.ChineseTraditional;
+        } else {
+            v = ELanguageCode.English;
+        }
+        return v;
+    }
+
+    /** 切换语言 */
+    public static async switchLanguage(languageCode: ELanguageCode) {
+        if (App.lang == languageCode) return;
+        App.lang = languageCode;
+        StroageMgr.setValue(StroageMgr.UserLanguageCodeKey, App.lang);
         await this.loadFont();
         this.reload();
     }
@@ -146,7 +175,7 @@ export class L10nMgr {
     /** 为图片组件设置图片 */
     public static setSpriteFrameByKey(sprite: Sprite, key: string, assetHandler?: AssetHandler) {
         let location = `${App.lang}/${key}`;
-        if (assetHandler?.isValid) {
+        if (assetHandler) {
             assetHandler.loadSprite(sprite, location);
         } else {
             AssetMgr.loadSprite(sprite, location);

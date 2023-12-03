@@ -1,30 +1,20 @@
-import { Component, Enum, _decorator, director, js, sys } from 'cc';
+import { Component, Enum, _decorator, director, js } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { EChannel, Publish } from '../scripts/base/publish/Publish';
 import { PoolMgr } from "./manager/PoolMgr";
 import { StroageMgr } from "./manager/StroageMgr";
-import { TimeMgr } from './manager/TimeMgr';
+import { TimerMgr } from './module/timer/TimerMgr';
 import { AudioMgr } from "./module/audio/AudioMgr";
 import { EventMgr } from "./module/event/EventMgr";
+import { ELanguage, ELanguageCode } from './module/l10n/ELanguage';
 import { L10nMgr } from './module/l10n/L10nMgr';
 import { MLogger } from './module/logger/MLogger';
 import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 import { SingletonFactory } from './utils/SingletonFactory';
 
-const ELanguage = Enum({
-    Auto: 0,
-    SimplifiedChinese: 1,
-    TraditionalChinese: 2,
-    English: 3,
-})
 
-enum LanguageCode {
-    ChineseSimplified = "sc",
-    ChineseTraditional = "tc",
-    English = "en"
-}
 
 export const EGameConfigType = Enum({
     Local: 0,
@@ -55,7 +45,7 @@ export class App extends Component {
         type: EChannel
     })
     private channelId = EChannel.Dev;
-    private channelEnum = EChannel;//给插件使用的
+    private channelEnum = EChannel;//给插件使用的，不要移除
 
     @property({
         displayName: "版本",
@@ -80,10 +70,10 @@ export class App extends Component {
         projectName: string, gameConfigType: number, gameConfigUrl: string, remoteResUrl: string,
         hotupdate: boolean, channel: string, version: string, mainVersion: string
     }
-    public static lang: LanguageCode;
+    public static lang: ELanguageCode;
     public static chan: Channel;
     //manager
-    public static time: TimeMgr;
+    public static time: TimerMgr;
     public static stroage = StroageMgr;
     public static event = EventMgr;
     public static pool = PoolMgr;
@@ -104,8 +94,8 @@ export class App extends Component {
             version: this.version,
             mainVersion: this.getMainVersion()
         };
-        App.lang = this.getLanguage();
-        App.chan = Publish.getChannelInstance(this.channelId);
+        App.lang = L10nMgr.getLanguage(this.languageId);
+        App.chan = Publish.getChannelInstance(this.channelId, "HeroFactory_" + App.config.channel);
         MLogger.print(`Channel=${App.config.channel}|${js.getClassName(App.chan)} Version=${App.config.version} Language=${App.lang}`);
     }
 
@@ -120,36 +110,7 @@ export class App extends Component {
     }
 
 
-    /** 获取语言环境 */
-    private getLanguage(): LanguageCode {
-        let v: LanguageCode = LanguageCode.ChineseSimplified;
-        if (this.languageId == ELanguage.Auto) {
-            let code = StroageMgr.getValue(StroageMgr.UserLanguageCodeKey, "");
-            if (code) {
-                v = code as LanguageCode;
-            }
-            else {
-                if (sys.languageCode == "zh") v = LanguageCode.ChineseSimplified;
-                else if (sys.languageCode.startsWith("zh")) v = LanguageCode.ChineseTraditional;
-                else v = LanguageCode.English;
-            }
-        } else if (this.languageId == ELanguage.SimplifiedChinese) {
-            v = LanguageCode.ChineseSimplified;
-        } else if (this.languageId == ELanguage.TraditionalChinese) {
-            v = LanguageCode.ChineseTraditional;
-        } else {
-            v = LanguageCode.English;
-        }
-        return v;
-    }
 
-    /** 切换语言 */
-    public static switchLanguage(languageCode: LanguageCode) {
-        if (App.lang == languageCode) return;
-        App.lang = languageCode;
-        StroageMgr.setValue(StroageMgr.UserLanguageCodeKey, App.lang);
-        App.l10n.switchLanguage();
-    }
 
     /** 主版本号 取前三位 */
     private getMainVersion() {

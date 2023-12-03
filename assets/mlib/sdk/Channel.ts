@@ -6,6 +6,10 @@ import { ShopUtil } from '../../scripts/base/ShopUtil';
 import { sys } from 'cc';
 
 export class Channel {
+
+    /** 游戏名_渠道名 */
+    public gameCode: string;
+
     /** 用户id */
     public userId: string;
 
@@ -23,7 +27,7 @@ export class Channel {
 
     /** 初始化SDK相关的事件 */
     initEvent() {
-
+        MCloudDataSDK.GameCode = this.gameCode;
     }
 
     /** 初始化内购 */

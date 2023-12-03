@@ -26,8 +26,6 @@ export class Publish extends Component {
         displayName: "日志级别"
     })
     private logLevel = LogLevel.Info;
-    //在这里SDK相关参数
-
 
     protected onLoad(): void {
         if (this.frameRate > 0) game.frameRate = this.frameRate;
@@ -35,12 +33,13 @@ export class Publish extends Component {
         MLogger.setLevel(this.logLevel);
     }
 
-    public static getChannelInstance(platformId: number): Channel {
+    public static getChannelInstance(channelId: number, gameCode: string): Channel {
         let chan: Channel;
         if (sys.platform == sys.Platform.ANDROID) {
 
         }
         chan = chan || new Channel();
+        chan.gameCode = gameCode;
         chan.initSDK();
         return chan;
     }
