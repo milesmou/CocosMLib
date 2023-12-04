@@ -6,12 +6,12 @@ import { EventKey } from '../../../../scripts/base/GameEnum';
 import { UITipMsg } from '../../../../scripts/base/ui/UITipMsg';
 import { UIGuide } from '../../../../scripts/base/ui/guide/UIGuide';
 import { UIConstant } from '../../../../scripts/gen/UIConstant';
-import { EPassiveType, UIBase } from "./UIBase";
+import { Utils } from '../../../utils/Utils';
+import { AssetMgr } from '../../asset/AssetMgr';
 import { EventMgr } from '../../event/EventMgr';
 import { L10nMgr } from '../../l10n/L10nMgr';
 import { MLogger } from '../../logger/MLogger';
-import { Utils } from '../../../utils/Utils';
-import { AssetMgr } from '../../asset/AssetMgr';
+import { EPassiveType, UIBase } from "./UIBase";
 
 @ccclass
 export class UIMgr extends Component {
@@ -32,8 +32,12 @@ export class UIMgr extends Component {
     public defaultSprite: SpriteFrame = null;
     /** UI的缓存Dict */
     private uiDict: Map<string, UIBase> = new Map();
+    /** 实时的UI栈 */
+    private uiNameStack: string[] = [];
     /** 加载完成的UI栈 */
     private uiStack: UIBase[] = [];
+    /** 实时的子UI栈 */
+    private subUINameStack: string[] = [];
     /** 加载完成的子UI栈 */
     private subUIStack: UIBase[] = [];
 
@@ -67,17 +71,14 @@ export class UIMgr extends Component {
         AssetMgr.loadAsset("DefaultSprite/spriteFrame", SpriteFrame).then(sp => {
             this.defaultSprite = sp;
         });
-        //添加提示信息界面
-        // this.instNode(UIConstant.UITipMsg, this.resident).then(n => {
-        //     this.tipMsg = n.getComponent(UITipMsg);
-        // });
+
     }
 
-    /** 初始化 */
-    public async init() {
-        //添加引导ui
-        // this.guide = (await this.instNode(UIConstant.UIGuide, this.resident)).getComponent(UIGuide);
-        // this.tipMsg.node.setSiblingIndex(99999);
+    async init() {
+        // 添加提示信息界面
+        this.instNode(UIConstant.UITipMsg, this.resident).then(n => {
+            this.tipMsg = n.getComponent(UITipMsg);
+        });
     }
 
     public async show<T extends UIBase>(uiName: string, obj: { args?: any, blockTime?: number, parent?: Node, playAnim?: boolean, visible?: boolean } = {}): Promise<T> {
@@ -85,6 +86,13 @@ export class UIMgr extends Component {
         blockTime = blockTime === undefined ? 0.2 : blockTime;
         playAnim = playAnim === undefined ? true : visible;
         visible = visible === undefined ? true : visible;
+        if (!parent) {//主UI
+            Utils.delItemFromArray(this.uiNameStack, uiName);
+            if (visible) this.uiNameStack.push(uiName);
+        } else {//子UI
+            Utils.delItemFromArray(this.uiNameStack, uiName);
+            if (visible) this.subUINameStack.push(uiName);
+        }
         this.checkShowUI(uiName);
         this.blockTime = blockTime;
         EventMgr.emit(EventKey.OnUIInitBegin, uiName);
@@ -116,6 +124,8 @@ export class UIMgr extends Component {
 
     public async hide(uiName: string, blockTime = 0.2, fastHide = false): Promise<void> {
         this.blockTime = blockTime;
+        Utils.delItemFromArray(this.uiNameStack, uiName);
+        Utils.delItemFromArray(this.subUINameStack, uiName);
         let ui = this.uiDict.get(uiName);
         if (!ui?.isValid) return;
         let hideUI = () => {
@@ -236,11 +246,17 @@ export class UIMgr extends Component {
         return this.uiArgs.get(uiName);
     }
 
-    public isTopUI(uiName: string) {
-        if (this.uiStack.length == 0 && this.subUIStack.length == 0) return false;
-        let ui = this.uiDict.get(uiName);
-        if (!ui?.isValid) return false;
-        return this.uiStack[this.uiStack.length - 1] == ui || this.subUIStack[this.subUIStack.length - 1] == ui;
+    /** 判断是否最上层UI isRealTime true:实时的,调用show方法瞬间即生效 false:ui加载完成才生效 */
+    public isTopUI(uiName: string, isRealTime = false) {
+        if (isRealTime) {
+            if (this.uiNameStack.length == 0 && this.subUINameStack.length == 0) return false;
+            return this.uiNameStack[this.uiNameStack.length - 1] == uiName || this.subUINameStack[this.subUINameStack.length - 1] == uiName;
+        } else {
+            if (this.uiStack.length == 0 && this.subUIStack.length == 0) return false;
+            let ui = this.uiDict.get(uiName);
+            if (!ui?.isValid) return false;
+            return this.uiStack[this.uiStack.length - 1] == ui || this.subUIStack[this.subUIStack.length - 1] == ui;
+        }
     }
 
     public getUI<T extends UIBase>(name: string) {

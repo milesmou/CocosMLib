@@ -1,4 +1,4 @@
-import { Animation, BlockInputEvents, Button, Color, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, js, tween, view } from "cc";
+import { Animation, BlockInputEvents, Button, Color, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, js, tween, view } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
 import { EventKey } from "../../../../scripts/base/GameEnum";
@@ -26,7 +26,7 @@ export enum EPassiveType {
 
 @ccclass("UIBase")
 @requireComponent(UIOpacity)
-export  class UIBase extends GenProperty {
+export class UIBase extends GenProperty {
     @property({
         displayName: "销毁",
         tooltip: "UI关闭时销毁"
@@ -103,17 +103,21 @@ export  class UIBase extends GenProperty {
         if (this.node.children[0].name == "shade") {
             this.shadeNode = this.node.children[0];
         } else {
-            let shade = new Node("shade");
-            shade.parent = this.node;
-            shade.setSiblingIndex(0);
+            this.shadeNode = new Node("shade");
+            this.shadeNode.layer = Layers.Enum.UI_2D;
+            this.shadeNode.parent = this.node;
+            this.shadeNode.addComponent(UITransform).setContentSize(view.getVisibleSize());
+            this.shadeNode.addComponent(UIOpacity);
+            this.shadeNode.setSiblingIndex(0);
             let imgNode = new Node("img");
             imgNode.layer = Layers.Enum.UI_2D;
-            imgNode.parent = shade;
-            imgNode.addComponent(UITransform).setContentSize(view.getVisibleSize());
-            imgNode.addComponent(UIOpacity).opacity = 150;
+            imgNode.parent = this.shadeNode;
+            let trans = imgNode.addComponent(UITransform)
             let sp = imgNode.addComponent(Sprite);
+            sp.sizeMode = Sprite.SizeMode.CUSTOM;
             sp.spriteFrame = App.ui.defaultSprite;
-            sp.color = Color.BLACK;
+            sp.color = color(0, 0, 0, 150);
+            trans.setContentSize(view.getVisibleSize());
         }
     }
 

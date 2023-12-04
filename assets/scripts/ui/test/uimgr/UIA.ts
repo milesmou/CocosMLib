@@ -10,23 +10,26 @@ const { ccclass, property } = _decorator;
 export class UIA extends UIBase {
 
     @property(Label)
-    label!: Label;
+    label: Label;
 
     onShow() {
         this.label.string = `由${this.args}打开`;
     }
 
-    onClick() {
-        this.safeClose();
-    }
+    protected onClickButton(btnName: string): void {
+        switch (btnName) {
+            case "OpenA":
+                App.ui.show(UIConstant.UIA, { args: "A" });
+                break;
+            case "OpenB":
+                App.ui.show(UIConstant.UIB, { args: "A" });
+                break;
+            case "OpenC":
+                App.ui.show(UIConstant.UIC, { args: "A" });
+                break;
 
-    showUI(evt: TouchEvent, data: string) {
-        if (data == "A") {
-            App.ui.show(UIConstant.UIA, { args: "A" });
-        } else if (data == "B") {
-            App.ui.show(UIConstant.UIB, { args: "A" });
-        } else if (data == "C") {~
-            App.ui.show(UIConstant.UIC, { args: "A" });
+            default:
+                break;
         }
     }
 

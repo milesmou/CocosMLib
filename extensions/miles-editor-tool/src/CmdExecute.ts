@@ -11,7 +11,7 @@ export class CmdExecute {
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
         fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles");//资源包目录
         fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization");//资源包目录
         fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/sc");//资源包目录
