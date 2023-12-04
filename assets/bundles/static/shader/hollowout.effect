@@ -103,7 +103,7 @@ CCProgram sprite-fs %{
     vec4 color1 = o;
 
   #if USE_TEXTURE
-          // 边缘处理
+    // 边缘处理
     float x = uv0.x;
     float y = uv0.y;
     float ratio = size.x / size.y;
