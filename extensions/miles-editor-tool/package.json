@@ -8,6 +8,13 @@
     "main": "./dist/main.js",
     "contributions": {
         "builder": "./dist/builder.js",
+        "inspector":{
+            "section": {
+                "node": {
+                    "MToggle": "./dist_origin/inspector/mtoggle.js"
+                }
+            }
+        },
         "messages": {
             "formatProject": {
                 "public": false,

@@ -1,5 +1,6 @@
 import { CmdExecute } from "./CmdExecute";
 import { HotUpdate } from "./postbuild/HotUpdate";
+import { SceneCmdExecute } from "./scene/SceneCmdExecute";
 
 
 /**
@@ -10,14 +11,15 @@ export const methods: { [key: string]: (...any: any) => any } = {
     loadExcel: CmdExecute.loadExcel,
     genConst: CmdExecute.genConst,
     formatProject: CmdExecute.formatProject,
-    autoGenProperty: CmdExecute.autoGenProperty,
-    replaceComponent: CmdExecute.replaceComponent,
     closeTexCompress: CmdExecute.closeTexCompress,
     setTexCompress: CmdExecute.setTexCompress,
     openBuildTemplate: CmdExecute.openBuildTemplate,
     closeBuildTemplate: CmdExecute.closeBuildTemplate,
-    saveHotUpdateConfig: CmdExecute.saveHotUpdateConfig,
     genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
+    //场景操作命令
+    autoGenProperty: SceneCmdExecute.autoGenProperty,
+    replaceComponent: SceneCmdExecute.replaceComponent,
+    saveHotUpdateConfig: SceneCmdExecute.saveHotUpdateConfig,
 };
 
 /**

@@ -23,7 +23,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 59
+      "__id__": 61
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -54,7 +54,7 @@
     },
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 60
+      "__id__": 62
     },
     "_id": "0e09b2b3-90f0-4f74-802f-17a05e082e6a"
   },
@@ -69,15 +69,18 @@
     "_children": [
       {
         "__id__": 3
+      },
+      {
+        "__id__": 57
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 57
+        "__id__": 59
       },
       {
-        "__id__": 58
+        "__id__": 60
       }
     ],
     "_prefab": null,
@@ -1787,6 +1790,73 @@
     "_id": "5bPMaX08RBN5uu3nqbHZMe"
   },
   {
+    "__type__": "cc.Node",
+    "_name": "Node",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 2
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 58
+      }
+    ],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "e0Z1n+7cBEko8LwwFGZskw"
+  },
+  {
+    "__type__": "cc.UITransform",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 57
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_contentSize": {
+      "__type__": "cc.Size",
+      "width": 100,
+      "height": 100
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0.5,
+      "y": 0.5
+    },
+    "_id": "f8ruMzk+9OLZioIE3L0y9n"
+  },
+  {
     "__type__": "30fec63FU9N+5PtIGQSi1la",
     "_name": "",
     "_objFlags": 0,
@@ -1829,28 +1899,28 @@
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 61
-    },
-    "shadows": {
-      "__id__": 62
-    },
-    "_skybox": {
       "__id__": 63
     },
-    "fog": {
+    "shadows": {
       "__id__": 64
     },
-    "octree": {
+    "_skybox": {
       "__id__": 65
     },
-    "skin": {
+    "fog": {
       "__id__": 66
     },
-    "lightProbeInfo": {
+    "octree": {
       "__id__": 67
     },
-    "postSettings": {
+    "skin": {
       "__id__": 68
+    },
+    "lightProbeInfo": {
+      "__id__": 69
+    },
+    "postSettings": {
+      "__id__": 70
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false

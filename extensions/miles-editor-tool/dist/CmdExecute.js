@@ -125,28 +125,6 @@ class CmdExecute {
             MLogger_1.MLogger.print("生成UIConstant成功");
         }
     }
-    static async autoGenProperty() {
-        let nodeUuid = "";
-        let type = Editor.Selection.getLastSelectedType();
-        if (type == "node") {
-            nodeUuid = Editor.Selection.getLastSelected(type);
-        }
-        const options = {
-            name: "miles-scene-tool",
-            method: 'autoGenProperty',
-            args: [nodeUuid],
-        };
-        MLogger_1.MLogger.info("SelectNodeUUID", nodeUuid);
-        Editor.Message.request('scene', 'execute-scene-script', options);
-    }
-    static async replaceComponent() {
-        const options = {
-            name: "miles-scene-tool",
-            method: 'replaceComponent',
-            args: [],
-        };
-        Editor.Message.request('scene', 'execute-scene-script', options);
-    }
     static closeTexCompress() {
         let allFiles = Utils_1.Utils.getAllFiles(Utils_1.Utils.ProjectPath + "/assets", [".jpg", ".png", ".jpeg", ".pac"]);
         for (const file of allFiles) {
@@ -197,20 +175,6 @@ class CmdExecute {
     static closeBuildTemplate() {
         Config_1.Config.set(Constant_1.Constant.BuildTemplateSaveKey, false);
         MLogger_1.MLogger.info("自定义构面模板已禁用");
-    }
-    static saveHotUpdateConfig() {
-        let nodeUuid = "";
-        let type = Editor.Selection.getLastSelectedType();
-        if (type == "node") {
-            nodeUuid = Editor.Selection.getLastSelected(type);
-        }
-        const options = {
-            name: "miles-scene-tool",
-            method: 'saveHotUpdateConfig',
-            args: [nodeUuid],
-        };
-        MLogger_1.MLogger.info("SelectNodeUUID", nodeUuid);
-        Editor.Message.request('scene', 'execute-scene-script', options);
     }
 }
 exports.CmdExecute = CmdExecute;
