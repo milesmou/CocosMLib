@@ -47,8 +47,8 @@ export class UIHUD extends UIBase {
             case "Guide":
                 App.ui.show(UIConstant.UIGuideTest1);
                 break;
-            case "ButtonHelper":
-                App.ui.show(UIConstant.UIButtonHelper);
+            case "UIExtend":
+                App.ui.show(UIConstant.UIExtend);
                 break;
         }
     }

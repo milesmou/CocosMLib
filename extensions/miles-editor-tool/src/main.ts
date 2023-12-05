@@ -11,6 +11,7 @@ export const methods: { [key: string]: (...any: any) => any } = {
     genConst: CmdExecute.genConst,
     formatProject: CmdExecute.formatProject,
     autoGenProperty: CmdExecute.autoGenProperty,
+    replaceComponent: CmdExecute.replaceComponent,
     closeTexCompress: CmdExecute.closeTexCompress,
     setTexCompress: CmdExecute.setTexCompress,
     openBuildTemplate: CmdExecute.openBuildTemplate,

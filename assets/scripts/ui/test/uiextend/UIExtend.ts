@@ -1,20 +1,18 @@
 import { Label, _decorator } from 'cc';
 import { App } from '../../../../mlib/App';
-import { ButtonHelper } from '../../../../mlib/component/ButtonHelper';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 
 const { ccclass, property } = _decorator;
 
-@ccclass('UIButtonHelper')
-export class UIButtonHelper extends UIBase {
+@ccclass('UIExtend')
+export class UIExtend extends UIBase {
     //gen property start don't modify this area
     //gen property end don't modify this area 
     @property(Label)
     tip: Label;
 
     onLoad() {
-        ButtonHelper.defaultAuidoLocation = "audio/test/click";
-
+        
     }
 
     start() {

@@ -149,6 +149,16 @@ export class CmdExecute {
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
 
+    static async replaceComponent() {
+        const options: ExecuteSceneScriptMethodOptions = {
+            name: "miles-scene-tool",
+            method: 'replaceComponent',
+            args: [],
+        };
+
+        Editor.Message.request('scene', 'execute-scene-script', options);
+    }
+
     static closeTexCompress() {
         let allFiles = Utils.getAllFiles(Utils.ProjectPath + "/assets", [".jpg", ".png", ".jpeg", ".pac"]);
         for (const file of allFiles) {

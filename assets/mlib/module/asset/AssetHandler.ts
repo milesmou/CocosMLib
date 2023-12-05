@@ -1,11 +1,11 @@
-import { Asset, ImageAsset, Node, Sprite, SpriteFrame } from "cc";
-import { AssetMgr } from "../module/asset/AssetMgr";
+import {Animation, Asset, ImageAsset, Node, Sprite, SpriteFrame } from "cc";
+import { AssetMgr } from "./AssetMgr";
 
-
+/** 资源加载 绑定节点销毁时会自动释放加载的资源 */
 export class AssetHandler {
 
-    constructor(target: Node) {
-        target.on(Node.EventType.NODE_DESTROYED, this.onDestroy, this);
+    constructor(node: Node) {
+        node.on(Node.EventType.NODE_DESTROYED, this.onDestroy, this);
     }
 
     //Location:Asset

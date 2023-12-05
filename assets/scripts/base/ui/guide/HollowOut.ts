@@ -1,4 +1,4 @@
-import { Component, EffectAsset, Enum, Material, Sprite, Tween, Vec2, _decorator, tween, v2 } from "cc";
+import { Component, EffectAsset, Enum, Material, Sprite, Tween, UITransform, Vec2, _decorator, tween, v2 } from "cc";
 import { DEV } from "cc/env";
 
 const { ccclass, property, requireComponent, executeInEditMode, disallowMultiple, executionOrder } = _decorator;
@@ -21,10 +21,10 @@ export enum HollowOutShape {
 @executeInEditMode
 @disallowMultiple
 @executionOrder(-100)
-export  class HollowOut extends Component {
+export class HollowOut extends Component {
 
     @property private _effect: EffectAsset = null;
-    @property({ type: EffectAsset, tooltip: DEV && 'Effect 资源', readonly: true })
+    @property({ type: EffectAsset, tooltip: DEV && 'Effect 资源', readonly: false })
     public get effect() { return this._effect; }
     public set effect(value: EffectAsset) { this._effect = value; this.init(); }
 
@@ -63,30 +63,37 @@ export  class HollowOut extends Component {
     public get feather() { return this._feather; }
     public set feather(value: number) { this._feather = value; this.updateProperties(); }
 
+    private uiTrans: UITransform;
+
     private sprite: Sprite = null;
 
     private material: Material = null;
 
     private tweenRes: () => void = null;
 
+
     protected onLoad() {
         this.init();
+        console.log("hahah");
+        
     }
 
     /**
      * 初始化组件
      */
     private async init() {
-
+        console.log("init1 ");
+        
         if (!this._effect) return;
-
-        // 使用自定义 Effect 需禁用纹理的 packable 属性（因为动态合图之后无法正确获取纹理 UV 坐标）
-        // 详情请看：https://docs.cocos.com/creator/manual/zh/asset-workflow/sprite.html#packable
+        console.log("init2 ");
+        this.uiTrans = this.getComponent(UITransform);
         this.sprite = this.node.getComponent(Sprite);
         if (this.sprite.spriteFrame) this.sprite.spriteFrame.packable = false;
         // 生成并应用材质
-        // this.material =  Material.create(this._effect);
-        // this.sprite.setMaterial(0, this.material);
+        this.material = new Material();
+        this.material.initialize({ effectAsset: this._effect });
+        this.sprite.customMaterial = this.material;
+        console.log("init3 ");
         // 更新材质属性
         this.updateProperties();
     }
@@ -247,8 +254,8 @@ export  class HollowOut extends Component {
      * 挖孔设为节点大小（就整个都挖没了）
      */
     public nodeSize() {
-        // this._radius = Math.sqrt(this.node.width * this.node.width + this.node.height * this.node.height) / 2;
-        // this.rect(this.node.getPosition(), this.node.width, this.node.height, 0, 0);
+        this._radius = Math.sqrt(this.uiTrans.width * this.uiTrans.width + this.uiTrans.height * this.uiTrans.height) / 2;
+        this.rect(v2(this.node.position.x, this.node.position.y), this.uiTrans.width, this.uiTrans.height, 0, 0);
     }
 
     /**
@@ -256,17 +263,16 @@ export  class HollowOut extends Component {
      * @param center 
      */
     private getCenter(center: Vec2) {
-        // let x = (center.x + (this.node.width / 2)) / this.node.width;
-        // let y = (-center.y + (this.node.height / 2)) / this.node.height;
-        return v2(0, 0);
+        let x = (center.x + (this.uiTrans.width / 2)) / this.uiTrans.width;
+        let y = (-center.y + (this.uiTrans.height / 2)) / this.uiTrans.height;
+        return v2(x, y);
     }
 
     /**
      * 获取节点尺寸
      */
     private getNodeSize() {
-        // return v2(this.node.width, this.node.height);
-        return v2(0, 0);
+        return v2(this.uiTrans.width, this.uiTrans.height);
     }
 
     /**
@@ -274,8 +280,7 @@ export  class HollowOut extends Component {
      * @param width 
      */
     private getWidth(width: number) {
-        // return width / this.node.width;
-        return 1;
+        return width / this.uiTrans.width;
     }
 
     /**
@@ -283,8 +288,7 @@ export  class HollowOut extends Component {
      * @param height 
      */
     private getHeight(height: number) {
-        // return height / this.node.width;
-        return 1;
+        return height / this.uiTrans.width;
     }
 
     /**
@@ -292,8 +296,7 @@ export  class HollowOut extends Component {
      * @param round 
      */
     private getRound(round: number) {
-        // return round / this.node.width;
-        return 1;
+        return round / this.uiTrans.width;
     }
 
     /**
@@ -301,8 +304,7 @@ export  class HollowOut extends Component {
      * @param feather 
      */
     private getFeather(feather: number) {
-        // return feather / this.node.width;
-        return 1;
+        return feather / this.uiTrans.width;
     }
 
 }

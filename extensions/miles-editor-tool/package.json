@@ -33,6 +33,12 @@
                     "autoGenProperty"
                 ]
             },
+            "replaceComponent": {
+                "public": false,
+                "methods": [
+                    "replaceComponent"
+                ]
+            },
             "closeTexCompress": {
                 "public": false,
                 "methods": [
@@ -90,10 +96,16 @@
                 "message": "genConst"
             },
             {
-                "path": "MTools",
+                "path": "MTools/场景操作",
                 "label": "生成属性",
                 "icon": "./static/icon.png",
                 "message": "autoGenProperty"
+            },
+            {
+                "path": "MTools/场景操作",
+                "label": "替换组件",
+                "icon": "./static/icon.png",
+                "message": "replaceComponent"
             },
             {
                 "path": "MTools/纹理压缩",

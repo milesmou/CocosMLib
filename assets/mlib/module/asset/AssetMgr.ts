@@ -3,9 +3,6 @@ import { MLogger } from "../logger/MLogger";
 import { AssetCache } from "./AssetCache";
 import { BundleMgr } from "./BundleMgr";
 
-
-
-
 /**
  * 资源加载管理类 
  * 每调用一次资源加载接口,资源引用次数+1

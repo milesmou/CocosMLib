@@ -3,7 +3,7 @@ import { Component, Enum, Label, Node, RichText, Sprite, _decorator } from "cc";
 const { ccclass, property, menu } = _decorator;
 
 import { App } from "../../App";
-import { AssetHandler } from "../../component/AssetHandler";
+import { AssetHandler } from "../asset/AssetHandler";
 import { CCUtils } from "../../utils/CCUtil";
 import { MLogger } from "../logger/MLogger";
 import { IL10n } from "./IL10n";

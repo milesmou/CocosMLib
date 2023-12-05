@@ -14,7 +14,7 @@ class CmdExecute {
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/build-template"); //构建后处理资源目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
         fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles"); //资源包目录
         fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/localization"); //资源包目录
         fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/localization/sc"); //资源包目录
@@ -137,6 +137,14 @@ class CmdExecute {
             args: [nodeUuid],
         };
         MLogger_1.MLogger.info("SelectNodeUUID", nodeUuid);
+        Editor.Message.request('scene', 'execute-scene-script', options);
+    }
+    static async replaceComponent() {
+        const options = {
+            name: "miles-scene-tool",
+            method: 'replaceComponent',
+            args: [],
+        };
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
     static closeTexCompress() {

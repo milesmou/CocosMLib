@@ -15,6 +15,11 @@
                 "methods": [
                     "autoGenProperty"
                 ]
+            },"replaceComponent": {
+                "public": true,
+                "methods": [
+                    "replaceComponent"
+                ]
             },
             "saveHotUpdateConfig": {
                 "public": true,

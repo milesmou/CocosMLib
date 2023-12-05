@@ -16,7 +16,12 @@ CCEffect %{
       rasterizerState:
         cullMode: none
       properties:
-        alphaThreshold: { value: 0.5 }
+        size:  { value: [500, 51] , editor: { tooltip: '节点实际尺寸' } }
+        center:  { value: [0.5, 0.5], editor: { tooltip: '中心点 (左上角为原点)' } }
+        width:  { value: 0.5, editor: { tooltip: '宽 (目标宽度 / 节点宽度)' } }
+        height: { value: 0.5, editor: { tooltip: '高 (目标高度 / 节点宽度)' } }
+        round:  { value: 0.05, editor: { tooltip: '圆角半径 (目标半径 / 节点宽度)' } }
+        feather:  { value: 0.005, editor: { tooltip: '边缘虚化宽度' } }
 }%
 
 CCProgram sprite-vs %{
@@ -67,6 +72,15 @@ CCProgram sprite-fs %{
 
   in vec4 color;
 
+  uniform Props {
+    vec2 size;
+    vec2 center;
+    float width;
+    float height;
+    float round;
+    float feather;
+  };
+
   #if USE_TEXTURE
     in vec2 uv0;
     #pragma builtin(local)
@@ -75,6 +89,7 @@ CCProgram sprite-fs %{
 
   vec4 frag () {
     vec4 o = vec4(1, 1, 1, 1);
+    
 
     #if USE_TEXTURE
       o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);
@@ -83,9 +98,54 @@ CCProgram sprite-fs %{
         o.r = o.g = o.b = gray;
       #endif
     #endif
-
     o *= color;
-    ALPHA_TEST(o);
-    return o;
+
+    vec4 color1 = o;
+
+  #if USE_TEXTURE
+    // 边缘处理
+    float x = uv0.x;
+    float y = uv0.y;
+    float ratio = size.x / size.y;
+    float minX = center.x - (width / 2.0);
+    float maxX = center.x + (width / 2.0);
+    float minY = center.y - (height * ratio / 2.0);
+    float maxY = center.y + (height * ratio / 2.0);
+    if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
+      if (round == 0.0) discard; //没有圆角则直接丢弃
+      // 圆角处理
+      float roundY = round * ratio;
+      vec2 vertex;
+      if (x <= minX + round) {
+        if (y <= minY + roundY) {
+          vertex = vec2(minX + round, (minY + roundY) / ratio); // 左上角
+        } else if (y >= maxY - roundY) {
+          vertex = vec2(minX + round, (maxY - roundY) / ratio); // 左下角
+        } else {
+          vertex = vec2(minX + round, y / ratio); // 左中
+        }
+      } else if (x >= maxX - round) {
+        if (y <= minY + roundY){
+          vertex = vec2(maxX - round, (minY + roundY) / ratio); // 右上角
+        } else if (y >= maxY - roundY) {
+          vertex = vec2(maxX - round, (maxY - roundY) / ratio); // 右下角
+        } else {
+          vertex = vec2(maxX - round, y / ratio); // 右中
+        }
+      } else if (y <= minY + roundY) {
+        vertex = vec2(x, (minY + roundY) / ratio); // 上中
+      } else if (y >= maxY - roundY) {
+        vertex = vec2(x, (maxY - roundY) / ratio); // 下中
+      } else {
+        discard; // 中间
+      }
+      float dis = distance(vec2(x, y / ratio), vertex);
+      color1.a = smoothstep(round - feather, round, dis) * color1.a;
+    }
+      color1.a *= o.a;
+  #endif
+
+    ALPHA_TEST(color1);
+    return color1;
   }
 }%

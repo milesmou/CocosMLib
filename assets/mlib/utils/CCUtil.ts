@@ -1,4 +1,4 @@
-import { Node, Camera, Component, Prefab, Scene, ScrollView, Vec3, Widget, instantiate, misc, sp, tween, v2, v3, view, UITransform } from "cc";
+import { Button, Camera, Component, EventHandler, Node, Prefab, Scene, ScrollView, Toggle, UITransform, Vec3, Widget, instantiate, misc, sp, v2, v3 } from "cc";
 import { Utils } from "./Utils";
 
 export class CCUtils {
@@ -105,6 +105,19 @@ export class CCUtils {
         // pos.x += size.width / 2;
         // pos.y += size.height / 2;
         // return pos;
+    }
+
+
+    static addEventToComp(comp: Button | Toggle, target: Node, component: string, handler: string) {
+        let evtHandler = new EventHandler();
+        evtHandler.target = target;
+        evtHandler.component = component;
+        evtHandler.handler = handler;
+        if (comp instanceof Button) {
+            (comp as Button).clickEvents.push(evtHandler);
+        } else {
+            (comp as Toggle).checkEvents.push(evtHandler);
+        }
     }
 
     /** Scrollview左右翻页  turnType -1:上一页 1:下一页*/

@@ -12,6 +12,7 @@ exports.methods = {
     genConst: CmdExecute_1.CmdExecute.genConst,
     formatProject: CmdExecute_1.CmdExecute.formatProject,
     autoGenProperty: CmdExecute_1.CmdExecute.autoGenProperty,
+    replaceComponent: CmdExecute_1.CmdExecute.replaceComponent,
     closeTexCompress: CmdExecute_1.CmdExecute.closeTexCompress,
     setTexCompress: CmdExecute_1.CmdExecute.setTexCompress,
     openBuildTemplate: CmdExecute_1.CmdExecute.openBuildTemplate,

@@ -1,14 +1,14 @@
-import { Animation, BlockInputEvents, Button, Color, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, js, tween, view } from "cc";
+import { Animation, BlockInputEvents, Button, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, tween, view } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
 import { EventKey } from "../../../../scripts/base/GameEnum";
 import { App } from "../../../App";
-import { AssetHandler } from "../../../component/AssetHandler";
 import { CCUtils } from "../../../utils/CCUtil";
+import { AssetHandler } from "../../asset/AssetHandler";
 import { MEvent } from "../../event/MEvent";
 import { MLogger } from '../../logger/MLogger';
 import { GenProperty } from "../property/GenProperty";
-import { PropertyBase } from "../property/PropertyBase";
+import { UIMessage } from "./UIMessage";
 
 const EUIAnim = Enum({
     NONE: 0,
@@ -78,10 +78,12 @@ export class UIBase extends GenProperty {
     protected visible: boolean;
     protected args: any = null;
 
-    protected assetHandler: AssetHandler;
+    protected asset: AssetHandler;
+    protected messase: UIMessage;
 
     protected onLoad(): void {
-        this.assetHandler = new AssetHandler(this.node);
+        this.asset = new AssetHandler(this.node);
+        this.messase = new UIMessage(this.node);
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
