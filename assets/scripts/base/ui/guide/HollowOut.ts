@@ -74,18 +74,13 @@ export class HollowOut extends Component {
 
     protected onLoad() {
         this.init();
-        console.log("hahah");
-        
     }
 
     /**
      * 初始化组件
      */
     private async init() {
-        console.log("init1 ");
-        
         if (!this._effect) return;
-        console.log("init2 ");
         this.uiTrans = this.getComponent(UITransform);
         this.sprite = this.node.getComponent(Sprite);
         if (this.sprite.spriteFrame) this.sprite.spriteFrame.packable = false;
@@ -93,7 +88,6 @@ export class HollowOut extends Component {
         this.material = new Material();
         this.material.initialize({ effectAsset: this._effect });
         this.sprite.customMaterial = this.material;
-        console.log("init3 ");
         // 更新材质属性
         this.updateProperties();
     }

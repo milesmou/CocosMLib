@@ -1,0 +1,24 @@
+[
+  {
+    "ID": 1,
+    "GuideID": 201,
+    "UIName": "UIHUD",
+    "NodePath": "home/downHome/down/left/$MainTaskBtn",
+    "FingerDir": 3,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "ID": 2,
+    "GuideID": 201,
+    "UIName": "MainTasksWin",
+    "NodePath": "home/btnGet",
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  }
+]

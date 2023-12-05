@@ -11,7 +11,7 @@ set CONF_ROOT=.\Confs
  --output_data_dir  %WORKSPACE%\assets\bundles\dynamic\table ^
  --gen_types code_typescript_json,data_json ^
  --typescript:embed_bright_types ^
- --output:data:compact_json ^
  -s all
+
 
 pause

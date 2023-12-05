@@ -80,14 +80,18 @@ export class CCUtils {
         return n;
     }
 
-    /** 将node1本地坐标系的位置转化为node2本地坐标下的位置 */
-    static nodePosToNodeAxisPos(node1: Node, node2: Node, vec?: Vec3) {
+    /** 将node1本地坐标系的位置转化为node2本地坐标下的位置(UI节点) */
+    static uiNodePosToUINodePos(node1: Node, node2: Node, vec?: Vec3) {
         if (!vec) {
             vec = v3(0, 0);
         }
-        // let worldPos = node1.convertToWorldSpaceAR(vec);
-        // return node2.convertToNodeSpaceAR(worldPos);
-        return vec;
+        let screenPos = node1.getComponent(UITransform).convertToWorldSpaceAR(vec);
+        return node2.getComponent(UITransform).convertToNodeSpaceAR(screenPos);
+    }
+
+    /** 屏幕位置转节点本地坐标下的位置(UI节点) */
+    static screenPosToUINodePos(screenPos: Vec3, node: Node) {
+        return node.getComponent(UITransform).convertToNodeSpaceAR(screenPos);
     }
 
     /** 获取非UI摄像机下的节点在屏幕中的坐标(屏幕中心为原点) */

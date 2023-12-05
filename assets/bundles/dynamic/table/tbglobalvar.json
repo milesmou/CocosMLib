@@ -1,1 +1,28 @@
-[{"ID":1,"GuideID":1,"UIName":"UIHUD","GOPath":"","GOSize":{"x":0,"y":0},"DelayCheckUI":0,"ClickScreen":true,"Opacity":150,"HollowType":2,"HollowScale":1,"RingScale":1,"RingOffset":{"x":0,"y":0},"FingerDir":1,"FingerOffset":{"x":0,"y":-50},"TipText":"老板你来了，新的主播已经到位了，是个女仆哟","TipPos":{"x":0,"y":0},"Prefab":""}]
+[
+  {
+    "LeafletClickCnt": 10,
+    "LeafletCnt": 10,
+    "LeafletRecover": 1,
+    "BandBuff": [
+      10,
+      60
+    ],
+    "OfflineData": [
+      5,
+      2,
+      4,
+      10
+    ],
+    "TarotCoolTime": 15,
+    "HeroMoveSpeed": 200,
+    "Gratuity": [
+      50,
+      20
+    ],
+    "SpecialCustomersCoolTime": [
+      4,
+      6
+    ],
+    "InitialItem": "1,450;4,2"
+  }
+]

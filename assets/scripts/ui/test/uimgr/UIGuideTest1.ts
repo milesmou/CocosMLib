@@ -9,14 +9,14 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIGuideTest1')
 export class UIGuideTest1 extends UIBase {
-    //gen property start don't modify this area
-    //gen property end don't modify this area 
 
 
     onShow() {
         this.scheduleOnce(() => {
-            App.ui.guide.startGuide(1, () => {
-                App.ui.showToast("引导结束")
+            App.ui.guide.startGuide(1, {
+                onEnded: () => {
+                    App.ui.showToast("引导结束")
+                }
             });
         })
     }

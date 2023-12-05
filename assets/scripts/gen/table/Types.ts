@@ -116,73 +116,45 @@ export class TbGlobalVar{
     getData(): GlobalVar { return this._data; }
 
     /**
-     * 主键
+     * 传单每次点击次数
      */
-     get  ID(): number { return this._data.ID; }
+     get  LeafletClickCnt(): number { return this._data.LeafletClickCnt; }
     /**
-     * 引导ID
+     * 传单次数恢复上限
      */
-     get  GuideID(): number { return this._data.GuideID; }
+     get  LeafletCnt(): number { return this._data.LeafletCnt; }
     /**
-     * 物体所在UI名字
+     * 传单每恢复一次的时间：分
      */
-     get  UIName(): string { return this._data.UIName; }
+     get  LeafletRecover(): number { return this._data.LeafletRecover; }
     /**
-     * 物体在UI中的路径
+     * 乐队持续时间分;加速比例
      */
-     get  GOPath(): string { return this._data.GOPath; }
+     get  BandBuff(): number[] { return this._data.BandBuff; }
     /**
-     * 直接指定物体尺寸
+     * 离线最小单位分、广告翻几倍、钻石翻几倍、要几颗钻石
      */
-     get  GOSize(): Vector2 { return this._data.GOSize; }
+     get  OfflineData(): number[] { return this._data.OfflineData; }
     /**
-     * 延迟检测是否处于指定UI
+     * 塔罗牌冷却时间：分
      */
-     get  DelayCheckUI(): number { return this._data.DelayCheckUI; }
+     get  TarotCoolTime(): number { return this._data.TarotCoolTime; }
     /**
-     * 点击屏幕即完成本步引导
+     * 鸡的移动速度，每秒像素单位
      */
-     get  ClickScreen(): boolean { return this._data.ClickScreen; }
+     get  HeroMoveSpeed(): number { return this._data.HeroMoveSpeed; }
     /**
-     * 遮罩透明度
+     * 小费出现的概率；小费占商品的比例
      */
-     get  Opacity(): number { return this._data.Opacity; }
+     get  Gratuity(): number[] { return this._data.Gratuity; }
     /**
-     * 挖孔类型
+     * 特殊顾客冷却时间区间：分(进入游戏时和特殊客人离开时计算)
      */
-     get  HollowType(): number { return this._data.HollowType; }
+     get  SpecialCustomersCoolTime(): number[] { return this._data.SpecialCustomersCoolTime; }
     /**
-     * 挖孔缩放
+     * 初始道具,数量
      */
-     get  HollowScale(): number { return this._data.HollowScale; }
-    /**
-     * 圆圈缩放
-     */
-     get  RingScale(): number { return this._data.RingScale; }
-    /**
-     * 圆圈相对挖孔偏移
-     */
-     get  RingOffset(): Vector2 { return this._data.RingOffset; }
-    /**
-     * 手指方向
-     */
-     get  FingerDir(): number { return this._data.FingerDir; }
-    /**
-     * 手指相对挖孔偏移
-     */
-     get  FingerOffset(): Vector2 { return this._data.FingerOffset; }
-    /**
-     * 提示文字
-     */
-     get  TipText(): string { return this._data.TipText; }
-    /**
-     * 提示文字位置
-     */
-     get  TipPos(): Vector2 { return this._data.TipPos; }
-    /**
-     * 加载预制体
-     */
-     get  Prefab(): string { return this._data.Prefab; }
+     get  InitialItem(): string { return this._data.InitialItem; }
 
     resolve(_tables: Map<string, any>) {
         this._data.resolve(_tables)
@@ -198,110 +170,68 @@ export class TbGlobalVar{
 export class GlobalVar {
 
     constructor(_json_: any) {
-        if (_json_.ID === undefined) { throw new Error() }
-        this.ID = _json_.ID
-        if (_json_.GuideID === undefined) { throw new Error() }
-        this.GuideID = _json_.GuideID
-        if (_json_.UIName === undefined) { throw new Error() }
-        this.UIName = _json_.UIName
-        if (_json_.GOPath === undefined) { throw new Error() }
-        this.GOPath = _json_.GOPath
-        if (_json_.GOSize === undefined) { throw new Error() }
-        this.GOSize = Vector2.deserializeFromJson(_json_.GOSize)
-        if (_json_.DelayCheckUI === undefined) { throw new Error() }
-        this.DelayCheckUI = _json_.DelayCheckUI
-        if (_json_.ClickScreen === undefined) { throw new Error() }
-        this.ClickScreen = _json_.ClickScreen
-        if (_json_.Opacity === undefined) { throw new Error() }
-        this.Opacity = _json_.Opacity
-        if (_json_.HollowType === undefined) { throw new Error() }
-        this.HollowType = _json_.HollowType
-        if (_json_.HollowScale === undefined) { throw new Error() }
-        this.HollowScale = _json_.HollowScale
-        if (_json_.RingScale === undefined) { throw new Error() }
-        this.RingScale = _json_.RingScale
-        if (_json_.RingOffset === undefined) { throw new Error() }
-        this.RingOffset = Vector2.deserializeFromJson(_json_.RingOffset)
-        if (_json_.FingerDir === undefined) { throw new Error() }
-        this.FingerDir = _json_.FingerDir
-        if (_json_.FingerOffset === undefined) { throw new Error() }
-        this.FingerOffset = Vector2.deserializeFromJson(_json_.FingerOffset)
-        if (_json_.TipText === undefined) { throw new Error() }
-        this.TipText = _json_.TipText
-        if (_json_.TipPos === undefined) { throw new Error() }
-        this.TipPos = Vector2.deserializeFromJson(_json_.TipPos)
-        if (_json_.Prefab === undefined) { throw new Error() }
-        this.Prefab = _json_.Prefab
+        if (_json_.LeafletClickCnt === undefined) { throw new Error() }
+        this.LeafletClickCnt = _json_.LeafletClickCnt
+        if (_json_.LeafletCnt === undefined) { throw new Error() }
+        this.LeafletCnt = _json_.LeafletCnt
+        if (_json_.LeafletRecover === undefined) { throw new Error() }
+        this.LeafletRecover = _json_.LeafletRecover
+        if (_json_.BandBuff === undefined) { throw new Error() }
+        this.BandBuff = _json_.BandBuff
+        if (_json_.OfflineData === undefined) { throw new Error() }
+        this.OfflineData = _json_.OfflineData
+        if (_json_.TarotCoolTime === undefined) { throw new Error() }
+        this.TarotCoolTime = _json_.TarotCoolTime
+        if (_json_.HeroMoveSpeed === undefined) { throw new Error() }
+        this.HeroMoveSpeed = _json_.HeroMoveSpeed
+        if (_json_.Gratuity === undefined) { throw new Error() }
+        this.Gratuity = _json_.Gratuity
+        if (_json_.SpecialCustomersCoolTime === undefined) { throw new Error() }
+        this.SpecialCustomersCoolTime = _json_.SpecialCustomersCoolTime
+        if (_json_.InitialItem === undefined) { throw new Error() }
+        this.InitialItem = _json_.InitialItem
     }
 
     /**
-     * 主键
+     * 传单每次点击次数
      */
-    readonly ID: number
+    readonly LeafletClickCnt: number
     /**
-     * 引导ID
+     * 传单次数恢复上限
      */
-    readonly GuideID: number
+    readonly LeafletCnt: number
     /**
-     * 物体所在UI名字
+     * 传单每恢复一次的时间：分
      */
-    readonly UIName: string
+    readonly LeafletRecover: number
     /**
-     * 物体在UI中的路径
+     * 乐队持续时间分;加速比例
      */
-    readonly GOPath: string
+    readonly BandBuff: number[]
     /**
-     * 直接指定物体尺寸
+     * 离线最小单位分、广告翻几倍、钻石翻几倍、要几颗钻石
      */
-    readonly GOSize: Vector2
+    readonly OfflineData: number[]
     /**
-     * 延迟检测是否处于指定UI
+     * 塔罗牌冷却时间：分
      */
-    readonly DelayCheckUI: number
+    readonly TarotCoolTime: number
     /**
-     * 点击屏幕即完成本步引导
+     * 鸡的移动速度，每秒像素单位
      */
-    readonly ClickScreen: boolean
+    readonly HeroMoveSpeed: number
     /**
-     * 遮罩透明度
+     * 小费出现的概率；小费占商品的比例
      */
-    readonly Opacity: number
+    readonly Gratuity: number[]
     /**
-     * 挖孔类型
+     * 特殊顾客冷却时间区间：分(进入游戏时和特殊客人离开时计算)
      */
-    readonly HollowType: number
+    readonly SpecialCustomersCoolTime: number[]
     /**
-     * 挖孔缩放
+     * 初始道具,数量
      */
-    readonly HollowScale: number
-    /**
-     * 圆圈缩放
-     */
-    readonly RingScale: number
-    /**
-     * 圆圈相对挖孔偏移
-     */
-    readonly RingOffset: Vector2
-    /**
-     * 手指方向
-     */
-    readonly FingerDir: number
-    /**
-     * 手指相对挖孔偏移
-     */
-    readonly FingerOffset: Vector2
-    /**
-     * 提示文字
-     */
-    readonly TipText: string
-    /**
-     * 提示文字位置
-     */
-    readonly TipPos: Vector2
-    /**
-     * 加载预制体
-     */
-    readonly Prefab: string
+    readonly InitialItem: string
 
     resolve(_tables: Map<string, any>) {
     }
@@ -311,23 +241,23 @@ export class GlobalVar {
 
 
 export class TbGuide{
-    private _dataMap: Map<number, Guide>
-    private _dataList: Guide[]
+    private _dataMap: Map<number, TGuide>
+    private _dataList: TGuide[]
     constructor(_json_: any) {
-        this._dataMap = new Map<number, Guide>()
+        this._dataMap = new Map<number, TGuide>()
         this._dataList = []
         for(var _json2_ of _json_) {
-            let _v: Guide
-            _v = new Guide(_json2_)
+            let _v: TGuide
+            _v = new TGuide(_json2_)
             this._dataList.push(_v)
             this._dataMap.set(_v.ID, _v)
         }
     }
 
-    getDataMap(): Map<number, Guide> { return this._dataMap; }
-    getDataList(): Guide[] { return this._dataList; }
+    getDataMap(): Map<number, TGuide> { return this._dataMap; }
+    getDataList(): TGuide[] { return this._dataList; }
 
-    get(key: number): Guide | undefined { return this._dataMap.get(key); }
+    get(key: number): TGuide | undefined { return this._dataMap.get(key); }
 
     resolve(_tables: Map<string, any>) {
         for(var v of this._dataList) {
@@ -341,7 +271,7 @@ export class TbGuide{
 
 
 
-export class Guide {
+export class TGuide {
 
     constructor(_json_: any) {
         if (_json_.ID === undefined) { throw new Error() }
@@ -397,15 +327,15 @@ export class Guide {
      */
     readonly NodePath: string
     /**
-     * 直接指定尺寸
+     * 指定尺寸
      */
     readonly NodeSize: Vector2
     /**
-     * 延迟检测是否处于指定UI
+     * 延迟检测
      */
     readonly DelayCheckUI: number
     /**
-     * 点击屏幕即完成本步引导
+     * 点击屏幕即完成引导
      */
     readonly ClickScreen: boolean
     /**
@@ -456,24 +386,24 @@ export class Guide {
 
 
 
-export class TbLocalization{
-    private _dataMap: Map<string, Localization>
-    private _dataList: Localization[]
+export class TbUnforcedGuide{
+    private _dataMap: Map<number, TUnforcedGuide>
+    private _dataList: TUnforcedGuide[]
     constructor(_json_: any) {
-        this._dataMap = new Map<string, Localization>()
+        this._dataMap = new Map<number, TUnforcedGuide>()
         this._dataList = []
         for(var _json2_ of _json_) {
-            let _v: Localization
-            _v = new Localization(_json2_)
+            let _v: TUnforcedGuide
+            _v = new TUnforcedGuide(_json2_)
             this._dataList.push(_v)
-            this._dataMap.set(_v.key, _v)
+            this._dataMap.set(_v.ID, _v)
         }
     }
 
-    getDataMap(): Map<string, Localization> { return this._dataMap; }
-    getDataList(): Localization[] { return this._dataList; }
+    getDataMap(): Map<number, TUnforcedGuide> { return this._dataMap; }
+    getDataList(): TUnforcedGuide[] { return this._dataList; }
 
-    get(key: string): Localization | undefined { return this._dataMap.get(key); }
+    get(key: number): TUnforcedGuide | undefined { return this._dataMap.get(key); }
 
     resolve(_tables: Map<string, any>) {
         for(var v of this._dataList) {
@@ -487,7 +417,87 @@ export class TbLocalization{
 
 
 
-export class Localization {
+export class TUnforcedGuide {
+
+    constructor(_json_: any) {
+        if (_json_.ID === undefined) { throw new Error() }
+        this.ID = _json_.ID
+        if (_json_.GuideID === undefined) { throw new Error() }
+        this.GuideID = _json_.GuideID
+        if (_json_.UIName === undefined) { throw new Error() }
+        this.UIName = _json_.UIName
+        if (_json_.NodePath === undefined) { throw new Error() }
+        this.NodePath = _json_.NodePath
+        if (_json_.FingerDir === undefined) { throw new Error() }
+        this.FingerDir = _json_.FingerDir
+        if (_json_.FingerOffset === undefined) { throw new Error() }
+        this.FingerOffset = Vector2.deserializeFromJson(_json_.FingerOffset)
+    }
+
+    /**
+     * 主键
+     */
+    readonly ID: number
+    /**
+     * 引导ID
+     */
+    readonly GuideID: number
+    /**
+     * 节点所在UI名字
+     */
+    readonly UIName: string
+    /**
+     * 节点在UI中的路径
+     */
+    readonly NodePath: string
+    /**
+     * 手指方向
+     */
+    readonly FingerDir: number
+    /**
+     * 手指相对目标节点偏移
+     */
+    readonly FingerOffset: Vector2
+
+    resolve(_tables: Map<string, any>) {
+    }
+}
+
+
+
+
+export class TbLocalization{
+    private _dataMap: Map<string, TLocalization>
+    private _dataList: TLocalization[]
+    constructor(_json_: any) {
+        this._dataMap = new Map<string, TLocalization>()
+        this._dataList = []
+        for(var _json2_ of _json_) {
+            let _v: TLocalization
+            _v = new TLocalization(_json2_)
+            this._dataList.push(_v)
+            this._dataMap.set(_v.key, _v)
+        }
+    }
+
+    getDataMap(): Map<string, TLocalization> { return this._dataMap; }
+    getDataList(): TLocalization[] { return this._dataList; }
+
+    get(key: string): TLocalization | undefined { return this._dataMap.get(key); }
+
+    resolve(_tables: Map<string, any>) {
+        for(var v of this._dataList) {
+            v.resolve(_tables)
+        }
+    }
+
+}
+
+
+
+
+
+export class TLocalization {
 
     constructor(_json_: any) {
         if (_json_.key === undefined) { throw new Error() }
@@ -509,265 +519,13 @@ export class Localization {
      */
     readonly sc: string
     /**
-     * 繁体中文
+     * 繁體中文
      */
     readonly tc: string
     /**
      * 英文
      */
     readonly en: string
-
-    resolve(_tables: Map<string, any>) {
-    }
-}
-
-
-
-
-export class TbBuildSkill{
-    private _dataMap: Map<number, BuildSkill>
-    private _dataList: BuildSkill[]
-    constructor(_json_: any) {
-        this._dataMap = new Map<number, BuildSkill>()
-        this._dataList = []
-        for(var _json2_ of _json_) {
-            let _v: BuildSkill
-            _v = new BuildSkill(_json2_)
-            this._dataList.push(_v)
-            this._dataMap.set(_v.id, _v)
-        }
-    }
-
-    getDataMap(): Map<number, BuildSkill> { return this._dataMap; }
-    getDataList(): BuildSkill[] { return this._dataList; }
-
-    get(key: number): BuildSkill | undefined { return this._dataMap.get(key); }
-
-    resolve(_tables: Map<string, any>) {
-        for(var v of this._dataList) {
-            v.resolve(_tables)
-        }
-    }
-
-}
-
-
-
-
-
-export class BuildSkill {
-
-    constructor(_json_: any) {
-        if (_json_.id === undefined) { throw new Error() }
-        this.id = _json_.id
-        if (_json_.Plan_ID === undefined) { throw new Error() }
-        this.PlanID = _json_.Plan_ID
-        if (_json_.LV === undefined) { throw new Error() }
-        this.LV = _json_.LV
-        if (_json_.EFF === undefined) { throw new Error() }
-        this.EFF = _json_.EFF
-        if (_json_.EFF_Num === undefined) { throw new Error() }
-        this.EFFNum = _json_.EFF_Num
-        if (_json_.EFF_Des === undefined) { throw new Error() }
-        this.EFFDes = _json_.EFF_Des
-        if (_json_.EFF_Des2 === undefined) { throw new Error() }
-        this.EFFDes2 = _json_.EFF_Des2
-        if (_json_.NeedGirlNum === undefined) { throw new Error() }
-        this.NeedGirlNum = _json_.NeedGirlNum
-        if (_json_.Unlock_Des === undefined) { throw new Error() }
-        this.UnlockDes = _json_.Unlock_Des
-    }
-
-    /**
-     * 主键
-     */
-    readonly id: number
-    /**
-     * 组ID
-     */
-    readonly PlanID: number
-    /**
-     * 技能等级
-     */
-    readonly LV: number
-    /**
-     * 效果
-     */
-    readonly EFF: number
-    /**
-     * 数值
-     */
-    readonly EFFNum: Float32Array
-    /**
-     * 效果描述1
-     */
-    readonly EFFDes: string
-    /**
-     * 效果描述2
-     */
-    readonly EFFDes2: string
-    /**
-     * 解锁时装数
-     */
-    readonly NeedGirlNum: number
-    /**
-     * 解锁描述
-     */
-    readonly UnlockDes: string
-
-    resolve(_tables: Map<string, any>) {
-    }
-}
-
-
-
-
-export class TbItem{
-    private _dataMap: Map<number, Item>
-    private _dataList: Item[]
-    constructor(_json_: any) {
-        this._dataMap = new Map<number, Item>()
-        this._dataList = []
-        for(var _json2_ of _json_) {
-            let _v: Item
-            _v = new Item(_json2_)
-            this._dataList.push(_v)
-            this._dataMap.set(_v.id, _v)
-        }
-    }
-
-    getDataMap(): Map<number, Item> { return this._dataMap; }
-    getDataList(): Item[] { return this._dataList; }
-
-    get(key: number): Item | undefined { return this._dataMap.get(key); }
-
-    resolve(_tables: Map<string, any>) {
-        for(var v of this._dataList) {
-            v.resolve(_tables)
-        }
-    }
-
-}
-
-
-
-
-
-export class Item {
-
-    constructor(_json_: any) {
-        if (_json_.id === undefined) { throw new Error() }
-        this.id = _json_.id
-        if (_json_.name === undefined) { throw new Error() }
-        this.name = _json_.name
-        if (_json_.desc === undefined) { throw new Error() }
-        this.desc = _json_.desc
-        if (_json_.num === undefined) { throw new Error() }
-        this.num = _json_.num
-        if (_json_.price === undefined) { throw new Error() }
-        this.price = _json_.price
-    }
-
-    /**
-     * id
-     */
-    readonly id: number
-    /**
-     * 名称
-     */
-    readonly name: string
-    /**
-     * 描述
-     */
-    readonly desc: string
-    /**
-     * 个数
-     */
-    readonly num: number
-    /**
-     * 价格
-     */
-    readonly price: number
-
-    resolve(_tables: Map<string, any>) {
-    }
-}
-
-
-
-
-export class TbSheet1{
-    private _dataMap: Map<number, Sheet1>
-    private _dataList: Sheet1[]
-    constructor(_json_: any) {
-        this._dataMap = new Map<number, Sheet1>()
-        this._dataList = []
-        for(var _json2_ of _json_) {
-            let _v: Sheet1
-            _v = new Sheet1(_json2_)
-            this._dataList.push(_v)
-            this._dataMap.set(_v.id, _v)
-        }
-    }
-
-    getDataMap(): Map<number, Sheet1> { return this._dataMap; }
-    getDataList(): Sheet1[] { return this._dataList; }
-
-    get(key: number): Sheet1 | undefined { return this._dataMap.get(key); }
-
-    resolve(_tables: Map<string, any>) {
-        for(var v of this._dataList) {
-            v.resolve(_tables)
-        }
-    }
-
-}
-
-
-
-
-
-export class Sheet1 {
-
-    constructor(_json_: any) {
-        if (_json_.id === undefined) { throw new Error() }
-        this.id = _json_.id
-        if (_json_.name === undefined) { throw new Error() }
-        this.name = _json_.name
-        if (_json_.desc === undefined) { throw new Error() }
-        this.desc = _json_.desc
-        if (_json_.num === undefined) { throw new Error() }
-        this.num = _json_.num
-        if (_json_.price === undefined) { throw new Error() }
-        this.price = _json_.price
-        if (_json_.price1 === undefined) { throw new Error() }
-        this.price1 = _json_.price1
-    }
-
-    /**
-     * id
-     */
-    readonly id: number
-    /**
-     * 名称
-     */
-    readonly name: string
-    /**
-     * 描述
-     */
-    readonly desc: string
-    /**
-     * 个数
-     */
-    readonly num: number
-    /**
-     * 价格
-     */
-    readonly price: number
-    /**
-     * 价格
-     */
-    readonly price1: number
 
     resolve(_tables: Map<string, any>) {
     }
@@ -783,24 +541,18 @@ export class Tables {
         return [
 			'tbglobalvar',
 			'tbguide',
+			'tbunforcedguide',
 			'tblocalization',
-			'tbbuildskill',
-			'tbitem',
-			'tbsheet1',
         ];
     }
     private _TbGlobalVar: TbGlobalVar
     get TbGlobalVar(): TbGlobalVar  { return this._TbGlobalVar;}
     private _TbGuide: TbGuide
     get TbGuide(): TbGuide  { return this._TbGuide;}
+    private _TbUnforcedGuide: TbUnforcedGuide
+    get TbUnforcedGuide(): TbUnforcedGuide  { return this._TbUnforcedGuide;}
     private _TbLocalization: TbLocalization
     get TbLocalization(): TbLocalization  { return this._TbLocalization;}
-    private _TbBuildSkill: TbBuildSkill
-    get TbBuildSkill(): TbBuildSkill  { return this._TbBuildSkill;}
-    private _TbItem: TbItem
-    get TbItem(): TbItem  { return this._TbItem;}
-    private _TbSheet1: TbSheet1
-    get TbSheet1(): TbSheet1  { return this._TbSheet1;}
 
     constructor(loader: JsonLoader) {
         let tables = new Map<string, any>()
@@ -808,20 +560,14 @@ export class Tables {
         tables.set('TbGlobalVar', this._TbGlobalVar)
         this._TbGuide = new TbGuide(loader('tbguide'))
         tables.set('TbGuide', this._TbGuide)
+        this._TbUnforcedGuide = new TbUnforcedGuide(loader('tbunforcedguide'))
+        tables.set('TbUnforcedGuide', this._TbUnforcedGuide)
         this._TbLocalization = new TbLocalization(loader('tblocalization'))
         tables.set('TbLocalization', this._TbLocalization)
-        this._TbBuildSkill = new TbBuildSkill(loader('tbbuildskill'))
-        tables.set('TbBuildSkill', this._TbBuildSkill)
-        this._TbItem = new TbItem(loader('tbitem'))
-        tables.set('TbItem', this._TbItem)
-        this._TbSheet1 = new TbSheet1(loader('tbsheet1'))
-        tables.set('TbSheet1', this._TbSheet1)
 
         this._TbGlobalVar.resolve(tables)
         this._TbGuide.resolve(tables)
+        this._TbUnforcedGuide.resolve(tables)
         this._TbLocalization.resolve(tables)
-        this._TbBuildSkill.resolve(tables)
-        this._TbItem.resolve(tables)
-        this._TbSheet1.resolve(tables)
     }
 }

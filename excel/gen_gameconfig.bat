@@ -1,2 +1,2 @@
-.\Tools\LoadConfig.exe ./GameConfig.xlsx ./ ../assets/bundle/static
+.\Tools\LoadConfig.exe ./GameConfig.xlsx ./ ../assets/resources
 pause

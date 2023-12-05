@@ -1,1 +1,126 @@
-[{"ID":1,"GuideID":1,"UIName":"UIGuideTest1","NodePath":"step1","NodeSize":{"x":0,"y":0},"DelayCheckUI":0,"ClickScreen":false,"Opacity":150,"HollowType":2,"HollowScale":1,"RingScale":1,"RingOffset":{"x":0,"y":0},"FingerDir":1,"FingerOffset":{"x":0,"y":-50},"TipText":"","TipPos":{"x":0,"y":0},"Prefab":""},{"ID":2,"GuideID":1,"UIName":"UIGuideTest1","NodePath":"step2","NodeSize":{"x":0,"y":0},"DelayCheckUI":0,"ClickScreen":false,"Opacity":150,"HollowType":2,"HollowScale":1,"RingScale":1,"RingOffset":{"x":0,"y":0},"FingerDir":1,"FingerOffset":{"x":0,"y":-50},"TipText":"","TipPos":{"x":0,"y":0},"Prefab":""},{"ID":3,"GuideID":1,"UIName":"UIGuideTest1","NodePath":"step3","NodeSize":{"x":0,"y":0},"DelayCheckUI":0,"ClickScreen":false,"Opacity":150,"HollowType":2,"HollowScale":1,"RingScale":1,"RingOffset":{"x":0,"y":0},"FingerDir":1,"FingerOffset":{"x":0,"y":-50},"TipText":"","TipPos":{"x":0,"y":0},"Prefab":""},{"ID":4,"GuideID":1,"UIName":"UIGuideTest1","NodePath":"step4","NodeSize":{"x":0,"y":0},"DelayCheckUI":0,"ClickScreen":false,"Opacity":150,"HollowType":2,"HollowScale":1,"RingScale":1,"RingOffset":{"x":0,"y":0},"FingerDir":1,"FingerOffset":{"x":0,"y":-50},"TipText":"","TipPos":{"x":0,"y":0},"Prefab":""},{"ID":5,"GuideID":1,"UIName":"UIGuideTest2","NodePath":"step5","NodeSize":{"x":0,"y":0},"DelayCheckUI":0,"ClickScreen":false,"Opacity":150,"HollowType":2,"HollowScale":1,"RingScale":1,"RingOffset":{"x":0,"y":0},"FingerDir":1,"FingerOffset":{"x":0,"y":-50},"TipText":"","TipPos":{"x":0,"y":0},"Prefab":""}]
+[
+  {
+    "ID": 1,
+    "GuideID": 1,
+    "UIName": "UIGuideTest1",
+    "NodePath": "step1",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 0,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "",
+    "TipPos": {
+      "x": 0,
+      "y": 0
+    },
+    "Prefab": ""
+  },
+  {
+    "ID": 2,
+    "GuideID": 2,
+    "UIName": "UIGuideTest1",
+    "NodePath": "step2",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 0,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "",
+    "TipPos": {
+      "x": 0,
+      "y": 0
+    },
+    "Prefab": ""
+  },
+  {
+    "ID": 3,
+    "GuideID": 3,
+    "UIName": "UIGuideTest1",
+    "NodePath": "step3",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 0,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "",
+    "TipPos": {
+      "x": 0,
+      "y": 0
+    },
+    "Prefab": ""
+  },
+  {
+    "ID": 4,
+    "GuideID": 4,
+    "UIName": "UIGuideTest1",
+    "NodePath": "step4",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 0,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "",
+    "TipPos": {
+      "x": 0,
+      "y": 0
+    },
+    "Prefab": ""
+  }
+]

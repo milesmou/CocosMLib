@@ -1,15 +1,15 @@
-import { Node, Component, _decorator, Label, Prefab, Size, Tween, Vec3, instantiate, misc, tween, v3 } from 'cc';
+import { Component, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
 import { App } from '../../../../mlib/App';
-import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 import { AssetMgr } from '../../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel, MLogger } from '../../../../mlib/module/logger/MLogger';
+import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
+import { CCUtils } from '../../../../mlib/utils/CCUtil';
 import { EventKey } from '../../../base/GameEnum';
 import GameTable from '../../../base/GameTable';
 import { UIConstant } from '../../../gen/UIConstant';
-import { GuidePrefab } from './GuidePrefab';
+import { TGuide, Vector2 } from '../../../gen/table/Types';
 import { EMaskHollowType, GuideMask } from './GuideMask';
-import { CCUtils } from '../../../../mlib/utils/CCUtil';
-import { Vector2 } from '../../../gen/table/Types';
+import { GuidePrefab } from './GuidePrefab';
 const { ccclass, property } = _decorator;
 
 
@@ -18,29 +18,30 @@ export class UIGuide extends Component {
 
     public static Inst: UIGuide;
 
-    _logger = new MLogger("Guide Log", ELoggerLevel.Warn);
+    private _logger = new MLogger("Guide", ELoggerLevel.Warn);
 
     @property(GuideMask)
-    mask: GuideMask = null;
+    private m_Mask: GuideMask = null;
     @property(Node)
-    ring: Node = null;
+    private m_Ring: Node = null;
     @property(Node)
-    finger: Node = null;
+    private m_Finger: Node = null;
     @property(Node)
-    tip: Node = null;
+    private m_Tip: Node = null;
     @property(Node)
-    hollowTarget: Node = null;
+    private m_HollowTarget: Node = null;
     @property(Node)
-    btnScreen: Node = null;
+    private m_BtnScreen: Node = null;
     @property(Node)
-    prefabParent: Node = null;
+    private m_PrefabParent: Node = null;
+
+    private _hollowTargetTf: UITransform;
 
     public get isGuide() { return this._guideId > 0; }
     public get nowGuide() { return this._guideId; }
 
     private _guideId: number = 0;
-    // private _guideData: TGuide[] = [];
-    private _guideData: any[] = [];
+    private _guideData: TGuide[] = [];
     private _nowIndex: number;
     private _stepFuncs: { [setpIndex: number]: ((ui: UIBase) => Promise<Node>) };
     private _onManualStep?: (stepIndex: number) => void;
@@ -52,22 +53,23 @@ export class UIGuide extends Component {
 
     onLoad() {
         UIGuide.Inst = this;
-        // this.hide(true);
-        // this.mask.onEventTargetInvalid.addListener(() => {
-        //     this._logger.warn(`事件节点已销毁 跳过本步引导`);
-        //     this.checkOver();
-        // })
+        this._hollowTargetTf = this._hollowTargetTf;
+        this.hide(true);
+        this.m_Mask.onEventTargetInvalid.addListener(() => {
+            this._logger.warn(`事件节点已销毁 跳过本步引导`);
+            this.checkOver();
+        })
     }
 
 
     private hide(fast = false) {
         this.setShadeOpacity(0, fast ? 0 : 0.15, () => {
-            this.mask.node.active = false;
+            this.m_Mask.node.active = false;
         });
-        this.ring.active = false;
-        this.finger.active = false;
-        this.tip.active = false;
-        this.btnScreen.active = false;
+        this.m_Ring.active = false;
+        this.m_Finger.active = false;
+        this.m_Tip.active = false;
+        this.m_BtnScreen.active = false;
     }
 
     private guideOver() {
@@ -89,7 +91,7 @@ export class UIGuide extends Component {
             this.guideOver();
         }
         else {
-            this.mask.reset();
+            this.m_Mask.reset();
             this._nowIndex++;
             this.showGuideStep();
         }
@@ -108,21 +110,21 @@ export class UIGuide extends Component {
         }
         this._guideId = guideId;
         this._nowIndex = 0;
-        // this._guideData = GameTable.Inst.getGuideGroup(guideId);
-        // if (this._guideData != null) {
-        //     this._logger.debug("开始引导" + guideId);
-        //     App.event.emit(EventKey.OnGuideStart, this._guideId);
-        //     onStart && onStart();
-        //     this._onEnded = onEnded;
-        //     this._stepFuncs = stepFuncs;
-        //     this._onStep = onStep;
-        //     this._onManualStep = onManualStep;
-        //     this.showGuideStep();
-        // }
-        // else {
-        //     this._logger.debug("引导{this.guideId}数据错误");
-        //     this.guideOver();
-        // }
+        this._guideData = GameTable.Inst.getGuideGroup(guideId);
+        if (this._guideData != null) {
+            this._logger.debug("开始引导" + guideId);
+            App.event.emit(EventKey.OnGuideStart, this._guideId);
+            onStart && onStart();
+            this._onEnded = onEnded;
+            this._stepFuncs = stepFuncs;
+            this._onStep = onStep;
+            this._onManualStep = onManualStep;
+            this.showGuideStep();
+        }
+        else {
+            this._logger.debug("引导{this.guideId}数据错误");
+            this.guideOver();
+        }
     }
 
     /** 手动开始引导步骤 */
@@ -156,10 +158,9 @@ export class UIGuide extends Component {
                 this.guideOver();
                 return;
             }
-            // this.hollowTarget.position = this.hollowTarget.parent.convertToNodeSpaceAR(screenPos);
-            // this.hollowTarget.width = guide.NodeSize.x;
-            // this.hollowTarget.height = guide.NodeSize.y;
-            this.showHollowByTarget(this.hollowTarget, eventTarget, hollowDuration);
+            this.m_HollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this.m_HollowTarget.parent);
+            this._hollowTargetTf.setContentSize(guide.NodeSize.x, guide.NodeSize.y);
+            this.showHollowByTarget(this.m_HollowTarget, eventTarget, hollowDuration);
             this.showTipAVG();
         }
     }
@@ -186,15 +187,15 @@ export class UIGuide extends Component {
         this._logger.debug("---------开始引导步骤", this._guideId, this._nowIndex);
 
         App.ui.blockTime = 99999;
-        this.mask.node.active = true;
-        this.mask.reset();
-        this.ring.active = false;
-        this.finger.active = false;
-        this.btnScreen.active = false
+        this.m_Mask.node.active = true;
+        this.m_Mask.reset();
+        this.m_Ring.active = false;
+        this.m_Finger.active = false;
+        this.m_BtnScreen.active = false
 
         let guide = this._guideData[this._nowIndex];
         this.setShadeOpacity(guide.Opacity || 185)
-        if (!guide.TipText) this.tip.active = false;
+        if (!guide.TipText) this.m_Tip.active = false;
 
         this._onStep && this._onStep(this._nowIndex);
 
@@ -209,9 +210,9 @@ export class UIGuide extends Component {
                 this.showPrefab();
             }
             else {//点击指定节点
-                // let targetNode = await this.findTargetNode(ui);
-                // this.showHollowByTarget(targetNode.hollowTarget, targetNode.eventTarget);
-                // this.showTipAVG();
+                let targetNode = await this.findTargetNode(ui);
+                this.showHollowByTarget(targetNode.hollowTarget, targetNode.eventTarget);
+                this.showTipAVG();
             }
         }
     }
@@ -234,9 +235,9 @@ export class UIGuide extends Component {
                     if (App.ui.getUI(uiName).isAnimEnd) {
                         resovle(ui);
                     } else {
-                        // ui.onAnimEnd.addListener(() => {
-                        //     resovle(ui);
-                        // }, this, true);
+                        ui.onAnimEnd.addListener(() => {
+                            resovle(ui);
+                        }, this, true);
                     }
                 }
 
@@ -270,154 +271,144 @@ export class UIGuide extends Component {
 
     private async showBtnScreen() {
         this._logger.debug("点击屏幕即可");
-        this.btnScreen.active = true
-        this.btnScreen.once("click", this.checkOver.bind(this));
+        this.m_BtnScreen.active = true
+        this.m_BtnScreen.once("click", this.checkOver.bind(this));
         App.ui.blockTime = -1;
     }
 
     private async showPrefab() {
-        // this._logger.debug("加载预制体");
-        // let guide = this._guideData[this._nowIndex];
-        // let prefab = await AssetMgr.loadAsset("" + guide.Prefab, Prefab);
-        // let node = instantiate(prefab);
-        // let comp = node.getComponent(GuidePrefab);
-        // comp.onClose.addListener(this.checkOver, this, true);
-        // comp.init(this._guideId, this._nowIndex);
-        // App.ui.blockTime = -1;
+        this._logger.debug("加载预制体");
+        let guide = this._guideData[this._nowIndex];
+        let prefab = await AssetMgr.loadAsset("" + guide.Prefab, Prefab);
+        let node = instantiate(prefab);
+        node.parent = this.m_PrefabParent;
+        let comp = node.getComponent(GuidePrefab);
+        comp.onClose.addListener(this.checkOver, this, true);
+        comp.init(this._guideId, this._nowIndex);
+        App.ui.blockTime = -1;
     }
 
 
     /** 获取UI上的目标节点 */
     private async findTargetNode(ui: UIBase) {
-        // let guide = this._guideData[this._nowIndex];
-        // let btnNode: Node;
-        // if (!guide.NodePath.trim()) {
-        //     if (this._stepFuncs[this._nowIndex]) {
-        //         let stepFunc = this._stepFuncs[this._nowIndex];
-        //         btnNode = await stepFunc(ui);
-        //     }
-        //     else {
-        //         this._logger.error(`引导${this._guideId} 第${this._nowIndex}步 未传入stepFunc`);
-        //         return;
-        //     }
-        // }
-        // else {
-        //     btnNode = CCUtils.getNodeAtPath(ui.node, guide.NodePath);
-        // }
-        // if (btnNode) {
-        //     let result: { hollowTarget: Node, eventTarget: Node } = { hollowTarget: btnNode, eventTarget: btnNode };
-        //     if (guide.NodeSize.x > 0 && guide.NodeSize.y > 0) {
-        //         this.hollowTarget.position = CCUtils.nodePosToNodeAxisPos(btnNode, this.node, v3(0, 0));
-        //         this.hollowTarget.width = guide.NodeSize.x;
-        //         this.hollowTarget.height = guide.NodeSize.y;
-        //         result.hollowTarget = this.hollowTarget;
-        //     }
-        //     return result;
-        // }
-        // else {
-        //     this._logger.error(`引导${this._guideId} 第${this._nowIndex}步 未找到指定Node`);
-        //     this.guideOver();
-        //     return null;
-        // }
+        let guide = this._guideData[this._nowIndex];
+        let btnNode: Node;
+        if (!guide.NodePath.trim()) {
+            if (this._stepFuncs[this._nowIndex]) {
+                let stepFunc = this._stepFuncs[this._nowIndex];
+                btnNode = await stepFunc(ui);
+            }
+            else {
+                this._logger.error(`引导${this._guideId} 第${this._nowIndex}步 未传入stepFunc`);
+                return;
+            }
+        }
+        else {
+            btnNode = CCUtils.getNodeAtPath(ui.node, guide.NodePath);
+        }
+        if (btnNode) {
+            let result: { hollowTarget: Node, eventTarget: Node } = { hollowTarget: btnNode, eventTarget: btnNode };
+            if (guide.NodeSize.x > 0 && guide.NodeSize.y > 0) {
+                this.m_HollowTarget.position = CCUtils.uiNodePosToUINodePos(btnNode, this.node, v3(0, 0));
+                this._hollowTargetTf.setContentSize(guide.NodeSize.x, guide.NodeSize.y);
+                result.hollowTarget = this.m_HollowTarget;
+            }
+            return result;
+        }
+        else {
+            this._logger.error(`引导${this._guideId} 第${this._nowIndex}步 未找到指定Node`);
+            this.guideOver();
+            return null;
+        }
     }
 
     /** 展示挖孔 并且可以点击挖孔区域 */
     private showHollowByTarget(hollowTarget?: Node, eventTarget?: Node, duration = 0.25) {
-        // let guide = this._guideData[this._nowIndex];
-        // if (hollowTarget) {
-        //     this.mask.hollow(guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle, hollowTarget, eventTarget, guide.HollowScale, duration);
-        //     eventTarget.once("click", this.checkOver.bind(this));
-        //     this._logger.debug(`挖孔Size width=${hollowTarget.width} height=${hollowTarget.height}`);
-        //     this.scheduleOnce(() => {
-        //         App.ui.blockTime = -1;
-        //         let pos = CCUtils.nodePosToNodeAxisPos(hollowTarget.parent, this.node, hollowTarget.position);
-        //         this.showRing(guide.RingScale, pos, guide.RingOffset);
-        //         this.showFinger(guide.FingerDir, pos, guide.FingerOffset);
-        //     }, duration + 0.05);
-        // }
+        let guide = this._guideData[this._nowIndex];
+        if (hollowTarget) {
+            this.m_Mask.hollow(guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle, hollowTarget, eventTarget, guide.HollowScale, duration);
+            eventTarget.once("click", this.checkOver.bind(this));
+            this._logger.debug(`挖孔Size width=${this._hollowTargetTf.width} height=${this._hollowTargetTf.height}`);
+            this.scheduleOnce(() => {
+                App.ui.blockTime = -1;
+                let pos = CCUtils.uiNodePosToUINodePos(hollowTarget.parent, this.node, hollowTarget.position);
+                this.showRing(guide.RingScale, pos, guide.RingOffset);
+                this.showFinger(guide.FingerDir, pos, guide.FingerOffset);
+            }, duration + 0.05);
+        }
     }
 
     /** 展示提示文字对话框 */
     private showTipAVG() {
         let guide = this._guideData[this._nowIndex];
-        this.showTipHead(guide.TipHead);
         this.showTipText(guide.TipText, guide.TipPos);
-    }
-
-
-    /** 屏幕坐标转本地坐标 */
-    public screenPos2LocalPos(screenPos: Vec3) {
-        // return this.hollowTarget.parent.convertToNodeSpaceAR(screenPos);
     }
 
     /** 自定义挖孔 仅挖孔不可点击  */
     public showCustomHollow(type: EMaskHollowType, screenPos: Vec3, size: Size, duration = 0.25) {
-        // this.hollowTarget.position = this.hollowTarget.parent.convertToNodeSpaceAR(screenPos);
-        // this.hollowTarget.width = size.width;
-        // this.hollowTarget.height = size.height;
-        // this.mask.hollow2(type, this.hollowTarget, 1, duration);
+        this.m_HollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this.m_HollowTarget.parent);
+        this._hollowTargetTf.width = size.width;
+        this._hollowTargetTf.height = size.height;
+        this.m_Mask.hollow2(type, this.m_HollowTarget, 1, duration);
     }
 
     /** 设置遮罩透明度 */
     public setShadeOpacity(opacity: number, dur = 0.15, onEnded?: () => void) {
-        // if (opacity == this.node.opacity) return;
-        // Tween.stopAllByTarget(this.mask.node);
-        // if (dur == 0) {
-        //     this.mask.node.opacity = opacity;
-        //     onEnded && onEnded();
-        // } else {
-        //     tween(this.mask.node).to(dur, { opacity: opacity }).call(onEnded).start();
-        // }
+        let uiOpacity = this.m_Mask.getComponent(UIOpacity);
+        if (opacity == uiOpacity.opacity) return;
+        Tween.stopAllByTarget(this.m_Mask.node);
+        if (dur == 0) {
+            uiOpacity.opacity = opacity;
+            onEnded && onEnded();
+        } else {
+            tween(uiOpacity).to(dur, { opacity: opacity }).call(onEnded).start();
+        }
     }
 
     /** 显示圆圈 */
     public showRing(scale: number, pos: Vec3, offset: Vector2) {
-        // this.ring.active = true;
-        // this.ring.scale = scale || 1;
-        // this.ring.position = pos.add(v3(offset));
+        this.m_Ring.active = true;
+        this.m_Ring.setScale(scale, scale);
+        this.m_Ring.position = pos.add(v3(offset.x, offset.y));
     }
 
     /** 显示手指 */
     public showFinger(dir: number, pos: Vec3, offset: Vector2) {
-        // if (dir == 0) {
-        //     this.finger.active = false;
-        // }
-        // else {
-        //     dir = misc.clampf(dir, 1, 4);
-        //     this.finger.active = true;
-        //     this.finger.position = pos.add(v3(offset));
-        //     switch (dir) {
-        //         case 1:
-        //             this.finger.angle = 0;
-        //             break;
-        //         case 2:
-        //             this.finger.angle = 180;
-        //             break;
-        //         case 3:
-        //             this.finger.angle = 90;
-        //             break;
-        //         case 4:
-        //             this.finger.angle = -90;
-        //             break;
-        //     }
-        // }
+        if (dir == 0) {
+            this.m_Finger.active = false;
+        }
+        else {
+            dir = misc.clampf(dir, 1, 4);
+            this.m_Finger.active = true;
+            this.m_Finger.position = pos.add(v3(offset.x, offset.y));
+            switch (dir) {
+                case 1:
+                    this.m_Finger.angle = 0;
+                    break;
+                case 2:
+                    this.m_Finger.angle = 180;
+                    break;
+                case 3:
+                    this.m_Finger.angle = 90;
+                    break;
+                case 4:
+                    this.m_Finger.angle = -90;
+                    break;
+            }
+        }
     }
 
     /** 展示提示文字 */
     public showTipText(text: string, pos: Vector2) {
-        // if (!text || !text.trim()) {
-        //     this.tip.active = false;
-        // }
-        // else {
-        //     this.tip.active = true;
-        //     this.tip.position = v3(pos.x, pos.y);
-        //     let lbl = this.tip.getComponentInChildren(Label);
-        //     lbl.string = App.localization.getStringByKey(text);
-        // }
+        if (!text || !text.trim()) {
+            this.m_Tip.active = false;
+        }
+        else {
+            this.m_Tip.active = true;
+            this.m_Tip.position = v3(pos.x, pos.y);
+            let lbl = this.m_Tip.getComponentInChildren(Label);
+            lbl.string = App.l10n.getStringByKey(text);
+        }
     }
 
-    private showTipHead(headIndex: number) {
-        // let avgShow = this.tip.getComponentInChildren(AvgShow);
-        // avgShow.showAvg(headIndex);
-    }
 }

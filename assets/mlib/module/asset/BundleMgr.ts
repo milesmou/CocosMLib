@@ -27,7 +27,7 @@ export class BundleMgr {
         bundle["_config"].paths.forEach(v => {
             v.forEach(v1 => {
                 let path: string = v1.path;
-                MLogger.debug(path);
+                // MLogger.debug(path);
                 let dir = path.substring(0, path.lastIndexOf("/"));
                 if (!this.dirAddress.get(dir)) this.dirAddress.set(dir, []);
                 this.dirAddress.get(dir).push(path);

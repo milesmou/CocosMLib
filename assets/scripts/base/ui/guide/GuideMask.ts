@@ -1,4 +1,4 @@
-import { Node, _decorator, Sprite, Component, Rect } from "cc";
+import { Button, Component, EventTouch, Node, Rect, Sprite, Toggle, UITransform, _decorator, v2, v3 } from "cc";
 import { MEvent } from "../../../../mlib/module/event/MEvent";
 import { MLogger } from "../../../../mlib/module/logger/MLogger";
 import { HollowOut } from "./HollowOut";
@@ -30,10 +30,7 @@ export class GuideMask extends Component {
 
     protected onLoad(): void {
         this.hollowOut = this.getComponent(HollowOut);
-        // this.node.on(Node.EventType.TOUCH_START, this.stopTouchEvent, this);
-        // this.node.on(Node.EventType.TOUCH_MOVE, this.stopTouchEvent, this);
-        // this.node.on(Node.EventType.TOUCH_CANCEL, this.stopTouchEvent, this);
-        // this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.reset();
     }
 
@@ -51,76 +48,70 @@ export class GuideMask extends Component {
 
     /** 仅挖孔 不可点击挖孔区域 */
     public hollow2(type: EMaskHollowType, hollowTarget: Node, scale: number, duration = 0.25) {
-        // this._hollowTargetRect = hollowTarget.getBoundingBoxToWorld();
-        // let pos = this.node.convertToNodeSpaceAR(this._hollowTargetRect.center);
-        // scale = scale || 1;
+        this._hollowTargetRect = hollowTarget.getComponent(UITransform).getBoundingBoxToWorld();
+        let center = this._hollowTargetRect.center;
+        let posV3 = this.getComponent(UITransform).convertToNodeSpaceAR(v3(center.x, center.y));
+        let pos = v2(posV3.x, posV3.y);
+        scale = scale || 1;
 
-        // if (type == EMaskHollowType.Rect) {
-        //     let width = this._hollowTargetRect.width * scale;
-        //     let height = this._hollowTargetRect.height * scale;
-        //     if (duration > 0) {
-        //         this.hollowOut.rectTo(duration, pos, width, height, 1, 0.5);
-        //     } else {
-        //         this.hollowOut.rect(pos, width, height, 1, 0.5);
-        //     }
-        // } else {
-        //     let radius = Math.sqrt((this._hollowTargetRect.width / 2) ** 2 + (this._hollowTargetRect.height / 2) ** 2) * scale;
-        //     if (duration > 0) {
-        //         this.hollowOut.circleTo(duration, pos, radius, 0.5);
-        //     } else {
-        //         this.hollowOut.circle(pos, radius, 0.5);
-        //     }
-        // }
+        if (type == EMaskHollowType.Rect) {
+            let width = this._hollowTargetRect.width * scale;
+            let height = this._hollowTargetRect.height * scale;
+            if (duration > 0) {
+                this.hollowOut.rectTo(duration, pos, width, height, 1, 0.5);
+            } else {
+                this.hollowOut.rect(pos, width, height, 1, 0.5);
+            }
+        } else {
+            let radius = Math.sqrt((this._hollowTargetRect.width / 2) ** 2 + (this._hollowTargetRect.height / 2) ** 2) * scale;
+            if (duration > 0) {
+                this.hollowOut.circleTo(duration, pos, radius, 0.5);
+            } else {
+                this.hollowOut.circle(pos, radius, 0.5);
+            }
+        }
 
-        // this.scheduleOnce(() => {
-        //     this._isTweenHollow = false;
-        // }, 0.05);
+        this.scheduleOnce(() => {
+            this._isTweenHollow = false;
+        }, 0.05);
     }
 
-    // private stopTouchEvent(evt: Event.EventTouch) {
-    //     evt.stopPropagation();
-    // }
+    private onTouchEnd(evt: EventTouch) {
 
-    // private onTouchEnd(evt: Event.EventTouch) {
+        if (this._isTweenHollow) return;
 
-    //     if (this._isTweenHollow) return;
-
-    //     if (!this._canClick) return;
+        if (!this._canClick) return;
 
 
-    //     let pos = evt.getLocation();
-    //     if (
-    //         pos.x > this._hollowTargetRect.xMin && pos.x < this._hollowTargetRect.xMax &&
-    //         pos.y > this._hollowTargetRect.yMin && pos.y < this._hollowTargetRect.yMax
-    //     ) {
+        let pos = evt.getLocation();
+        if (
+            pos.x > this._hollowTargetRect.xMin && pos.x < this._hollowTargetRect.xMax &&
+            pos.y > this._hollowTargetRect.yMin && pos.y < this._hollowTargetRect.yMax
+        ) {
 
-    //         this._canClick = false;
+            this._canClick = false;
 
-    //         if (!this._eventTarget.isValid) {//事件节点已销毁
-    //             this.onEventTargetInvalid.dispatch();
-    //             return;
-    //         }
+            if (!this._eventTarget.isValid) {//事件节点已销毁
+                this.onEventTargetInvalid.dispatch();
+                return;
+            }
 
-    //         let btn = this._eventTarget.getComponent(Button);
-    //         if (btn) {
-    //             Component.EventHandler.emitEvents(btn.clickEvents, evt);
-    //             btn.node.emit("click", btn);
-    //             return;
-    //         }
-    //         let tog = this._eventTarget.getComponent(Toggle);
-    //         if (tog) {
-    //             Component.EventHandler.emitEvents(tog.clickEvents, evt);
-    //             tog.node.emit("click", tog);
-    //             return;
-    //         }
-    //         MLogger.warn("节点上没有Button或Toggle", this._eventTarget);
+            let btn = this._eventTarget.getComponent(Button);
+            if (btn) {
+                Component.EventHandler.emitEvents(btn.clickEvents, evt);
+                btn.node.emit("click", btn);
+                return;
+            }
+            let tog = this._eventTarget.getComponent(Toggle);
+            if (tog) {
+                Component.EventHandler.emitEvents(tog.clickEvents, evt);
+                tog.node.emit("click", tog);
+                return;
+            }
+            MLogger.warn("节点上没有Button或Toggle", this._eventTarget);
+        }
 
-    //         //向下传递事件
-    //     } else {
-    //         evt.stopPropagation();
-    //     }
-
-    // }
+    }
 
 }
 

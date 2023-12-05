@@ -75,6 +75,10 @@ export class UIMgr extends Component {
     }
 
     async init() {
+        // 添加引导界面
+        this.instNode(UIConstant.UIGuide, this.resident).then(n => {
+            this.guide = n.getComponent(UIGuide);
+        });
         // 添加提示信息界面
         this.instNode(UIConstant.UITipMsg, this.resident).then(n => {
             this.tipMsg = n.getComponent(UITipMsg);

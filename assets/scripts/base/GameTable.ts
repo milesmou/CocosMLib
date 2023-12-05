@@ -1,7 +1,7 @@
 import { JsonAsset } from 'cc';
 import { AssetMgr } from '../../mlib/module/asset/AssetMgr';
 import { SingletonFactory } from '../../mlib/utils/SingletonFactory';
-import { Tables } from '../gen/table/Types';
+import { TGuide, Tables } from '../gen/table/Types';
 /**
 * 数据表管理类
 */
@@ -24,16 +24,16 @@ export default class GameTable {
         AssetMgr.DecDirRef(dir);
     }
 
-    ///引导
+    //引导
 
-    // getGuideGroup(guideId: number) {
-    //     let result: TGuide[] = [];
-    //     let dataList = this.Table.TbGuide.getDataList();
-    //     for (const guide of dataList) {
-    //         if (guide.GuideID == guideId) result.push(guide);
-    //     }
-    //     return result;
-    // }
+    getGuideGroup(guideId: number) {
+        let result: TGuide[] = [];
+        let dataList = this.Table.TbGuide.getDataList();
+        for (const guide of dataList) {
+            if (guide.GuideID == guideId) result.push(guide);
+        }
+        return result;
+    }
 
 
 }

@@ -33,7 +33,7 @@ export default class UnforcedGuide extends Component {
 
     private showFinger(ui: UIBase, data: TUnforcedGuide) {
         let node = CCUtils.getNodeAtPath(ui.node, this._guideMap.get(ui.uiName).NodePath);
-        var pos = CCUtils.nodePosToNodeAxisPos(node.parent, this.node, node.position);
+        var pos = CCUtils.uiNodePosToUINodePos(node.parent, this.node, node.position);
         let dir = misc.clampf(data.FingerDir, 1, 4);
         this.finger.active = true;
         this.finger.position = pos.add(v3(data.FingerOffset));

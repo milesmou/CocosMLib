@@ -8,6 +8,13 @@
 type ByteBufLoader = (file: string) => ByteBuf
 
 export class {{name}} {
+	public static get TableNames(){
+        return [
+            {{~for table in tables ~}}
+			'{{table.output_data_file}}',
+			{{~end~}}
+        ];
+    }
     {{~ for table in tables ~}}
     private _{{table.name}}: {{table.full_name}}
 {{~if table.comment != '' ~}}
