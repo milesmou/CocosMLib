@@ -19,9 +19,6 @@ export class Switch extends Component {
     /** 更新CheckNode */
     updateCheck(...childIndex: number[]) {
         this.checkIndex = childIndex;
-        //游戏中使用了多个字体可能会造成显示异常 
-        this.scheduleOnce(() => {
-            this.updateContent();
-        })
+        this.updateContent();
     }
 }
