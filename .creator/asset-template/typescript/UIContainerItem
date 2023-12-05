@@ -1,0 +1,22 @@
+import { _decorator, Component, Node } from 'cc';
+const { ccclass, property } = _decorator;
+
+@ccclass('<%UnderscoreCaseClassName%>')
+export class <%UnderscoreCaseClassName%> extends UIContainerItem {
+
+	//protected propertys: <%UnderscoreCaseClassName%>Property;
+	
+    onLoad() {
+        super.onLoad();
+		//this.propertys = new <%UnderscoreCaseClassName%>Property(this.node);
+    }
+
+    initData() {
+
+    }
+}
+
+
+
+
+

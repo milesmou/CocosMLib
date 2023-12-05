@@ -6,8 +6,8 @@ import { UIMessage } from "./UIMessage";
 
 const { property, ccclass, requireComponent } = _decorator;
 
-@ccclass("UIItem")
-export class UIItem extends GenProperty {
+@ccclass("UIContainer")
+export class UIContainer extends GenProperty {
     private _ui: UIBase;
     /** 获取UI元素所在的UI界面 */
     protected get ui() {
