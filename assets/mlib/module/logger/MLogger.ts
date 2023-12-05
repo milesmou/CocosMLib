@@ -10,6 +10,7 @@ export class MLogger {
     private static globalLevel: ELoggerLevel;
 
     public static setLevel(level: ELoggerLevel) {
+        MLogger.globalLevel = level;
         this.info = level > ELoggerLevel.Info ? this.none : console.log.bind(console, `[${this.globalTag} Info]`);
         this.debug = level > ELoggerLevel.Debug ? this.none : console.log.bind(console, `[${this.globalTag} Debug]`);
         this.warn = level > ELoggerLevel.Warn ? this.none : console.warn.bind(console, `[${this.globalTag} Warn]`);
