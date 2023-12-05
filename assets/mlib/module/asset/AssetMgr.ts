@@ -1,4 +1,5 @@
-import { Asset, assetManager, ImageAsset, JsonAsset, Sprite, SpriteFrame, sys } from "cc";
+import { Asset, assetManager, ImageAsset, Sprite, SpriteFrame, sys } from "cc";
+import { BundleConstant } from "../../../scripts/gen/BundleConstant";
 import { MLogger } from "../logger/MLogger";
 import { AssetCache } from "./AssetCache";
 import { BundleMgr } from "./BundleMgr";
@@ -16,7 +17,7 @@ export class AssetMgr {
 
     static async loadAllBundle(bundleNames?: string[], onFileProgress?: (loaded: number, total: number) => void) {
         if (!bundleNames) {
-            bundleNames = (await this.loadAsset("Bundles", JsonAsset)).json as string[];
+            bundleNames = BundleConstant;
         }
         await BundleMgr.Inst.loadAllBundle(bundleNames, onFileProgress);
     }

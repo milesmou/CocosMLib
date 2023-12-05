@@ -74,7 +74,7 @@ class CmdExecute {
         //生成Bundles.json
         {
             let bundlesDir = Utils_1.Utils.ProjectPath + "/assets/bundles";
-            let outFile = Utils_1.Utils.ProjectPath + "/assets/resources/Bundles.json";
+            let outFile = Utils_1.Utils.ProjectPath + "/assets/scripts/gen/BundleConstant.ts";
             let result = [];
             let list = fs_extra_1.default.readdirSync(bundlesDir);
             for (const name of list) {
@@ -86,9 +86,10 @@ class CmdExecute {
                     }
                 }
             }
-            fs_extra_1.default.writeJSONSync(outFile, result);
+            let content = `export const BundleConstant = ${JSON.stringify(result)};`;
+            fs_extra_1.default.writeFileSync(outFile, content);
             Utils_1.Utils.refreshAsset(outFile);
-            MLogger_1.MLogger.print("生成Bundles.json成功");
+            MLogger_1.MLogger.print("生成BundleConstant.ts成功");
         }
         //生成UIConstant
         {
