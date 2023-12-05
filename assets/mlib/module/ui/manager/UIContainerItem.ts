@@ -1,4 +1,4 @@
-import { _decorator } from "cc";
+import { Button, _decorator } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
 import { GenProperty } from "../property/GenProperty";
 import { UIBase } from "./UIBase";
@@ -21,6 +21,11 @@ export class UIContainerItem extends GenProperty {
 
     protected onLoad(): void {
         this.message = new UIMessage(this.node);
+        this.getComponentsInChildren(Button).forEach(v => v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name)));
+    }
+
+    protected onClickButton(btnName: string) {
+
     }
 }
 

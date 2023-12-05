@@ -98,7 +98,7 @@ export class UIBase extends GenProperty {
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.animation = this.getComponent(Animation) || CCUtils.getComponentInChildren(this.node, Animation);
 
-        this.getComponentsInChildren(Button).forEach(v => v.node.on("click", this.onClickButton.bind(this, v.node.name)));
+        this.getComponentsInChildren(Button).forEach(v => v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name)));
     }
 
     private initShade() {
