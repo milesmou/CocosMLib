@@ -110,7 +110,7 @@ class GenProperty {
                 let path = this.getNodePath(node);
                 let prefix = node.name.replace(this.prefix, "");
                 prefix = prefix.replace(/[^_a-zA-Z0-9]/g, "");
-                let comps = node.components;
+                let comps = this.getVaildComponents(node.components);
                 if (comps.length > 0) {
                     for (const comp of comps) {
                         let compName = cc_1.js.getClassName(comp);
@@ -150,6 +150,17 @@ class GenProperty {
             }
         }
         return list;
+    }
+    /** 筛选出有效的组件 */
+    static getVaildComponents(comps) {
+        let result = [];
+        for (const comp of comps) {
+            let compName = cc_1.js.getClassName(comp);
+            let cctype = CCTypes.find(v => v.name == compName);
+            if (cctype)
+                result.push(comp);
+        }
+        return result;
     }
 }
 exports.GenProperty = GenProperty;

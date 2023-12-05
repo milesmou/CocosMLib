@@ -6,10 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CmdExecute = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
-const MLogger_1 = require("./tools/MLogger");
-const Utils_1 = require("./tools/Utils");
 const Config_1 = require("./tools/Config");
 const Constant_1 = require("./tools/Constant");
+const MLogger_1 = require("./tools/MLogger");
+const Utils_1 = require("./tools/Utils");
 class CmdExecute {
     /** 格式化目录结构 */
     static formatProject() {
@@ -175,6 +175,23 @@ class CmdExecute {
     static closeBuildTemplate() {
         Config_1.Config.set(Constant_1.Constant.BuildTemplateSaveKey, false);
         MLogger_1.MLogger.info("自定义构面模板已禁用");
+    }
+    static delInvalidProperty() {
+        let propertysDir = Utils_1.Utils.ProjectPath + "/assets/scripts/gen/property";
+        let scriptsDir = Utils_1.Utils.ProjectPath + "/assets/scripts";
+        let ext = ".ts";
+        let files = Utils_1.Utils.getAllFiles(propertysDir, [ext]);
+        let allScripts = Utils_1.Utils.getAllFiles(scriptsDir, [ext]);
+        files.forEach(file => {
+            let fileName = path_1.default.basename(file);
+            let comp = fileName.replace("Property", "");
+            let sc = allScripts.find(v => v.endsWith(comp));
+            if (!sc) { //无效的Property脚本
+                Utils_1.Utils.deleteAsset(file);
+                MLogger_1.MLogger.info("删除脚本", fileName);
+            }
+        });
+        MLogger_1.MLogger.info("删除无效的属性脚本完成");
     }
 }
 exports.CmdExecute = CmdExecute;

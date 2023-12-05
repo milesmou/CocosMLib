@@ -64,8 +64,12 @@ export class Utils {
         return files;
     }
 
-    static refreshAsset(path) {
+    static refreshAsset(path: string) {
         Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
+    }
+
+    static deleteAsset(path: string) {
+        Editor.Message.send("asset-db", "delete-asset", this.toAssetDBUrl(path));
     }
 
     static toAssetDBUrl(path: string) {

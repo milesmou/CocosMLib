@@ -16,6 +16,7 @@ export const methods: { [key: string]: (...any: any) => any } = {
     openBuildTemplate: CmdExecute.openBuildTemplate,
     closeBuildTemplate: CmdExecute.closeBuildTemplate,
     genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
+    delInvalidProperty: CmdExecute.delInvalidProperty,
     //场景操作命令
     autoGenProperty: SceneCmdExecute.autoGenProperty,
     replaceComponent: SceneCmdExecute.replaceComponent,

@@ -73,6 +73,9 @@ class Utils {
     static refreshAsset(path) {
         Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
     }
+    static deleteAsset(path) {
+        Editor.Message.send("asset-db", "delete-asset", this.toAssetDBUrl(path));
+    }
     static toAssetDBUrl(path) {
         if (path.startsWith("db://"))
             return path;

@@ -3,9 +3,9 @@
     "filterType": "error",
     "filterTypes": [
       "error",
-      "log",
       "info",
-      "warn"
+      "warn",
+      "log"
     ]
   },
   "__version__": "1.0.0"

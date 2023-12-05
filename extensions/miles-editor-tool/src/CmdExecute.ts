@@ -1,10 +1,9 @@
 import fs from "fs-extra";
 import path from "path";
-import { ExecuteSceneScriptMethodOptions } from "../@types/packages/scene/@types/public";
-import { MLogger } from "./tools/MLogger";
-import { Utils } from "./tools/Utils";
 import { Config } from "./tools/Config";
 import { Constant } from "./tools/Constant";
+import { MLogger } from "./tools/MLogger";
+import { Utils } from "./tools/Utils";
 
 export class CmdExecute {
 
@@ -132,7 +131,7 @@ export class CmdExecute {
 
     }
 
-   
+
 
     static closeTexCompress() {
         let allFiles = Utils.getAllFiles(Utils.ProjectPath + "/assets", [".jpg", ".png", ".jpeg", ".pac"]);
@@ -185,5 +184,23 @@ export class CmdExecute {
     static closeBuildTemplate() {
         Config.set(Constant.BuildTemplateSaveKey, false);
         MLogger.info("自定义构面模板已禁用");
+    }
+
+    static delInvalidProperty() {
+        let propertysDir = Utils.ProjectPath + "/assets/scripts/gen/property"
+        let scriptsDir = Utils.ProjectPath + "/assets/scripts";
+        let ext = ".ts";
+        let files = Utils.getAllFiles(propertysDir, [ext]);
+        let allScripts = Utils.getAllFiles(scriptsDir, [ext]);
+        files.forEach(file => {
+            let fileName = path.basename(file);
+            let comp = fileName.replace("Property", "");
+            let sc = allScripts.find(v => v.endsWith(comp));
+            if (!sc) {//无效的Property脚本
+                Utils.deleteAsset(file);
+                MLogger.info("删除脚本", fileName);
+            }
+        });
+        MLogger.info("删除无效的属性脚本完成");
     }
 }
