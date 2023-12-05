@@ -98,7 +98,11 @@ export class UIBase extends GenProperty {
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.animation = this.getComponent(Animation) || CCUtils.getComponentInChildren(this.node, Animation);
 
-        this.getComponentsInChildren(Button).forEach(v => v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name)));
+        this.getComponentsInChildren(Button).forEach(v => {
+            let root = CCUtils.getComponentInParent(v.node, GenProperty);
+            if (root != this) return;//忽略其它UI组件所在节点下的按钮
+            v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name))
+        });
     }
 
     private initShade() {
