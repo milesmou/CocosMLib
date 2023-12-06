@@ -1,5 +1,4 @@
 import { PREVIEW } from "cc/env";
-import { App } from "../App";
 import { HttpRequest } from "../module/network/HttpRequest";
 import { MResponse } from "./MResponse";
 
