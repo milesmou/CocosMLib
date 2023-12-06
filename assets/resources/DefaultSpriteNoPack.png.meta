@@ -22,7 +22,7 @@
         "visible": false,
         "minfilter": "linear",
         "magfilter": "linear",
-        "mipfilter": "none",
+        "mipfilter": "nearest",
         "anisotropy": 0
       },
       "ver": "1.0.22",

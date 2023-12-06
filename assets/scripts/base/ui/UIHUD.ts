@@ -33,6 +33,9 @@ export class UIHUD extends UIBase {
             case "UIExtend":
                 App.ui.show(UIConstant.UIExtend);
                 break;
+            case "ScrollviewEnhance":
+                App.ui.show(UIConstant.UIScrollviewEnhance);
+                break;
         }
     }
 

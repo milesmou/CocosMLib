@@ -69,7 +69,7 @@ export class UIMgr extends Component {
         CCUtils.uiNodeMatchParent(this.normal);
         CCUtils.uiNodeMatchParent(this.higher);
         CCUtils.uiNodeMatchParent(this.resident);
-        AssetMgr.loadAsset("DefaultSprite/spriteFrame", SpriteFrame).then(sp => {
+        AssetMgr.loadAsset("DefaultSprite", SpriteFrame).then(sp => {
             this.defaultSprite = sp;
         });
 

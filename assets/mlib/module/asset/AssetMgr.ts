@@ -1,4 +1,4 @@
-import { Asset, assetManager, ImageAsset, Sprite, SpriteFrame, sys } from "cc";
+import { Asset, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys } from "cc";
 import { BundleConstant } from "../../../scripts/gen/BundleConstant";
 import { MLogger } from "../logger/MLogger";
 import { AssetCache } from "./AssetCache";
@@ -26,9 +26,12 @@ export class AssetMgr {
         return BundleMgr.Inst.isAssetExists(location);
     }
 
-
-
-    static loadAsset<T extends Asset>(location: string, type?: new (...args: any[]) => T) {
+    static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+        if (js.getClassName(type) === "cc.SpriteFrame") {
+            location += "/spriteFrame";
+        } else if (js.getClassName(type) === "cc.Texture2D") {
+            location += "/texture";
+        }
         let p = new Promise<T>((resolve, reject) => {
             let casset = this.cache.get(location) as T;
             if (casset?.isValid) {

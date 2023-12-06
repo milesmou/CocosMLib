@@ -11,5 +11,6 @@ export const UIConstant = {
     "UIC": "uiPrefab/uiMgrTest/UIC",
     "UIPopUp": "uiPrefab/uiMgrTest/UIPopUp",
     "UIUIMgr": "uiPrefab/uiMgrTest/UIUIMgr",
+    "UIScrollviewEnhance": "uiPrefab/UIScrollviewEnhance",
     "UITestLocalization": "uiPrefab/UITestLocalization",
 }
