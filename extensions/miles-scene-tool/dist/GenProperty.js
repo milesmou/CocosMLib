@@ -58,7 +58,9 @@ class GenProperty {
         let content = "";
         content += `import * as cc from "cc";\n`;
         content += `import { PropertyBase } from "../../../mlib/module/ui/property/PropertyBase";\n`;
+        content += `const { ccclass } = cc._decorator;\n`;
         content += `\n`;
+        content += `@ccclass('${className}')\n`;
         content += `export class ${className} extends PropertyBase {\n`;
         let list = this.getPropertyInfo(comp.node);
         for (const v of list) {

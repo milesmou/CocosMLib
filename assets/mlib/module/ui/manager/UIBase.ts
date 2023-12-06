@@ -1,4 +1,4 @@
-import { Animation, BlockInputEvents, Button, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, tween, view } from "cc";
+import { Animation, BlockInputEvents, Button, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, js, tween, view } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
 import { EventKey } from "../../../../scripts/base/GameEnum";
@@ -8,6 +8,7 @@ import { AssetHandler } from "../../asset/AssetHandler";
 import { MEvent } from "../../event/MEvent";
 import { MLogger } from '../../logger/MLogger';
 import { GenProperty } from "../property/GenProperty";
+import { PropertyBase } from "../property/PropertyBase";
 import { UIMessage } from "./UIMessage";
 
 const EUIAnim = Enum({
@@ -78,12 +79,23 @@ export class UIBase extends GenProperty {
     protected visible: boolean;
     protected args: any = null;
 
+    protected property: PropertyBase;
     protected asset: AssetHandler;
     protected messase: UIMessage;
 
     protected onLoad(): void {
+        let propertyClassName = js.getClassName(this) + "Property";
+        let propertyClass = js.getClassByName(propertyClassName);
+        if (propertyClass) {
+            this.property = new propertyClass(this.node) as PropertyBase;
+        }
         this.asset = new AssetHandler(this.node);
         this.messase = new UIMessage(this.node);
+        this.getComponentsInChildren(Button).forEach(v => {
+            let root = CCUtils.getComponentInParent(v.node, GenProperty);
+            if (root != this) return;//忽略其它UI组件所在节点下的按钮
+            v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name))
+        });
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
@@ -97,12 +109,6 @@ export class UIBase extends GenProperty {
 
         this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
         this.animation = this.getComponent(Animation) || CCUtils.getComponentInChildren(this.node, Animation);
-
-        this.getComponentsInChildren(Button).forEach(v => {
-            let root = CCUtils.getComponentInParent(v.node, GenProperty);
-            if (root != this) return;//忽略其它UI组件所在节点下的按钮
-            v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name))
-        });
     }
 
     private initShade() {

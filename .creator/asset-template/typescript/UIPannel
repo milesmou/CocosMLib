@@ -5,11 +5,7 @@ const { ccclass, property } = _decorator;
 @ccclass('<%UnderscoreCaseClassName%>')
 export class <%UnderscoreCaseClassName%> extends UIBase {
 
-	//protected propertys: <%UnderscoreCaseClassName%>Property;
+	//protected property: <%UnderscoreCaseClassName%>Property;
 
-    protected onLoad(): void {
-        super.onLoad();
-		//this.propertys = new <%UnderscoreCaseClassName%>Property(this.node);
-    }
-
+	
 }

@@ -4,12 +4,7 @@ const { ccclass, property } = _decorator;
 @ccclass('<%UnderscoreCaseClassName%>')
 export class <%UnderscoreCaseClassName%> extends UIContainer {
 	
-	//protected propertys: <%UnderscoreCaseClassName%>Property;
-
-    onLoad() {
-        super.onLoad();
-		//this.propertys = new <%UnderscoreCaseClassName%>Property(this.node);
-    }
+	//protected property: <%UnderscoreCaseClassName%>Property;
 
     
 }
