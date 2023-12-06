@@ -1,4 +1,4 @@
-import { Animation, BlockInputEvents, Button, Enum, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, js, tween, view } from "cc";
+import { Animation, BlockInputEvents, Button, Enum, Layers, Node, Sprite, UIOpacity, UITransform, Widget, _decorator, color, tween } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
 import { EventKey } from "../../../../scripts/base/GameEnum";
@@ -7,8 +7,8 @@ import { CCUtils } from "../../../utils/CCUtil";
 import { AssetHandler } from "../../asset/AssetHandler";
 import { MEvent } from "../../event/MEvent";
 import { MLogger } from '../../logger/MLogger';
-import { GenProperty } from "../property/GenProperty";
 import { PropertyBase } from "../property/PropertyBase";
+import { UIComponent } from "./UIComponent";
 import { UIMessage } from "./UIMessage";
 
 const EUIAnim = Enum({
@@ -27,7 +27,8 @@ export enum EPassiveType {
 
 @ccclass("UIBase")
 @requireComponent(UIOpacity)
-export class UIBase extends GenProperty {
+@requireComponent(Widget)
+export class UIBase extends UIComponent {
     @property({
         displayName: "销毁",
         tooltip: "UI关闭时销毁"
@@ -84,18 +85,8 @@ export class UIBase extends GenProperty {
     protected messase: UIMessage;
 
     protected onLoad(): void {
-        let propertyClassName = js.getClassName(this) + "Property";
-        let propertyClass = js.getClassByName(propertyClassName);
-        if (propertyClass) {
-            this.property = new propertyClass(this.node) as PropertyBase;
-        }
+        super.onLoad();
         this.asset = new AssetHandler(this.node);
-        this.messase = new UIMessage(this.node);
-        this.getComponentsInChildren(Button).forEach(v => {
-            let root = CCUtils.getComponentInParent(v.node, GenProperty);
-            if (root != this) return;//忽略其它UI组件所在节点下的按钮
-            v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name))
-        });
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
@@ -118,18 +109,18 @@ export class UIBase extends GenProperty {
             this.shadeNode = new Node("shade");
             this.shadeNode.layer = Layers.Enum.UI_2D;
             this.shadeNode.parent = this.node;
-            this.shadeNode.addComponent(UITransform).setContentSize(view.getVisibleSize());
+            this.shadeNode.addComponent(UITransform);
             this.shadeNode.addComponent(UIOpacity);
             this.shadeNode.setSiblingIndex(0);
+            CCUtils.uiNodeMatchParent(this.shadeNode);
             let imgNode = new Node("img");
             imgNode.layer = Layers.Enum.UI_2D;
             imgNode.parent = this.shadeNode;
-            let trans = imgNode.addComponent(UITransform)
             let sp = imgNode.addComponent(Sprite);
             sp.sizeMode = Sprite.SizeMode.CUSTOM;
             sp.spriteFrame = App.ui.defaultSprite;
             sp.color = color(0, 0, 0, 150);
-            trans.setContentSize(view.getVisibleSize());
+            CCUtils.uiNodeMatchParent(imgNode);
         }
     }
 
@@ -239,10 +230,6 @@ export class UIBase extends GenProperty {
     /** 关闭UI时调用此方法 */
     protected safeClose() {
         App.ui.hide(this.uiName);
-    }
-
-    protected onClickButton(btnName: string) {
-
     }
 
     /** UI准备打开时触发 (UI打开动画播放前) */

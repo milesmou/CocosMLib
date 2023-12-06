@@ -1,4 +1,4 @@
-import { Component, Node, Prefab, SpriteFrame, UITransform, _decorator, instantiate, v3, view } from 'cc';
+import { Component, Node, Prefab, SpriteFrame, _decorator, instantiate, v3 } from 'cc';
 
 const { ccclass, property } = _decorator;
 
@@ -6,6 +6,7 @@ import { EventKey } from '../../../../scripts/base/GameEnum';
 import { UITipMsg } from '../../../../scripts/base/ui/UITipMsg';
 import { UIGuide } from '../../../../scripts/base/ui/guide/UIGuide';
 import { UIConstant } from '../../../../scripts/gen/UIConstant';
+import { CCUtils } from '../../../utils/CCUtil';
 import { Utils } from '../../../utils/Utils';
 import { AssetMgr } from '../../asset/AssetMgr';
 import { EventMgr } from '../../event/EventMgr';
@@ -65,9 +66,9 @@ export class UIMgr extends Component {
 
     onLoad() {
         UIMgr.Inst = this;
-        this.normal.getComponent(UITransform).setContentSize(view.getVisibleSize());
-        this.higher.getComponent(UITransform).setContentSize(view.getVisibleSize());
-        this.resident.getComponent(UITransform).setContentSize(view.getVisibleSize());
+        CCUtils.uiNodeMatchParent(this.normal);
+        CCUtils.uiNodeMatchParent(this.higher);
+        CCUtils.uiNodeMatchParent(this.resident);
         AssetMgr.loadAsset("DefaultSprite/spriteFrame", SpriteFrame).then(sp => {
             this.defaultSprite = sp;
         });
@@ -241,7 +242,7 @@ export class UIMgr extends Component {
     private async instNode(uiName: string, parent: Node): Promise<Node> {
         let prefab = await AssetMgr.loadAsset(uiName, Prefab);
         var uiObj = instantiate(prefab);
-        uiObj.getComponent(UITransform).setContentSize(view.getVisibleSize());
+        CCUtils.uiNodeMatchParent(uiObj);
         uiObj.parent = parent;
         return uiObj;
     }

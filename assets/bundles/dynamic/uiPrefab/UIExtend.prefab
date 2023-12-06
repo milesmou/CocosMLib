@@ -56,10 +56,13 @@
       },
       {
         "__id__": 209
+      },
+      {
+        "__id__": 211
       }
     ],
     "_prefab": {
-      "__id__": 211
+      "__id__": 213
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -158,7 +161,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 2340
+      "height": 2280
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4987,7 +4990,7 @@
       "__id__": 182
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 184
@@ -5447,7 +5450,7 @@
     "nestedPrefabInstanceRoots": null
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UIOpacity",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -5458,10 +5461,29 @@
     "__prefab": {
       "__id__": 206
     },
+    "_opacity": 255,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "252KRG9CRJMIU3BXAqKm9p"
+  },
+  {
+    "__type__": "cc.UITransform",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 208
+    },
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 2340
+      "height": 2280
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -5475,7 +5497,7 @@
     "fileId": "20MMM1JBREMIwx0S68T2Sp"
   },
   {
-    "__type__": "cc.UIOpacity",
+    "__type__": "cc.Widget",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -5484,14 +5506,31 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 208
+      "__id__": 210
     },
-    "_opacity": 255,
+    "_alignFlags": 45,
+    "_target": null,
+    "_left": 0,
+    "_right": 0,
+    "_top": 0,
+    "_bottom": 0,
+    "_horizontalCenter": 0,
+    "_verticalCenter": 0,
+    "_isAbsLeft": true,
+    "_isAbsRight": true,
+    "_isAbsTop": true,
+    "_isAbsBottom": true,
+    "_isAbsHorizontalCenter": true,
+    "_isAbsVerticalCenter": true,
+    "_originalWidth": 1080,
+    "_originalHeight": 2340,
+    "_alignMode": 2,
+    "_lockFlags": 0,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "252KRG9CRJMIU3BXAqKm9p"
+    "fileId": "7fDRbGmDhLloE7ktN8uWO8"
   },
   {
     "__type__": "8cd8anycMxL8rnisR8Oavst",
@@ -5503,7 +5542,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 210
+      "__id__": 212
     },
     "destroyNode": false,
     "showShade": false,

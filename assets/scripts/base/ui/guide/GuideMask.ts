@@ -49,6 +49,7 @@ export class GuideMask extends Component {
     /** 仅挖孔 不可点击挖孔区域 */
     public hollow2(type: EMaskHollowType, hollowTarget: Node, scale: number, duration = 0.25) {
         this._hollowTargetRect = hollowTarget.getComponent(UITransform).getBoundingBoxToWorld();
+        
         let center = this._hollowTargetRect.center;
         let posV3 = this.getComponent(UITransform).convertToNodeSpaceAR(v3(center.x, center.y));
         let pos = v2(posV3.x, posV3.y);
@@ -83,7 +84,7 @@ export class GuideMask extends Component {
         if (!this._canClick) return;
 
 
-        let pos = evt.getLocation();
+        let pos = evt.getUILocation();
         if (
             pos.x > this._hollowTargetRect.xMin && pos.x < this._hollowTargetRect.xMax &&
             pos.y > this._hollowTargetRect.yMin && pos.y < this._hollowTargetRect.yMax

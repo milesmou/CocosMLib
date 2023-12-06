@@ -32,7 +32,7 @@
   },
   {
     "ID": 2,
-    "GuideID": 2,
+    "GuideID": 1,
     "UIName": "UIGuideTest1",
     "NodePath": "step2",
     "NodeSize": {
@@ -63,7 +63,7 @@
   },
   {
     "ID": 3,
-    "GuideID": 3,
+    "GuideID": 1,
     "UIName": "UIGuideTest1",
     "NodePath": "step3",
     "NodeSize": {
@@ -94,9 +94,40 @@
   },
   {
     "ID": 4,
-    "GuideID": 4,
+    "GuideID": 1,
     "UIName": "UIGuideTest1",
     "NodePath": "step4",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 0,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "",
+    "TipPos": {
+      "x": 0,
+      "y": 0
+    },
+    "Prefab": ""
+  },
+  {
+    "ID": 5,
+    "GuideID": 1,
+    "UIName": "UIGuideTest2",
+    "NodePath": "step5",
     "NodeSize": {
       "x": 0,
       "y": 0

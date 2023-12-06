@@ -1,4 +1,4 @@
-import { Component, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
+import { Button, Component, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
 import { App } from '../../../../mlib/App';
 import { AssetMgr } from '../../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel, MLogger } from '../../../../mlib/module/logger/MLogger';
@@ -53,7 +53,7 @@ export class UIGuide extends Component {
 
     onLoad() {
         UIGuide.Inst = this;
-        this._hollowTargetTf = this._hollowTargetTf;
+        this._hollowTargetTf = this.m_HollowTarget.getComponent(UITransform);
         this.hide(true);
         this.m_Mask.onEventTargetInvalid.addListener(() => {
             this._logger.warn(`事件节点已销毁 跳过本步引导`);
@@ -272,14 +272,14 @@ export class UIGuide extends Component {
     private async showBtnScreen() {
         this._logger.debug("点击屏幕即可");
         this.m_BtnScreen.active = true
-        this.m_BtnScreen.once("click", this.checkOver.bind(this));
+        this.m_BtnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
         App.ui.blockTime = -1;
     }
 
     private async showPrefab() {
         this._logger.debug("加载预制体");
         let guide = this._guideData[this._nowIndex];
-        let prefab = await AssetMgr.loadAsset("" + guide.Prefab, Prefab);
+        let prefab = await AssetMgr.loadAsset("prefab/guide/" + guide.Prefab, Prefab);
         let node = instantiate(prefab);
         node.parent = this.m_PrefabParent;
         let comp = node.getComponent(GuidePrefab);

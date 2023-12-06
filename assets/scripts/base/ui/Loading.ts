@@ -126,15 +126,12 @@ export class Loading extends Component {
 
     /** 加载游戏资源 */
     async loadRes() {
-        MLogger.debug("加载游戏紫苑")
         //加载游戏数据
         this.setTips(LoadingLanguage.LoadGameRes);
         //加载资源包
         await AssetMgr.loadAllBundle();
-        MLogger.debug("加载游戏紫苑1")
         //加载数据表
         await GameTable.Inst.initData();
-        MLogger.debug("加载游戏紫苑2")
         //初始化UI
         await App.ui.init();
         //初始化游戏内容
