@@ -1,5 +1,5 @@
 import { tween } from "cc";
-import { LocalStroage } from "../manager/StroageMgr";
+import { LocalStroage } from "../module/stroage/StroageMgr";
 import { MLogger } from "../module/logger/MLogger";
 
 /** 背包物品的基本信息 */

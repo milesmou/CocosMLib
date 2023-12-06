@@ -2,7 +2,7 @@ import { Font, Label, RichText, Sprite, TTFFont, sys } from "cc";
 import GameTable from "../../../scripts/base/GameTable";
 import { App } from "../../App";
 import { AssetHandler } from "../asset/AssetHandler";
-import { StroageMgr } from "../../manager/StroageMgr";
+import { StroageMgr } from "../stroage/StroageMgr";
 import { Utils } from "../../utils/Utils";
 import { AssetMgr } from "../asset/AssetMgr";
 import { MLogger } from "../logger/MLogger";

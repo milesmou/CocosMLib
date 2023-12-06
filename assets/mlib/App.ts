@@ -2,8 +2,8 @@ import { Component, Enum, _decorator, director, js } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { EChannel, Publish } from '../scripts/base/publish/Publish';
-import { PoolMgr } from "./manager/PoolMgr";
-import { StroageMgr } from "./manager/StroageMgr";
+import { PoolMgr } from "./module/pool/PoolMgr";
+import { StroageMgr } from "./module/stroage/StroageMgr";
 import { TimerMgr } from './module/timer/TimerMgr';
 import { AudioMgr } from "./module/audio/AudioMgr";
 import { EventMgr } from "./module/event/EventMgr";

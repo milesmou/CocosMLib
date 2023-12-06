@@ -1,5 +1,5 @@
 import { Component, Enum, _decorator, sys } from 'cc';
-import { GameConfig } from '../../scripts/base/GameConfig';
+import { GameConfig } from '../../../../scripts/base/GameConfig';
 const { ccclass, property } = _decorator;
 
 

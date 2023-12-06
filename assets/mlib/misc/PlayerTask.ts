@@ -1,4 +1,4 @@
-import { LocalStroage } from "../manager/StroageMgr";
+import { LocalStroage } from "../module/stroage/StroageMgr";
 
 /** 任务状态 */
 export enum TaskState {

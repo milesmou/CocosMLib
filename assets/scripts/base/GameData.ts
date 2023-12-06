@@ -1,4 +1,4 @@
-import { LocalStroage } from "../../mlib/manager/StroageMgr";
+import { LocalStroage } from "../../mlib/module/stroage/StroageMgr";
 
 /**
  * 游戏存档数据管理类 (存档中不要使用Map、Set等数据类型，反序列化时无法正确识别类型；以__开头的字段不会被存档)

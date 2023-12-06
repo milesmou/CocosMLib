@@ -1,6 +1,6 @@
 import { AudioClip, AudioSource, Component, Director, Node, Tween, _decorator, director, misc, tween } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
-import { StroageMgr } from '../../manager/StroageMgr';
+import { StroageMgr } from '../stroage/StroageMgr';
 import { AssetMgr } from '../asset/AssetMgr';
 import { AudioState } from './AudioState';
 import { SortedMap } from './SortedMap';
