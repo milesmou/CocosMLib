@@ -5,7 +5,7 @@ import { MLogger } from '../../../mlib/module/logger/MLogger';
 import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
 import { MCloudData } from '../../../mlib/sdk/MCloudData';
 import { MResponse } from '../../../mlib/sdk/MResponse';
-import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/utils/HotUpdate';
+import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { UIConstant } from '../../gen/UIConstant';
 import { GameConfig } from '../GameConfig';
 import { GameData } from '../GameData';
