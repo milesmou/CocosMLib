@@ -44,7 +44,7 @@ export class MLogger {
         this.error = MLogger.globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ? MLogger.none :
             console.error.bind(console, `[${MLogger.globalTag} ${tag} Error]`);
         this.print = console.log.bind(console, `[${MLogger.globalTag} ${tag} Print]`);
-        this.trace = console.log.bind(console, `[${MLogger.globalTag} ${tag} Trace]`);
+        this.trace = console.trace.bind(console, `[${MLogger.globalTag} ${tag} Trace]`);
     }
 
     public info: (...data) => void;

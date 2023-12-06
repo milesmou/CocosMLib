@@ -1,5 +1,5 @@
 
-import { _decorator, tween } from 'cc';
+import { Button, _decorator, js, tween } from 'cc';
 import { App } from '../../../mlib/App';
 import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../../gen/UIConstant';
@@ -17,6 +17,12 @@ export class UIHUD extends UIBase {
     onLoad() {
         super.onLoad();
         console.log( this.property);
+       
+
+        console.log( js.getClassName(Button));
+        console.log(Button.name);
+        
+        
         
         // this.property.n
         // Utils.loadSprite(this.bg1, "texture/bg1");

@@ -1,4 +1,4 @@
-import { Component, Node } from "cc";
+import { Component, Node, js } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
 import { MLogger } from "../../logger/MLogger";
 
@@ -13,8 +13,11 @@ export class PropertyBase {
     private autoBindNodeCache: { [path: string]: Node } = {}
 
     getComp<T extends Component>(path: string, type: { new(): T }): T {
-        let key = `${type.name}+${path}`;
-        if (this.autoBindCompCache[key]?.isValid) return this.autoBindCompCache[key] as T;
+        let key = `${js.getClassName(type)}+${path}`;
+
+        if (this.autoBindCompCache[key]?.isValid) {
+            return this.autoBindCompCache[key] as T;
+        }
 
         if (this.autoBindNodeCache[path]?.isValid) {
             return this.autoBindNodeCache[path].getComponent(type);
