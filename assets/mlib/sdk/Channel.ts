@@ -21,13 +21,13 @@ export class Channel {
 
     /** 初始化SDK */
     public initSDK() {
+        MCloudDataSDK.init(this.gameCode);
         this.initEvent();
         this.reportEvent("initSDK")
     }
 
     /** 初始化SDK相关的事件 */
     initEvent() {
-        MCloudDataSDK.GameCode = this.gameCode;
     }
 
     /** 初始化内购 */
