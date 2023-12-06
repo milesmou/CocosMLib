@@ -1,4 +1,4 @@
-import { Button, Camera, Component, EventHandler, Node, Prefab, Scene, ScrollView, Toggle, UITransform, Vec3, Widget, instantiate, misc, sp, v2, v3 } from "cc";
+import { Button, Camera, Component, EventHandler, Node, Prefab, Scene, ScrollView, Toggle, UITransform, Vec3, Widget, instantiate, misc, sp, v2 } from "cc";
 import { Utils } from "./Utils";
 
 export class CCUtils {
@@ -80,11 +80,13 @@ export class CCUtils {
         return n;
     }
 
+    /** 将node1当前的位置转化为node2本地坐标下的位置(UI节点) */
+    static uiNodeCurPosToUINodePos(node1: Node, node2: Node,) {
+        return this.uiNodePosToUINodePos(node1.parent, node2, node1.position);
+    }
+
     /** 将node1本地坐标系的位置转化为node2本地坐标下的位置(UI节点) */
-    static uiNodePosToUINodePos(node1: Node, node2: Node, vec?: Vec3) {
-        if (!vec) {
-            vec = v3(0, 0);
-        }
+    static uiNodePosToUINodePos(node1: Node, node2: Node, vec: Vec3) {
         let screenPos = node1.getComponent(UITransform).convertToWorldSpaceAR(vec);
         return node2.getComponent(UITransform).convertToNodeSpaceAR(screenPos);
     }
@@ -112,15 +114,17 @@ export class CCUtils {
     }
 
 
-    static addEventToComp(comp: Button | Toggle, target: Node, component: string, handler: string) {
+    static addEventToComp(comp: Button | Toggle | ScrollView, target: Node, component: string, handler: string) {
         let evtHandler = new EventHandler();
         evtHandler.target = target;
         evtHandler.component = component;
         evtHandler.handler = handler;
         if (comp instanceof Button) {
             (comp as Button).clickEvents.push(evtHandler);
-        } else {
+        } else if (comp instanceof Toggle) {
             (comp as Toggle).checkEvents.push(evtHandler);
+        } else {
+            (comp as ScrollView).scrollEvents.push(evtHandler);
         }
     }
 

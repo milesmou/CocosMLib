@@ -1,4 +1,4 @@
-import { Component, Enum, sys, view, _decorator } from 'cc';
+import { Component, Enum, sys, view, _decorator, View } from 'cc';
 import { PREVIEW } from 'cc/env';
 const { ccclass, property } = _decorator;
 
