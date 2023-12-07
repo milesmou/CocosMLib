@@ -40,31 +40,31 @@ class ReplaceComponent {
     static replaceToggle() {
         let toggles = cc_1.director.getScene().getComponentsInChildren(cc_1.Toggle);
         let btnCnt = 0;
-        toggles.forEach(v => {
-            if (cc_1.js.getClassName(v) != "cc.Toggle")
+        toggles.forEach(tog => {
+            if (cc_1.js.getClassName(tog) != "cc.Toggle")
                 return;
-            if (v.getComponent("MToggle"))
+            if (tog.getComponent("MToggle"))
                 return;
             btnCnt++;
-            let mTog = v.node.addComponent("MToggle");
-            mTog.enabled = v.enabled;
-            mTog.target = v.target;
-            mTog.isChecked = v.isChecked;
-            mTog.clickEvents = v.clickEvents;
-            mTog.checkEvents = v.checkEvents;
-            mTog.interactable = v.interactable;
-            mTog.transition = v.transition;
-            mTog.duration = v.duration;
-            mTog.zoomScale = v.zoomScale;
-            mTog.hoverColor = v.hoverColor;
-            mTog.normalColor = v.normalColor;
-            mTog.pressedColor = v.pressedColor;
-            mTog.disabledColor = v.disabledColor;
-            mTog.hoverSprite = v.hoverSprite;
-            mTog.normalSprite = v.normalSprite;
-            mTog.pressedSprite = v.pressedSprite;
-            mTog.disabledSprite = v.disabledSprite;
-            v.destroy();
+            let mTog = tog.node.addComponent("MToggle");
+            mTog.enabled = tog.enabled;
+            mTog.target = tog.target;
+            mTog.isChecked = tog.isChecked;
+            mTog.clickEvents = tog.clickEvents;
+            mTog.checkEvents = tog.checkEvents;
+            mTog.interactable = tog.interactable;
+            mTog.transition = tog.transition;
+            mTog.duration = tog.duration;
+            mTog.zoomScale = tog.zoomScale;
+            mTog.hoverColor = tog.hoverColor;
+            mTog.normalColor = tog.normalColor;
+            mTog.pressedColor = tog.pressedColor;
+            mTog.disabledColor = tog.disabledColor;
+            mTog.hoverSprite = tog.hoverSprite;
+            mTog.normalSprite = tog.normalSprite;
+            mTog.pressedSprite = tog.pressedSprite;
+            mTog.disabledSprite = tog.disabledSprite;
+            tog.destroy();
         });
         MLogger_1.MLogger.info(`替换Toggle为MToggle完成,共计${btnCnt}个`);
     }

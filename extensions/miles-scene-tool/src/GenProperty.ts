@@ -41,7 +41,7 @@ const CCTypes: ICCTypeDefine[] = [
     { name: "cc.Slider", typeName: "cc.Slider", shortName: "Sli" },
     { name: "cc.Toggle", typeName: "cc.Toggle", shortName: "Tog" },
     { name: "MToggle", typeName: "MToggle", shortName: "Tog" },
-    { name: "cc.ToggleGroup", typeName: "cc.ToggleGroup", shortName: "TG" },
+    { name: "cc.ToggleContainer", typeName: "cc.ToggleContainer", shortName: "TC" },
     { name: "cc.VideoPlayer", typeName: "cc.VideoPlayer", shortName: "VP" },
     { name: "cc.WebView", typeName: "cc.WebView", shortName: "WV" },
     { name: "cc.Widget", typeName: "cc.Widget", shortName: "Wid" },

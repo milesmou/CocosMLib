@@ -18,22 +18,23 @@ const LogLevel = Enum(ELoggerLevel);
 export class GameSetting extends Component {
     public static Inst: GameSetting;
 
+    @property private _gameName: string = "";
     @property({
         displayName: "游戏名",
         tooltip: "名字会用来拼接CND地址，上报事件等"
     })
     public get gameName() { return this._gameName; }
     private set gameName(val: string) { this._gameName = val; }
-    private _gameName: string = "";
 
+    @property private _languageId = ELanguage.SimplifiedChinese;
     @property({
         displayName: "语言",
         type: ELanguage
     })
     public get languageId() { return this._languageId; }
     private set languageId(val: number) { this._languageId = val; }
-    private _languageId = ELanguage.SimplifiedChinese;
 
+    @property private _gameConfigType = EGameConfigType.Local;
     @property({
         displayName: "配置",
         type: EGameConfigType,
@@ -41,7 +42,6 @@ export class GameSetting extends Component {
     })
     public get gameConfigType() { return this._gameConfigType; }
     private set gameConfigType(val: number) { this._gameConfigType = val; }
-    private _gameConfigType = EGameConfigType.Local;
 
     @property({
         displayName: "渠道",
@@ -49,13 +49,13 @@ export class GameSetting extends Component {
     })
     private m_ChannelId = EChannel.Dev;
 
+    @property private _version = "1.0.0";
     @property({
         displayName: "版本",
         tooltip: "整包使用3位版本号(x.x.x),补丁包使用4位版本号(x.x.x.x)\n与远程资源相关的都只会使用前3位版本号"
     })
     public get version() { return this._version; }
     private set version(val: string) { this._version = val.trim(); }
-    private _version = "1.0.0";
 
     @property({
         displayName: "CDN",
@@ -63,13 +63,13 @@ export class GameSetting extends Component {
     })
     private m_CdnUrl = "";
 
+    @property private _hotupdate = true;
     @property({
         displayName: "热更",
         tooltip: "开启热更需要再resources中放入本地project.manifest清单文件",
     })
     public get hotupdate() { return this._hotupdate; }
     private set hotupdate(val: boolean) { this._hotupdate = val; }
-    private _hotupdate = true;
 
     @property({
         displayName: "帧率",
