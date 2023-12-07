@@ -86,4 +86,14 @@ export class UIMessage {
             }
         }
     }
+
+    /** 向父节点第一个Panel发送消息 */
+    public sendToUIPannel(methodName: string, ...args: any[]) {
+        this.sendUpward("UIBase", methodName, ...args);
+    }
+
+    /** 向父节点第一个Container发送消息 */
+    public sendToUIContainer(methodName: string, ...args: any[]) {
+        this.sendUpward("UIContainer", methodName, ...args);
+    }
 }

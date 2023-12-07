@@ -7,9 +7,7 @@ import { CCUtils } from "../../../utils/CCUtil";
 import { AssetHandler } from "../../asset/AssetHandler";
 import { MEvent } from "../../event/MEvent";
 import { MLogger } from '../../logger/MLogger';
-import { PropertyBase } from "../property/PropertyBase";
 import { UIComponent } from "./UIComponent";
-import { UIMessage } from "./UIMessage";
 
 const EUIAnim = Enum({
     NONE: 0,
@@ -80,13 +78,12 @@ export class UIBase extends UIComponent {
     protected visible: boolean;
     protected args: any = null;
 
-    protected property: PropertyBase;
-    protected asset: AssetHandler;
-    protected messase: UIMessage;
+    private _asset: AssetHandler;
+    public get asset() { return this._asset; }
 
     protected onLoad(): void {
         super.onLoad();
-        this.asset = new AssetHandler(this.node);
+        this._asset = new AssetHandler(this.node);
     }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */

@@ -5,7 +5,6 @@ import { RedDotMgr } from './RedDotMgr';
 const { ccclass, property, menu } = _decorator;
 
 @ccclass
-@menu("MLib/RedDot")
 export class RedDot extends Component {
     @property({
         displayName: "红点名字"

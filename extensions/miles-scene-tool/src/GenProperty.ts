@@ -26,17 +26,21 @@ class IPropertyInfo {
 }
 
 const CCTypes: ICCTypeDefine[] = [
+    { name: "cc.UITransform", typeName: "cc.UITransform", shortName: "Tf" },
     { name: "cc.Label", typeName: "cc.Label", shortName: "Lbl" },
     { name: "cc.Sprite", typeName: "cc.Sprite", shortName: "Sp" },
-    { name: "cc.UITransform", typeName: "cc.UITransform", shortName: "Tf" },
+    { name: "cc.Button", typeName: "cc.Button", shortName: "Btn" },
+    { name: "MButton", typeName: "MButton", shortName: "Btn" },
     { name: "cc.Animation", typeName: "cc.Animation", shortName: "Anim" },
     { name: "cc.EditBox", typeName: "cc.EditBox", shortName: "Eb" },
     { name: "cc.Layout", typeName: "cc.Layout", shortName: "La" },
+    { name: "cc.ProgressBar", typeName: "cc.ProgressBar", shortName: "PBar" },
     { name: "cc.PageView", typeName: "cc.PageView", shortName: "PV" },
     { name: "cc.RichText", typeName: "cc.RichText", shortName: "Rtxt" },
     { name: "cc.ScrollView", typeName: "cc.ScrollView", shortName: "SV" },
     { name: "cc.Slider", typeName: "cc.Slider", shortName: "Sli" },
     { name: "cc.Toggle", typeName: "cc.Toggle", shortName: "Tog" },
+    { name: "MToggle", typeName: "MToggle", shortName: "Tog" },
     { name: "cc.ToggleGroup", typeName: "cc.ToggleGroup", shortName: "TG" },
     { name: "cc.VideoPlayer", typeName: "cc.VideoPlayer", shortName: "VP" },
     { name: "cc.WebView", typeName: "cc.WebView", shortName: "WV" },
@@ -75,6 +79,8 @@ export class GenProperty {
 
         let content = "";
         content += `import * as cc from "cc";\n`;
+        content += `import { MButton } from "../../../mlib/module/ui/extend/MButton";\n`;
+        content += `import { MToggle } from "../../../mlib/module/ui/extend/MToggle";\n`;
         content += `import { PropertyBase } from "../../../mlib/module/ui/property/PropertyBase";\n`;
         content += `const { ccclass } = cc._decorator;\n`;
         content += `\n`;

@@ -1,11 +1,11 @@
-import { Component, Enum, Label, Node, RichText, Sprite, _decorator } from "cc";
+import { Enum, Label, Node, RichText, Sprite, _decorator } from "cc";
 
 const { ccclass, property, menu } = _decorator;
 
 import { App } from "../../App";
-import { AssetHandler } from "../asset/AssetHandler";
 import { CCUtils } from "../../utils/CCUtil";
 import { MLogger } from "../logger/MLogger";
+import { UIContainerItem } from "../ui/manager/UIContainerItem";
 import { IL10n } from "./IL10n";
 
 
@@ -35,8 +35,7 @@ class L10nNode {
 
 /** 多语言组件 渲染组件应在当前节点或指定的节点上*/
 @ccclass
-@menu("MLib/Localization")
-export class L10n extends Component implements IL10n {
+export class L10n extends UIContainerItem implements IL10n {
     @property({
         tooltip: "文本组件为语言表中的key，图片组件为图片名字"
     })
@@ -58,12 +57,11 @@ export class L10n extends Component implements IL10n {
     })
     needSwitchFont = false;
 
-    private assetHandler: AssetHandler;
     private args: any[] = [];
 
     onLoad() {
+        super.onLoad();
         App.l10n.add(this);
-        this.assetHandler = CCUtils.getComponentInParent(this.node, AssetHandler);
         this.refreshContent();
     }
 
@@ -109,7 +107,7 @@ export class L10n extends Component implements IL10n {
                     App.l10n.setStringByKey(comp, this.key, ...this.args);
                     return;
                 } else if (comp instanceof Sprite) {
-                    App.l10n.setSpriteFrameByKey(comp, this.key, this.assetHandler);
+                    App.l10n.setSpriteFrameByKey(comp, this.key, this.asset);
                     return;
                 }
             }

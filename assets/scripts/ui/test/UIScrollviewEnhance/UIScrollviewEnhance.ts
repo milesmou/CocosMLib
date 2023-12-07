@@ -1,4 +1,4 @@
-import { _decorator, Node } from 'cc';
+import { _decorator, Button, Node, ProgressBar } from 'cc';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 import { UIScrollviewEnhanceProperty } from '../../../gen/property/UIScrollviewEnhanceProperty';
 import { CCUtils } from '../../../../mlib/utils/CCUtil';

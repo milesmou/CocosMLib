@@ -1,5 +1,6 @@
 import { _decorator } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
+import { AssetHandler } from "../../asset/AssetHandler";
 import { UIBase } from "./UIBase";
 import { UIComponent } from "./UIComponent";
 
@@ -7,13 +8,22 @@ const { property, ccclass, requireComponent } = _decorator;
 
 @ccclass("UIContainer")
 export class UIContainer extends UIComponent {
+
     private _ui: UIBase;
-    /** 获取UI元素所在的UI界面 */
-    protected get ui() {
-        if (!this._ui?.isValid) {
+    public get ui() {
+        if (!this._ui) {
             this._ui = CCUtils.getComponentInParent(this.node, UIBase);
         }
         return this._ui;
     }
+    
+    private _asset: AssetHandler;
+    public get asset() { return this._asset; }
+
+    protected onLoad(): void {
+        super.onLoad();
+        this._asset = new AssetHandler(this.node);
+    }
+
 }
 
