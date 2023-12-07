@@ -96,14 +96,12 @@ export class MButton extends Button {
     }
 
     protected _onTouchBegan(event?: EventTouch): void {
-        console.log("_onTouchBegan", this.node.name);
         if (this.m_PolygonButton) {//异形按钮
             let screenPos = event.getUILocation();
             let pos = this.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(screenPos.x, screenPos.y));
             this._isOutOfPolygon = !Intersection2D.pointInPolygon(new Vec2(pos.x, pos.y), this._polygon.points);
 
             if (this._isOutOfPolygon) {//继续向下冒泡事件
-                console.log("_onTouchBegan OutOfPolygon", this.node.name);
                 event.preventSwallow = true;
                 if (event) event.propagationStopped = false;
                 return;
@@ -121,7 +119,6 @@ export class MButton extends Button {
 
 
     protected _onTouchEnded(event?: EventTouch): void {
-        console.log("_onTouchEnded", this.node.name);
         if (this.m_PolygonButton) {//异形按钮
             if (!this._isOutOfPolygon) {
                 let screenPos = event.getUILocation();
@@ -129,7 +126,6 @@ export class MButton extends Button {
                 this._isOutOfPolygon = !Intersection2D.pointInPolygon(new Vec2(pos.x, pos.y), this._polygon.points);
             }
             if (this._isOutOfPolygon) {//继续向下冒泡事件
-                console.log("_onTouchEnded OutOfPolygon", this.node.name);
                 event.preventSwallow = true;
                 if (event) event.propagationStopped = false;
                 return;
