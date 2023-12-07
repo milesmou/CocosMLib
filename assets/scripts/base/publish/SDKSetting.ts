@@ -32,4 +32,8 @@ export default class SDKSetting extends Component {
         SDKSetting.Inst = this;
     }
 
+    public getPrintInfo() {
+        return "SDKSetting";
+    }
+
 }

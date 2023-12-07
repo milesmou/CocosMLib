@@ -1,4 +1,4 @@
-import { _decorator, Component, director, Enum } from 'cc';
+import { _decorator, Component, director, Enum, game } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
@@ -101,17 +101,19 @@ export class GameSetting extends Component {
 
 
     protected onLoad(): void {
-        if (!EDITOR_NOT_IN_PREVIEW) {
-            GameSetting.Inst = this;
-            director.addPersistRootNode(this.node);
-            MLogger.print("日志级别", LogLevel[this.m_LogLevel]);
-            MLogger.setLevel(this.m_LogLevel);
-        }
+        GameSetting.Inst = this;
         this._channel = EChannel[this.m_ChannelId];
         this._mainVersion = this.getMainVersion();
         this._gameCode = this._gameName + "_" + this._channel
         this._gameConfigUrl = `${this.m_CdnUrl}/Channel/${this._channel}/${this._mainVersion}/GameConfig.txt`;
         this._remoteResUrl = `${this.m_CdnUrl}/Resources`;
+        if (!EDITOR_NOT_IN_PREVIEW) {
+            director.addPersistRootNode(this.node);
+            if (this.m_FrameRate > 0) {
+                game.frameRate = this.m_FrameRate;
+            }
+            MLogger.setLevel(this.m_LogLevel);
+        }
     }
 
     /** 主版本号 取前三位 */

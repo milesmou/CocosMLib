@@ -2,6 +2,8 @@ import { Component, _decorator, director, js } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { Publish } from '../scripts/base/publish/Publish';
+import SDKSetting from '../scripts/base/publish/SDKSetting';
+import { GameSetting } from './GameSetting';
 import { AudioMgr } from "./module/audio/AudioMgr";
 import { EventMgr } from "./module/event/EventMgr";
 import { ELanguageCode } from './module/l10n/ELanguage';
@@ -13,7 +15,6 @@ import { TimerMgr } from './module/timer/TimerMgr';
 import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 import { SingletonFactory } from './utils/SingletonFactory';
-import { GameSetting } from './GameSetting';
 
 
 /** 应用程序启动入口 */
@@ -38,7 +39,8 @@ export class App extends Component {
         director.addPersistRootNode(this.node);
         App.lang = L10nMgr.getLanguage(GameSetting.Inst.languageId);
         App.chan = Publish.getChannelInstance();
-        MLogger.print(`Channel=${GameSetting.Inst.channel}|${js.getClassName(App.chan)} Version=${GameSetting.Inst.version} Language=${App.lang}`);
+        MLogger.print(`GameSetting Channel=${GameSetting.Inst.channel}|${js.getClassName(App.chan)} Version=${GameSetting.Inst.version} Language=${App.lang}`);
+        MLogger.print(`SDKSetting ${SDKSetting.Inst.getPrintInfo()}`);
     }
 
 
