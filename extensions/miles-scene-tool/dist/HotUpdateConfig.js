@@ -8,11 +8,11 @@ class HotUpdateConfig {
     static save(uuid) {
         let node = SceneTool_1.SceneTool.getNodeByUUid(uuid);
         if (node) {
-            let app = node.getComponent("App");
-            if (app) {
-                let channelName = app.channelEnum[app.channelId];
-                let version = app.version.trim();
-                let cdnUrl = app.cdnUrl;
+            let setting = node.getComponent("GameSetting");
+            if (setting) {
+                let channelName = setting._channel;
+                let version = setting._version;
+                let cdnUrl = setting.m_CdnUrl;
                 let url = `${cdnUrl.trim()}/Channel/${channelName}/${this.getMainVersion(version)}/ResPkg`;
                 Config_1.Config.set("hotupdate.url", url);
                 Config_1.Config.set("hotupdate.version", version);
@@ -20,7 +20,7 @@ class HotUpdateConfig {
                 return;
             }
         }
-        MLogger_1.MLogger.warn("请选择App脚本所在节点再进行操作");
+        MLogger_1.MLogger.warn("请选择GameSetting脚本所在节点再进行操作");
     }
     //主版本号 取前三位
     static getMainVersion(version) {

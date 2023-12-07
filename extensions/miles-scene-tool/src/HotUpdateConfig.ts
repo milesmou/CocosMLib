@@ -2,21 +2,20 @@ import { Config } from "./tools/Config";
 import { MLogger } from "./tools/MLogger";
 import { SceneTool } from "./tools/SceneTool";
 interface IApp {
-    channelId: number;
-    channelEnum: object;
-    version: string;
-    cdnUrl: string;
+    _channel: string;
+    _version: string;
+    m_CdnUrl: string;
 }
 
 export class HotUpdateConfig {
     static save(uuid: string) {
         let node = SceneTool.getNodeByUUid(uuid);
         if (node) {
-            let app: IApp = node.getComponent("App") as any;
-            if (app) {
-                let channelName = app.channelEnum[app.channelId];
-                let version = app.version.trim();
-                let cdnUrl = app.cdnUrl;
+            let setting: IApp = node.getComponent("GameSetting") as any;
+            if (setting) {
+                let channelName = setting._channel;
+                let version = setting._version;
+                let cdnUrl = setting.m_CdnUrl;
                 let url = `${cdnUrl.trim()}/Channel/${channelName}/${this.getMainVersion(version)}/ResPkg`;
                 Config.set("hotupdate.url", url);
                 Config.set("hotupdate.version", version);
@@ -24,7 +23,7 @@ export class HotUpdateConfig {
                 return;
             }
         }
-        MLogger.warn("请选择App脚本所在节点再进行操作");
+        MLogger.warn("请选择GameSetting脚本所在节点再进行操作");
     }
 
     //主版本号 取前三位

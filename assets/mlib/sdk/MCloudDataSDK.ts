@@ -1,16 +1,12 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
 import { MResponse } from "./MResponse";
+import { GameSetting } from "../GameSetting";
 
 export class MCloudDataSDK {
 
     private static readonly EventHost = "https://zeroplay.cn/gevent/reportevt";
     private static readonly DataHost = "https://zeroplay.cn/gdata/gamedata";
-
-    private static GameCode: string;
-    public static init(gameCode: string) {
-        this.GameCode = gameCode;
-    }
 
     /** 上传存档数据 */
     public static async saveGameData(uid: string, key: string, data: string, commit = "") {
@@ -61,7 +57,7 @@ export class MCloudDataSDK {
     public static reportEvent(eventName: string, num: number, paramStr = "") {
         eventName = PREVIEW ? "00_" + eventName : eventName;
         let body = {
-            gameCode: this.GameCode,
+            gameCode: GameSetting.Inst.gameCode,
             eventName: eventName,
             param: paramStr,
             sum: num

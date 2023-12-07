@@ -1,11 +1,12 @@
 import { Asset, Component, Label, ProgressBar, TextAsset, Tween, UIOpacity, _decorator, game, sys, tween, v3 } from 'cc';
-import { App, EGameConfigType } from '../../../mlib/App';
+import { App } from '../../../mlib/App';
+import { EGameConfigType, GameSetting } from '../../../mlib/GameSetting';
+import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { MLogger } from '../../../mlib/module/logger/MLogger';
 import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
 import { MCloudData } from '../../../mlib/sdk/MCloudData';
 import { MResponse } from '../../../mlib/sdk/MResponse';
-import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { UIConstant } from '../../gen/UIConstant';
 import { GameConfig } from '../GameConfig';
 import { GameData } from '../GameData';
@@ -38,25 +39,25 @@ export class Loading extends Component {
         this.node.setScale(v3(1, 1));
         this.loadCfg(true);
         //版本号
-        this.m_versionsNum.string = App.config.channel + "_" + App.config.version;
+        this.m_versionsNum.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
     }
 
     /** 加载游戏配置 */
     async loadCfg(first = false) {
         first && this.setTips(LoadingLanguage.Config);
 
-        if (App.config.gameConfigType == EGameConfigType.Local) {//使用本地配置
+        if (GameSetting.Inst.gameConfigType == EGameConfigType.Local) {//使用本地配置
             let textAsset = await AssetMgr.loadAsset("GameConfig", TextAsset);
             GameConfig.deserialize(textAsset.text);
             AssetMgr.DecRef("GameConfig");
             this.checkVersion();
         } else {
-            let strRes = await HttpRequest.requestRepeat(App.config.gameConfigUrl + "?" + Date.now(), v => v, 3, 1);
+            let strRes = await HttpRequest.requestRepeat(GameSetting.Inst.gameConfigUrl + "?" + Date.now(), v => v, 3, 1);
             if (strRes) {
                 GameConfig.deserialize(strRes);
                 this.checkVersion();
             } else {
-                MLogger.error(`加载配置失败 Url=${App.config.gameConfigUrl}`);
+                MLogger.error(`加载配置失败 Url=${GameSetting.Inst.gameConfigUrl}`);
                 App.ui.showToast(this.getText(LoadingLanguage.ConfigFail));
                 this.loadCfg();
             }
@@ -65,12 +66,12 @@ export class Loading extends Component {
 
     /** 版本更新检测 */
     async checkVersion() {
-        if (App.config.hotupdate && GameConfig.rg && sys.isNative) {
+        if (GameSetting.Inst.hotupdate && GameConfig.rg && sys.isNative) {
             let manifest = await AssetMgr.loadAsset("project", Asset);
             if (manifest) {
                 HotUpdate.Inst.start(
                     manifest,
-                    App.config.mainVersion,
+                    GameSetting.Inst.mainVersion,
                     this.onUpdateStateChange.bind(this),
                     this.onUpdateDownloadProgress.bind(this),
                     this.onUpdateComplete.bind(this)

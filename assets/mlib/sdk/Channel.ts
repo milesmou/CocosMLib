@@ -1,14 +1,13 @@
+import { _decorator, sys } from 'cc';
+import { ShopUtil } from '../../scripts/base/ShopUtil';
 import { MLogger } from '../module/logger/MLogger';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
-import { EIAPResult, ELoginResult, EReawrdedAdResult, GameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
 import { Utils } from '../utils/Utils';
-import { ShopUtil } from '../../scripts/base/ShopUtil';
-import { sys } from 'cc';
+import { EIAPResult, ELoginResult, EReawrdedAdResult, GameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
+const { ccclass } = _decorator;
 
+@ccclass("Channel")
 export class Channel {
-
-    /** 游戏名_渠道名 */
-    public gameCode: string;
 
     /** 用户id */
     public userId: string;
@@ -21,7 +20,6 @@ export class Channel {
 
     /** 初始化SDK */
     public initSDK() {
-        MCloudDataSDK.init(this.gameCode);
         this.initEvent();
         this.reportEvent("initSDK")
     }

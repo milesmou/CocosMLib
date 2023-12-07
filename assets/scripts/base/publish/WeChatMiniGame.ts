@@ -1,9 +1,12 @@
 /** 微信小游戏平台相关方法的实现 */
-import { Camera, Game, game } from "cc";
-import { Channel } from "../../../mlib/sdk/Channel";
+import { Camera, Game, _decorator, game } from "cc";
 import { MLogger } from "../../../mlib/module/logger/MLogger";
+import { Channel } from "../../../mlib/sdk/Channel";
 import { LoginArgs } from "../../../mlib/sdk/MSDKWrapper";
 
+const { ccclass } = _decorator;
+
+@ccclass("WeChatMiniGame")
 export class WeChatMiniGame extends Channel {
 
     systemInfo: WechatMinigame.SystemInfo = null;//系统信息
