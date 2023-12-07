@@ -11,12 +11,21 @@ export class UIExtend extends UIBase {
     @property(Label)
     tip: Label;
 
-    onLoad() {
-        
-    }
-
     start() {
 
+    }
+
+
+    protected onClickButton(btnName: string): void {
+        switch (btnName) {
+            case "ButtonDD":
+                console.log("hahaha");
+                
+                break;
+        
+            default:
+                break;
+        }
     }
 
 

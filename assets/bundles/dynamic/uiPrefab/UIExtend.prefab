@@ -947,7 +947,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Button",
+    "_name": "ButtonDD",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1265,7 +1265,7 @@
     },
     "m_DefaultAudio": true,
     "m_CustomAudio": "",
-    "m_Cooldown": 0.2,
+    "m_Cooldown": 1,
     "m_PolygonButton": false,
     "m_LongPressButton": false,
     "longPressEvents": [],

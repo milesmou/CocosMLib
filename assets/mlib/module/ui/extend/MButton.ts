@@ -70,6 +70,8 @@ export class MButton extends Button {
     private _onLongPress = new MEvent();
     public get onLongPress() { return this._onLongPress; }
 
+    /** 是否冷却中 */
+    private _isCoolingDown = false;
     /** 多边形组件 */
     private _polygon: PolygonCollider2D;
     /** 本次点击是否在多边形外 */
@@ -96,6 +98,7 @@ export class MButton extends Button {
     }
 
     protected _onTouchBegan(event?: EventTouch): void {
+        if (this._isCoolingDown) return;
         if (this.m_PolygonButton) {//异形按钮
             let screenPos = event.getUILocation();
             let pos = this.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(screenPos.x, screenPos.y));
@@ -119,6 +122,8 @@ export class MButton extends Button {
 
 
     protected _onTouchEnded(event?: EventTouch): void {
+        if (this._isCoolingDown) return;
+        if (!this['_pressed']) return;
         if (this.m_PolygonButton) {//异形按钮
             if (!this._isOutOfPolygon) {
                 let screenPos = event.getUILocation();
@@ -149,9 +154,9 @@ export class MButton extends Button {
         }
 
         if (this.m_Cooldown > 0) {
-            this.node.pauseSystemEvents(false);
+            this._isCoolingDown = true;
             this.scheduleOnce(() => {
-                this.node.resumeSystemEvents(false);
+                this._isCoolingDown = false;
             }, this.m_Cooldown)
         }
     }
