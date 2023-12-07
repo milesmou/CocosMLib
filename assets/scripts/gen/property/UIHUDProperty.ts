@@ -6,7 +6,4 @@ const { ccclass } = cc._decorator;
 
 @ccclass('UIHUDProperty')
 export class UIHUDProperty extends PropertyBase {
-    public get progressBarTf() { return this.getComp("$ProgressBar", cc.UITransform); }
-    public get progressBarSp() { return this.getComp("$ProgressBar", cc.Sprite); }
-    public get progressBarPBar() { return this.getComp("$ProgressBar", cc.ProgressBar); }
 }

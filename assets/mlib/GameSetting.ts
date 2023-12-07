@@ -1,7 +1,8 @@
 import { _decorator, Component, director, Enum } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
-import { ELanguage } from './module/l10n/ELanguage';
 import { EChannel } from '../scripts/base/publish/EChannel';
+import { ELanguage } from './module/l10n/ELanguage';
+import { ELoggerLevel, MLogger } from './module/logger/MLogger';
 const { ccclass, property, executeInEditMode } = _decorator;
 
 
@@ -9,6 +10,8 @@ export const EGameConfigType = Enum({
     Local: 0,
     Remote: 1
 })
+
+const LogLevel = Enum(ELoggerLevel);
 
 @ccclass('GameSetting')
 @executeInEditMode
@@ -68,6 +71,18 @@ export class GameSetting extends Component {
     private set hotupdate(val: boolean) { this._hotupdate = val; }
     private _hotupdate = true;
 
+    @property({
+        displayName: "帧率",
+        tooltip: "帧率限制"
+    })
+    private m_FrameRate = 0;
+
+    @property({
+        type: LogLevel,
+        displayName: "日志级别"
+    })
+    private m_LogLevel = LogLevel.Info;
+
     private _channel: string;
     /**  渠道名字 */
     public get channel() { return this._channel; }
@@ -89,6 +104,8 @@ export class GameSetting extends Component {
         if (!EDITOR_NOT_IN_PREVIEW) {
             GameSetting.Inst = this;
             director.addPersistRootNode(this.node);
+            MLogger.print("日志级别", LogLevel[this.m_LogLevel]);
+            MLogger.setLevel(this.m_LogLevel);
         }
         this._channel = EChannel[this.m_ChannelId];
         this._mainVersion = this.getMainVersion();
