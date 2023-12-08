@@ -77,6 +77,14 @@ export class Utils {
         return format;
     }
 
+    /** 筛选出字符串中所有数字(0-9) 然后转化为整数 */
+    static string2Number(str: string) {
+        if (!str) return -1;
+        str = str.replace(/[^0-9]/g, "");
+        let num = parseInt(str);
+        return num;
+    }
+
     /**
      * 将比较大的数字用K,M,B,T来显示
      * @param fractionDigits 保留小数位数
