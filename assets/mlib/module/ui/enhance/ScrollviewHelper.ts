@@ -41,11 +41,17 @@ export class ScrollviewHelper extends Component {
     private _viewRect: Rect;
 
     private _scrollingFrameCnt = 0;
-
+    /** 当前是否能够刷新Item的显隐,避免同一帧多次检测 */
+    private _canUpdateItemVisible = true;
+    /** 本次检测过程中记录已检测过Item的显隐 */
+    private _itemVisible: Map<number, boolean> = new Map();
+    /** 本次检测过程中siblingIndex的左区间，小于它的Item都会被隐藏 -1表示无效 */
+    private _siblingIndexLeft = -1;
+    /** 本次检测过程中siblingIndex的右区间，大于它的Item都会被隐藏 -1表示无效 */
+    private _siblingIndexRight = -1;
 
     protected onLoad() {
         this.init();
-        this.node.getSiblingIndex()
     }
 
     protected onEnable(): void {
@@ -65,21 +71,21 @@ export class ScrollviewHelper extends Component {
         if (!this._scrollview) return;
         this._view = this.getComponentInChildren(Mask).node;
         this._content = this._scrollview.content;
-        if(!this.m_dcOptimize) return;
+        if (!this.m_dcOptimize) return;
         this.onViewSizeChanged();
         this.onContentChildChanged();
         CCUtils.addEventToComp(this._scrollview, this.node, "ScrollviewHelper", "onScrolling");
     }
 
     private onViewSizeChanged() {
-        if(!this.m_dcOptimize) return;
+        if (!this.m_dcOptimize) return;
         this._viewRect = this._view.getComponent(UITransform).getBoundingBoxToWorld();
-        this.updateItemVisible();
+        this.updateItemsVisible();
     }
 
     private onContentChildChanged() {
-        if(!this.m_dcOptimize) return;
-        this.updateItemVisible();
+        if (!this.m_dcOptimize) return;
+        this.updateItemsVisible();
     }
 
     private onScrolling(scrollview: ScrollView, event: number) {
@@ -87,29 +93,72 @@ export class ScrollviewHelper extends Component {
             case eventMap.scrolling:
                 this._scrollingFrameCnt += 1;
                 this._scrollingFrameCnt %= this.m_dcOptimizeFrame;
-                if (this._scrollingFrameCnt == 0) this.updateItemVisible();
-                break;
-            case eventMap['scroll-began']:
-                this.updateItemVisible();
+                if (this._scrollingFrameCnt == 0) this.updateItemsVisible();
                 break;
             case eventMap['scroll-ended']:
-                this.updateItemVisible();
+                this.updateItemsVisible();
+                console.log(scrollview.getScrollOffset());
+                console.log(scrollview.getMaxScrollOffset());
                 break;
         }
-
     }
 
 
-    private updateItemVisible() {
-        for (const child of this._content.children) {
-            let uiOpacity = child.getComponent(UIOpacity);
-            if (!uiOpacity) uiOpacity = child.addComponent(UIOpacity);
-            let rect = child.getComponent(UITransform).getBoundingBoxToWorld();
-            uiOpacity.opacity = this._viewRect.intersects(rect) ? 255 : 0;
+    private updateItemsVisible() {
+        if (!this._canUpdateItemVisible) return;
+        this._canUpdateItemVisible = false;
+        
+        this._itemVisible.clear();
+        this._siblingIndexLeft = -1;
+        this._siblingIndexRight = -1;
+        //根据当前滚动范围选择顺序或者倒序便利
+        let maxOffset = this._scrollview.getMaxScrollOffset();
+        let offset = this._scrollview.getScrollOffset();
+        if (maxOffset.x > 0 && offset.x < maxOffset.x / 2 || maxOffset.y > 0 && offset.y < maxOffset.y / 2) {//顺序
+            for (let i = 0, len = this._content.children.length; i < len; i++) {
+                this.setItemVisible(i);
+                if (i > 0 && this._siblingIndexRight < 0) {
+                    if (!this._itemVisible.get(i) && this._itemVisible.get(i - 1)) {
+                        this._siblingIndexRight = i;
+                    }
+                }
+            }
+        } else {//倒序
+            for (let i = this._content.children.length - 1; i >= 0; i--) {
+                this.setItemVisible(i);
+                if (i < this._content.children.length - 1 && this._siblingIndexLeft < 0) {
+                    if (!this._itemVisible.get(i) && this._itemVisible.get(i + 1)) {
+                        this._siblingIndexLeft = i;
+                    }
+                }
+            }
         }
     }
 
+    private setItemVisible(index: number) {
+        const item = this._content.children[index];
+        let uiOpacity = item.getComponent(UIOpacity);
+        if (!uiOpacity) uiOpacity = item.addComponent(UIOpacity);
 
+        let visible: boolean;
+        if (this._siblingIndexLeft > -1 && index < this._siblingIndexLeft) {
+            visible = false;
+        } else if (this._siblingIndexRight > -1 && index > this._siblingIndexRight) {
+            visible = false;
+        } else {
+            let rect = item.getComponent(UITransform).getBoundingBoxToWorld();
+            visible = this._viewRect.intersects(rect);
+        }
+
+        uiOpacity.opacity = visible ? 255 : 0;
+        this._itemVisible.set(index, visible);
+    }
+
+
+    protected update(dt: number) {
+        this._canUpdateItemVisible = true;
+
+    }
 
 
 

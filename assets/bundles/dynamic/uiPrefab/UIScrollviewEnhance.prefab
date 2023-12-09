@@ -1795,6 +1795,8 @@
     "__prefab": {
       "__id__": 78
     },
+    "m_dcOptimize": true,
+    "m_dcOptimizeFrame": 5,
     "_id": ""
   },
   {
