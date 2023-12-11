@@ -6,5 +6,5 @@ const { ccclass } = cc._decorator;
 
 @ccclass('UIExtendProperty')
 export class UIExtendProperty extends PropertyBase {
-    public get toggleGroupTC() { return this.getComp("Label-003/$ToggleGroup", cc.ToggleContainer); }
+    public get toggleGroupTC() { return this.getComp("$ToggleGroup", cc.ToggleContainer); }
 }

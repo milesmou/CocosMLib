@@ -1,4 +1,4 @@
-import { EventTouch, Node, Toggle, _decorator } from 'cc';
+import { EventHandler, EventTouch, Node, Toggle, _decorator } from 'cc';
 import { App } from '../../../App';
 import { MEvent } from '../../event/MEvent';
 
@@ -31,7 +31,10 @@ export class MToggle extends Toggle {
 
     /** 是否冷却中 */
     private _isCoolingDown = false;
+    /** 是否ToggleContainer中的一个 */
     private _inToggleContainer = false;
+    /** 上一次是否被选中 */
+    private _lastIsChecked: boolean;
 
     private _onValueChange: MEvent = new MEvent();
     public get onValueChange() { return this._onValueChange; }
@@ -44,16 +47,22 @@ export class MToggle extends Toggle {
 
     protected onLoad(): void {
         this._inToggleContainer = this.node.parent.getComponent('cc.ToggleContainer') as any;
+        this._lastIsChecked = this.isChecked;
         this.node.on(Toggle.EventType.TOGGLE, this.onToggleValueChange, this);
         this.updateBackground();
     }
 
     private onToggleValueChange(toggle: MToggle) {
-        if (this.isChecked || !this._inToggleContainer) {
+        if (this._inToggleContainer) {
+            if (this.isChecked && this.isChecked != this._lastIsChecked) {
+                if (this.clickAudio && App.audio) App.audio.playEffect(this.clickAudio);
+            }
+        } else {
             if (this.clickAudio && App.audio) App.audio.playEffect(this.clickAudio);
         }
         this.onValueChange.dispatch();
         this.updateBackground();
+        this._lastIsChecked = this.isChecked;
     }
 
     private updateBackground() {

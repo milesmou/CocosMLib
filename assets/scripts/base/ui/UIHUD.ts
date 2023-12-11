@@ -15,7 +15,6 @@ export class UIHUD extends UIBase {
     protected property: PropertyBase;
 
     onLoad() {
-        super.onLoad();
         console.log(GameData.Inst.getSerializeStr());
     }
 

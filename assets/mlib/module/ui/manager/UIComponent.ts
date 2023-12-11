@@ -12,7 +12,7 @@ export class UIComponent extends GenProperty {
     protected property: PropertyBase;
     protected message: UIMessage;
 
-    protected onLoad(): void {
+    protected __preload(): void {
         let propertyClassName = js.getClassName(this) + "Property";
         let propertyClass = js.getClassByName(propertyClassName);
         if (propertyClass) {

@@ -46,10 +46,11 @@ class ReplaceComponent {
             if (tog.getComponent("MToggle"))
                 return;
             btnCnt++;
-            let mTog = tog.node.addComponent("MToggle");
+            let mTog = tog.addComponent("MToggle");
             mTog.enabled = tog.enabled;
             mTog.target = tog.target;
             mTog.isChecked = tog.isChecked;
+            mTog.checkMark = tog.checkMark;
             mTog.clickEvents = tog.clickEvents;
             mTog.checkEvents = tog.checkEvents;
             mTog.interactable = tog.interactable;
@@ -64,6 +65,7 @@ class ReplaceComponent {
             mTog.normalSprite = tog.normalSprite;
             mTog.pressedSprite = tog.pressedSprite;
             mTog.disabledSprite = tog.disabledSprite;
+            mTog.playEffect();
             tog.destroy();
         });
         MLogger_1.MLogger.info(`替换Toggle为MToggle完成,共计${btnCnt}个`);

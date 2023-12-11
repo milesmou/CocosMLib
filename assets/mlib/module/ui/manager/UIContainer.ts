@@ -20,10 +20,9 @@ export class UIContainer extends UIComponent {
     private _asset: AssetHandler;
     public get asset() { return this._asset; }
 
-    protected onLoad(): void {
-        super.onLoad();
+    protected __preload(): void {
+        super.__preload();
         this._asset = new AssetHandler(this.node);
     }
-
 }
 
