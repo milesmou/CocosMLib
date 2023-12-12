@@ -71,15 +71,14 @@ export class MToggle extends Toggle {
 
     protected _onTouchEnded(event?: EventTouch): void {
         if (this._isCoolingDown) return;
-        if (!this['_pressed']) return;
 
-        super._onTouchEnded(event);
-
-        if (this.m_Cooldown > 0) {
+        if (this['_pressed'] && this.m_Cooldown > 0) {
             this._isCoolingDown = true;
             this.scheduleOnce(() => {
                 this._isCoolingDown = false;
             }, this.m_Cooldown)
         }
+
+        super._onTouchEnded(event);
     }
 }
