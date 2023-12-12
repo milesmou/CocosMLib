@@ -72,3 +72,4 @@ quick_gen_project_*_autogen.sh.meta
 # Hotupdate
 #//////////////////////////
 packages-hot-update/
+profiles/v2/packages/scene.json
