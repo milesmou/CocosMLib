@@ -43,16 +43,10 @@ export class App extends Component {
         MLogger.print(`SDKSetting ${SDKSetting.Inst.getPrintInfo()}`);
     }
 
-
     start() {
         App.audio = AudioMgr.Default;
         App.ui = UIMgr.Inst;
     }
-
-    onDestroy() {
-
-    }
-
 
     public static getSingleInst<T>(clazz: { new(): T }) {
         return SingletonFactory.getInstance(clazz);

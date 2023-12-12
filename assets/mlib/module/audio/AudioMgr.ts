@@ -107,7 +107,7 @@ export class AudioMgr extends Component {
                 this.fadeInMusic(fadeIn, audioState);
             }
         } else { //播放音乐
-            let clip = await AssetMgr.loadAsset<AudioClip>(location);
+            let clip = await AssetMgr.loadAsset<AudioClip>(location, AudioClip);
             if (!clip) return;
             if (!this.stack.isTop(priority, location)) {//未加载音乐完就已停止
                 AssetMgr.DecRef(location);
