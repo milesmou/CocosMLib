@@ -138,6 +138,12 @@ export class Channel {
         MCloudDataSDK.reportEvent(eventName, num, paramStr);
     }
 
+    /** 请求用户来源 source为空表示获取失败 */
+    reqUserSource(complete: (source: string) => void) {
+        SDKCallback.onUserSource = complete;
+        SDKCallback.onUserSource("Editor");
+    }
+
     /** 额外的方法 用于一些特殊的处理 */
     extraMethod(key: string, ...args: any[]): void {
 

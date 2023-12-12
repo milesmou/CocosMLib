@@ -14,7 +14,8 @@ export enum ECallNativeKey {
     ShowRewardedAd,
     /** 事件上报 */
     ReportEvent,
-
+    /** 获取用户来源 */
+    ReqUserSource,
 }
 
 export enum ELoginResult {
@@ -74,6 +75,8 @@ export class SDKCallback {
     public static onStartInAppPurchase: StringCallback;
     /** 内购结果回调 */
     public static inAppPurchase: (code: EIAPResult, arg: string) => void;
+    /** 请求用户来源完成回调 */
+    public static onUserSource: StringCallback;
 }
 
 /** 处理与SDK的交互 */
@@ -100,6 +103,9 @@ export class MSDKWrapper {
                 break;
             case ECallNativeKey.ShowRewardedAd:
                 this.onShowRewardedAd(arg);
+                break;
+            case ECallNativeKey.ReqUserSource:
+                SDKCallback.onUserSource(arg);
                 break;
         }
     }
