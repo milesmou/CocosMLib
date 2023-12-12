@@ -97,8 +97,6 @@ export class ScrollviewHelper extends Component {
                 break;
             case eventMap['scroll-ended']:
                 this.updateItemsVisible();
-                console.log(scrollview.getScrollOffset());
-                console.log(scrollview.getMaxScrollOffset());
                 break;
         }
     }

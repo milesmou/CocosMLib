@@ -22,6 +22,10 @@ export class UIExtend extends UIBase {
             case "ButtonDD":
                 console.log("hahaha");
                 
+                break; 
+                case "Button-00122":
+                console.log("Button-00122");
+                
                 break;
         
             default:

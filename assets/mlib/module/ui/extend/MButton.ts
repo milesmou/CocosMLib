@@ -120,10 +120,22 @@ export class MButton extends Button {
         }
     }
 
+    protected _onTouchMove(event?: EventTouch): void {
+        if (this._isCoolingDown) return;
+        super._onTouchMove(event);
+    }
+
 
     protected _onTouchEnded(event?: EventTouch): void {
         if (this._isCoolingDown) return;
-        if (!this['_pressed']) return;
+
+        if (this['_pressed'] && this.m_Cooldown > 0) {
+            this._isCoolingDown = true;
+            this.scheduleOnce(() => {
+                this._isCoolingDown = false;
+            }, this.m_Cooldown)
+        }
+
         if (this.m_PolygonButton) {//异形按钮
             if (!this._isOutOfPolygon) {
                 let screenPos = event.getUILocation();
@@ -137,7 +149,6 @@ export class MButton extends Button {
             }
         }
 
-
         if (this.m_LongPressButton) this.unschedule(this.updateLongPress);
         if (this.m_LongPressButton && this.m_LongPressIgnoreClick) {
             //直接忽略点击事件
@@ -147,18 +158,13 @@ export class MButton extends Button {
                 //已触发长按事件 忽略点击事件
             }
             else {
+                if (this['_pressed'] && this.clickAudio) App.audio.playEffect(this.clickAudio);
                 this.onClick.dispatch();
                 super._onTouchEnded(event);
-                if (this.clickAudio) App.audio.playEffect(this.clickAudio);
             }
         }
 
-        if (this.m_Cooldown > 0) {
-            this._isCoolingDown = true;
-            this.scheduleOnce(() => {
-                this._isCoolingDown = false;
-            }, this.m_Cooldown)
-        }
+
     }
 
     private dispatchLongPress(first: boolean) {

@@ -1627,7 +1627,7 @@
     },
     "m_DefaultAudio": false,
     "m_CustomAudio": "audio/test/Cllick_1",
-    "m_Cooldown": 0.2,
+    "m_Cooldown": 0.5,
     "m_PolygonButton": false,
     "m_LongPressButton": false,
     "longPressEvents": [],
@@ -2564,7 +2564,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Button-001",
+    "_name": "Button-00122",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -2926,7 +2926,7 @@
     },
     "m_DefaultAudio": true,
     "m_CustomAudio": "",
-    "m_Cooldown": 0.2,
+    "m_Cooldown": 1,
     "m_PolygonButton": true,
     "m_LongPressButton": false,
     "longPressEvents": [],
