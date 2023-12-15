@@ -55,13 +55,15 @@ export class ScrollviewHelper extends Component {
     }
 
     protected onEnable(): void {
-        this._view.on(Node.EventType.SIZE_CHANGED, this.onViewSizeChanged, this);
+        this._view.on(Node.EventType.SIZE_CHANGED, this.onViewChanged, this);
+        this._view.on(Node.EventType.TRANSFORM_CHANGED, this.onViewChanged, this);
         this._content.on(Node.EventType.CHILD_ADDED, this.onContentChildChanged, this);
         this._content.on(Node.EventType.CHILD_REMOVED, this.onContentChildChanged, this);
     }
 
     protected onDisable(): void {
-        this._view.off(Node.EventType.SIZE_CHANGED, this.onViewSizeChanged, this);
+        this._view.off(Node.EventType.SIZE_CHANGED, this.onViewChanged, this);
+        this._view.off(Node.EventType.TRANSFORM_CHANGED, this.onViewChanged, this);
         this._content.off(Node.EventType.CHILD_ADDED, this.onContentChildChanged, this);
         this._content.off(Node.EventType.CHILD_REMOVED, this.onContentChildChanged, this);
     }
@@ -72,12 +74,12 @@ export class ScrollviewHelper extends Component {
         this._view = this.getComponentInChildren(Mask).node;
         this._content = this._scrollview.content;
         if (!this.m_dcOptimize) return;
-        this.onViewSizeChanged();
+        this.onViewChanged();
         this.onContentChildChanged();
         CCUtils.addEventToComp(this._scrollview, this.node, "ScrollviewHelper", "onScrolling");
     }
 
-    private onViewSizeChanged() {
+    private onViewChanged() {
         if (!this.m_dcOptimize) return;
         this._viewRect = this._view.getComponent(UITransform).getBoundingBoxToWorld();
         this.updateItemsVisible();
@@ -152,13 +154,9 @@ export class ScrollviewHelper extends Component {
         this._itemVisible.set(index, visible);
     }
 
-
     protected update(dt: number) {
         this._canUpdateItemVisible = true;
-
     }
-
-
 
 }
 
