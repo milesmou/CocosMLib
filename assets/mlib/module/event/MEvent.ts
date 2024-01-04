@@ -29,3 +29,78 @@ export class MEvent {
     }
 
 }
+
+export class MEvent1<T> extends MEvent {
+
+    public addListener(func: (arg: T) => void, thisObj?: object, disposable = false) {
+        super.addListener(func, thisObj, disposable);
+    }
+
+    public removeListener(func: (arg: T) => void, thisObj?: object) {
+        super.removeListener(func, thisObj);
+    }
+
+    public dispatch(arg: T) {
+        super.dispatch(arg);
+    }
+}
+
+export class MEvent2<T1, T2> extends MEvent {
+
+    public addListener(func: (arg1: T1, arg2: T2) => void, thisObj?: object, disposable = false) {
+        super.addListener(func, thisObj, disposable);
+    }
+
+    public removeListener(func: (arg1: T1, arg2: T2) => void, thisObj?: object) {
+        super.removeListener(func, thisObj);
+    }
+
+    public dispatch(arg1: T1, arg2: T2) {
+        super.dispatch(arg1, arg2);
+    }
+}
+
+export class MEvent3<T1, T2, T3> extends MEvent {
+
+    public addListener(func: (arg1: T1, arg2: T2, arg3: T3) => void, thisObj?: object, disposable = false) {
+        super.addListener(func, thisObj, disposable);
+    }
+
+    public removeListener(func: (arg1: T1, arg2: T2, arg3: T3) => void, thisObj?: object) {
+        super.removeListener(func, thisObj);
+    }
+
+    public dispatch(arg1: T1, arg2: T2, arg3: T3) {
+        super.dispatch(arg1, arg2, arg3);
+    }
+}
+
+export class MEvent4<T1, T2, T3, T4> extends MEvent {
+
+    public addListener(func: (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => void, thisObj?: object, disposable = false) {
+        super.addListener(func, thisObj, disposable);
+    }
+
+    public removeListener(func: (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => void, thisObj?: object) {
+        super.removeListener(func, thisObj);
+    }
+
+    public dispatch(arg1: T1, arg2: T2, arg3: T3, arg4: T4) {
+        super.dispatch(arg1, arg2, arg3, arg4);
+    }
+}
+
+export class MEvent5<T1, T2, T3, T4, T5> extends MEvent {
+
+    public addListener(func: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T4) => void, thisObj?: object, disposable = false) {
+        super.addListener(func, thisObj, disposable);
+    }
+
+    public removeListener(func: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T4) => void, thisObj?: object) {
+        super.removeListener(func, thisObj);
+    }
+
+    public dispatch(arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T4) {
+        super.dispatch(arg1, arg2, arg3, arg4, arg5);
+    }
+}
