@@ -5,6 +5,9 @@
     /* Add your custom configuration here. */
     "compilerOptions": {
         "strict": false,
-        "target": "ES2017"
+        "target": "ES2017",
+        "lib": [
+            "ES2017",
+        ]
     }
 }
