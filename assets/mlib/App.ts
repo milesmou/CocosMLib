@@ -1,4 +1,4 @@
-import { Component, _decorator, director, js } from 'cc';
+import { Component, ResolutionPolicy, _decorator, director, js, screen, view } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { Publish } from '../scripts/base/publish/Publish';
@@ -36,6 +36,7 @@ export class App extends Component {
 
     onLoad() {
         App.Inst = this;
+        this.setCanvasResolution();
         director.addPersistRootNode(this.node);
         App.lang = L10nMgr.getLanguage(GameSetting.Inst.languageId);
         App.chan = Publish.getChannelInstance();
@@ -46,6 +47,18 @@ export class App extends Component {
     start() {
         App.audio = AudioMgr.Default;
         App.ui = UIMgr.Inst;
+    }
+
+    private setCanvasResolution() {
+        // let winsize = screen.windowSize;
+        // let ratio = winsize.width / winsize.height;
+        // let drs = view.getDesignResolutionSize();
+        // let drsRatio = drs.width / drs.height;
+        // if (ratio > drsRatio) {
+        //     view.setResolutionPolicy(ResolutionPolicy.FIXED_HEIGHT);
+        // } else {
+        //     view.setResolutionPolicy(ResolutionPolicy.FIXED_WIDTH);
+        // }
     }
 
     public static getSingleInst<T>(clazz: { new(): T }) {

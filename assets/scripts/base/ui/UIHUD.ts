@@ -1,5 +1,5 @@
 
-import { Button, _decorator, js, tween } from 'cc';
+import { Button, ResolutionPolicy, _decorator, js, screen, tween, view } from 'cc';
 import { App } from '../../../mlib/App';
 import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../../gen/UIConstant';
@@ -13,10 +13,6 @@ const { ccclass, property } = _decorator;
 export class UIHUD extends UIBase {
 
     protected property: PropertyBase;
-
-    onLoad() {
-        console.log(GameData.Inst.getSerializeStr());
-    }
 
     protected onClickButton(btnName: string): void {
         switch (btnName) {
