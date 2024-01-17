@@ -85,15 +85,7 @@ export class RedDotMgr {
         }
     }
 
-    private static removeRedDot(name: string) {
-        if (this.nodes[name]) {
-            delete this.nodes[name];
-        }
-        else {
-            MLogger.error(`节点不存在 ${name}`);
-        }
-    }
-
+    /** 监听节点值的变化 */
     public static setRedDotListener(name: string, onValueChange: () => void) {
         if (this.nodes[name]) {
             let node = this.nodes[name];
@@ -104,6 +96,7 @@ export class RedDotMgr {
         }
     }
 
+    /** 修改叶子节点的值 */
     public static setRedDotValue(name: string, value: number) {
         if (this.nodes[name]) {
             let node = this.nodes[name];
@@ -119,6 +112,7 @@ export class RedDotMgr {
         }
     }
 
+    /** 获取任意节点的值 */
     public static getRedDotValue(name: string) {
         if (this.nodes[name]) {
             let node = this.nodes[name];
@@ -127,6 +121,14 @@ export class RedDotMgr {
         else {
             MLogger.error(`节点不存在 ${name}`);
             return 0;
+        }
+    }
+
+    /** 打印所有红点的值 用于调试 */
+    public static printAllRedDotValue() {
+        for (const name in this.nodes) {
+            let node = this.nodes[name];
+            MLogger.debug(`name=${name} value=${node.value} isLeaf=${node.child.length == 0}`)
         }
     }
 }
