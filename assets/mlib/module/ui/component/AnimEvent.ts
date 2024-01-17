@@ -26,13 +26,13 @@ export default class AnimEvent extends Component {
 
     public addSpine(spine: sp.Skeleton) {
         if (!spine?.isValid) return;
-        this.spines.push(spine);
+        if (!this.spines.includes(spine)) this.spines.push(spine);
         this.registerSpineListener(spine);
     }
 
     public addAnimation(anim: Animation) {
         if (!anim?.isValid) return;
-        this.anims.push(anim);
+        if (!this.anims.includes(anim)) this.anims.push(anim);
         this.registerAnimListener(anim);
     }
 

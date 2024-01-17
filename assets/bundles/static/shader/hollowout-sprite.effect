@@ -33,10 +33,11 @@ CCProgram sprite-vs %{
   #if SAMPLE_FROM_RT
     #include <common/common-define>
   #endif
+
   in vec3 a_position;
   in vec2 a_texCoord;
   in vec4 a_color;
-
+  
   out vec4 color;
   out vec2 uv0;
 
@@ -69,6 +70,10 @@ CCProgram sprite-fs %{
   precision highp float;
   #include <builtin/internal/embedded-alpha>
   #include <builtin/internal/alpha-test>
+
+  #if HHH
+
+  #endif
 
   in vec4 color;
 
