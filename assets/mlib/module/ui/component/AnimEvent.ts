@@ -53,10 +53,7 @@ export default class AnimEvent extends Component {
     }
 
     private registerAnimListener(anim: Animation) {
-        let animE = anim.getComponent(AnimEvent);
-        if (!animE) {
-            animE = anim.addComponent(AnimEvent);
-        }
+        let animE = anim.getComponent(AnimEvent) || anim.addComponent(AnimEvent);
         if (animE != this) animE.setEventListener(this.animEventListener.bind(this));//避免死循环 需要判断
     }
 
@@ -77,6 +74,4 @@ export default class AnimEvent extends Component {
     public setEventListener(listener: (evtName: string, arg: string) => void) {
         this._listener = listener;
     }
-
-
 }
