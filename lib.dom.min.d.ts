@@ -45,6 +45,13 @@ interface Console {
 
 declare var console: Console;
 
+type TimerHandler = string | Function;
+
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/setInterval) */
+declare function setInterval(handler: TimerHandler, timeout?: number, ...arguments: any[]): number;
+/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/setTimeout) */
+declare function setTimeout(handler: TimerHandler, timeout?: number, ...arguments: any[]): number;
+
 interface XMLHttpRequestEventMap extends XMLHttpRequestEventTargetEventMap {
     "readystatechange": Event;
 }
