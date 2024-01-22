@@ -43,10 +43,10 @@ export class UIGuide extends Component {
     private _guideId: number = 0;
     private _guideData: TGuide[] = [];
     private _nowIndex: number;
-    private _stepFuncs: { [setpIndex: number]: ((ui: UIBase) => Promise<Node>) };
-    private _onManualStep?: (stepIndex: number) => void;
     private _onStep?: (stepIndex: number) => void;
-    public _onEnded: () => void;
+    private _onStepNode?: (stepIndex: number, ui: UIBase) => Promise<Node>;
+    private _onManualStep?: (stepIndex: number) => void;
+    private _onEnded: () => void;
 
     private _skipGuide = false;//关闭所有引导
 
@@ -77,7 +77,6 @@ export class UIGuide extends Component {
         this._guideId = 0;
         this._onEnded && this._onEnded();
         this._onEnded = null;
-        this._stepFuncs = null;
         this.hide();
     }
 
@@ -97,13 +96,20 @@ export class UIGuide extends Component {
         }
     }
 
-    /** 开始引导 */
+    /** 
+     * 开始引导
+     * onStep:每一步引导回调
+     * onStepNode:手动获取目标节点回调
+     * onManualStep:手动开始引导步骤回调
+     */
     public startGuide(guideId: number, args?: {
-        onStart?: () => void, onEnded?: () => void, stepFuncs?: { [setpIndex: number]: ((ui: UIBase) => Promise<Node>) },
-        onStep?: (stepIndex: number) => void, onManualStep?: (stepIndex: number) => void
+        onStep?: (stepIndex: number) => void,
+        onStepNode?: (stepIndex: number, ui: UIBase) => Promise<Node>,
+        onManualStep?: (stepIndex: number) => void
+        onEnded?: () => void,
     }) {
         if (this._skipGuide) return;
-        let { onStart, onEnded, stepFuncs, onStep, onManualStep } = args || {};
+        let { onStep, onStepNode, onManualStep, onEnded } = args || {};
         if (this._guideId != 0) {
             this._logger.trace("正在进引导: " + this._guideId + " 想要开始引导: " + guideId);
             return;
@@ -114,11 +120,10 @@ export class UIGuide extends Component {
         if (this._guideData != null) {
             this._logger.debug("开始引导" + guideId);
             App.event.emit(EventKey.OnGuideStart, this._guideId);
-            onStart && onStart();
-            this._onEnded = onEnded;
-            this._stepFuncs = stepFuncs;
             this._onStep = onStep;
+            this._onStepNode = onStepNode;
             this._onManualStep = onManualStep;
+            this._onEnded = onEnded;
             this.showGuideStep();
         }
         else {
@@ -294,12 +299,9 @@ export class UIGuide extends Component {
         let guide = this._guideData[this._nowIndex];
         let btnNode: Node;
         if (!guide.NodePath.trim()) {
-            if (this._stepFuncs[this._nowIndex]) {
-                let stepFunc = this._stepFuncs[this._nowIndex];
-                btnNode = await stepFunc(ui);
-            }
-            else {
-                this._logger.error(`引导${this._guideId} 第${this._nowIndex}步 未传入stepFunc`);
+            btnNode = await this._onStepNode(this._nowIndex, ui);
+            if (!btnNode?.isValid) {
+                this._logger.error(`引导${this._guideId} 第${this._nowIndex}步 目标节点未找到`);
                 return;
             }
         }
@@ -342,6 +344,16 @@ export class UIGuide extends Component {
     private showTipAVG() {
         let guide = this._guideData[this._nowIndex];
         this.showTipText(guide.TipText, guide.TipPos);
+    }
+
+    /** 设置遮罩可见性 */
+    private setMaskVisible(visible: boolean) {
+        this.m_Mask.node.active = visible;
+    }
+
+    /** 遮罩是否接收触摸事件 */
+    public setMaskTouchEnable(enable: boolean) {
+        this.m_Mask.setTouchEnable(enable);
     }
 
     /** 自定义挖孔 仅挖孔不可点击  */

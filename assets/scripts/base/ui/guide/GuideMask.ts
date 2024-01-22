@@ -30,8 +30,23 @@ export class GuideMask extends Component {
 
     protected onLoad(): void {
         this.hollowOut = this.getComponent(HollowOut);
-        this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.reset();
+    }
+
+    /** 是否接收触摸事件(接收事件后将不会再向下传递触摸事件) */
+    public setTouchEnable(enable: boolean) {
+        if (enable) {
+            if (this.node.hasEventListener(Node.EventType.TOUCH_START)) return;
+            this.node.on(Node.EventType.TOUCH_START, this.stopTouchEvent, this);
+            this.node.on(Node.EventType.TOUCH_MOVE, this.stopTouchEvent, this);
+            this.node.on(Node.EventType.TOUCH_CANCEL, this.stopTouchEvent, this);
+            this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        } else {
+            this.node.off(Node.EventType.TOUCH_START);
+            this.node.off(Node.EventType.TOUCH_MOVE);
+            this.node.off(Node.EventType.TOUCH_CANCEL);
+            this.node.off(Node.EventType.TOUCH_END);
+        }
     }
 
     public reset() {
@@ -49,7 +64,7 @@ export class GuideMask extends Component {
     /** 仅挖孔 不可点击挖孔区域 */
     public hollow2(type: EMaskHollowType, hollowTarget: Node, scale: number, duration = 0.25) {
         this._hollowTargetRect = hollowTarget.getComponent(UITransform).getBoundingBoxToWorld();
-        
+
         let center = this._hollowTargetRect.center;
         let posV3 = this.getComponent(UITransform).convertToNodeSpaceAR(v3(center.x, center.y));
         let pos = v2(posV3.x, posV3.y);
@@ -75,6 +90,10 @@ export class GuideMask extends Component {
         this.scheduleOnce(() => {
             this._isTweenHollow = false;
         }, 0.05);
+    }
+
+    private stopTouchEvent(evt: EventTouch) {
+        evt.propagationStopped = true;
     }
 
     private onTouchEnd(evt: EventTouch) {

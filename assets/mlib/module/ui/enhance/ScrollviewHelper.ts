@@ -30,7 +30,7 @@ export class ScrollviewHelper extends Component {
         displayName: "检测频率",
         tooltip: "滚动时，多少帧进行一次优化DC的检测",
         range: [1, 5],
-        slide: true
+        slide: true,
     })
     @integer
     private m_dcOptimizeFrame = 1;
