@@ -20,10 +20,6 @@ export class GameGuide {
     /** 准备开始引导 但还在等待中 */
     private _readyToGuide = false;
 
-    /** 当前正在进行的引导 */
-    public get nowGuide(): EGuideType {
-        return UIGuide.Inst.nowGuide;
-    }
 
     /** 当前是否正在进行引导 或者 准备进行引导 */
     public get isGuide(): boolean {
@@ -33,6 +29,14 @@ export class GameGuide {
     /** 当前是否正在进行指定的引导 */
     public isInGuide(guideType: EGuideType): boolean {
         return UIGuide.Inst.nowGuide == guideType;
+    }
+
+    /** 获取当前引导的步骤索引 */
+    public getGuideStepIndex() {
+        if (UIGuide.Inst.isGuide) {
+            return UIGuide.Inst.stepIndex;
+        }
+        return -1;
     }
 
     /** 引导是否已完成 */
