@@ -11,10 +11,13 @@ export class GameGuide {
     public static get Inst() { return App.getSingleInst(GameGuide); }
     private onInst() {
         this._readyToGuide = false;
-        App.event.on(EventKey.ShowGuide, this.showGuide, this);
         App.event.on(EventKey.OnGuideStart, () => {
             this._readyToGuide = false;
         }, this);
+        App.event.on(EventKey.OnGuideEnd, (guideId: number) => {
+            this.finisheGuide(guideId);
+        }, this);
+        App.event.on(EventKey.ShowGuide, this.showGuide, this);
     }
 
     /** 准备开始引导 但还在等待中 */
@@ -64,6 +67,25 @@ export class GameGuide {
     public async checkShowGuide() {
         if (await this.checkShowWelcomeCartoon()) return;
 
+    }
+
+    /** 检查引导是否满足触发条件 */
+    public checkGuideCondition(guide: EGuideType) {
+        if (this.isInGuide(guide)) return false;
+        if (this.isGuideFinished(guide)) return false;
+        // let data = GameTable.Inst.Table.TbGuideOpenPlan.get(guide);
+        // if (data) {
+        //     if (data.NeedPlayerLv) {
+        //         return GameData.Inst.playerLv >= data.NeedPlayerLv;
+        //     } else if (data.NeedBattleLv) {
+        //         return GameData.Inst.battleState.level >= data.NeedBattleLv;
+        //     } else if (data.NeedMainTask) {
+        //         return GameData.Inst.myMainTaskData.taskId > data.NeedMainTask;
+        //     }
+        // } else {
+        //     MLogger.error(`GuideOpenPlan表中未配置 ID=${guide}`)
+        // }
+        return false;
     }
 
     /** 展示开场漫画 */
