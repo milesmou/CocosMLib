@@ -128,6 +128,21 @@ export class CCUtils {
         }
     }
 
+    /** 滚动到指定的Item */
+    public static scrollToItem(scrollView: ScrollView, itemIndex: number, timeInSecond = 0) {
+        let targetItem = scrollView.content.children[itemIndex];
+        if (targetItem) {
+            //获取item左上角坐标
+            let box = targetItem.getComponent(UITransform).getBoundingBox();
+            let leftTop = v2(box.x, box.yMax);
+            //计算距离content左上角的距离
+            let contentTrans = scrollView.content.getComponent(UITransform);
+            let x = contentTrans.width * contentTrans.anchorX + leftTop.x;
+            let y = contentTrans.height * contentTrans.anchorY - leftTop.y;
+            scrollView.scrollToOffset(v2(x, y), timeInSecond);
+        }
+    }
+
     /** Scrollview左右翻页  turnType -1:上一页 1:下一页*/
     static scrollViewTurnPage(scrollView: ScrollView, turnType: -1 | 1, dur = 0.15) {
         let trans = scrollView.getComponent(UITransform);
