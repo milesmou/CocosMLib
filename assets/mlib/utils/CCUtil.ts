@@ -184,9 +184,12 @@ export class CCUtils {
     }
 
     static loadList<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
-        item: Prefab = null, frameTimeMS = 2) {
+        args?: { item?: Prefab, frameTimeMS?: number, comp?: Component }) {
 
         return new Promise<void>((resolve, reject) => {
+            let { item, frameTimeMS, comp } = args || {};
+            frameTimeMS = frameTimeMS === undefined ? 2 : frameTimeMS;
+
             if (!content || listData == null) return;
 
             if (!item && content.children.length == 0) {
@@ -201,7 +204,7 @@ export class CCUtils {
                 }
             }
 
-            let comp = this.getComponentInParent(content, Component);
+            comp = comp || this.getComponentInParent(content, Component);
 
             let gen = this.listGenerator(content, listData, action, item);
 
@@ -209,6 +212,8 @@ export class CCUtils {
                 let startMS = Date.now();
 
                 for (let iter = gen.next(); ; iter = gen.next()) {
+
+                    if (!comp?.isValid) break;//组件销毁后停止加载
 
                     if (iter == null || iter.done) {
                         resolve();
