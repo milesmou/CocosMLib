@@ -5,8 +5,8 @@ const { ccclass, property } = _decorator;
 @ccclass
 export class TimerComponent extends Component {
     private _timeScale: number = 1;
-    private _scheduler: Scheduler;
     private _pause: boolean = false;
+    private _scheduler: Scheduler;
     private _animationManager: AnimationManager;
     private _animations: Set<Animation> = new Set();
     private _skeletons: Set<sp.Skeleton> = new Set();
