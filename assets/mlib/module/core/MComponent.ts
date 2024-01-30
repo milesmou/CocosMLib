@@ -1,13 +1,22 @@
 import { _decorator, Component, js } from "cc";
 import { MLogger } from "../logger/MLogger";
+import { PropertyBase } from "../ui/property/PropertyBase";
+import { TimerComponent } from "./TimerComponent";
 
 const { ccclass, property } = _decorator;
 
 @ccclass
-export class MComponent extends Component {
+export class MComponent<T extends PropertyBase = PropertyBase> extends Component {
+
+    protected timer: TimerComponent;
+    protected property: T;
 
     protected __preload(): void {
-
+        let propertyClassName = js.getClassName(this) + "Property";
+        let propertyClass = js.getClassByName(propertyClassName);
+        if (propertyClass) {
+            this.property = new propertyClass(this.node) as T;
+        }
     }
 
     /** 从父节点或自身获取组件 */
