@@ -4,7 +4,6 @@ const { property, ccclass, requireComponent } = _decorator;
 import { EventKey } from "../../../../scripts/base/GameEnum";
 import { App } from "../../../App";
 import { CCUtils } from "../../../utils/CCUtil";
-import { AssetHandler } from "../../asset/AssetHandler";
 import { MEvent } from "../../event/MEvent";
 import { MLogger } from '../../logger/MLogger';
 import { UIComponent } from "./UIComponent";
@@ -78,13 +77,6 @@ export class UIBase extends UIComponent {
     protected visible: boolean;
     protected args: any = null;
 
-    private _asset: AssetHandler;
-    public get asset() { return this._asset; }
-
-    protected __preload(): void {
-        super.__preload();
-        this._asset = new AssetHandler(this.node);
-    }
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     public init(uiName: string) {

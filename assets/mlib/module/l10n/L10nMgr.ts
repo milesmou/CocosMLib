@@ -1,11 +1,11 @@
 import { Font, Label, RichText, Sprite, TTFFont, sys } from "cc";
 import GameTable from "../../../scripts/base/GameTable";
 import { App } from "../../App";
-import { AssetHandler } from "../asset/AssetHandler";
-import { StroageMgr } from "../stroage/StroageMgr";
 import { Utils } from "../../utils/Utils";
 import { AssetMgr } from "../asset/AssetMgr";
+import { AssetComponent } from "../core/AssetComponent";
 import { MLogger } from "../logger/MLogger";
+import { StroageMgr } from "../stroage/StroageMgr";
 import { ELanguage, ELanguageCode } from "./ELanguage";
 import { IL10n } from "./IL10n";
 
@@ -15,7 +15,7 @@ class CompManagedArgs {
     public key: string;
     public args: any[];
     public delegate: () => string;
-    public assetHandler: AssetHandler;
+    public assetLoader: AssetComponent;
 }
 
 /** 多语言管理器 */
@@ -117,7 +117,7 @@ export class L10nMgr {
         this.managedMap.forEach((v, k) => {
             if (k.isValid) {
                 if (k instanceof Sprite) {
-                    this.setSpriteFrameByKey(k, v.key, v.assetHandler);
+                    this.setSpriteFrameByKey(k, v.key, v.assetLoader);
                 } else {
                     if (v.delegate) this.setStringByDelegate(k, v.delegate);
                     else this.setStringByKey(k, v.key, ...v.args);
@@ -154,12 +154,12 @@ export class L10nMgr {
 
 
     /** 为图片组件设置图片并加入托管，在切换语言时自动刷新内容 */
-    public static setSpriteFrameAndManage(sprite: Sprite, key: string, assetHandler?: AssetHandler) {
+    public static setSpriteFrameAndManage(sprite: Sprite, key: string, assetLoader?: AssetComponent) {
         let compArgs = this.managedMap.get(sprite) || new CompManagedArgs();
         compArgs.key = key;
-        compArgs.assetHandler = assetHandler;
+        compArgs.assetLoader = assetLoader;
         this.managedMap.set(sprite, compArgs);
-        this.setSpriteFrameByKey(sprite, key, assetHandler);
+        this.setSpriteFrameByKey(sprite, key, assetLoader);
     }
 
     /** 为文本组件设置文本 */
@@ -173,10 +173,10 @@ export class L10nMgr {
     }
 
     /** 为图片组件设置图片 */
-    public static setSpriteFrameByKey(sprite: Sprite, key: string, assetHandler?: AssetHandler) {
+    public static setSpriteFrameByKey(sprite: Sprite, key: string, assetLoader?: AssetComponent) {
         let location = `${App.lang}/${key}`;
-        if (assetHandler) {
-            assetHandler.loadSprite(sprite, location);
+        if (assetLoader) {
+            assetLoader.loadSprite(sprite, location);
         } else {
             AssetMgr.loadSprite(sprite, location);
         }

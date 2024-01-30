@@ -1,29 +1,32 @@
-import { Button, _decorator, js } from "cc";
+import { Button, _decorator } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
-import { GenProperty } from "../property/GenProperty";
+import { MComponent } from "../../core/MComponent";
 import { PropertyBase } from "../property/PropertyBase";
-import { UIMessage } from "./UIMessage";
 
-const { property, ccclass, requireComponent } = _decorator;
+const { ccclass } = _decorator;
 
 @ccclass("UIComponent")
-export class UIComponent extends GenProperty {
+export class UIComponent extends MComponent {
 
     protected property: PropertyBase;
-    protected message: UIMessage;
 
     protected __preload(): void {
-        let propertyClassName = js.getClassName(this) + "Property";
-        let propertyClass = js.getClassByName(propertyClassName);
-        if (propertyClass) {
-            this.property = new propertyClass(this.node) as PropertyBase;
-        }
-        this.message = new UIMessage(this.node);
+        super.__preload();
         this.getComponentsInChildren(Button).forEach(v => {
             let root = CCUtils.getComponentInParent(v.node, UIComponent);
             if (root != this) return;//忽略其它UI组件所在节点下的按钮
             v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name))
         });
+    }
+
+    /** 向父节点第一个UIBase组件发送消息 */
+    protected sendToUI(methodName: string, ...args: any[]) {
+        this.sendMessageUpwards("UIBase", methodName, ...args);
+    }
+
+    /** 向父节点第一个UIComponent组件发送消息 */
+    public sendToUIComponent(methodName: string, ...args: any[]) {
+        this.sendMessageUpwards("UIComponent", methodName, ...args);
     }
 
     protected onClickButton(btnName: string) {

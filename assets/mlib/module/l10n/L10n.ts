@@ -5,7 +5,7 @@ const { ccclass, property, menu } = _decorator;
 import { App } from "../../App";
 import { CCUtils } from "../../utils/CCUtil";
 import { MLogger } from "../logger/MLogger";
-import { UIContainerItem } from "../ui/manager/UIContainerItem";
+import { UIComponent } from "../ui/manager/UIComponent";
 import { IL10n } from "./IL10n";
 
 
@@ -35,7 +35,7 @@ class L10nNode {
 
 /** 多语言组件 渲染组件应在当前节点或指定的节点上*/
 @ccclass
-export class L10n extends UIContainerItem implements IL10n {
+export class L10n extends UIComponent implements IL10n {
     @property({
         tooltip: "文本组件为语言表中的key，图片组件为图片名字"
     })

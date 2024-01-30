@@ -1,17 +1,15 @@
-import {Animation, Asset, ImageAsset, Node, Sprite, SpriteFrame } from "cc";
-import { AssetMgr } from "./AssetMgr";
+import { _decorator, Asset, Component, ImageAsset, Sprite, SpriteFrame } from "cc";
+import { AssetMgr } from "../asset/AssetMgr";
 
-/** 资源加载 绑定节点销毁时会自动释放加载的资源 */
-export class AssetHandler {
+const { ccclass, property } = _decorator;
 
-    constructor(node: Node) {
-        node.on(Node.EventType.NODE_DESTROYED, this.onDestroy, this);
-    }
+@ccclass
+export class AssetComponent extends Component {
 
     //Location:Asset
     private cache: Map<string, Asset> = new Map();
 
-    private onDestroy() {
+    protected onDestroy() {
         this.decRefCount();
     }
 
