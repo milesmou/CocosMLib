@@ -44,7 +44,7 @@ export class SafeArea extends Component {
                 let viewSize = view.getVisibleSize();
                 let ratio = Math.max(viewSize.width, viewSize.height) / Math.min(viewSize.width, viewSize.height);
                 if (ratio > 1.8) {//全面屏手机
-                    safeAreaGap.top = 80;
+                    safeAreaGap.top = 90;
                 }
             }
             SafeArea.safeAreaGap = safeAreaGap;
