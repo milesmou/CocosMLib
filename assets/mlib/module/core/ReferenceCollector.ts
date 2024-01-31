@@ -2,7 +2,7 @@ import { _decorator, Component, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 import { MLogger } from "../logger/MLogger";
 
-const { ccclass, property, executeInEditMode, executionOrder,disallowMultiple } = _decorator;
+const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
 
 @ccclass("ReferenceCollectorData")
 class ReferenceCollectorData {
@@ -23,7 +23,9 @@ export class ReferenceCollector extends Component {
     @property({ displayName: "刷新" })
     private get refresh() { return this._refresh; }
     private set refresh(val: boolean) {
-        this.initNodeList();
+        if (EDITOR_NOT_IN_PREVIEW) {
+            this.initNodeList();
+        }
         this._refresh = false;
     }
 
@@ -67,6 +69,7 @@ export class ReferenceCollector extends Component {
     //#region 编辑器逻辑
 
     private initNodeList() {
+        if (!EDITOR_NOT_IN_PREVIEW) return;
         this.data.length = 0;
         let nodes = this.getValidNode(this.node);
         for (const node of nodes) {
@@ -97,6 +100,7 @@ export class ReferenceCollector extends Component {
     }
 
     private isNodeValid(node: Node) {
+        if (!EDITOR_NOT_IN_PREVIEW) return;
         if (node.getComponent(ReferenceCollector)) return false;
         return node.name.startsWith("$");
     }
