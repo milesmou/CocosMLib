@@ -8,8 +8,6 @@ const { ccclass } = _decorator;
 @ccclass("UIComponent")
 export class UIComponent extends MComponent {
 
-    protected property: PropertyBase;
-
     protected __preload(): void {
         super.__preload();
         this.getComponentsInChildren(Button).forEach(v => {

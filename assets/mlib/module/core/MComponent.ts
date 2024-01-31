@@ -1,7 +1,7 @@
 import { _decorator, Component, js } from "cc";
 import { MLogger } from "../logger/MLogger";
 import { PropertyBase } from "../ui/property/PropertyBase";
-import { AssetComponent } from "./AssetComponent";
+import { AssetLoaderComponent } from "./AssetLoaderComponent";
 import { TimerComponent } from "./TimerComponent";
 
 const { ccclass, property } = _decorator;
@@ -9,15 +9,18 @@ const { ccclass, property } = _decorator;
 @ccclass
 export class MComponent<T extends PropertyBase = PropertyBase> extends Component {
 
-    protected timer: TimerComponent;
-    protected asset: AssetComponent;
-    protected property: T;
+    private _timer: TimerComponent;
+    protected get timer() { return this._timer; }
+    private _assetLoader: AssetLoaderComponent;
+    protected get assetLoader() { return this._assetLoader; }
+    private _property: T;
+    protected get property() { return this._property; }
 
     protected __preload(): void {
         let propertyClassName = js.getClassName(this) + "Property";
         let propertyClass = js.getClassByName(propertyClassName);
         if (propertyClass) {
-            this.property = new propertyClass(this.node) as T;
+            this._property = new propertyClass(this.node) as T;
         }
     }
 
