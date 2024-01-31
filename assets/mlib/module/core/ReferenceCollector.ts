@@ -1,5 +1,6 @@
 import { _decorator, Component, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
+import { MLogger } from "../logger/MLogger";
 
 const { ccclass, property, executeInEditMode, executionOrder } = _decorator;
 
@@ -46,6 +47,8 @@ export class ReferenceCollector extends Component {
         for (const referenceCollectorData of this.data) {
             if (!this._map.has(referenceCollectorData.key)) {
                 this._map.set(referenceCollectorData.key, referenceCollectorData.node);
+            } else {
+                MLogger.error(this.node.name, "引用的节点名字重复", referenceCollectorData.key);
             }
         }
     }

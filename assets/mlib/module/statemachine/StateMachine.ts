@@ -1,4 +1,4 @@
-import { MLogger } from "../../module/logger/MLogger";
+import { MLogger } from "../logger/MLogger";
 
 export interface IStateNode {
     name: string;
