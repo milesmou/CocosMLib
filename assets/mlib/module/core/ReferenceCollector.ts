@@ -2,7 +2,7 @@ import { _decorator, Component, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 import { MLogger } from "../logger/MLogger";
 
-const { ccclass, property, executeInEditMode, executionOrder } = _decorator;
+const { ccclass, property, executeInEditMode, executionOrder,disallowMultiple } = _decorator;
 
 @ccclass("ReferenceCollectorData")
 class ReferenceCollectorData {
@@ -13,6 +13,7 @@ class ReferenceCollectorData {
 }
 
 @ccclass("ReferenceCollector")
+@disallowMultiple
 @executeInEditMode(true)
 @executionOrder(-1)
 export class ReferenceCollector extends Component {
@@ -96,7 +97,7 @@ export class ReferenceCollector extends Component {
     }
 
     private isNodeValid(node: Node) {
-        if (node.getComponent("MComponent")) return false;
+        if (node.getComponent(ReferenceCollector)) return false;
         return node.name.startsWith("$");
     }
 

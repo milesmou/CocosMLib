@@ -4,11 +4,13 @@ import NodeTag from "./NodeTag";
 import { PropertyBase } from "../ui/property/PropertyBase";
 import { AssetLoaderComponent } from "./AssetLoaderComponent";
 import { TimerComponent } from "./TimerComponent";
+import { ReferenceCollector } from "./ReferenceCollector";
 
-const { ccclass, property } = _decorator;
+const { ccclass, property, requireComponent } = _decorator;
 
+@requireComponent(ReferenceCollector)
 @ccclass
-export class MComponent<T extends PropertyBase = PropertyBase> extends Component {
+export class MComponent extends Component {
 
     private get appNode() { return NodeTag.getNodeByTag("App"); }
 
@@ -16,15 +18,11 @@ export class MComponent<T extends PropertyBase = PropertyBase> extends Component
     protected get timer() { return this._timer; }
     private _assetLoader: AssetLoaderComponent;
     protected get assetLoader() { return this._assetLoader; }
-    private _property: T;
-    protected get property() { return this._property; }
+    private _rc: ReferenceCollector;
+    protected get rc() { return this._rc; }
 
     protected __preload(): void {
-        let propertyClassName = js.getClassName(this) + "Property";
-        let propertyClass = js.getClassByName(propertyClassName);
-        if (propertyClass) {
-            this._property = new propertyClass(this.node) as T;
-        }
+        this._rc = this.getComponent(ReferenceCollector);
     }
 
     /** 从任意父节点上获取组件 */
