@@ -1,4 +1,4 @@
-import { Component, Enum, sys, view, _decorator, View } from 'cc';
+import { Component, Enum, _decorator, sys, view } from 'cc';
 import { PREVIEW } from 'cc/env';
 const { ccclass, property } = _decorator;
 
@@ -40,8 +40,12 @@ export class SafeArea extends Component {
             safeAreaGap.bottom = rect.y;
             safeAreaGap.right = size.width - rect.width - rect.x;
             safeAreaGap.top = size.height - rect.height - rect.y;
-            if(PREVIEW){
-                safeAreaGap.top = 50;//预览时模拟有刘海
+            if (PREVIEW) {//预览时模拟刘海
+                let viewSize = view.getVisibleSize();
+                let ratio = Math.max(viewSize.width, viewSize.height) / Math.min(viewSize.width, viewSize.height);
+                if (ratio > 1.8) {//全面屏手机
+                    safeAreaGap.top = 80;
+                }
             }
             SafeArea.safeAreaGap = safeAreaGap;
         }

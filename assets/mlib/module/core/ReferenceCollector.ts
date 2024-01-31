@@ -1,6 +1,5 @@
-import { _decorator, Component, Node } from "cc";
+import { _decorator, Component, error, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
-import { MLogger } from "../logger/MLogger";
 
 const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
 
@@ -51,12 +50,13 @@ export class ReferenceCollector extends Component {
             if (!this._map.has(referenceCollectorData.key)) {
                 this._map.set(referenceCollectorData.key, referenceCollectorData.node);
             } else {
-                MLogger.error(this.node.name, "引用的节点名字重复", referenceCollectorData.key);
+                error("[MLogger Error]", this.node.name, "引用的节点名字重复 Key=" + referenceCollectorData.key);
             }
         }
     }
 
     public getNode(key: string) {
+        Object
         return this._map.get(key);
     }
 
@@ -65,6 +65,7 @@ export class ReferenceCollector extends Component {
         if (node) return node.getComponent(type);
         return null;
     }
+
 
     //#region 编辑器逻辑
 
