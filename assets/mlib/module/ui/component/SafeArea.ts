@@ -42,9 +42,11 @@ export class SafeArea extends Component {
             safeAreaGap.top = size.height - rect.height - rect.y;
             if (PREVIEW) {//预览时模拟刘海
                 let viewSize = view.getVisibleSize();
-                let ratio = Math.max(viewSize.width, viewSize.height) / Math.min(viewSize.width, viewSize.height);
+                let min = Math.min(viewSize.width, viewSize.height);
+                let max = Math.max(viewSize.width, viewSize.height);
+                let ratio = max / min;
                 if (ratio > 1.8) {//全面屏手机
-                    safeAreaGap.top = 90;
+                    safeAreaGap.top = 90 * (min / 1080);
                 }
             }
             SafeArea.safeAreaGap = safeAreaGap;
