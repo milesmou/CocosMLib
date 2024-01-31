@@ -1,5 +1,6 @@
 import { _decorator, Component, js } from "cc";
 import { MLogger } from "../logger/MLogger";
+import NodeTag from "./NodeTag";
 import { PropertyBase } from "../ui/property/PropertyBase";
 import { AssetLoaderComponent } from "./AssetLoaderComponent";
 import { TimerComponent } from "./TimerComponent";
@@ -8,6 +9,8 @@ const { ccclass, property } = _decorator;
 
 @ccclass
 export class MComponent<T extends PropertyBase = PropertyBase> extends Component {
+
+    private get appNode() { return NodeTag.getNodeByTag("App"); }
 
     private _timer: TimerComponent;
     protected get timer() { return this._timer; }
@@ -32,7 +35,8 @@ export class MComponent<T extends PropertyBase = PropertyBase> extends Component
             if (comp) return comp;
             node = node.parent;
         }
-        return undefined;
+
+        return this.appNode.getComponent(classConstructor);
     }
 
     /** 调用此节点componentName组件的methodName方法 */

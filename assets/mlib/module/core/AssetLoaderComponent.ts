@@ -7,31 +7,31 @@ const { ccclass, property } = _decorator;
 export class AssetLoaderComponent extends Component {
 
     //Location:Asset
-    private cache: Map<string, Asset> = new Map();
+    private _cache: Map<string, Asset> = new Map();
 
     protected onDestroy() {
         this.decRefCount();
     }
 
     private decRefCount() {
-        this.cache.forEach((v, k) => {
+        this._cache.forEach((v, k) => {
             if (v?.isValid) AssetMgr.DecRef(k, 1);
         });
     }
 
     async loadAsset<T extends Asset>(location: string, type?: new (...args: any[]) => T): Promise<T> {
-        let asset = this.cache.get(location);
+        let asset = this._cache.get(location);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadAsset<T>(location, type);
-        if (asset?.isValid) this.cache.set(location, asset);
+        if (asset?.isValid) this._cache.set(location, asset);
         return asset as T;
     }
 
     async loadRemoteAsset<T extends Asset>(url: string): Promise<T> {
-        let asset = this.cache.get(url);
+        let asset = this._cache.get(url);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset<T>(url);
-        if (asset?.isValid) this.cache.set(url, asset);
+        if (asset?.isValid) this._cache.set(url, asset);
         return asset as T;
     }
 

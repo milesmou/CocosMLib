@@ -11,10 +11,11 @@ import { L10nMgr } from './module/l10n/L10nMgr';
 import { MLogger } from './module/logger/MLogger';
 import { PoolMgr } from "./module/pool/PoolMgr";
 import { StroageMgr } from "./module/stroage/StroageMgr";
-import { TimerMgr } from './module/timer/TimerMgr';
 import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 import { SingletonFactory } from './utils/SingletonFactory';
+import { TimerComponent } from './module/core/TimerComponent';
+import NodeTag from './module/core/NodeTag';
 
 
 /** 应用程序启动入口 */
@@ -26,7 +27,7 @@ export class App extends Component {
     public static lang: ELanguageCode;
     public static chan: Channel;
     //manager
-    public static time: TimerMgr;
+    public static time: TimerComponent;
     public static stroage = StroageMgr;
     public static event = EventMgr;
     public static pool = PoolMgr;
@@ -35,6 +36,7 @@ export class App extends Component {
     public static l10n = L10nMgr;
 
     onLoad() {
+        NodeTag.add("App", this.node);
         App.Inst = this;
         this.setCanvasResolution();
         director.addPersistRootNode(this.node);

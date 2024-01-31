@@ -1,25 +1,47 @@
 import { _decorator, Component, Node } from "cc";
+import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
-const { ccclass, property } = _decorator;
+const { ccclass, property, executeInEditMode, executionOrder } = _decorator;
 
 @ccclass("ReferenceCollectorData")
-export class ReferenceCollectorData {
-    public key: string;
-
-    public node: Node;
+class ReferenceCollectorData {
+    @property({ readonly: true })
+    public key = "";
+    @property({ type: Node, readonly: true })
+    public node: Node = null;
 }
 
 @ccclass("ReferenceCollector")
+@executeInEditMode(true)
+@executionOrder(-1)
 export class ReferenceCollector extends Component {
 
-    @property({ type: Node })
+    @property
+    private _refresh = false;
+    @property({ displayName: "刷新" })
+    private get refresh() { return this._refresh; }
+    private set refresh(val: boolean) {
+        this.initNodeList();
+        this._refresh = false;
+    }
+
+    @property({ type: ReferenceCollectorData, readonly: true })
     private _data: ReferenceCollectorData[] = [];
-    @property({ type: Node })
+    @property({ type: ReferenceCollectorData, readonly: true })
     private get data() { return this._data; }
+    private set data(val: ReferenceCollectorData[]) { this._data = val; }
 
     private _map: Map<string, Node> = new Map();
 
-    protected __preload(): void {
+    protected onLoad(): void {
+        if (EDITOR_NOT_IN_PREVIEW) {//处理编辑器逻辑
+            this.initNodeList();
+        } else {//处理运行时逻辑
+            this.initNodeMap();
+        }
+    }
+
+    private initNodeMap() {
         this._map.clear();
         for (const referenceCollectorData of this.data) {
             if (!this._map.has(referenceCollectorData.key)) {
@@ -38,6 +60,44 @@ export class ReferenceCollector extends Component {
         return null;
     }
 
-    
+    //#region 编辑器逻辑
+
+    private initNodeList() {
+        this.data.length = 0;
+        let nodes = this.getValidNode(this.node);
+        for (const node of nodes) {
+            let refData = new ReferenceCollectorData();
+            let name = node.name.replace("$", "").trim();
+            refData.key = name;
+            refData.node = node;
+            this.data.push(refData);
+        }
+    }
+
+
+    /** 获取符合需求的节点 */
+    private getValidNode(root: Node) {
+        if (!EDITOR_NOT_IN_PREVIEW) return;
+        let arr: Node[] = [];
+        let checkArr = root.children.filter(v => this.isNodeValid(v));
+        arr.push(...checkArr);
+        while (checkArr.length > 0) {
+            let v = checkArr.shift();
+            let children = v.children.filter(v => this.isNodeValid(v));
+            if (children.length > 0) {
+                checkArr.push(...children);
+                arr.push(...children);
+            }
+        }
+        return arr;
+    }
+
+    private isNodeValid(node: Node) {
+        if (node.getComponent("MComponent")) return false;
+        return node.name.startsWith("$");
+    }
+
+    //#endregion
+
 
 }

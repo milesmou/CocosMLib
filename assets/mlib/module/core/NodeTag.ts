@@ -1,5 +1,5 @@
 import { Component, Node, _decorator } from "cc";
-import { MLogger } from "../../logger/MLogger";
+import { MLogger } from "../logger/MLogger";
 
 const { ccclass, property } = _decorator;
 
@@ -7,27 +7,33 @@ const { ccclass, property } = _decorator;
 @ccclass
 export default class NodeTag extends Component {
     @property
-    tag = "";
+    private m_Tag = "";
 
     protected onLoad(): void {
-        if (!this.tag) {
+        if (!this.m_Tag) {
             MLogger.error(`Tag不能为空`, this.node);
             return;
         }
-        if (NodeTag.map.has(this.tag)) {
-            MLogger.error(`${this.tag} Tag重复`, this.node);
-            return;
-        }
-        NodeTag.map.set(this.tag, this.node);
+        NodeTag.add(this.m_Tag, this.node);
     }
 
     protected onDestroy(): void {
-        if (this.tag) {
-            NodeTag.map.delete(this.tag);
-        }
+        NodeTag.delete(this.m_Tag);
     }
 
     private static map: Map<string, Node> = new Map();
+
+    public static add(tag: string, node: Node) {
+        if (NodeTag.map.has(tag)) {
+            MLogger.error(`${tag} Tag重复`, node);
+            return;
+        }
+        NodeTag.map.set(tag, node);
+    }
+
+    public static delete(tag: string) {
+        NodeTag.map.delete(tag);
+    }
 
     public static getNodeByTag(tag: string) {
         return NodeTag.map.get(tag);
