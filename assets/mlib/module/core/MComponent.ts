@@ -8,8 +8,8 @@ import { ReferenceCollector } from "./ReferenceCollector";
 
 const { ccclass, property, requireComponent } = _decorator;
 
-@requireComponent(ReferenceCollector)
 @ccclass
+@requireComponent(ReferenceCollector)
 export class MComponent extends Component {
 
     private get appNode() { return NodeTag.getNodeByTag("App"); }

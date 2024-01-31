@@ -1,7 +1,6 @@
 import { Button, _decorator } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
 import { MComponent } from "../../core/MComponent";
-import { PropertyBase } from "../property/PropertyBase";
 
 const { ccclass } = _decorator;
 
