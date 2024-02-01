@@ -1,4 +1,4 @@
-import { _decorator, Component, error, Node } from "cc";
+import { _decorator, CCObject, Component, error, js, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
@@ -34,7 +34,7 @@ export class ReferenceCollector extends Component {
     private get data() { return this._data; }
     private set data(val: ReferenceCollectorData[]) { this._data = val; }
 
-    private _map: Map<string, Node> = new Map();
+    private _nodeMap: Map<string, Node> = new Map();
 
     protected onLoad(): void {
         if (EDITOR_NOT_IN_PREVIEW) {//处理编辑器逻辑
@@ -45,10 +45,10 @@ export class ReferenceCollector extends Component {
     }
 
     private initNodeMap() {
-        this._map.clear();
+        this._nodeMap.clear();
         for (const referenceCollectorData of this.data) {
-            if (!this._map.has(referenceCollectorData.key)) {
-                this._map.set(referenceCollectorData.key, referenceCollectorData.node);
+            if (!this._nodeMap.has(referenceCollectorData.key)) {
+                this._nodeMap.set(referenceCollectorData.key, referenceCollectorData.node);
             } else {
                 error("[MLogger Error]", this.node.name, "引用的节点名字重复 Key=" + referenceCollectorData.key);
             }
@@ -56,13 +56,17 @@ export class ReferenceCollector extends Component {
     }
 
     public getNode(key: string) {
-        Object
-        return this._map.get(key);
+        return this._nodeMap.get(key);
     }
 
-    public get<T extends Component>(key: string, type: new (...args: any[]) => T) {
-        let node = this._map.get(key);
-        if (node) return node.getComponent(type);
+    public get<T extends CCObject>(key: string, type: new (...args: any[]) => T) {
+        if (js.isChildClassOf(type, Node)) {
+            return this._nodeMap.get(key);
+        }
+        else if (js.isChildClassOf(type, Component)) {
+            let node = this._nodeMap.get(key);
+            if (node) return node.getComponent(type);
+        }
         return null;
     }
 
