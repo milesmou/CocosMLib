@@ -14,7 +14,7 @@ class ReferenceCollectorData {
 @ccclass("ReferenceCollector")
 @disallowMultiple
 @executeInEditMode(true)
-@executionOrder(-1)
+@executionOrder(-100)
 export class ReferenceCollector extends Component {
 
     @property
@@ -62,8 +62,7 @@ export class ReferenceCollector extends Component {
     public get<T extends CCObject>(key: string, type: new (...args: any[]) => T) {
         if (js.isChildClassOf(type, Node)) {
             return this._nodeMap.get(key);
-        }
-        else if (js.isChildClassOf(type, Component)) {
+        } else if (js.isChildClassOf(type, Component)) {
             let node = this._nodeMap.get(key);
             if (node) return node.getComponent(type);
         }
@@ -73,13 +72,16 @@ export class ReferenceCollector extends Component {
 
     //#region 编辑器逻辑
 
+    /** 收集名字以$开头的节点 */
+    private _tag = "$";
+
     private initNodeList() {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         this.data.length = 0;
         let nodes = this.getValidNode(this.node);
         for (const node of nodes) {
             let refData = new ReferenceCollectorData();
-            let name = node.name.replace("$", "").trim();
+            let name = node.name.replace(this._tag, "").trim();
             refData.key = name;
             refData.node = node;
             this.data.push(refData);
@@ -107,7 +109,7 @@ export class ReferenceCollector extends Component {
     private isNodeValid(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         if (node.getComponent(ReferenceCollector)) return false;
-        return node.name.startsWith("$");
+        return node.name.startsWith(this._tag);
     }
 
     //#endregion
