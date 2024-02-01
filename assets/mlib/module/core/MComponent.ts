@@ -1,10 +1,9 @@
 import { _decorator, Component, js } from "cc";
 import { MLogger } from "../logger/MLogger";
-import NodeTag from "./NodeTag";
-import { PropertyBase } from "../ui/property/PropertyBase";
 import { AssetLoaderComponent } from "./AssetLoaderComponent";
-import { TimerComponent } from "./TimerComponent";
+import NodeTag from "./NodeTag";
 import { ReferenceCollector } from "./ReferenceCollector";
+import { TimerComponent } from "./TimerComponent";
 
 const { ccclass, property, requireComponent } = _decorator;
 
