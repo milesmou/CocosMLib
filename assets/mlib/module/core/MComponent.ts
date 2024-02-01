@@ -1,6 +1,6 @@
 import { _decorator, Component, js } from "cc";
+import { AssetLoaderComponent } from "../asset/AssetLoaderComponent";
 import { MLogger } from "../logger/MLogger";
-import { AssetLoaderComponent } from "./AssetLoaderComponent";
 import NodeTag from "./NodeTag";
 import { ReferenceCollector } from "./ReferenceCollector";
 import { TimerComponent } from "./TimerComponent";

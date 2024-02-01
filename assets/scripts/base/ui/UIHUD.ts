@@ -1,11 +1,9 @@
 
-import { Button, ResolutionPolicy, _decorator, js, screen, tween, view } from 'cc';
+import { _decorator } from 'cc';
 import { App } from '../../../mlib/App';
 import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
-import { UIConstant } from '../../gen/UIConstant';
-import { GameData } from '../GameData';
 import { PropertyBase } from '../../../mlib/module/ui/property/PropertyBase';
-import { UIHUDProperty } from '../../gen/property/UIHUDProperty';
+import { UIConstant } from '../../gen/UIConstant';
 
 const { ccclass, property } = _decorator;
 

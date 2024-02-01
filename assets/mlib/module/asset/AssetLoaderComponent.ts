@@ -1,5 +1,5 @@
 import { _decorator, Asset, Component, ImageAsset, Sprite, SpriteFrame } from "cc";
-import { AssetMgr } from "../asset/AssetMgr";
+import { AssetMgr } from "./AssetMgr";
 
 const { ccclass, property } = _decorator;
 

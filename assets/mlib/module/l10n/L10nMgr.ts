@@ -3,7 +3,7 @@ import GameTable from "../../../scripts/base/GameTable";
 import { App } from "../../App";
 import { Utils } from "../../utils/Utils";
 import { AssetMgr } from "../asset/AssetMgr";
-import { AssetComponent } from "../core/AssetLoaderComponent";
+import { AssetComponent } from "../asset/AssetLoaderComponent";
 import { MLogger } from "../logger/MLogger";
 import { StroageMgr } from "../stroage/StroageMgr";
 import { ELanguage, ELanguageCode } from "./ELanguage";

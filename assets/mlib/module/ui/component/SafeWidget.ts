@@ -1,7 +1,7 @@
 import { Component, Widget, _decorator, sys, view } from "cc";
 import { PREVIEW } from "cc/env";
 
-const { ccclass, property, menu, requireComponent, executionOrder, disallowMultiple } = _decorator;
+const { ccclass, requireComponent, executionOrder, disallowMultiple } = _decorator;
 
 
 /** 安全区域到四边界的距离 */

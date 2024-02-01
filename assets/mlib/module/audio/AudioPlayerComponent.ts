@@ -1,41 +1,14 @@
-import { AudioClip, AudioSource, Component, Director, Node, Tween, _decorator, director, misc, tween } from 'cc';
-import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
-import { StroageMgr } from '../stroage/StroageMgr';
+import { AudioClip, AudioSource, Component, Pool, Tween, _decorator, misc, tween } from 'cc';
 import { AssetMgr } from '../asset/AssetMgr';
+import { StroageMgr } from '../stroage/StroageMgr';
 import { AudioState } from './AudioState';
 import { SortedMap } from './SortedMap';
 
 const { ccclass } = _decorator;
 
-/** 音频管理类 可以创建多个*/
-@ccclass("AudioMgr")
-export class AudioMgr extends Component {
-    /** 音频管理器场景上所在父节点 */
-    private static AudioMgrNode: Node;
-    /** 默认的音频管理器 */
-    public static Default: AudioMgr;
-
-    public static addToScene() {
-        if (EDITOR_NOT_IN_PREVIEW) return;
-        let nodeName = "[AudioMgr]";
-        let scene = director.getScene();
-        if (!scene) return;
-        let node = scene.getChildByName(nodeName);
-        if (!node) {
-            node = new Node(nodeName);
-            scene.addChild(node);
-            director.addPersistRootNode(node);
-            this.AudioMgrNode = node;
-            this.Default = this.create("Default");
-        }
-    }
-
-    /** 创建一个音频管理器 */
-    public static create(name: string) {
-        let node = new Node(name);
-        this.AudioMgrNode.addChild(node);
-        return node.addComponent(AudioMgr);
-    }
+/** 音频播放组件 */
+@ccclass("AudioPlayerComponent")
+export class AudioPlayerComponent extends Component {
 
     private get sMusicVolume() { return "MusicVolume_" + this.node.name; }
     private get sEffectVolume() { return "EffectVolume_" + this.node.name; };
@@ -316,5 +289,3 @@ export class AudioMgr extends Component {
     }
 
 }
-
-director.on(Director.EVENT_AFTER_SCENE_LAUNCH, AudioMgr.addToScene.bind(AudioMgr));
