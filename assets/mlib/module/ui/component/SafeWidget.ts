@@ -13,7 +13,7 @@ class SafeAreaGap {
 }
 
 
-/** 使Widget组件在安全区域内适配(适用于本地位置固定的节点,不要被动画影响位置) */
+/** 使Widget组件在安全区域内适配(适用于本地位置固定的节点,不要被动画或代码修改位置) */
 @ccclass("SafeWidget")
 @executionOrder(-100)
 @requireComponent(Widget)
