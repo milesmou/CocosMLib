@@ -34,12 +34,6 @@
                     "genConst"
                 ]
             },
-            "autoGenProperty": {
-                "public": false,
-                "methods": [
-                    "autoGenProperty"
-                ]
-            },
             "delInvalidProperty": {
                 "public": false,
                 "methods": [
@@ -107,18 +101,6 @@
                 "label": "生成常量",
                 "icon": "./static/icon.png",
                 "message": "genConst"
-            },
-            {
-                "path": "MTools/场景操作",
-                "label": "生成属性脚本",
-                "icon": "./static/icon.png",
-                "message": "autoGenProperty"
-            },
-            {
-                "path": "MTools/场景操作",
-                "label": "删除无效的属性脚本",
-                "icon": "./static/icon.png",
-                "message": "delInvalidProperty"
             },
             {
                 "path": "MTools/场景操作",

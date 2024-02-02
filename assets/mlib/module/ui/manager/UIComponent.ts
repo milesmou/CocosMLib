@@ -1,10 +1,12 @@
 import { Button, _decorator } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
 import { MComponent } from "../../core/MComponent";
+import { ReferenceCollector } from "../../core/ReferenceCollector";
 
-const { ccclass } = _decorator;
+const { ccclass, requireComponent } = _decorator;
 
 @ccclass("UIComponent")
+@requireComponent(ReferenceCollector)
 export class UIComponent extends MComponent {
 
     protected __preload(): void {

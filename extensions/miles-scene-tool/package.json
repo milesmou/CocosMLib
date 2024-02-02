@@ -10,12 +10,7 @@
             "script": "./dist/main.js"
         },
         "messages": {
-            "autoGenProperty": {
-                "public": true,
-                "methods": [
-                    "autoGenProperty"
-                ]
-            },"replaceComponent": {
+            "replaceComponent": {
                 "public": true,
                 "methods": [
                     "replaceComponent"

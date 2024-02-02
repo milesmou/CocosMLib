@@ -1,0 +1,22 @@
+{
+  "__version__": "1.0.1",
+  "builder": {
+    "common": {
+      "polyfills": {
+        "asyncFunctions": true
+      },
+      "experimentalEraseModules": true
+    },
+    "taskOptionsMap": {
+      "1706841955411": {
+        "resolution": {
+          "designWidth": 1280,
+          "designHeight": 960
+        },
+        "cullEngineAsmJsModule": false,
+        "__version__": "1.0.1"
+      }
+    },
+    "__version__": "1.3.7"
+  }
+}

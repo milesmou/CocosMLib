@@ -4,6 +4,7 @@ const { property, ccclass, requireComponent } = _decorator;
 import { EventKey } from "../../../../scripts/base/GameEnum";
 import { App } from "../../../App";
 import { CCUtils } from "../../../utils/CCUtil";
+import { AssetLoaderComponent } from "../../asset/AssetLoaderComponent";
 import { MEvent } from "../../event/MEvent";
 import { MLogger } from '../../logger/MLogger';
 import { UIComponent } from "./UIComponent";
@@ -77,6 +78,11 @@ export class UIBase extends UIComponent {
     protected visible: boolean;
     protected args: any = null;
 
+    protected __preload(): void {
+        this.addComponent(AssetLoaderComponent);
+        super.__preload();
+    }
+
 
     /** 初始化UI，在子类重写该方法时，必须调用super.init() */
     public init(uiName: string) {
@@ -120,11 +126,12 @@ export class UIBase extends UIComponent {
 
     public setVisible(visible: boolean) {
         this.visible = visible;
+        let uiOpacity = this.getComponent(UIOpacity);
         if (visible) {
-            this.getComponent(UIOpacity).opacity = 255;
+            uiOpacity.opacity = 255;
             this.node.active = true;
         } else {
-            this.getComponent(UIOpacity).opacity = 0;
+            uiOpacity.opacity = 0;
         }
     }
 

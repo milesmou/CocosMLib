@@ -8,7 +8,6 @@ import { TimerComponent } from "./TimerComponent";
 const { ccclass, property, requireComponent } = _decorator;
 
 @ccclass
-@requireComponent(ReferenceCollector)
 export class MComponent extends Component {
 
     private get appNode() { return NodeTag.getNodeByTag("App"); }
@@ -21,6 +20,8 @@ export class MComponent extends Component {
     protected get rc() { return this._rc; }
 
     protected __preload(): void {
+        this._timer = this.getComponentInParent(TimerComponent);
+        this._assetLoader = this.getComponentInParent(AssetLoaderComponent);
         this._rc = this.getComponent(ReferenceCollector);
     }
 
