@@ -7,7 +7,11 @@
     "polyfills": {
       "asyncFunctions": true
     },
-    "experimentalEraseModules": true
+    "experimentalEraseModules": true,
+    "buildPath": "project://build",
+    "outputName": "android",
+    "mainBundleCompressionType": "merge_dep",
+    "platform": "android"
   },
   "BuildTaskManager": {
     "taskMap": {

@@ -1,7 +1,7 @@
 import { ExecuteSceneScriptMethodOptions } from "../../@types/packages/scene/@types/public";
 import { MLogger } from "../tools/MLogger";
 
-export class SceneCmdExecute{
+export class SceneCmdExecute {
     static async autoGenProperty() {
         let nodeUuid = "";
         let type = Editor.Selection.getLastSelectedType();
@@ -30,19 +30,13 @@ export class SceneCmdExecute{
     }
 
     static saveHotUpdateConfig() {
-        let nodeUuid = "";
-        let type = Editor.Selection.getLastSelectedType();
-        if (type == "node") {
-            nodeUuid = Editor.Selection.getLastSelected(type);
-        }
 
         const options: ExecuteSceneScriptMethodOptions = {
             name: "miles-scene-tool",
             method: 'saveHotUpdateConfig',
-            args: [nodeUuid],
+            args: [],
         };
 
-        MLogger.info("SelectNodeUUID", nodeUuid);
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
 }

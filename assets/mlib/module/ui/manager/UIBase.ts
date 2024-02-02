@@ -137,22 +137,24 @@ export class UIBase extends UIComponent {
 
     /* 被全屏UI挡住时 隐藏界面 降低dc */
     private enableAutoHide() {
-        App.event.on(EventKey.OnUIShow, (ui: UIBase) => {
+        let listenToHide = (ui: UIBase) => {
             if (this?.isValid) {
                 if (ui != this && ui.fullScreen && App.ui.isUIBeCover(this) && App.ui.isUIInStack(this)) this.setVisible(false);
+            } else {
+                App.event.off(EventKey.OnUIShow, listenToHide);
             }
-            else {
-                App.event.offByTag(EventKey.OnUIHideBegin, this.uiName);
-            }
-        }, null, this.uiName);
-        App.event.on(EventKey.OnUIHideBegin, (ui: UIBase) => {
+        }
+        App.event.on(EventKey.OnUIShow, listenToHide);
+
+        let listenToShow = (ui: UIBase) => {
             if (this?.isValid) {
                 if (!App.ui.isUIBeCover(this) && App.ui.isUIInStack(this)) this.setVisible(true);
             }
             else {
-                App.event.offByTag(EventKey.OnUIHideBegin, this.uiName);
+                App.event.off(EventKey.OnUIHideBegin, listenToShow);
             }
-        }, null, this.uiName);
+        }
+        App.event.on(EventKey.OnUIHideBegin, listenToShow);
     }
 
     public playShowAnim() {

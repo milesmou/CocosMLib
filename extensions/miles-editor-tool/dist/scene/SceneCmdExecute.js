@@ -26,17 +26,11 @@ class SceneCmdExecute {
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
     static saveHotUpdateConfig() {
-        let nodeUuid = "";
-        let type = Editor.Selection.getLastSelectedType();
-        if (type == "node") {
-            nodeUuid = Editor.Selection.getLastSelected(type);
-        }
         const options = {
             name: "miles-scene-tool",
             method: 'saveHotUpdateConfig',
-            args: [nodeUuid],
+            args: [],
         };
-        MLogger_1.MLogger.info("SelectNodeUUID", nodeUuid);
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
 }

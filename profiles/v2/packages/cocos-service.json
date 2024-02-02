@@ -5,6 +5,10 @@
       "web-desktop": {
         "configID": "d669e8",
         "services": []
+      },
+      "android": {
+        "configID": "d669e8",
+        "services": []
       }
     },
     "taskOptionsMap": {
@@ -17,6 +21,7 @@
   },
   "builder-options": {
     "configID": "d669e8",
-    "services": []
+    "services": [],
+    "__version__": "3.0.7"
   }
 }

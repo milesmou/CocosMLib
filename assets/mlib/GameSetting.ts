@@ -73,7 +73,7 @@ export class GameSetting extends Component {
 
     @property({
         displayName: "帧率",
-        tooltip: "帧率限制"
+        tooltip: "帧率限制,0表示不限制帧率"
     })
     private m_FrameRate = 0;
 

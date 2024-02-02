@@ -1,6 +1,6 @@
+import { director } from "cc";
 import { Config } from "./tools/Config";
 import { MLogger } from "./tools/MLogger";
-import { SceneTool } from "./tools/SceneTool";
 interface IApp {
     _channel: string;
     _version: string;
@@ -8,22 +8,19 @@ interface IApp {
 }
 
 export class HotUpdateConfig {
-    static save(uuid: string) {
-        let node = SceneTool.getNodeByUUid(uuid);
-        if (node) {
-            let setting: IApp = node.getComponent("GameSetting") as any;
-            if (setting) {
-                let channelName = setting._channel;
-                let version = setting._version;
-                let cdnUrl = setting.m_CdnUrl;
-                let url = `${cdnUrl.trim()}/Channel/${channelName}/${this.getMainVersion(version)}/ResPkg`;
-                Config.set("hotupdate.url", url);
-                Config.set("hotupdate.version", version);
-                MLogger.info("更新热更配置成功", url, version);
-                return;
-            }
+    static save() {
+        let setting: IApp = director.getScene().getComponentInChildren("GameSetting") as any;
+        if (setting) {
+            let channelName = setting._channel;
+            let version = setting._version;
+            let cdnUrl = setting.m_CdnUrl;
+            let url = `${cdnUrl.trim()}/Channel/${channelName}/${this.getMainVersion(version)}/ResPkg`;
+            Config.set("hotupdate.url", url);
+            Config.set("hotupdate.version", version);
+            MLogger.info("更新热更配置成功", url, version);
+            return;
         }
-        MLogger.warn("请选择GameSetting脚本所在节点再进行操作");
+        MLogger.warn("场景中未找到GameSetting组件");
     }
 
     //主版本号 取前三位

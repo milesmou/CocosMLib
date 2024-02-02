@@ -53,7 +53,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 113
+      "__id__": 112
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -2705,11 +2705,7 @@
         "__id__": 111
       }
     ],
-    "_assets": [
-      {
-        "__id__": 112
-      }
-    ],
+    "_assets": [],
     "_id": ""
   },
   {
@@ -2728,14 +2724,6 @@
     "key": "Node-00122",
     "node": {
       "__id__": 96
-    }
-  },
-  {
-    "__type__": "CollectorAssetData",
-    "key": "asdas",
-    "asset": {
-      "__uuid__": "3b6029f9-ab3d-4666-aac4-d943fd404347",
-      "__expectedType__": "cc.Prefab"
     }
   },
   {

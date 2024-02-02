@@ -23,7 +23,7 @@ export class NetworkTime extends Component {
     }
 
     ///网络时间获取
-    //获取网络时间的URL,获取响应头的date属性
+    //获取网络时间的URL,获取响应头的date属性(H5平台不可用 会有跨域问题)
     private urls = ["https://www.baidu.com", "https://www.bing.com", "https://www.google.com"];
     private urlIndex = 0;
     //网络获取的时间戳(毫秒)
