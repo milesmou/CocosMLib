@@ -71,6 +71,8 @@ export class SDKCallback {
     public static rewardedAd: ShowRewardedAdArgs;
     /** 默认激励视频回调,每次都会调用 */
     public static rewardedAdDefault: ShowRewardedAdArgs;
+    /** 初始化内购 */
+    public static initInAppPurchase: NoneCallback;
     /** 准备发起内购回调 */
     public static onStartInAppPurchase: StringCallback;
     /** 内购结果回调 */

@@ -1,9 +1,9 @@
 import { Font, Label, RichText, Sprite, TTFFont, sys } from "cc";
 import GameTable from "../../../scripts/base/GameTable";
-import { App } from "../../App";
+import { GameSetting } from "../../GameSetting";
 import { Utils } from "../../utils/Utils";
+import { AssetLoaderComponent } from "../asset/AssetLoaderComponent";
 import { AssetMgr } from "../asset/AssetMgr";
-import { AssetComponent } from "../asset/AssetLoaderComponent";
 import { MLogger } from "../logger/MLogger";
 import { StroageMgr } from "../stroage/StroageMgr";
 import { ELanguage, ELanguageCode } from "./ELanguage";
@@ -15,18 +15,23 @@ class CompManagedArgs {
     public key: string;
     public args: any[];
     public delegate: () => string;
-    public assetLoader: AssetComponent;
+    public assetLoader: AssetLoaderComponent;
 }
 
 /** 多语言管理器 */
 export class L10nMgr {
 
+    private static m_lang: ELanguageCode;
+    public static get lang() {
+        if (!this.m_lang) this.m_lang = this.getLanguage();
+        return this.m_lang;
+    }
+
     private static font: Font | TTFFont;
     private static lastFont: Font | TTFFont;
-    private static get fontPath() { return `${App.lang}/font`; }
+    private static get fontPath() { return `${this.lang}/font`; }
     private static unmanagedList: Set<IL10n> = new Set();
     private static managedMap: Map<Label | RichText | Sprite, CompManagedArgs> = new Map();
-
     /** 初始化 */
     public static async init() {
         this.clear();
@@ -34,7 +39,8 @@ export class L10nMgr {
     }
 
     /** 获取语言环境 */
-    public static getLanguage(languageId: number): ELanguageCode {
+    private static getLanguage(): ELanguageCode {
+        let languageId = GameSetting.Inst.languageId;
         let v: ELanguageCode = ELanguageCode.ChineseSimplified;
         if (languageId == ELanguage.Auto) {
             let code = StroageMgr.getValue(StroageMgr.UserLanguageCodeKey, "");
@@ -58,9 +64,9 @@ export class L10nMgr {
 
     /** 切换语言 */
     public static async switchLanguage(languageCode: ELanguageCode) {
-        if (App.lang == languageCode) return;
-        App.lang = languageCode;
-        StroageMgr.setValue(StroageMgr.UserLanguageCodeKey, App.lang);
+        if (this.lang == languageCode) return;
+        this.m_lang = languageCode;
+        StroageMgr.setValue(StroageMgr.UserLanguageCodeKey, this.lang);
         await this.loadFont();
         this.reload();
     }
@@ -154,7 +160,7 @@ export class L10nMgr {
 
 
     /** 为图片组件设置图片并加入托管，在切换语言时自动刷新内容 */
-    public static setSpriteFrameAndManage(sprite: Sprite, key: string, assetLoader?: AssetComponent) {
+    public static setSpriteFrameAndManage(sprite: Sprite, key: string, assetLoader?: AssetLoaderComponent) {
         let compArgs = this.managedMap.get(sprite) || new CompManagedArgs();
         compArgs.key = key;
         compArgs.assetLoader = assetLoader;
@@ -173,8 +179,8 @@ export class L10nMgr {
     }
 
     /** 为图片组件设置图片 */
-    public static setSpriteFrameByKey(sprite: Sprite, key: string, assetLoader?: AssetComponent) {
-        let location = `${App.lang}/${key}`;
+    public static setSpriteFrameByKey(sprite: Sprite, key: string, assetLoader?: AssetLoaderComponent) {
+        let location = `${this.lang}/${key}`;
         if (assetLoader) {
             assetLoader.loadSprite(sprite, location);
         } else {
@@ -186,15 +192,15 @@ export class L10nMgr {
     public static getStringByKey(key: string, ...args: any[]): string {
         let data = GameTable.Inst.Table.TbLocalization.get(key);
         if (!data) {
-            MLogger.error(`key=${key} Lang=${App.lang}  在语言表中无对应内容`);
+            MLogger.error(`key=${key} Lang=${this.lang}  在语言表中无对应内容`);
             return "";
         }
-        return Utils.formatString(data[App.lang], ...args);
+        return Utils.formatString(data[this.lang], ...args);
     }
 
     /** 通过Key获取图片资源的加载路径 */
     public static getImagePathByKey(key: string): string {
-        return `${App.lang}/${key}`;
+        return `${this.lang}/${key}`;
     }
 
 }

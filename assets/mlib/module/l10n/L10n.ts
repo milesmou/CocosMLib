@@ -7,6 +7,7 @@ import { CCUtils } from "../../utils/CCUtil";
 import { MLogger } from "../logger/MLogger";
 import { UIComponent } from "../ui/manager/UIComponent";
 import { IL10n } from "./IL10n";
+import { L10nMgr } from "./L10nMgr";
 
 
 const ELocalizationType = Enum({
@@ -83,8 +84,8 @@ export class L10n extends UIComponent implements IL10n {
             for (const key in this.multipleNode) {
                 let n: Node = this.multipleNode[key];
                 if (!n?.isValid) continue;
-                n.active = key == App.lang;
-                if (n.active) node = this.multipleNode[App.lang];
+                n.active = key == L10nMgr.lang;
+                if (n.active) node = this.multipleNode[L10nMgr.lang];
             }
         }
         if (node) {
@@ -112,7 +113,7 @@ export class L10n extends UIComponent implements IL10n {
                 }
             }
         } else {
-            MLogger.warn(`Localization ${App.lang} 节点不存在 ${CCUtils.getNodePath(this.node)}`);
+            MLogger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${CCUtils.getNodePath(this.node)}`);
         }
     }
 

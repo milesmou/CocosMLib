@@ -25,7 +25,6 @@ export class App extends Component {
 
     public static Inst: App;
 
-    public static lang: ELanguageCode;
     public static chan: Channel;
     //manager
     public static timer: TimerComponent;
@@ -46,9 +45,8 @@ export class App extends Component {
         App.audio = this.addComponent(AudioPlayerComponent);
         App.asset = this.addComponent(AssetLoaderComponent);
 
-        App.lang = L10nMgr.getLanguage(GameSetting.Inst.languageId);
         App.chan = Publish.getChannelInstance();
-        MLogger.print(`GameSetting Channel=${GameSetting.Inst.channel}|${js.getClassName(App.chan)} Version=${GameSetting.Inst.version} Language=${App.lang}`);
+        MLogger.print(`GameSetting Channel=${GameSetting.Inst.channel}|${js.getClassName(App.chan)} Version=${GameSetting.Inst.version} Language=${L10nMgr.lang}`);
         MLogger.print(`SDKSetting ${SDKSetting.Inst.getPrintInfo()}`);
     }
 

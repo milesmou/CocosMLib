@@ -1,5 +1,4 @@
 import { _decorator, sys } from 'cc';
-import { ShopUtil } from '../../scripts/base/ShopUtil';
 import { MLogger } from '../module/logger/MLogger';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
@@ -30,7 +29,7 @@ export class Channel {
 
     /** 初始化内购 */
     initIAP() {
-        ShopUtil.initPurchase();
+        SDKCallback.initInAppPurchase && SDKCallback.initInAppPurchase();
     }
 
     /** 登录 */

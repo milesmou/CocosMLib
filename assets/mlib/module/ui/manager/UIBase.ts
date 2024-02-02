@@ -83,8 +83,7 @@ export class UIBase extends UIComponent {
         super.__preload();
     }
 
-
-    /** 初始化UI，在子类重写该方法时，必须调用super.init() */
+    /** 初始化UI，只会执行一次，在子类重写该方法时，必须调用super.init() */
     public init(uiName: string) {
         if (this.uiName) return;
         this.uiName = uiName;

@@ -39,8 +39,13 @@ export class ShopUtil {
 
     private static isInit;
 
+
+    public static init() {
+        SDKCallback.initInAppPurchase = this.initPurchase.bind(this);
+    }
+
     /** 请在合适的时机调用，可能会有延迟到账的商品 */
-    public static initPurchase() {
+    private static initPurchase() {
         if (this.isInit) return;
         this.isInit = true;
         SDKCallback.onStartInAppPurchase = this.onStartInAppPurchase.bind(this);
