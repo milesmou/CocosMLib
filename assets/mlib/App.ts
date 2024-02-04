@@ -9,7 +9,6 @@ import { AudioPlayerComponent } from "./module/audio/AudioPlayerComponent";
 import NodeTag from './module/core/NodeTag';
 import { TimerComponent } from './module/core/TimerComponent';
 import { EventMgr } from "./module/event/EventMgr";
-import { ELanguageCode } from './module/l10n/ELanguage';
 import { L10nMgr } from './module/l10n/L10nMgr';
 import { MLogger } from './module/logger/MLogger';
 import { PoolMgr } from "./module/pool/PoolMgr";

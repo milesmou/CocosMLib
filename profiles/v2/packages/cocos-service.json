@@ -9,10 +9,18 @@
       "android": {
         "configID": "d669e8",
         "services": []
+      },
+      "wechatgame": {
+        "configID": "d669e8",
+        "services": []
       }
     },
     "taskOptionsMap": {
       "1706841955411": {
+        "configID": "d669e8",
+        "services": []
+      },
+      "1707031065716": {
         "configID": "d669e8",
         "services": []
       }
