@@ -1,9 +1,10 @@
 /** 微信小游戏平台相关方法的实现 */
-import { Channel } from "../../../mlib/channel/Channel";
+import { Camera, Game, _decorator, game } from "cc";
 import { MLogger } from "../../../mlib/module/logger/MLogger";
+import { Channel } from "../../../mlib/sdk/Channel";
 import { EIAPResult, ELoginResult, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../mlib/sdk/MSDKWrapper";
 
-const { ccclass } = cc._decorator;
+const { ccclass } = _decorator;
 @ccclass("WeChatGame")
 export class WeChatGame extends Channel {
 
@@ -18,7 +19,7 @@ export class WeChatGame extends Channel {
         this.launchInfo = wx.getLaunchOptionsSync();
         this.showShareMenu({});
         this.checkUpdate();
-        cc.game.on(cc.game.EVENT_HIDE, this.shareResult, this);
+        game.on(Game.EVENT_HIDE, this.shareResult, this);
     }
 
 
@@ -111,7 +112,7 @@ export class WeChatGame extends Channel {
     /**
      * 主动拉起转发，给好友分享信息
      */
-    async shareAppMessage(obj?: { title?: string, imageUrl?: string, query?: string, camera?: cc.Camera, suss?: Function, fail?: Function, complete?: Function }) {
+    async shareAppMessage(obj?: { title?: string, imageUrl?: string, query?: string, camera?: Camera, suss?: Function, fail?: Function, complete?: Function }) {
         //this.shareTime = Date.now();
         //this.shareSuccess = obj?.success;
         //this.shareFail = obj?.fail;
@@ -176,7 +177,7 @@ export class WeChatGame extends Channel {
      * 通过摄像机获取截屏图片的URl
      * @param camera 
      */
-    getImageUrlByCamera(camera: cc.Camera) {
+    getImageUrlByCamera(camera: Camera) {
         //let texture = new cc.RenderTexture();
         //let gl = cc.game['_renderContext'];
         //texture.initWithSize(500, 400, gl.STENCIL_INDEX8);
