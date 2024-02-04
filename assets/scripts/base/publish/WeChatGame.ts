@@ -1,13 +1,11 @@
 /** 微信小游戏平台相关方法的实现 */
-import { Camera, Game, _decorator, game } from "cc";
+import { Channel } from "../../../mlib/channel/Channel";
 import { MLogger } from "../../../mlib/module/logger/MLogger";
-import { Channel } from "../../../mlib/sdk/Channel";
-import { LoginArgs } from "../../../mlib/sdk/MSDKWrapper";
+import { EIAPResult, ELoginResult, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../mlib/sdk/MSDKWrapper";
 
-const { ccclass } = _decorator;
-
-@ccclass("WeChatMiniGame")
-export class WeChatMiniGame extends Channel {
+const { ccclass } = cc._decorator;
+@ccclass("WeChatGame")
+export class WeChatGame extends Channel {
 
     systemInfo: WechatMinigame.SystemInfo = null;//系统信息
     launchInfo: WechatMinigame.LaunchOptionsGame = null;//启动游戏信息
@@ -20,18 +18,19 @@ export class WeChatMiniGame extends Channel {
         this.launchInfo = wx.getLaunchOptionsSync();
         this.showShareMenu({});
         this.checkUpdate();
-        game.on(Game.EVENT_HIDE, this.shareResult, this);
+        cc.game.on(cc.game.EVENT_HIDE, this.shareResult, this);
     }
 
 
     login(args: LoginArgs) {
+        SDKCallback.login = args;
         wx.login({
             success: loginRes => {
                 args.success && args.success(loginRes.code);
+                MSDKWrapper.onLogin(ELoginResult.Success + "|" + loginRes.code);
             },
-            fail: () => {
-                MLogger.error("wx.login fail");
-                args.fail && args.fail();
+            fail: loginRes => {
+                MSDKWrapper.onLogin(ELoginResult.Fail + "|" + loginRes.errMsg);
             }
         });
     }
@@ -112,7 +111,7 @@ export class WeChatMiniGame extends Channel {
     /**
      * 主动拉起转发，给好友分享信息
      */
-    async shareAppMessage(obj?: { title?: string, imageUrl?: string, query?: string, camera?: Camera, suss?: Function, fail?: Function, complete?: Function }) {
+    async shareAppMessage(obj?: { title?: string, imageUrl?: string, query?: string, camera?: cc.Camera, suss?: Function, fail?: Function, complete?: Function }) {
         //this.shareTime = Date.now();
         //this.shareSuccess = obj?.success;
         //this.shareFail = obj?.fail;
@@ -177,7 +176,7 @@ export class WeChatMiniGame extends Channel {
      * 通过摄像机获取截屏图片的URl
      * @param camera 
      */
-    getImageUrlByCamera(camera: Camera) {
+    getImageUrlByCamera(camera: cc.Camera) {
         //let texture = new cc.RenderTexture();
         //let gl = cc.game['_renderContext'];
         //texture.initWithSize(500, 400, gl.STENCIL_INDEX8);
@@ -275,54 +274,73 @@ export class WeChatMiniGame extends Channel {
         //banner.hide();
         //}
     }
+
+
+
+
+
+    /** 展示激励视频广告 */
+    showRewardedAd(args: ShowRewardedAdArgs) {
+        SDKCallback.rewardedAd = args;
+        let video = wx.createRewardedVideoAd({
+            adUnitId: "adunit-d2249df174d486a8"
+        });
+        if (video) {
+            video.offClose();
+            video.offError();
+            video.load().then(() => {
+                video.show();
+            });
+            video.onClose(res => {
+                if (res.isEnded) {
+                    MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Success.toString());
+                } else {
+                    MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Fail.toString());
+                }
+            });
+            video.onError(err => {
+                MLogger.error(err);
+            });
+        }
+        SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(args.extParam);
+    }
+
     interstitial = null;//插屏广告
-    /**
-     * 添加插屏广告   
-     */
-    showInterstitial() {
-        //let adUnitId = this.adCfg["Interstitial"][id];
-        //if (this.compareVersion("2.6.0")) {
-        //if (!this.interstitial) {
-        //this.interstitial = wx.createInterstitialAd({ adUnitId: adUnitId });
-        //}
-        //this.interstitial
-        //.load()
-        //.then(() => {
-        //this.interstitial.show();
-        //})
-        //.catch(err => {
-        //cc.error(err);
-        //});
-        //}
+
+    /** 展示插屏广告 */
+    showInterstitial(...args: any[]) {
+        let adUnitId = "";
+        if (this.compareVersion("2.6.0")) {
+            if (!this.interstitial) {
+                this.interstitial = wx.createInterstitialAd({ adUnitId: adUnitId });
+            }
+            this.interstitial.load()
+                .then(() => {
+                    this.interstitial.show();
+                })
+                .catch(err => {
+                    MLogger.error(err);
+                });
+        }
     }
-    /**
-     * 观看视频广告
-     * @param obj.adId 广告id @param obj.success 观看完成
-     * @param obj.fail 未完整观看视频 @param obj.error 拉取视频出错
-     */
-    showRewardedVideo(obj: { id: number, suss?: Function, fail?: Function, error?: Function }) {
-        //let video = wx.createRewardedVideoAd({
-        //adUnitId: this.adCfg["Video"][obj.id]
-        //});
-        //if (video) {
-        //video.offClose();
-        //video.offError();
-        //video.load().then(() => {
-        //video.show();
-        //});
-        //video.onClose(res => {
-        //if (res.isEnded) {
-        //obj.success && obj.success();
-        //} else {
-        //obj.fail && obj.fail();
-        //}
-        //});
-        //video.onError(err => {
-        //cc.log(err);
-        //});
-        //}
+
+    /** 发起内购 */
+    requestIAP(args: RequestIAPArgs) {
+        wx.requestMidasPayment({
+            offerId: "",
+            currencyType: "CNY",
+            mode: "game",
+            outTradeNo: "",
+            success: res => {
+                MSDKWrapper.onInAppPurchase(EIAPResult.Success + "|" + args.productId);
+            },
+            fail: err => {
+                MSDKWrapper.onInAppPurchase(EIAPResult.Fail + "|" + args.productId);
+            }
+        });
     }
-    reqInternalPay() { }
+
+
     reportCustomEvent() { }
     /**
      *  判断系统SDK版本是否符合最低版本要求
