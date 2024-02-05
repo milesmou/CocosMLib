@@ -27,7 +27,7 @@ export class HotUpdate {
     private _logger = new MLogger("HotUpdate")
     private _manifest: Asset = null;//本地project.manifest文件
     private _version: string;//游戏主版本号 只有三位
-    private _assetsMgr: jsb.AssetsManager;//jsb资源管理器
+    private _assetsMgr: native.AssetsManager;//native资源管理器
     private _updating = false; //更新中
     private _failCount = 3;//更新失败重试次数
     private _onStateChange: (code: EHotUpdateState) => void;
@@ -50,7 +50,7 @@ export class HotUpdate {
 
         this._onStateChange(EHotUpdateState.CheckUpdate);
 
-        this._assetsMgr = new jsb.AssetsManager("", storagePath, this.versionCompareHandle.bind(this));
+        this._assetsMgr = new native.AssetsManager("", storagePath, this.versionCompareHandle.bind(this));
         this._assetsMgr.setVerifyCallback(this.VerifyHandle.bind(this));
         this.checkUpdate();
     }
@@ -61,7 +61,7 @@ export class HotUpdate {
         return 0;
     }
 
-    VerifyHandle(path: string, asset: jsb.ManifestAsset) {
+    VerifyHandle(path: string, asset: native.ManifestAsset) {
         let { compressed } = asset;
         if (compressed) {
             return true;
@@ -76,7 +76,7 @@ export class HotUpdate {
         if (this._updating) {
             return;
         }
-        if (this._assetsMgr.getState() === jsb.AssetsManager.State.UNINITED) {
+        if (this._assetsMgr.getState() === native.AssetsManager.State.UNINITED) {
             let url = this._manifest!.nativeUrl;
             // if (assetManager.md5Pipe) {
             //     url = loader.md5Pipe.transformURL(url);
@@ -106,29 +106,29 @@ export class HotUpdate {
 
 
     /** 检查更新回调 */
-    checkUpdateCb(event: jsb.EventAssetsManager) {
+    checkUpdateCb(event: native.EventAssetsManager) {
         switch (event.getEventCode()) {
-            case jsb.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
+            case native.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
                 this._logger.error('manifest文件异常 ERROR_NO_LOCAL_MANIFEST', event.getMessage());
                 this.onUpdateComplete(EHotUpdateResult.ManifestError);
                 break;
-            case jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
+            case native.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST:
                 this._logger.error('manifest文件异常 ERROR_DOWNLOAD_MANIFEST', event.getMessage());
                 this.onUpdateComplete(EHotUpdateResult.ManifestError);
                 break;
-            case jsb.EventAssetsManager.ERROR_PARSE_MANIFEST:
+            case native.EventAssetsManager.ERROR_PARSE_MANIFEST:
                 this._logger.error('manifest文件异常 ERROR_PARSE_MANIFEST', event.getMessage());
                 this.onUpdateComplete(EHotUpdateResult.ManifestError);
                 break;
-            case jsb.EventAssetsManager.NEW_VERSION_FOUND:
+            case native.EventAssetsManager.NEW_VERSION_FOUND:
                 this._logger.debug("发现新版本，准备下载");
                 this.downloadFiles();
                 break;
-            case jsb.EventAssetsManager.ALREADY_UP_TO_DATE:
+            case native.EventAssetsManager.ALREADY_UP_TO_DATE:
                 this._logger.debug('已经是最新版本');
                 this.onUpdateComplete(EHotUpdateResult.UpToDate);
                 break;
-            case jsb.EventAssetsManager.UPDATE_PROGRESSION:
+            case native.EventAssetsManager.UPDATE_PROGRESSION:
                 this._logger.debug('下载清单文件进度', event.getDownloadedFiles(), event.getTotalFiles());
                 break;
             default:
@@ -137,19 +137,19 @@ export class HotUpdate {
     }
 
     /** 下载更新文件回调 */
-    downloadFilesCb(event: jsb.EventAssetsManager) {
+    downloadFilesCb(event: native.EventAssetsManager) {
         switch (event.getEventCode()) {
-            case jsb.EventAssetsManager.UPDATE_PROGRESSION:
+            case native.EventAssetsManager.UPDATE_PROGRESSION:
                 this._logger.debug(`下载更新文件进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()} `);
                 this._onDownloadProgress(event.getDownloadedFiles(), event.getTotalFiles());
                 break;
-            case jsb.EventAssetsManager.ASSET_UPDATED:
+            case native.EventAssetsManager.ASSET_UPDATED:
                 break;
-            case jsb.EventAssetsManager.UPDATE_FINISHED:
+            case native.EventAssetsManager.UPDATE_FINISHED:
                 this._logger.debug('更新完成', event.getMessage());
                 this.onUpdateComplete(EHotUpdateResult.Success);
                 break;
-            case jsb.EventAssetsManager.UPDATE_FAILED:
+            case native.EventAssetsManager.UPDATE_FAILED:
                 this._logger.debug('更新失败', event.getMessage());
                 this._updating = false;
                 this._failCount--;
@@ -160,11 +160,11 @@ export class HotUpdate {
                 }
                 break;
 
-            case jsb.EventAssetsManager.ERROR_UPDATING:
+            case native.EventAssetsManager.ERROR_UPDATING:
                 this._logger.error('更新出错 ERROR_UPDATING', event.getMessage());
                 this.onUpdateFail();
                 break;
-            case jsb.EventAssetsManager.ERROR_DECOMPRESS:
+            case native.EventAssetsManager.ERROR_DECOMPRESS:
                 this._logger.error('更新出错 ERROR_DECOMPRESS', event.getMessage());
                 this.onUpdateFail();
                 break;

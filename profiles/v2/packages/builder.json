@@ -9,68 +9,23 @@
     },
     "experimentalEraseModules": true,
     "buildPath": "project://build",
-    "outputName": "wechatgame",
+    "outputName": "android",
     "mainBundleCompressionType": "merge_dep",
-    "platform": "wechatgame"
+    "platform": "android"
   },
   "BuildTaskManager": {
     "taskMap": {
-      "1706841955411": {
+      "1707130012985": {
         "type": "build",
-        "id": "1706841955411",
+        "id": "1707130012985",
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-2-5 11:00:22 build success in 14 s!",
+        "message": "2024-2-5 18:47:46 build success in 53 s!",
         "options": {
           "name": "NewProject3",
           "server": "",
-          "platform": "web-desktop",
-          "buildPath": "project://build",
-          "debug": false,
-          "md5Cache": false,
-          "skipCompressTexture": false,
-          "sourceMaps": false,
-          "polyfills": {
-            "asyncFunctions": true
-          },
-          "experimentalEraseModules": true,
-          "startSceneAssetBundle": false,
-          "bundleConfigs": [],
-          "useBuiltinServer": false,
-          "mainBundleIsRemote": false,
-          "mainBundleCompressionType": "merge_dep",
-          "useSplashScreen": true,
-          "bundleCommonChunk": false,
-          "packAutoAtlas": true,
-          "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
-          "outputName": "web-desktop",
-          "taskName": "web-desktop",
-          "scenes": [
-            {
-              "url": "db://assets/scenes/main.scene",
-              "uuid": "0e09b2b3-90f0-4f74-802f-17a05e082e6a"
-            }
-          ],
-          "packages": {},
-          "__version__": "1.3.7",
-          "buildMode": "normal",
-          "logDest": "project://temp/builder/log/web-desktop2024-2-2 10-45.log"
-        },
-        "time": "2024-2-5 11:00:07",
-        "dirty": false
-      },
-      "1707031065716": {
-        "type": "build",
-        "id": "1707031065716",
-        "progress": 1,
-        "state": "success",
-        "stage": "build",
-        "message": "2024-2-4 15:19:04 build success in 1 min 18 s!",
-        "options": {
-          "name": "NewProject3",
-          "server": "",
-          "platform": "wechatgame",
+          "platform": "android",
           "buildPath": "project://build",
           "debug": false,
           "md5Cache": false,
@@ -89,8 +44,8 @@
           "bundleCommonChunk": false,
           "packAutoAtlas": true,
           "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
-          "outputName": "wechatgame",
-          "taskName": "wechatgame",
+          "outputName": "android",
+          "taskName": "android",
           "scenes": [
             {
               "url": "db://assets/scenes/main.scene",
@@ -100,9 +55,9 @@
           "packages": {},
           "__version__": "1.3.7",
           "buildMode": "normal",
-          "logDest": "project://temp/builder/log/wechatgame2024-2-4 15-17.log"
+          "logDest": "project://temp/builder/log/android2024-2-5 18-46.log"
         },
-        "time": "2024-2-4 15:17:45",
+        "time": "2024-2-5 18:46:52",
         "dirty": false
       }
     }

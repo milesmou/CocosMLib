@@ -13,6 +13,10 @@
       "wechatgame": {
         "configID": "d669e8",
         "services": []
+      },
+      "ohos": {
+        "configID": "d669e8",
+        "services": []
       }
     },
     "taskOptionsMap": {
@@ -23,6 +27,11 @@
       "1707031065716": {
         "configID": "d669e8",
         "services": []
+      },
+      "1707130012985": {
+        "configID": "d669e8",
+        "services": [],
+        "__version__": "3.0.7"
       }
     },
     "__version__": "1.3.7"

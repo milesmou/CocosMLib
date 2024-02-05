@@ -9,14 +9,14 @@
     },
     "options": {
       "android": {
-        "packageName": "",
+        "packageName": "com.miles.test",
         "resizeableActivity": true,
         "maxAspectRatio": "2.4",
         "orientation": {
-          "portrait": false,
+          "portrait": true,
           "upsideDown": false,
-          "landscapeRight": true,
-          "landscapeLeft": true
+          "landscapeRight": false,
+          "landscapeLeft": false
         },
         "apiLevel": 33,
         "appABIs": [
@@ -43,6 +43,44 @@
         "swappy": false,
         "__version__": "1.0.1"
       }
-    }
+    },
+    "taskOptionsMap": {
+      "1707130012985": {
+        "packageName": "com.miles.test",
+        "resizeableActivity": true,
+        "maxAspectRatio": "2.4",
+        "orientation": {
+          "portrait": true,
+          "upsideDown": false,
+          "landscapeRight": false,
+          "landscapeLeft": false
+        },
+        "apiLevel": 33,
+        "appABIs": [
+          "arm64-v8a"
+        ],
+        "useDebugKeystore": true,
+        "keystorePath": "",
+        "keystorePassword": "",
+        "keystoreAlias": "",
+        "keystoreAliasPassword": "",
+        "appBundle": false,
+        "androidInstant": false,
+        "inputSDK": false,
+        "remoteUrl": "",
+        "sdkPath": "",
+        "ndkPath": "",
+        "javaHome": "",
+        "javaPath": "",
+        "renderBackEnd": {
+          "vulkan": false,
+          "gles3": true,
+          "gles2": true
+        },
+        "swappy": false,
+        "__version__": "1.0.1"
+      }
+    },
+    "__version__": "1.3.7"
   }
 }
