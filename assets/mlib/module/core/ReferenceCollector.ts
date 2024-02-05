@@ -1,4 +1,4 @@
-import { _decorator, Asset, CCObject, Component, error, js, Node } from "cc";
+import { _decorator, Asset, CCObject, Component, error, js, log, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
@@ -154,9 +154,8 @@ export class ReferenceCollector extends Component {
     private getValidNode(root: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let arr: Node[] = [];
-        arr.push(...root.children.filter(v => this.isNodeValid(v)));
-        let checkArr = root.children.filter(v => this.isNodeChildrenValid(v));
-        checkArr.push(...checkArr);
+        let checkArr = [];
+        checkArr.push(root);
         while (checkArr.length > 0) {
             let v = checkArr.shift();
             arr.push(...v.children.filter(v => this.isNodeValid(v)));
@@ -177,6 +176,5 @@ export class ReferenceCollector extends Component {
     }
 
     //#endregion
-
 
 }
