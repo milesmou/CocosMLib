@@ -6,7 +6,7 @@ import { UIConstant } from "../gen/UIConstant";
 import { GameDataPost } from "./GameDataPost";
 import { GameRedDot } from "./GameRedDot";
 import GameTable from "./GameTable";
-import { ShopUtil } from "./ShopUtil";
+import { ShopUtil } from "./iap/ShopUtil";
 
 /** 初始化游戏内容 */
 export class GameInit {
@@ -26,9 +26,9 @@ export class GameInit {
     public static async initBeforeEnterHUD() {
         GameDataPost.Inst.initGameData();
         GameRedDot.Inst.init();
-        ShopUtil.init();
         await L10nMgr.init();
         await UIMgr.Inst.showResident(UIConstant.UIGuide);
+        ShopUtil.init();
         App.chan.initIAP();
     }
 }
