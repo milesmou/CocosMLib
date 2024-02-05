@@ -56,10 +56,13 @@
       },
       {
         "__id__": 96
+      },
+      {
+        "__id__": 105
       }
     ],
     "_prefab": {
-      "__id__": 98
+      "__id__": 107
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -92,7 +95,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Mask",
+    "_name": "$Mask",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -337,7 +340,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Ring",
+    "_name": "$Ring",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -565,7 +568,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Finger",
+    "_name": "$Finger",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -840,7 +843,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Tip",
+    "_name": "$Tip",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -990,6 +993,29 @@
     "_isUnderline": false,
     "_underlineHeight": 0,
     "_cacheMode": 0,
+    "_enableOutline": false,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_outlineWidth": 2,
+    "_enableShadow": false,
+    "_shadowColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_shadowOffset": {
+      "__type__": "cc.Vec2",
+      "x": 2,
+      "y": 2
+    },
+    "_shadowBlur": 2,
     "_id": ""
   },
   {
@@ -1166,7 +1192,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "HollowTarget",
+    "_name": "$HollowTarget",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1254,7 +1280,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "BtnScreen",
+    "_name": "$BtnScreen",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1440,7 +1466,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Prefab",
+    "_name": "$Prefab",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1999,7 +2025,7 @@
     "fileId": "a4alnAiP1H6Z0ARZT+WKlC"
   },
   {
-    "__type__": "ff51akr6iFDJKBorwFbuPmS",
+    "__type__": "e3450sj/MxGAr+R3NNJmPAh",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -2010,26 +2036,98 @@
     "__prefab": {
       "__id__": 97
     },
-    "m_Mask": {
-      "__id__": 13
-    },
-    "m_Ring": {
+    "_refresh": false,
+    "_nodes": [
+      {
+        "__id__": 98
+      },
+      {
+        "__id__": 99
+      },
+      {
+        "__id__": 100
+      },
+      {
+        "__id__": 101
+      },
+      {
+        "__id__": 102
+      },
+      {
+        "__id__": 103
+      },
+      {
+        "__id__": 104
+      }
+    ],
+    "_manualNodes": [],
+    "_assets": [],
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "60pS19TQBLnbx9uUWr83EB"
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "Mask",
+    "node": {
+      "__id__": 2
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "Ring",
+    "node": {
       "__id__": 16
-    },
-    "m_Finger": {
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "Finger",
+    "node": {
       "__id__": 26
-    },
-    "m_Tip": {
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "Tip",
+    "node": {
       "__id__": 40
-    },
-    "m_HollowTarget": {
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "HollowTarget",
+    "node": {
       "__id__": 56
-    },
-    "m_BtnScreen": {
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "BtnScreen",
+    "node": {
       "__id__": 60
-    },
-    "m_PrefabParent": {
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "Prefab",
+    "node": {
       "__id__": 68
+    }
+  },
+  {
+    "__type__": "ff51akr6iFDJKBorwFbuPmS",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 106
     },
     "_id": ""
   },

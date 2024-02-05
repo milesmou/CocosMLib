@@ -1,8 +1,10 @@
-import { Button, Component, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
+import { Button, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
 import { App } from '../../../../mlib/App';
 import { AssetMgr } from '../../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel, MLogger } from '../../../../mlib/module/logger/MLogger';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
+import { UIComponent } from '../../../../mlib/module/ui/manager/UIComponent';
+import { UIForm } from '../../../../mlib/module/ui/manager/UIForm';
 import { CCUtils } from '../../../../mlib/utils/CCUtil';
 import { EventKey } from '../../../base/GameEnum';
 import GameTable from '../../../base/GameTable';
@@ -10,32 +12,23 @@ import { UIConstant } from '../../../gen/UIConstant';
 import { TGuide, Vector2 } from '../../../gen/table/Types';
 import { EMaskHollowType, GuideMask } from './GuideMask';
 import { GuidePrefab } from './GuidePrefab';
-import { UIForm } from '../../../../mlib/module/ui/manager/UIForm';
 const { ccclass, property } = _decorator;
 
 
 @ccclass
-export class UIGuide extends Component {
+export class UIGuide extends UIComponent {
 
     public static Inst: UIGuide;
 
     private _logger = new MLogger("Guide", ELoggerLevel.Warn);
 
-    @property(GuideMask)
-    private m_Mask: GuideMask = null;
-    @property(Node)
-    private m_Ring: Node = null;
-    @property(Node)
-    private m_Finger: Node = null;
-    @property(Node)
-    private m_Tip: Node = null;
-    @property(Node)
-    private m_HollowTarget: Node = null;
-    @property(Node)
-    private m_BtnScreen: Node = null;
-    @property(Node)
-    private m_PrefabParent: Node = null;
-
+    private _mask: GuideMask = null;
+    private _ring: Node = null;
+    private _finger: Node = null;
+    private _tip: Node = null;
+    private _hollowTarget: Node = null;
+    private _btnScreen: Node = null;
+    private _prefabParent: Node = null;
     private _hollowTargetTf: UITransform;
 
     public get isGuide() { return this._guideId > 0; }
@@ -48,7 +41,6 @@ export class UIGuide extends Component {
         }
         return -1;
     }
-
 
     private _guideId: number = 0;
     private _guideData: TGuide[] = [];
@@ -63,9 +55,18 @@ export class UIGuide extends Component {
 
     onLoad() {
         UIGuide.Inst = this;
-        this._hollowTargetTf = this.m_HollowTarget.getComponent(UITransform);
+
+        this._mask = this.rc.get("Mask", GuideMask);
+        this._ring = this.rc.getNode("Ring");
+        this._finger = this.rc.getNode("Finger");
+        this._tip = this.rc.getNode("Tip");
+        this._hollowTarget = this.rc.getNode("HollowTarget");
+        this._btnScreen = this.rc.getNode("BtnScreen");
+        this._prefabParent = this.rc.getNode("Prefab");
+        this._hollowTargetTf = this._hollowTarget.getComponent(UITransform);
+
         this.hide(true);
-        this.m_Mask.onEventTargetInvalid.addListener(() => {
+        this._mask.onEventTargetInvalid.addListener(() => {
             this._logger.warn(`事件节点已销毁 跳过本步引导`);
             this.checkOver();
         })
@@ -74,12 +75,12 @@ export class UIGuide extends Component {
 
     private hide(fast = false) {
         this.setShadeOpacity(0, fast ? 0 : 0.15, () => {
-            this.m_Mask.node.active = false;
+            this._mask.node.active = false;
         });
-        this.m_Ring.active = false;
-        this.m_Finger.active = false;
-        this.m_Tip.active = false;
-        this.m_BtnScreen.active = false;
+        this._ring.active = false;
+        this._finger.active = false;
+        this._tip.active = false;
+        this._btnScreen.active = false;
         this.destroyPrefab();
     }
 
@@ -101,7 +102,7 @@ export class UIGuide extends Component {
             this.guideOver();
         }
         else {
-            this.m_Mask.reset();
+            this._mask.reset();
             this._dataIndex++;
             this.showGuideStep();
         }
@@ -171,9 +172,9 @@ export class UIGuide extends Component {
                 this.guideOver();
                 return;
             }
-            this.m_HollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this.m_HollowTarget.parent);
+            this._hollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this._hollowTarget.parent);
             this._hollowTargetTf.setContentSize(guide.NodeSize.x, guide.NodeSize.y);
-            this.showHollowByTarget(this.m_HollowTarget, eventTarget, hollowDuration);
+            this.showHollowByTarget(this._hollowTarget, eventTarget, hollowDuration);
         }
         this.showPrefab();
         this.showTipAVG();
@@ -203,14 +204,14 @@ export class UIGuide extends Component {
         App.ui.blockTime = 99999;
         this.setMaskVisible(true)
         this.setMaskTouchEnable(true);
-        this.m_Mask.reset();
-        this.m_Ring.active = false;
-        this.m_Finger.active = false;
-        this.m_BtnScreen.active = false
+        this._mask.reset();
+        this._ring.active = false;
+        this._finger.active = false;
+        this._btnScreen.active = false
 
         let guide = this._guideData[this._dataIndex];
         this.setShadeOpacity(guide.Opacity || 185)
-        if (!guide.TipText) this.m_Tip.active = false;
+        if (!guide.TipText) this._tip.active = false;
 
         this._onStep && this._onStep(this.stepIndex);
 
@@ -283,8 +284,8 @@ export class UIGuide extends Component {
 
     private async showBtnScreen() {
         this._logger.debug("点击屏幕即可");
-        this.m_BtnScreen.active = true
-        this.m_BtnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
+        this._btnScreen.active = true
+        this._btnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
         App.ui.blockTime = -1;
     }
 
@@ -292,12 +293,12 @@ export class UIGuide extends Component {
         let guide = this._guideData[this._dataIndex];
         this._logger.debug("加载预制体", guide.Prefab);
         let prefabNode: Node;
-        if (this.m_PrefabParent.children.length > 0) {
-            let nodeName = this.m_PrefabParent.children[0].name;
+        if (this._prefabParent.children.length > 0) {
+            let nodeName = this._prefabParent.children[0].name;
             if (nodeName != guide.Prefab) {
                 this.destroyPrefab();
             } else {
-                prefabNode = this.m_PrefabParent.children[0];
+                prefabNode = this._prefabParent.children[0];
             }
         }
         if (!guide.Prefab) return;
@@ -305,7 +306,7 @@ export class UIGuide extends Component {
         if (!prefabNode?.isValid) {
             let prefab = await AssetMgr.loadAsset("prefab/guide/" + guide.Prefab, Prefab);
             prefabNode = instantiate(prefab);
-            prefabNode.parent = this.m_PrefabParent;
+            prefabNode.parent = this._prefabParent;
         }
 
         let comp = prefabNode.getComponent(GuidePrefab);
@@ -318,9 +319,9 @@ export class UIGuide extends Component {
 
     /** 销毁加载的预制件 */
     private destroyPrefab() {
-        if (this.m_PrefabParent.children.length > 0) {
-            let nodeName = this.m_PrefabParent.children[0].name;
-            this.m_PrefabParent.destroyAllChildren();
+        if (this._prefabParent.children.length > 0) {
+            let nodeName = this._prefabParent.children[0].name;
+            this._prefabParent.destroyAllChildren();
             AssetMgr.DecRef("prefab/guide/" + nodeName);
         }
     }
@@ -343,9 +344,9 @@ export class UIGuide extends Component {
         if (btnNode) {
             let result: { hollowTarget: Node, eventTarget: Node } = { hollowTarget: btnNode, eventTarget: btnNode };
             if (guide.NodeSize.x > 0 && guide.NodeSize.y > 0) {
-                this.m_HollowTarget.position = CCUtils.uiNodePosToUINodePos(btnNode, this.node, v3(0, 0));
+                this._hollowTarget.position = CCUtils.uiNodePosToUINodePos(btnNode, this.node, v3(0, 0));
                 this._hollowTargetTf.setContentSize(guide.NodeSize.x, guide.NodeSize.y);
-                result.hollowTarget = this.m_HollowTarget;
+                result.hollowTarget = this._hollowTarget;
             }
             return result;
         }
@@ -360,7 +361,7 @@ export class UIGuide extends Component {
     private showHollowByTarget(hollowTarget?: Node, eventTarget?: Node, duration = 0.25) {
         let guide = this._guideData[this._dataIndex];
         if (hollowTarget) {
-            this.m_Mask.hollow(guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle, hollowTarget, eventTarget, guide.HollowScale, duration);
+            this._mask.hollow(guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle, hollowTarget, eventTarget, guide.HollowScale, duration);
             eventTarget.once("click", this.checkOver.bind(this));
             this._logger.debug(`挖孔Size width=${this._hollowTargetTf.width} height=${this._hollowTargetTf.height}`);
             this.scheduleOnce(() => {
@@ -382,27 +383,27 @@ export class UIGuide extends Component {
 
     /** 设置遮罩可见性 */
     private setMaskVisible(visible: boolean) {
-        this.m_Mask.node.active = visible;
+        this._mask.node.active = visible;
     }
 
     /** 遮罩是否接收触摸事件 */
     public setMaskTouchEnable(enable: boolean) {
-        this.m_Mask.setTouchEnable(enable);
+        this._mask.setTouchEnable(enable);
     }
 
     /** 自定义挖孔 仅挖孔不可点击  */
     public showCustomHollow(type: EMaskHollowType, screenPos: Vec3, size: Size, duration = 0.25) {
-        this.m_HollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this.m_HollowTarget.parent);
+        this._hollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this._hollowTarget.parent);
         this._hollowTargetTf.width = size.width;
         this._hollowTargetTf.height = size.height;
-        this.m_Mask.hollow2(type, this.m_HollowTarget, 1, duration);
+        this._mask.hollow2(type, this._hollowTarget, 1, duration);
     }
 
     /** 设置遮罩透明度 */
     public setShadeOpacity(opacity: number, dur = 0.15, onEnded?: () => void) {
-        let uiOpacity = this.m_Mask.getComponent(UIOpacity);
+        let uiOpacity = this._mask.getComponent(UIOpacity);
         if (opacity == uiOpacity.opacity) return;
-        Tween.stopAllByTarget(this.m_Mask.node);
+        Tween.stopAllByTarget(this._mask.node);
         if (dur == 0) {
             uiOpacity.opacity = opacity;
             onEnded && onEnded();
@@ -413,32 +414,32 @@ export class UIGuide extends Component {
 
     /** 显示圆圈 */
     public showRing(scale: number, pos: Vec3, offset: Vector2) {
-        this.m_Ring.active = true;
-        this.m_Ring.setScale(scale, scale);
-        this.m_Ring.position = pos.add(v3(offset.x, offset.y));
+        this._ring.active = true;
+        this._ring.setScale(scale, scale);
+        this._ring.position = pos.add(v3(offset.x, offset.y));
     }
 
     /** 显示手指 */
     public showFinger(dir: number, pos: Vec3, offset: Vector2) {
         if (dir == 0) {
-            this.m_Finger.active = false;
+            this._finger.active = false;
         }
         else {
             dir = misc.clampf(dir, 1, 4);
-            this.m_Finger.active = true;
-            this.m_Finger.position = pos.add(v3(offset.x, offset.y));
+            this._finger.active = true;
+            this._finger.position = pos.add(v3(offset.x, offset.y));
             switch (dir) {
                 case 1:
-                    this.m_Finger.angle = 0;
+                    this._finger.angle = 0;
                     break;
                 case 2:
-                    this.m_Finger.angle = 180;
+                    this._finger.angle = 180;
                     break;
                 case 3:
-                    this.m_Finger.angle = 90;
+                    this._finger.angle = 90;
                     break;
                 case 4:
-                    this.m_Finger.angle = -90;
+                    this._finger.angle = -90;
                     break;
             }
         }
@@ -447,12 +448,12 @@ export class UIGuide extends Component {
     /** 展示提示文字 */
     public showTipText(text: string, pos: Vector2) {
         if (!text || !text.trim()) {
-            this.m_Tip.active = false;
+            this._tip.active = false;
         }
         else {
-            this.m_Tip.active = true;
-            this.m_Tip.position = v3(pos.x, pos.y);
-            let lbl = this.m_Tip.getComponentInChildren(Label);
+            this._tip.active = true;
+            this._tip.position = v3(pos.x, pos.y);
+            let lbl = this._tip.getComponentInChildren(Label);
             lbl.string = App.l10n.getStringByKey(text);
         }
     }
