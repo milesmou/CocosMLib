@@ -13,10 +13,10 @@ export class HotUpdate {
 
     static modifyMainJs(options: IBuildTaskOption, result: IBuildResult) {
         if (Utils.isNative(options.platform)) {
-            if (options.md5Cache) {
-                LogToFile.log("若使用热更请关闭md5Cache");
-                return;
-            }
+            // if (options.md5Cache) {
+            //     LogToFile.log("若使用热更请关闭md5Cache");
+            //     return;
+            // }
             let buildPath = Utils.toUniSeparator(result.dest);
             Config.set("hotupdate.src", buildPath);
             let filePath = path.join(result.dest, 'data', 'main.js');

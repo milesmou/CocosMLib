@@ -87,5 +87,3 @@ export class App extends Component {
         return SingletonFactory.getInstance(clazz);
     }
 }
-
-globalThis['app'] = App;

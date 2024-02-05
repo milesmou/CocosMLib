@@ -1,6 +1,4 @@
-export enum ELoggerLevel {
-    Info, Debug, Warn, Error
-}
+import { ELoggerLevel } from "./ELoggerLevel";
 
 export class MLogger {
 

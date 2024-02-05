@@ -2,7 +2,8 @@ import { _decorator, Component, director, Enum, game } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
-import { ELoggerLevel, MLogger } from './module/logger/MLogger';
+import { ELoggerLevel } from './module/logger/ELoggerLevel';
+import { MLogger } from './module/logger/MLogger';
 const { ccclass, property, integer, executeInEditMode } = _decorator;
 
 
