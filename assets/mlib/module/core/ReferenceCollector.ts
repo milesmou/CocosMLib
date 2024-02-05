@@ -11,6 +11,21 @@ class CollectorNodeData {
     public node: Node = null;
 }
 
+@ccclass("ManualCollectorNodeData")
+class ManualCollectorNodeData {
+    @property
+    public key = "";
+    @property(Node)
+    private _node: Node;
+    @property(Node)
+    public get node() { return this._node; }
+    private set node(val: Node) {
+        if (!val) return;
+        this._node = val;
+        this.key = this._node.name.trim();
+    }
+}
+
 @ccclass("CollectorAssetData")
 class CollectorAssetData {
     @property
@@ -36,11 +51,18 @@ export class ReferenceCollector extends Component {
         this._refresh = false;
     }
 
-    @property({ type: CollectorNodeData, readonly: true })
+    @property({ type: CollectorNodeData, tooltip: "自动引用名字以$开头的节点", readonly: true })
     private _nodes: CollectorNodeData[] = [];
     @property({ type: CollectorNodeData, readonly: true })
     private get nodes() { return this._nodes; }
     private set nodes(val: CollectorNodeData[]) { this._nodes = val; }
+
+    @property({ type: ManualCollectorNodeData })
+    private _manualNodes: ManualCollectorNodeData[] = [];
+    @property({ type: ManualCollectorNodeData })
+    private get manualNodes() { return this._manualNodes; }
+    private set manualNodes(val: ManualCollectorNodeData[]) { this._manualNodes = val; }
+
 
     @property({ type: CollectorAssetData })
     private _assets: CollectorAssetData[] = [];
@@ -63,6 +85,14 @@ export class ReferenceCollector extends Component {
     private initNodeMap() {
         this._nodeMap.clear();
         for (const collectorNodeData of this.nodes) {
+            let key = collectorNodeData.key.trim();
+            if (!this._nodeMap.has(key)) {
+                this._nodeMap.set(key, collectorNodeData.node);
+            } else {
+                error("[MLogger Error]", this.node.name, "引用的节点名字重复 Key=" + key);
+            }
+        }
+        for (const collectorNodeData of this.manualNodes) {
             let key = collectorNodeData.key.trim();
             if (!this._nodeMap.has(key)) {
                 this._nodeMap.set(key, collectorNodeData.node);
