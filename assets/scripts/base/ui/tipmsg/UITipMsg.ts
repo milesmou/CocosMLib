@@ -1,4 +1,4 @@
-import { Label, Node, Tween, UIOpacity, UITransform, _decorator, instantiate, misc, tween, v3 } from 'cc';
+import { Label, Node, Tween, UIOpacity, _decorator, instantiate, misc, tween, v3 } from 'cc';
 import { ObjectPool } from '../../../../mlib/module/pool/ObjectPool';
 import { UIComponent } from '../../../../mlib/module/ui/manager/UIComponent';
 import { Utils } from '../../../../mlib/utils/Utils';
@@ -28,14 +28,16 @@ export class UITipMsg extends UIComponent {
     ///提示组
     private _toastGroup: Node;
     private _toastItem: Node;
-    private _toastMaxHeight = 400;
+    private _toastMaxHeight = 300;//最大移动高度
+    private _toastMoveSpeed = 200;//移动速度 多少像素每秒
     private _toastPool: ObjectPool<ToastItem>;
     private _toasts: ToastItem[] = [];
     ///确认框
     private _confirmBox: Node;
     private _btnOk: Node;
     private _btnCancel: Node;
-
+    private _okText: string;//确认按钮默认文字
+    private _cancelText: string;//取消按钮默认文字
 
     private _autoHideConfirm: boolean;
     private _cbConfirm: Function;
@@ -49,7 +51,9 @@ export class UITipMsg extends UIComponent {
         this._toastGroup = this.rc.getNode("toastGroup");
         this._confirmBox = this.rc.getNode("confirmBox");
         this._btnOk = this.rc.getNode("btnOk");
+        this._okText = this._btnOk.getComponentInChildren(Label).string;
         this._btnCancel = this.rc.getNode("btnCancel");
+        this._cancelText = this._btnCancel.getComponentInChildren(Label).string;
 
         this.init();
     }
@@ -121,8 +125,8 @@ export class UITipMsg extends UIComponent {
         for (let i = 0, len = this._toasts.length; i < len; i++) {
             let toast = this._toasts[i];
             if (toast.move) {
-                toast.node.position = v3(0, toast.node.position.y + 200 * dt);//移动速度每秒200个像素
-                if (toast.node.position.y >= this._toastMaxHeight) {//超出范围后小时
+                toast.node.position = v3(0, toast.node.position.y + this._toastMoveSpeed * dt);
+                if (toast.node.position.y >= this._toastMaxHeight) {//超出范围后消失
                     toast.move = false;
                     tween(toast.uiOpacity)
                         .to(0.2, { opacity: 0 })
@@ -142,8 +146,8 @@ export class UITipMsg extends UIComponent {
     showConfirm(content: string, args: ConfirmArgs) {
         let { type, autoHide, cbOk, cbCancel, okText, cancelText } = args || {};
         autoHide = autoHide === undefined ? true : autoHide;
-        okText = okText || "確認";
-        cancelText = cancelText || "取消";
+        okText = okText || this._okText;
+        cancelText = cancelText || this._cancelText;
 
         this._confirmBox.active = true;
         this._confirmBox.getComponentInChildren(Label).string = content;
