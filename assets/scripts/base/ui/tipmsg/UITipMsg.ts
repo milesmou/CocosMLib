@@ -1,6 +1,7 @@
-import { Label, Node, Tween, UIOpacity, UITransform, _decorator, instantiate, tween, v3 } from 'cc';
+import { Label, Node, Tween, UIOpacity, UITransform, _decorator, instantiate, misc, tween, v3 } from 'cc';
 import { ObjectPool } from '../../../../mlib/module/pool/ObjectPool';
 import { UIComponent } from '../../../../mlib/module/ui/manager/UIComponent';
+import { Utils } from '../../../../mlib/utils/Utils';
 import { ConfirmArgs } from './ConfirmArgs';
 const { ccclass, property } = _decorator;
 
@@ -26,11 +27,10 @@ export class UITipMsg extends UIComponent {
 
     ///提示组
     private _toastGroup: Node;
-    private _toastGroupTrans: UITransform;
     private _toastItem: Node;
+    private _toastMaxHeight = 400;
     private _toastPool: ObjectPool<ToastItem>;
-    private _toastArr: ToastItem[] = [];
-
+    private _toasts: ToastItem[] = [];
     ///确认框
     private _confirmBox: Node;
     private _btnOk: Node;
@@ -58,7 +58,6 @@ export class UITipMsg extends UIComponent {
         this._singleTip.active = true;
         this._singleTip.getComponent(UIOpacity).opacity = 0;
 
-        this._toastGroupTrans = this._toastGroup.getComponent(UITransform);
         this._toastGroup.active = true;
         this._toastItem = this._toastGroup.children[0];
         this._toastPool = new ObjectPool({
@@ -101,34 +100,35 @@ export class UITipMsg extends UIComponent {
      */
     showToast(content: string) {
         let toast = this._toastPool.get();
-        this._toastArr.push(toast);
+        this._toasts.push(toast);
         toast.content.string = content;
         toast.uiOpacity.opacity = 255;
         toast.move = true;
         toast.node.position = v3(0, 0);
         toast.node.parent = this._toastGroup;
-        let count = this._toastGroup.children.length;
-        if (count > 1 && this._toastGroup.children[count - 2].position.y < 45) {
-            let deltaY = 45 - this._toastGroup.children[count - 2].position.y;
-            for (let i = count - 2; i >= 0; i--) {
-                let y = this._toastGroup.children[i].position.y + deltaY;
-                this._toastGroup.children[i].position = v3(0, y <= this._toastGroupTrans.height ? y : this._toastGroupTrans.height);
+        let count = this._toasts.length;
+        if (count > 1) {//数量大于1 则需要检测其它item的位置 避免重叠
+            let deltaY = 60;//item之间的间距
+            for (let i = 0; i < count - 1; i++) {
+                let minY = (count - i - 1) * deltaY;
+                let node = this._toasts[i].node;
+                node.position = v3(0, misc.clampf(node.position.y, minY, this._toastMaxHeight));
             }
         }
     }
 
     update(dt: number) {
-        for (let i = 0, len = this._toastArr.length; i < len; i++) {
-            let toast = this._toastArr[i];
+        for (let i = 0, len = this._toasts.length; i < len; i++) {
+            let toast = this._toasts[i];
             if (toast.move) {
-                toast.node.position = v3(0, toast.node.position.y + 200 * dt);
-                if (toast.node.position.y >= this._toastGroupTrans.height) {
+                toast.node.position = v3(0, toast.node.position.y + 200 * dt);//移动速度每秒200个像素
+                if (toast.node.position.y >= this._toastMaxHeight) {//超出范围后小时
                     toast.move = false;
                     tween(toast.uiOpacity)
                         .to(0.2, { opacity: 0 })
                         .call(() => {
-                            this._toastPool.put(toast)
-                            this._toastArr.pop();
+                            this._toastPool.put(toast);
+                            Utils.delItemFromArray(this._toasts, toast);
                         })
                         .start();
                 }
