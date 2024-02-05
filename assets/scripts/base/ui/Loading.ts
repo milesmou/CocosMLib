@@ -132,19 +132,16 @@ export class Loading extends Component {
     async loadRes() {
         //加载游戏数据
         this.setTips(LoadingLanguage.LoadGameRes);
-        //加载资源包
-        await AssetMgr.loadAllBundle();
-        //加载数据表
-        await GameTable.Inst.initData();
-        //初始化游戏内容
-        await GameInit.initBeforeEnterHUD();
-
+        
         //加载场景
         this.setTips(LoadingLanguage.LoadScene, 2);
-
+        
         this.onProgress(1, 1);
-
+        
         await GameGuide.Inst.checkShowGuide();
+        
+        //初始化游戏内容
+        await GameInit.initBeforeEnterHUD();
 
         await App.ui.show(UIConstant.UIHUD);
 

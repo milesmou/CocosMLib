@@ -1724,7 +1724,7 @@
     "fileId": "ce/PjwGqhEurRZ3Y1qA7WE"
   },
   {
-    "__type__": "cc.Button",
+    "__type__": "f82dbosV3FC4bcvzz3xiOu/",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -1737,7 +1737,7 @@
     },
     "clickEvents": [],
     "_interactable": true,
-    "_transition": 2,
+    "_transition": 3,
     "_normalColor": {
       "__type__": "cc.Color",
       "r": 230,
@@ -1787,11 +1787,21 @@
     "_target": {
       "__id__": 55
     },
+    "m_DefaultAudio": true,
+    "m_CustomAudio": "",
+    "m_Cooldown": 0.2,
+    "m_PolygonButton": false,
+    "m_LongPressButton": false,
+    "longPressEvents": [],
+    "m_LongPressIgnoreClick": true,
+    "m_LongPressDuration": 1,
+    "m_LongPressRepeatInvoke": true,
+    "m_LongPressRepeatInterval": 0.15,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "7dkuxbqH5D2b1fsxTt+p4s"
+    "fileId": "47hp4Yf3FPaaeagctSRzsy"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -2277,7 +2287,7 @@
     "fileId": "40xA5PvsVBho6ZtZ7DXum2"
   },
   {
-    "__type__": "cc.Button",
+    "__type__": "f82dbosV3FC4bcvzz3xiOu/",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -2290,7 +2300,7 @@
     },
     "clickEvents": [],
     "_interactable": true,
-    "_transition": 2,
+    "_transition": 3,
     "_normalColor": {
       "__type__": "cc.Color",
       "r": 230,
@@ -2340,11 +2350,21 @@
     "_target": {
       "__id__": 79
     },
+    "m_DefaultAudio": true,
+    "m_CustomAudio": "",
+    "m_Cooldown": 0.2,
+    "m_PolygonButton": false,
+    "m_LongPressButton": false,
+    "longPressEvents": [],
+    "m_LongPressIgnoreClick": true,
+    "m_LongPressDuration": 1,
+    "m_LongPressRepeatInvoke": true,
+    "m_LongPressRepeatInterval": 0.15,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "68kdm+wJNHH4anhsfG53Fz"
+    "fileId": "fbAQQTyjJFzJhkbrkV0yi7"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -2672,6 +2692,7 @@
         "__id__": 126
       }
     ],
+    "_manualNodes": [],
     "_assets": [],
     "_id": ""
   },

@@ -1,10 +1,20 @@
-import { Button, Camera, Component, EventHandler, Node, Prefab, Scene, ScrollView, Toggle, UITransform, Vec3, Widget, instantiate, misc, sp, v2 } from "cc";
+import { Button, Camera, Component, EventHandler, Layers, Node, Prefab, Scene, ScrollView, Toggle, UITransform, Vec3, Widget, instantiate, misc, sp, v2 } from "cc";
 import { Utils } from "./Utils";
 
 export class CCUtils {
 
+
+    /** 创建一个UI节点 */
+    public static createUINode(name: string) {
+        let node = new Node(name);
+        node.layer = Layers.Enum.UI_2D;
+        node.addComponent(UITransform);
+        return node;
+    }
+
+
     /** 从一级子节点获取指定组件 */
-    static getComponentInChildren<T extends Component>(node: Node, type: new (...args: any[]) => T): T {
+    public static getComponentInChildren<T extends Component>(node: Node, type: new (...args: any[]) => T): T {
         for (let i = 0; i < node.children.length; i++) {
             let child = node.children[i];
             let comp = child.getComponent(type);
@@ -17,7 +27,7 @@ export class CCUtils {
      * 从父节点获取指定组件 
      * @param [includeCurNode=false] 是否包含当前节点上的组件
      */
-    static getComponentInParent<T extends Component>(node: Node, type: new (...args: any[]) => T, includeCurNode = false): T {
+    public static getComponentInParent<T extends Component>(node: Node, type: new (...args: any[]) => T, includeCurNode = false): T {
         let n = node;
         if (!n.parent) {
             throw new Error("父节点不存在");
@@ -36,7 +46,7 @@ export class CCUtils {
     * 从父节点获取指定组件 
     * @param [includeCurNode=false] 是否包含当前节点上的组件
     */
-    static getComponentsInParent<T extends Component>(node: Node, type: new (...args: any[]) => T, includeCurNode = false): T[] {
+    public static getComponentsInParent<T extends Component>(node: Node, type: new (...args: any[]) => T, includeCurNode = false): T[] {
         let arr: T[] = [];
         let n = node;
         if (!n.parent) {
@@ -53,7 +63,7 @@ export class CCUtils {
     }
 
     /** 通过路径获取指定组件(路径不包含根节点) */
-    static getComponentAtPath<T extends Component>(node: Node, path: string, type: new (...args: any[]) => T): T {
+    public static getComponentAtPath<T extends Component>(node: Node, path: string, type: new (...args: any[]) => T): T {
         path = Utils.trim(path.trim(), "/");
         let arr = path.split("/");
         let n = node;
@@ -67,7 +77,7 @@ export class CCUtils {
     }
 
     /** 通过路径获取指定节点(路径不包含根节点) */
-    static getNodeAtPath(node: Node, path: string) {
+    public static getNodeAtPath(node: Node, path: string) {
         path = Utils.trim(path.trim(), "/");
         let arr = path.split("/");
         let n = node;
@@ -81,23 +91,23 @@ export class CCUtils {
     }
 
     /** 将node1当前的位置转化为node2本地坐标下的位置(UI节点) */
-    static uiNodeCurPosToUINodePos(node1: Node, node2: Node,) {
+    public static uiNodeCurPosToUINodePos(node1: Node, node2: Node,) {
         return this.uiNodePosToUINodePos(node1.parent, node2, node1.position);
     }
 
     /** 将node1本地坐标系的位置转化为node2本地坐标下的位置(UI节点) */
-    static uiNodePosToUINodePos(node1: Node, node2: Node, vec: Vec3) {
+    public static uiNodePosToUINodePos(node1: Node, node2: Node, vec: Vec3) {
         let screenPos = node1.getComponent(UITransform).convertToWorldSpaceAR(vec);
         return node2.getComponent(UITransform).convertToNodeSpaceAR(screenPos);
     }
 
     /** 屏幕位置转节点本地坐标下的位置(UI节点) */
-    static screenPosToUINodePos(screenPos: Vec3, node: Node) {
+    public static screenPosToUINodePos(screenPos: Vec3, node: Node) {
         return node.getComponent(UITransform).convertToNodeSpaceAR(screenPos);
     }
 
     /** 获取非UI摄像机下的节点在屏幕中的坐标(屏幕中心为原点) */
-    static getNodeScreenPosCenter(node: Node, camera: Camera) {
+    public static getNodeScreenPosCenter(node: Node, camera: Camera) {
         // let pos = node.convertToWorldSpaceAR(v2(0, 0));
         // let cameraPos = camera.node.convertToWorldSpaceAR(v2(0, 0));
         // pos.subSelf(cameraPos).mulSelf(camera.zoomRatio);
@@ -105,7 +115,7 @@ export class CCUtils {
     }
 
     /** 获取非UI摄像机下的节点在屏幕中的坐标(屏幕左下角为原点) */
-    static getNodeScreenPos(node: Node, camera: Camera) {
+    public static getNodeScreenPos(node: Node, camera: Camera) {
         // let pos = this.getNodeScreenPosCenter(node, camera);
         // let size = view.getVisibleSize();
         // pos.x += size.width / 2;
@@ -114,7 +124,7 @@ export class CCUtils {
     }
 
 
-    static addEventToComp(comp: Button | Toggle | ScrollView, target: Node, component: string, handler: string) {
+    public static addEventToComp(comp: Button | Toggle | ScrollView, target: Node, component: string, handler: string) {
         let evtHandler = new EventHandler();
         evtHandler.target = target;
         evtHandler.component = component;
@@ -144,7 +154,7 @@ export class CCUtils {
     }
 
     /** Scrollview左右翻页  turnType -1:上一页 1:下一页*/
-    static scrollViewTurnPage(scrollView: ScrollView, turnType: -1 | 1, dur = 0.15) {
+    public static scrollViewTurnPage(scrollView: ScrollView, turnType: -1 | 1, dur = 0.15) {
         let trans = scrollView.getComponent(UITransform);
         let currentOffset = scrollView.getScrollOffset();
         let maxOffset = scrollView.getMaxScrollOffset();
@@ -157,7 +167,7 @@ export class CCUtils {
         scrollView.scrollToOffset(v2(-x, currentOffset.y), dur);
     }
 
-    static getNodePath(node: Node) {
+    public static getNodePath(node: Node) {
         let arr: string[] = [];
         let n = node;
         while (n) {
@@ -168,7 +178,7 @@ export class CCUtils {
         return arr.reverse().join("/");
     }
 
-    static uiNodeMatchParent(node: Node) {
+    public static uiNodeMatchParent(node: Node) {
         let widget = node.getComponent(Widget);
         if (!widget) {
             widget = node.addComponent(Widget);
@@ -183,7 +193,7 @@ export class CCUtils {
         widget.right = 0;
     }
 
-    static loadList<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
+    public static loadList<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
         args?: { item?: Prefab, frameTimeMS?: number, comp?: Component }) {
 
         return new Promise<void>((resolve, reject) => {

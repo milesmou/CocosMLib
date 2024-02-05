@@ -2,8 +2,8 @@ import { _decorator, Component, director, Enum, game } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
-import {  ELoggerLevel, MLogger } from './module/logger/MLogger';
-const { ccclass, property, executeInEditMode } = _decorator;
+import { ELoggerLevel, MLogger } from './module/logger/MLogger';
+const { ccclass, property, integer, executeInEditMode } = _decorator;
 
 
 export const EGameConfigType = Enum({
@@ -73,8 +73,11 @@ export class GameSetting extends Component {
 
     @property({
         displayName: "帧率",
+        slide: true,
+        range: [0, 120],
         tooltip: "帧率限制,0表示不限制帧率"
     })
+    @integer
     private m_FrameRate = 0;
 
     @property({

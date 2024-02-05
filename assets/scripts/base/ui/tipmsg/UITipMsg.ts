@@ -58,7 +58,6 @@ export class UITipMsg extends UIComponent {
         this._singleTip.active = true;
         this._singleTip.getComponent(UIOpacity).opacity = 0;
 
-
         this._toastGroupTrans = this._toastGroup.getComponent(UITransform);
         this._toastGroup.active = true;
         this._toastItem = this._toastGroup.children[0];
@@ -146,7 +145,6 @@ export class UITipMsg extends UIComponent {
         okText = okText || "確認";
         cancelText = cancelText || "取消";
 
-
         this._confirmBox.active = true;
         this._confirmBox.getComponentInChildren(Label).string = content;
 
@@ -158,6 +156,7 @@ export class UITipMsg extends UIComponent {
 
         this._cbConfirm = cbOk;
         this._cbCancel = cbCancel;
+        this._autoHideConfirm = autoHide;
     }
 
     private confirm() {
