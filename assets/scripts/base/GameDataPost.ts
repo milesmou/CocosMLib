@@ -25,7 +25,7 @@ export class GameDataPost {
 
     /** 跨天处理 */
     private onDateChange(lastDate: number, today: number) {
-        cc.log("onDateChange", lastDate, today);
+        MLogger.debug("onDateChange", lastDate, today);
 
 
 

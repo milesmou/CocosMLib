@@ -33,7 +33,7 @@ export class PlayerData extends PlayerInventory {
                 return true;
             } else {
                 if (showTips) {
-                    App.ui.showToast(tipText ? tipText : App.l10n.getStringByKey("100022"));//金币数量不足
+                    App.tipMsg.showToast(tipText ? tipText : App.l10n.getStringByKey("100022"));//金币数量不足
                 }
                 return false;
             }
@@ -56,7 +56,7 @@ export class PlayerData extends PlayerInventory {
                 return true;
             } else {
                 if (showTips) {
-                    App.ui.showToast(tipText ? tipText : App.l10n.getStringByKey("100023"));//钻石数量不足
+                    App.tipMsg.showToast(tipText ? tipText : App.l10n.getStringByKey("100023"));//钻石数量不足
                 }
                 return false;
             }
