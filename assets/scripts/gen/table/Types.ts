@@ -278,6 +278,8 @@ export class TGuide {
         this.ID = _json_.ID
         if (_json_.GuideID === undefined) { throw new Error() }
         this.GuideID = _json_.GuideID
+        if (_json_.StepIndex === undefined) { throw new Error() }
+        this.StepIndex = _json_.StepIndex
         if (_json_.UIName === undefined) { throw new Error() }
         this.UIName = _json_.UIName
         if (_json_.NodePath === undefined) { throw new Error() }
@@ -318,6 +320,10 @@ export class TGuide {
      * 引导ID
      */
     readonly GuideID: number
+    /**
+     * 步骤索引
+     */
+    readonly StepIndex: number
     /**
      * 节点所在UI名字
      */
@@ -466,6 +472,74 @@ export class TUnforcedGuide {
 
 
 
+export class TbGuideOpenPlan{
+    private _dataMap: Map<number, TGuideOpenPlan>
+    private _dataList: TGuideOpenPlan[]
+    constructor(_json_: any) {
+        this._dataMap = new Map<number, TGuideOpenPlan>()
+        this._dataList = []
+        for(var _json2_ of _json_) {
+            let _v: TGuideOpenPlan
+            _v = new TGuideOpenPlan(_json2_)
+            this._dataList.push(_v)
+            this._dataMap.set(_v.ID, _v)
+        }
+    }
+
+    getDataMap(): Map<number, TGuideOpenPlan> { return this._dataMap; }
+    getDataList(): TGuideOpenPlan[] { return this._dataList; }
+
+    get(key: number): TGuideOpenPlan | undefined { return this._dataMap.get(key); }
+
+    resolve(_tables: Map<string, any>) {
+        for(var v of this._dataList) {
+            v.resolve(_tables)
+        }
+    }
+
+}
+
+
+
+
+
+export class TGuideOpenPlan {
+
+    constructor(_json_: any) {
+        if (_json_.ID === undefined) { throw new Error() }
+        this.ID = _json_.ID
+        if (_json_.NeedPlayerLv === undefined) { throw new Error() }
+        this.NeedPlayerLv = _json_.NeedPlayerLv
+        if (_json_.NeedBattleLv === undefined) { throw new Error() }
+        this.NeedBattleLv = _json_.NeedBattleLv
+        if (_json_.NeedMainTask === undefined) { throw new Error() }
+        this.NeedMainTask = _json_.NeedMainTask
+    }
+
+    /**
+     * 引导ID
+     */
+    readonly ID: number
+    /**
+     * 等级要求
+     */
+    readonly NeedPlayerLv: number
+    /**
+     * 关卡要求
+     */
+    readonly NeedBattleLv: number
+    /**
+     * 主线任务要求
+     */
+    readonly NeedMainTask: number
+
+    resolve(_tables: Map<string, any>) {
+    }
+}
+
+
+
+
 export class TbLocalization{
     private _dataMap: Map<string, TLocalization>
     private _dataList: TLocalization[]
@@ -542,6 +616,7 @@ export class Tables {
 			'tbglobalvar',
 			'tbguide',
 			'tbunforcedguide',
+			'tbguideopenplan',
 			'tblocalization',
         ];
     }
@@ -551,6 +626,8 @@ export class Tables {
     get TbGuide(): TbGuide  { return this._TbGuide;}
     private _TbUnforcedGuide: TbUnforcedGuide
     get TbUnforcedGuide(): TbUnforcedGuide  { return this._TbUnforcedGuide;}
+    private _TbGuideOpenPlan: TbGuideOpenPlan
+    get TbGuideOpenPlan(): TbGuideOpenPlan  { return this._TbGuideOpenPlan;}
     private _TbLocalization: TbLocalization
     get TbLocalization(): TbLocalization  { return this._TbLocalization;}
 
@@ -562,12 +639,15 @@ export class Tables {
         tables.set('TbGuide', this._TbGuide)
         this._TbUnforcedGuide = new TbUnforcedGuide(loader('tbunforcedguide'))
         tables.set('TbUnforcedGuide', this._TbUnforcedGuide)
+        this._TbGuideOpenPlan = new TbGuideOpenPlan(loader('tbguideopenplan'))
+        tables.set('TbGuideOpenPlan', this._TbGuideOpenPlan)
         this._TbLocalization = new TbLocalization(loader('tblocalization'))
         tables.set('TbLocalization', this._TbLocalization)
 
         this._TbGlobalVar.resolve(tables)
         this._TbGuide.resolve(tables)
         this._TbUnforcedGuide.resolve(tables)
+        this._TbGuideOpenPlan.resolve(tables)
         this._TbLocalization.resolve(tables)
     }
 }

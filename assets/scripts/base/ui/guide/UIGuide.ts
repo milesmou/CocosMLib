@@ -10,6 +10,7 @@ import { UIConstant } from '../../../gen/UIConstant';
 import { TGuide, Vector2 } from '../../../gen/table/Types';
 import { EMaskHollowType, GuideMask } from './GuideMask';
 import { GuidePrefab } from './GuidePrefab';
+import { UIForm } from '../../../../mlib/module/ui/manager/UIForm';
 const { ccclass, property } = _decorator;
 
 
@@ -53,7 +54,7 @@ export class UIGuide extends Component {
     private _guideData: TGuide[] = [];
     private _dataIndex: number;// 数据索引 从_guideData中取值使用
     private _onStep?: (stepIndex: number) => void;
-    private _onStepNode?: (stepIndex: number, ui: UIBase) => Promise<Node>;
+    private _onStepNode?: (stepIndex: number, ui: UIForm) => Promise<Node>;
     private _onManualStep?: (stepIndex: number) => void;
     private _onEnded: () => void;
 
@@ -235,7 +236,7 @@ export class UIGuide extends Component {
 
         this._logger.debug(`guideId=${this._guideId} assignUIName=${uiName}`);
 
-        let p = new Promise<UIBase>((resovle, reject) => {
+        let p = new Promise<UIForm>((resovle, reject) => {
             this.scheduleOnce(() => {
                 this._logger.debug(`IsTopUI=${App.ui.isTopUI(uiName)}`);
 
@@ -289,7 +290,7 @@ export class UIGuide extends Component {
 
     public async showPrefab() {
         let guide = this._guideData[this._dataIndex];
-        this._logger.debug("加载预制体",guide.Prefab);
+        this._logger.debug("加载预制体", guide.Prefab);
         let prefabNode: Node;
         if (this.m_PrefabParent.children.length > 0) {
             let nodeName = this.m_PrefabParent.children[0].name;
@@ -326,7 +327,7 @@ export class UIGuide extends Component {
 
 
     /** 获取UI上的目标节点 */
-    private async findTargetNode(ui: UIBase) {
+    private async findTargetNode(ui: UIForm) {
         let guide = this._guideData[this._dataIndex];
         let btnNode: Node;
         if (!guide.NodePath.trim()) {

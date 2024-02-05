@@ -1,8 +1,9 @@
-import { Component, _decorator, director, js } from 'cc';
+import { Component, ResolutionPolicy, _decorator, director, js, view } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { Publish } from '../scripts/base/publish/Publish';
 import SDKSetting from '../scripts/base/publish/SDKSetting';
+import { TipMsg } from '../scripts/base/ui/tipmsg/TipMsg';
 import { GameSetting } from './GameSetting';
 import { AssetLoaderComponent } from './module/asset/AssetLoaderComponent';
 import { AudioPlayerComponent } from "./module/audio/AudioPlayerComponent";
@@ -33,38 +34,53 @@ export class App extends Component {
     public static event = EventMgr;
     public static pool = PoolMgr;
     public static ui: UIMgr;
+    public static tipMsg = TipMsg;
     public static l10n = L10nMgr;
 
-    onLoad() {
+    protected onLoad() {
         App.Inst = this;
         director.addPersistRootNode(this.node);
         NodeTag.add("App", this.node);
         this.setCanvasResolution();
+
         App.timer = this.addComponent(TimerComponent);
         App.audio = this.addComponent(AudioPlayerComponent);
         App.asset = this.addComponent(AssetLoaderComponent);
 
         App.chan = Publish.getChannelInstance();
+
         MLogger.print(`GameSetting Channel=${GameSetting.Inst.channel}|${js.getClassName(App.chan)} Version=${GameSetting.Inst.version} Language=${L10nMgr.lang}`);
         MLogger.print(`SDKSetting ${SDKSetting.Inst.getPrintInfo()}`);
     }
 
-
-
-    start() {
+    protected start() {
         App.ui = UIMgr.Inst;
     }
 
+    protected onDestroy(): void {
+        SingletonFactory.clear();
+        EventMgr.clear();
+        PoolMgr.clear();
+    }
+
     private setCanvasResolution() {
-        // let winsize = screen.windowSize;
-        // let ratio = winsize.width / winsize.height;
-        // let drs = view.getDesignResolutionSize();
-        // let drsRatio = drs.width / drs.height;
-        // if (ratio > drsRatio) {
-        //     view.setResolutionPolicy(ResolutionPolicy.FIXED_HEIGHT);
-        // } else {
-        //     view.setResolutionPolicy(ResolutionPolicy.FIXED_WIDTH);
-        // }
+        let size = view.getVisibleSize();
+        let min = Math.min(size.width, size.height);
+        let max = Math.max(size.width, size.height);
+        let ratio = max / min;
+        if (size.width > size.height) {//横屏
+            if (ratio > 1.77) {//手机
+                view.setResolutionPolicy(ResolutionPolicy.FIXED_HEIGHT);
+            } else {//平板
+                view.setResolutionPolicy(ResolutionPolicy.FIXED_WIDTH);
+            }
+        } else {//竖屏
+            if (ratio > 1.77) {//手机
+                view.setResolutionPolicy(ResolutionPolicy.FIXED_WIDTH);
+            } else {//平板
+                view.setResolutionPolicy(ResolutionPolicy.FIXED_HEIGHT);
+            }
+        }
     }
 
     public static getSingleInst<T>(clazz: { new(): T }) {

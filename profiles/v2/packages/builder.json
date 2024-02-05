@@ -21,7 +21,7 @@
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-2-2 16:46:50 build success in 15 s!",
+        "message": "2024-2-5 11:00:22 build success in 14 s!",
         "options": {
           "name": "NewProject3",
           "server": "",
@@ -57,7 +57,7 @@
           "buildMode": "normal",
           "logDest": "project://temp/builder/log/web-desktop2024-2-2 10-45.log"
         },
-        "time": "2024-2-2 16:46:34",
+        "time": "2024-2-5 11:00:07",
         "dirty": false
       },
       "1707031065716": {

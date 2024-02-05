@@ -1,4 +1,4 @@
 export class Constant {
-    public static BuildTemplateDirName = "assets/build-template";
-    public static BuildTemplateSaveKey = "build-template";
+    public static BuildTemplateDirName = "buildTemplate";
+    public static BuildTemplateSaveKey = "buildTemplate";
 }

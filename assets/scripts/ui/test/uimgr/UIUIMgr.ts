@@ -12,13 +12,13 @@ export class UIUIMgr extends UIBase {
     protected onClickButton(btnName: string): void {
         switch (btnName) {
             case "showSingleTip":
-                App.ui.showTip("SingleTip");
+                App.tipMsg.showTip("SingleTip");
                 break;
             case "showTips":
-                App.ui.showToast("Tips");
+                App.tipMsg.showToast("Tips");
                 break;
             case "showTipBox":
-                App.ui.showConfirm("I'm a TipBox");
+                App.tipMsg.showConfirm("I'm a TipBox", { type: 2 });
                 break;
             case "showPopUp":
                 App.ui.show(UIConstant.UIPopUp);

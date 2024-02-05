@@ -124,22 +124,26 @@ export class ReferenceCollector extends Component {
     private getValidNode(root: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let arr: Node[] = [];
-        let checkArr = root.children.filter(v => this.isNodeValid(v));
+        let checkArr = root.children.filter(v => this.isNodeChildrenValid(v));
         arr.push(...checkArr);
         while (checkArr.length > 0) {
             let v = checkArr.shift();
-            let children = v.children.filter(v => this.isNodeValid(v));
-            if (children.length > 0) {
-                checkArr.push(...children);
-                arr.push(...children);
-            }
+            let arr1 = v.children.filter(v => this.isNodeValid(v));
+            arr.push(...arr1);
+            let arr2 = v.children.filter(v => this.isNodeChildrenValid(v));
+            checkArr.push(...arr2);
         }
         return arr;
     }
 
-    private isNodeValid(node: Node) {
+    private isNodeChildrenValid(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         if (node.getComponent(ReferenceCollector)) return false;
+        return true;
+    }
+
+    private isNodeValid(node: Node) {
+        if (!EDITOR_NOT_IN_PREVIEW) return;
         return node.name.startsWith(this._tag);
     }
 

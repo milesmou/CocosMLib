@@ -32,7 +32,7 @@ export default class UnforcedGuide extends Component {
     }
 
     private showFinger(ui: UIBase, data: TUnforcedGuide) {
-        let node = CCUtils.getNodeAtPath(ui.node, this._guideMap.get(ui.uiName).NodePath);
+        let node = CCUtils.getNodeAtPath(ui.node, this._guideMap.get(ui._uiName).NodePath);
         var pos = CCUtils.uiNodePosToUINodePos(node.parent, this.node, node.position);
         let dir = misc.clampf(data.FingerDir, 1, 4);
         this.finger.active = true;
@@ -59,7 +59,7 @@ export default class UnforcedGuide extends Component {
 
     private onUIHideBegin(ui: UIBase) {
         if (!this._nowGuideId) return;
-        if (this._guideMap.has(ui.uiName)) {
+        if (this._guideMap.has(ui._uiName)) {
             this.hide();
         }
     }
@@ -86,9 +86,9 @@ export default class UnforcedGuide extends Component {
 
     private onUIShow(ui: UIBase) {
         if (!this._nowGuideId) return;
-        if (!App.ui.isTopUI(ui.uiName)) return;
-        if (this._guideMap.has(ui.uiName)) {
-            this.showFinger(ui, this._guideMap.get(ui.uiName));
+        if (!App.ui.isTopUI(ui._uiName)) return;
+        if (this._guideMap.has(ui._uiName)) {
+            this.showFinger(ui, this._guideMap.get(ui._uiName));
         }
     }
 

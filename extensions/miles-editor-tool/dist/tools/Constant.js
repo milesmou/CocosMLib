@@ -4,5 +4,5 @@ exports.Constant = void 0;
 class Constant {
 }
 exports.Constant = Constant;
-Constant.BuildTemplateDirName = "assets/build-template";
-Constant.BuildTemplateSaveKey = "build-template";
+Constant.BuildTemplateDirName = "buildTemplate";
+Constant.BuildTemplateSaveKey = "buildTemplate";

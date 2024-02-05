@@ -1,0 +1,80 @@
+[
+  {
+    "ID": 117,
+    "NeedPlayerLv": 6,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 118,
+    "NeedPlayerLv": 3,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 120,
+    "NeedPlayerLv": 12,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 133,
+    "NeedPlayerLv": 2,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 134,
+    "NeedPlayerLv": 8,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 135,
+    "NeedPlayerLv": 4,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 137,
+    "NeedPlayerLv": 10,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 140,
+    "NeedPlayerLv": 12,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 142,
+    "NeedPlayerLv": 17,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 143,
+    "NeedPlayerLv": 23,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 144,
+    "NeedPlayerLv": 22,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 145,
+    "NeedPlayerLv": 15,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  },
+  {
+    "ID": 146,
+    "NeedPlayerLv": 20,
+    "NeedBattleLv": 0,
+    "NeedMainTask": 0
+  }
+]

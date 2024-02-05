@@ -34,9 +34,12 @@ export class Loading extends Component {
     fakeProgressTween: Tween<{ value: number }>;
     fakeProgressObj = { value: 0 };
 
-    start() {
+    async start() {
         this.node.getComponent(UIOpacity).opacity = 255;
         this.node.setScale(v3(1, 1));
+
+        await GameInit.initBeforeLoadRes();
+
         this.loadCfg(true);
         //版本号
         this.m_versionsNum.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
@@ -58,7 +61,7 @@ export class Loading extends Component {
                 this.checkVersion();
             } else {
                 MLogger.error(`加载配置失败 Url=${GameSetting.Inst.gameConfigUrl}`);
-                App.ui.showToast(this.getText(LoadingLanguage.ConfigFail));
+                App.tipMsg.showToast(this.getText(LoadingLanguage.ConfigFail));
                 this.loadCfg();
             }
         }
@@ -133,10 +136,8 @@ export class Loading extends Component {
         await AssetMgr.loadAllBundle();
         //加载数据表
         await GameTable.Inst.initData();
-        //初始化UI
-        await App.ui.init();
         //初始化游戏内容
-        await GameInit.init();
+        await GameInit.initBeforeEnterHUD();
 
         //加载场景
         this.setTips(LoadingLanguage.LoadScene, 2);
@@ -223,12 +224,13 @@ export class Loading extends Component {
         if (code == EHotUpdateResult.Success) {
             game.restart();
         } else if (code == EHotUpdateResult.Fail) {
-            App.ui.showConfirm(
-                "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", 1,
-                () => {
+            App.tipMsg.showConfirm(
+                "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", {
+                type: 1,
+                cbOk: () => {
                     game.restart();
                 }
-            );
+            });
         } else {//最新版本或manifest文件异常 跳过更新
             this.login()
         }
@@ -238,7 +240,7 @@ export class Loading extends Component {
     /** 从LoadingLanguage获取多语言文本 */
     getText(obj: ILanguage) {
         if (!obj) return "";
-        return obj[App.lang];
+        return obj[App.l10n.lang];
     }
 
 

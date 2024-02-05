@@ -1,96 +1,59 @@
-import { Component, instantiate, Node, NodePool, Prefab } from 'cc';
+import { MLogger } from '../logger/MLogger';
+import { ObjectPool } from './ObjectPool';
+import { ObjectPoolArgs } from './ObjectPoolArgs';
 
 /** 对象池工具类 */
 export class PoolMgr {
-    private static prefabs: Map<string, Prefab> = new Map();
-    private static pools: Map<string, NodePool> = new Map();
+    private static pools: Map<string, ObjectPool> = new Map();
 
     /** 清理所有对象池 */
     static clear() {
-        this.prefabs.clear();
-        this.pools.forEach(v => v.clear());
+        this.pools.forEach(v => v.destroy());
         this.pools.clear();
     }
 
     /**
      * 初始化一个对象池
      * @param poolName 对象池名字
-     * @param prefab 预制体
-     * @param num 初始化节点数量
+     * @param prefab 对象池创建参数
      */
-    static initPool(poolName: string, prefab: Prefab, itemNum: number) {
+    static initPool(poolName: string, args: ObjectPoolArgs) {
         if (!this.pools.has(poolName)) {
-            let pool = new NodePool();
-            this.prefabs.set(poolName, prefab);
+            let pool = new ObjectPool(args);
             this.pools.set(poolName, pool);
-            let gen = this.itemGen(pool, prefab, itemNum);
-            let p = new Promise<void>((resolve, reject) => {
-                let execute = () => {
-                    let d1 = Date.now();
-                    for (let e = gen.next(); ; e = gen.next()) {
-                        if (!e || e.done) {
-                            resolve();
-                            break;
-                        }
-                        if (typeof e.value == "function") {
-                            e.value();
-                        }
-                        let d2 = Date.now();
-                        if (d2 - d1 >= 3) {
-                            new Component().scheduleOnce(execute);
-                            break;
-                        }
-                    }
-                }
-                execute();
-            });
-            return p;
         } else {
-            console.warn("请勿重复创建对象池!");
+            MLogger.warn("请勿重复创建对象池!");
         }
     }
     /**
-     * 从对象池中获取节点
-     * @param poolName?对象池名字
+     * 从对象池中获取对象
+     * @param poolName 对象池名字
      */
-    static get(poolName: string) {
+    static get<T extends object = object>(poolName: string) {
         if (this.pools.has(poolName)) {
-            let pool = this.pools.get(poolName)!;
-            if (pool.size() > 0) {
-                return pool.get();
-            } else {
-                return instantiate(this.prefabs.get(poolName));
-            }
+            let pool = this.pools.get(poolName);
+            return pool.get() as T;
         } else {
-            console.error("对象池不存在!");
+            MLogger.error("对象池不存在!");
         }
     }
     /**
      * 回收节点
      * @param poolName 对象池名字
-     * @param nodeRes 节点或节点数组
+     * @param obj 对象或对象数组
      */
-    static put(poolName: string, nodeRes: Node | Node[]) {
+    static put<T extends object = object>(poolName: string, obj: T | T[]) {
         if (this.pools.has(poolName)) {
             let pool = this.pools.get(poolName)!;
-            if (nodeRes instanceof Array) {
-                nodeRes.forEach(node => {
+            if (obj instanceof Array) {
+                obj.forEach(node => {
                     pool.put(node);
                 })
             } else {
-                pool.put(nodeRes);
+                pool.put(obj);
             }
         } else {
-            console.error("对象池不存在!");
-        }
-    }
-
-    static *itemGen(pool: NodePool, prefab: Prefab, itemNum: number) {
-        for (let i = 0; i < itemNum; i++) {
-            let func = () => {
-                pool.put(instantiate(prefab))
-            }
-            yield func;
+            MLogger.error("对象池不存在!");
         }
     }
 }

@@ -3,16 +3,15 @@ import { Component, Node, Prefab, SpriteFrame, _decorator, instantiate, v3 } fro
 const { ccclass, property } = _decorator;
 
 import { EventKey } from '../../../../scripts/base/GameEnum';
-import { UITipMsg } from '../../../../scripts/base/ui/UITipMsg';
-import { UIGuide } from '../../../../scripts/base/ui/guide/UIGuide';
-import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { Utils } from '../../../utils/Utils';
 import { AssetMgr } from '../../asset/AssetMgr';
 import { EventMgr } from '../../event/EventMgr';
 import { L10nMgr } from '../../l10n/L10nMgr';
 import { MLogger } from '../../logger/MLogger';
-import { EPassiveType, UIBase } from "./UIBase";
+import { EUIFormPassiveType } from './EUIFormPassiveType';
+import { UIComponent } from './UIComponent';
+import { UIForm } from './UIForm';
 
 @ccclass
 export class UIMgr extends Component {
@@ -32,15 +31,15 @@ export class UIMgr extends Component {
     /** 纯白色贴图 */
     public defaultSprite: SpriteFrame = null;
     /** UI的缓存Dict */
-    private uiDict: Map<string, UIBase> = new Map();
+    private uiDict: Map<string, UIForm> = new Map();
     /** 实时的UI栈 */
     private uiNameStack: string[] = [];
     /** 加载完成的UI栈 */
-    private uiStack: UIBase[] = [];
+    private uiStack: UIForm[] = [];
     /** 实时的子UI栈 */
     private subUINameStack: string[] = [];
     /** 加载完成的子UI栈 */
-    private subUIStack: UIBase[] = [];
+    private subUIStack: UIForm[] = [];
 
     /** 最上层的UI */
     public get topUI() {
@@ -60,9 +59,6 @@ export class UIMgr extends Component {
     /** UI参数缓存 方便可以在onLoad时手动拿到参数 */
     private uiArgs: Map<string, object> = new Map();
 
-    //常驻高层UI
-    public guide: UIGuide;
-    private tipMsg: UITipMsg;
 
     onLoad() {
         UIMgr.Inst = this;
@@ -72,21 +68,9 @@ export class UIMgr extends Component {
         AssetMgr.loadAsset("DefaultSprite", SpriteFrame).then(sp => {
             this.defaultSprite = sp;
         });
-
     }
 
-    async init() {
-        // 添加引导界面
-        this.instNode(UIConstant.UIGuide, this.resident).then(n => {
-            this.guide = n.getComponent(UIGuide);
-        });
-        // 添加提示信息界面
-        this.instNode(UIConstant.UITipMsg, this.resident).then(n => {
-            this.tipMsg = n.getComponent(UITipMsg);
-        });
-    }
-
-    public async show<T extends UIBase>(uiName: string, obj: { args?: any, blockTime?: number, parent?: Node, playAnim?: boolean, visible?: boolean } = {}): Promise<T> {
+    public async show<T extends UIForm>(uiName: string, obj: { args?: any, blockTime?: number, parent?: Node, playAnim?: boolean, visible?: boolean } = {}): Promise<T> {
         let { args, blockTime, parent, playAnim, visible } = obj;
         blockTime = blockTime === undefined ? 0.2 : blockTime;
         playAnim = playAnim === undefined ? true : visible;
@@ -114,11 +98,11 @@ export class UIMgr extends Component {
         if (visible) {
             let belowUI = this.uiStack[this.uiStack.length - 2];
             ui.onShowBegin();
-            belowUI?.onPassive(EPassiveType.HideBegin, ui);
+            belowUI?.onPassive(EUIFormPassiveType.HideBegin, ui);
             EventMgr.emit(EventKey.OnUIShowBegin, ui);
             if (playAnim) await ui.playShowAnim();
             ui.onShow();
-            belowUI?.onPassive(EPassiveType.Hide, ui);
+            belowUI?.onPassive(EUIFormPassiveType.Hide, ui);
             EventMgr.emit(EventKey.OnUIShow, ui);
         } else {
             ui.onShowBegin();
@@ -149,12 +133,12 @@ export class UIMgr extends Component {
             if (index == this.uiStack.length) {//关闭最上层UI
                 let topUI = this.uiStack[this.uiStack.length - 1];
                 ui.onHideBegin();
-                topUI?.onPassive(EPassiveType.ShowBegin, ui);
+                topUI?.onPassive(EUIFormPassiveType.ShowBegin, ui);
                 EventMgr.emit(EventKey.OnUIHideBegin, ui);
                 if (!fastHide) await ui.playHideAnim();
                 ui.onHide();
                 hideUI();
-                topUI?.onPassive(EPassiveType.Show, ui);
+                topUI?.onPassive(EUIFormPassiveType.Show, ui);
                 EventMgr.emit(EventKey.OnUIHide, ui);
             } else {//快速关闭非最上层UI 不播动画
                 EventMgr.emit(EventKey.OnUIHideBegin, ui);
@@ -170,12 +154,12 @@ export class UIMgr extends Component {
             if (index == this.subUIStack.length) {//关闭最上层UI
                 let topUI = this.subUIStack[this.subUIStack.length - 1];
                 ui.onHideBegin();
-                topUI?.onPassive(EPassiveType.ShowBegin, ui);
+                topUI?.onPassive(EUIFormPassiveType.ShowBegin, ui);
                 EventMgr.emit(EventKey.OnUIHideBegin, ui);
                 if (!fastHide) await ui.playHideAnim();
                 ui.onHide();
                 hideUI();
-                topUI?.onPassive(EPassiveType.Show, ui);
+                topUI?.onPassive(EUIFormPassiveType.Show, ui);
                 EventMgr.emit(EventKey.OnUIHide, ui);
             } else {//快速关闭非最上层UI
                 EventMgr.emit(EventKey.OnUIHideBegin, ui);
@@ -219,11 +203,11 @@ export class UIMgr extends Component {
         });
     }
 
-    public async initUI(uiName: string, parent: Node, visible = true): Promise<UIBase> {
+    public async initUI(uiName: string, parent: Node, visible = true): Promise<UIForm> {
         let ui = this.uiDict.get(uiName);
         if (!ui?.isValid) {
             let node = await this.instNode(uiName, parent);
-            ui = node.getComponent(UIBase)!;
+            ui = node.getComponent(UIComponent) as UIForm;
             ui.init(uiName);
             this.uiDict.set(uiName, ui);
         }
@@ -264,7 +248,7 @@ export class UIMgr extends Component {
         }
     }
 
-    public getUI<T extends UIBase>(name: string) {
+    public getUI<T extends UIForm>(name: string) {
         let ui = this.uiDict.get(name);
         if (ui?.isValid) {
             return ui as T;
@@ -287,12 +271,12 @@ export class UIMgr extends Component {
     }
 
     /* UI是否在显示的UI栈中 */
-    public isUIInStack(ui: UIBase) {
+    public isUIInStack(ui: UIForm) {
         return this.uiStack.indexOf(ui) > -1;
     }
 
     /* UI是否被其它全屏UI覆盖 */
-    public isUIBeCover(ui?: UIBase) {
+    public isUIBeCover(ui?: UIForm) {
         if (!ui?.isValid) {
             //非UI,在UI下层
             for (const v of this.uiStack) {
@@ -330,23 +314,4 @@ export class UIMgr extends Component {
         if (this._blockTime > 0) this._blockTime -= dt;
         this.blockInput.active = this._blockTime > 0;
     }
-
-    //#region UITipMsg方法
-
-    showTip(content: string) {
-        this.tipMsg && this.tipMsg.showTip(content);
-    }
-
-    showToast(content: string, isLanguageKey = false, ...languageArgs: any[]) {
-        if (isLanguageKey) {
-            content = L10nMgr.getStringByKey(content, languageArgs);
-        }
-        this.tipMsg && this.tipMsg.showToast(content);
-    }
-
-    showConfirm(content: string, boxType: 1 | 2 = 2, cbOk?: Function, cbCancel?: Function) {
-        this.tipMsg && this.tipMsg.showConfirm(content, boxType, cbOk, cbCancel);
-    }
-
-    //#endregion
 }

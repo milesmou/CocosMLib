@@ -2,6 +2,7 @@
   {
     "ID": 1,
     "GuideID": 1,
+    "StepIndex": 0,
     "UIName": "UIGuideTest1",
     "NodePath": "step1",
     "NodeSize": {
@@ -33,6 +34,7 @@
   {
     "ID": 2,
     "GuideID": 1,
+    "StepIndex": 1,
     "UIName": "UIGuideTest1",
     "NodePath": "step2",
     "NodeSize": {
@@ -64,6 +66,7 @@
   {
     "ID": 3,
     "GuideID": 1,
+    "StepIndex": 2,
     "UIName": "UIGuideTest1",
     "NodePath": "step3",
     "NodeSize": {
@@ -95,6 +98,7 @@
   {
     "ID": 4,
     "GuideID": 1,
+    "StepIndex": 3,
     "UIName": "UIGuideTest1",
     "NodePath": "step4",
     "NodeSize": {
@@ -126,6 +130,7 @@
   {
     "ID": 5,
     "GuideID": 1,
+    "StepIndex": 4,
     "UIName": "UIGuideTest2",
     "NodePath": "step5",
     "NodeSize": {

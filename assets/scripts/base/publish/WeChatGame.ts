@@ -41,68 +41,68 @@ export class WeChatGame extends Channel {
      * @param obj.scope 授权权限 例: scope.userLocation
      */
     authorize(obj: { scope: string, suss?: Function, fail?: Function }) {
-        //wx.getSetting({
-        //success: settingRes => {
-        //let authSetting = settingRes.authSetting;
-        //if (authSetting[obj.scope]) {
-        //if (obj.scope != "scope.userInfo") {
-        //obj.success && obj.success();
-        //} else {
-        //wx.getUserInfo({
-        //withCredentials: true,
-        //lang: "zh_CN",
-        //success: userRes => {
-        //obj.success && obj.success(userRes);
-        //}
-        //});
-        //}
-        //} else {
-        //if (obj.scope != "scope.userInfo") {
-        //wx.authorize({
-        //scope: obj.scope,
-        //success: () => {
-        //obj.success && obj.success();
-        //},
-        //fail: () => {
-        //obj.fail && obj.fail();
-        //}
-        //});
-        //} else {//获取用户信息必须创建授权按钮
-        //if (!this.compareVersion("2.0.6")) {
-        //wx.showModal({
-        //title: "温馨提示",
-        //content: "当前微信版本过低，请升级到最新版微信后重试!",
-        //});
-        //} else {
-        //let button = wx.createUserInfoButton({
-        //withCredentials: true, type: 'text', text: "",
-        //style: {
-        //left: 0, top: 0, width: cc.winSize.width, height: cc.winSize.height, backgroundColor: '#00000000',
-        //fontSize: 16, lineHeight: 20, color: '#000000', textAlign: 'center', borderRadius: 0
-        //}
-        //});
-        //let emitTap = true;
-        //button.onTap(authRes => {
-        //if (authRes.userInfo) {
-        //cc.log("用户授权");
-        //button.destroy();
-        //if (emitTap) {
-        //emitTap = false;
-        //obj.success && obj.success(authRes);
-        //}
-        //} else {
-        //cc.log("拒绝授权用户信息");
-        //}
-        //});
-        //}
-        //}
-        //}
-        //},
-        //fail: () => {
-        //cc.log("wx.getSetting fail");
-        //obj.fail && obj.fail();
-        //}
-        //});
+        // wx.getSetting({
+        //     success: settingRes => {
+        //         let authSetting = settingRes.authSetting;
+        //         if (authSetting[obj.scope]) {
+        //             if (obj.scope != "scope.userInfo") {
+        //                 obj.success && obj.success();
+        //             } else {
+        //                 wx.getUserInfo({
+        //                     withCredentials: true,
+        //                     lang: "zh_CN",
+        //                     success: userRes => {
+        //                         obj.success && obj.success(userRes);
+        //                     }
+        //                 });
+        //             }
+        //         } else {
+        //             if (obj.scope != "scope.userInfo") {
+        //                 wx.authorize({
+        //                     scope: obj.scope,
+        //                     success: () => {
+        //                         obj.success && obj.success();
+        //                     },
+        //                     fail: () => {
+        //                         obj.fail && obj.fail();
+        //                     }
+        //                 });
+        //             } else {//获取用户信息必须创建授权按钮
+        //                 if (!this.compareVersion("2.0.6")) {
+        //                     wx.showModal({
+        //                         title: "温馨提示",
+        //                         content: "当前微信版本过低，请升级到最新版微信后重试!",
+        //                     });
+        //                 } else {
+        //                     let button = wx.createUserInfoButton({
+        //                         withCredentials: true, type: 'text', text: "",
+        //                         style: {
+        //                             left: 0, top: 0, width: cc.winSize.width, height: cc.winSize.height, backgroundColor: '#00000000',
+        //                             fontSize: 16, lineHeight: 20, color: '#000000', textAlign: 'center', borderRadius: 0
+        //                         }
+        //                     });
+        //                     let emitTap = true;
+        //                     button.onTap(authRes => {
+        //                         if (authRes.userInfo) {
+        //                             cc.log("用户授权");
+        //                             button.destroy();
+        //                             if (emitTap) {
+        //                                 emitTap = false;
+        //                                 obj.success && obj.success(authRes);
+        //                             }
+        //                         } else {
+        //                             cc.log("拒绝授权用户信息");
+        //                         }
+        //                     });
+        //                 }
+        //             }
+        //         }
+        //     },
+        //     fail: () => {
+        //         cc.log("wx.getSetting fail");
+        //         obj.fail && obj.fail();
+        //     }
+        // });
     }
     // 分享相关
     shareTime: number = 0;
