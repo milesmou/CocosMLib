@@ -4,7 +4,7 @@ import { AssetMgr } from "./AssetMgr";
 const { ccclass, property } = _decorator;
 
 @ccclass
-export class AssetLoaderComponent extends Component {
+export class AssetComponent extends Component {
 
     //Location:Asset
     private _cache: Map<string, Asset> = new Map();

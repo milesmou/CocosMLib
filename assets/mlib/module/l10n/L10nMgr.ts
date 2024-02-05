@@ -2,7 +2,7 @@ import { Font, Label, RichText, Sprite, TTFFont, sys } from "cc";
 import GameTable from "../../../scripts/base/GameTable";
 import { GameSetting } from "../../GameSetting";
 import { Utils } from "../../utils/Utils";
-import { AssetLoaderComponent } from "../asset/AssetLoaderComponent";
+import { AssetComponent } from "../asset/AssetComponent";
 import { AssetMgr } from "../asset/AssetMgr";
 import { MLogger } from "../logger/MLogger";
 import { StroageMgr } from "../stroage/StroageMgr";
@@ -15,7 +15,7 @@ class CompManagedArgs {
     public key: string;
     public args: any[];
     public delegate: () => string;
-    public assetLoader: AssetLoaderComponent;
+    public asset: AssetComponent;
 }
 
 /** 多语言管理器 */
@@ -123,7 +123,7 @@ export class L10nMgr {
         this.managedMap.forEach((v, k) => {
             if (k.isValid) {
                 if (k instanceof Sprite) {
-                    this.setSpriteFrameByKey(k, v.key, v.assetLoader);
+                    this.setSpriteFrameByKey(k, v.key, v.asset);
                 } else {
                     if (v.delegate) this.setStringByDelegate(k, v.delegate);
                     else this.setStringByKey(k, v.key, ...v.args);
@@ -160,12 +160,12 @@ export class L10nMgr {
 
 
     /** 为图片组件设置图片并加入托管，在切换语言时自动刷新内容 */
-    public static setSpriteFrameAndManage(sprite: Sprite, key: string, assetLoader?: AssetLoaderComponent) {
+    public static setSpriteFrameAndManage(sprite: Sprite, key: string, asset?: AssetComponent) {
         let compArgs = this.managedMap.get(sprite) || new CompManagedArgs();
         compArgs.key = key;
-        compArgs.assetLoader = assetLoader;
+        compArgs.asset = asset;
         this.managedMap.set(sprite, compArgs);
-        this.setSpriteFrameByKey(sprite, key, assetLoader);
+        this.setSpriteFrameByKey(sprite, key, asset);
     }
 
     /** 为文本组件设置文本 */
@@ -179,10 +179,10 @@ export class L10nMgr {
     }
 
     /** 为图片组件设置图片 */
-    public static setSpriteFrameByKey(sprite: Sprite, key: string, assetLoader?: AssetLoaderComponent) {
+    public static setSpriteFrameByKey(sprite: Sprite, key: string, asset?: AssetComponent) {
         let location = `${this.lang}/${key}`;
-        if (assetLoader) {
-            assetLoader.loadSprite(sprite, location);
+        if (asset) {
+            asset.loadSprite(sprite, location);
         } else {
             AssetMgr.loadSprite(sprite, location);
         }

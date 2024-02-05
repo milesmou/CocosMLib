@@ -108,7 +108,7 @@ export class L10n extends UIComponent implements IL10n {
                     App.l10n.setStringByKey(comp, this.key, ...this.args);
                     return;
                 } else if (comp instanceof Sprite) {
-                    App.l10n.setSpriteFrameByKey(comp, this.key, this.assetLoader);
+                    App.l10n.setSpriteFrameByKey(comp, this.key, this.asset);
                     return;
                 }
             }

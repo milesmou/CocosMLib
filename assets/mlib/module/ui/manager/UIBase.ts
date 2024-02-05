@@ -1,15 +1,14 @@
-import { Animation, BlockInputEvents, Button, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, tween } from "cc";
+import { Animation, BlockInputEvents, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, tween } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
 import { EventKey } from "../../../../scripts/base/GameEnum";
 import { CCUtils } from "../../../utils/CCUtil";
-import { AssetLoaderComponent } from "../../asset/AssetLoaderComponent";
-import { MEvent } from "../../event/MEvent";
+import { AssetComponent } from "../../asset/AssetComponent";
+import { EventMgr } from "../../event/EventMgr";
 import { MLogger } from '../../logger/MLogger';
 import { EUIFormAnim } from "./EUIFormAnim";
 import { UIForm } from "./UIForm";
 import { UIMgr } from "./UIMgr";
-import { EventMgr } from "../../event/EventMgr";
 
 
 @ccclass("UIBase")
@@ -19,15 +18,13 @@ export class UIBase extends UIForm {
         return this._uiName;
     }
 
-
-
-    private shadeNode: Node;
+    private _shadeNode: Node;
 
     private _isAnimEnd = true;
     public get isAnimEnd() { return this._isAnimEnd; }
 
     protected __preload(): void {
-        this.addComponent(AssetLoaderComponent);
+        this.addComponent(AssetComponent);
         super.__preload();
     }
 
@@ -46,18 +43,18 @@ export class UIBase extends UIForm {
 
     private initShade() {
         if (this.node.children[0].name == "shade") {
-            this.shadeNode = this.node.children[0];
+            this._shadeNode = this.node.children[0];
         } else {
-            this.shadeNode = new Node("shade");
-            this.shadeNode.layer = Layers.Enum.UI_2D;
-            this.shadeNode.parent = this.node;
-            this.shadeNode.addComponent(UITransform);
-            this.shadeNode.addComponent(UIOpacity);
-            this.shadeNode.setSiblingIndex(0);
-            CCUtils.uiNodeMatchParent(this.shadeNode);
+            this._shadeNode = new Node("shade");
+            this._shadeNode.layer = Layers.Enum.UI_2D;
+            this._shadeNode.parent = this.node;
+            this._shadeNode.addComponent(UITransform);
+            this._shadeNode.addComponent(UIOpacity);
+            this._shadeNode.setSiblingIndex(0);
+            CCUtils.uiNodeMatchParent(this._shadeNode);
             let imgNode = new Node("img");
             imgNode.layer = Layers.Enum.UI_2D;
-            imgNode.parent = this.shadeNode;
+            imgNode.parent = this._shadeNode;
             let sp = imgNode.addComponent(Sprite);
             sp.sizeMode = Sprite.SizeMode.CUSTOM;
             sp.spriteFrame = UIMgr.Inst.defaultSprite;
@@ -120,8 +117,8 @@ export class UIBase extends UIForm {
                         this.animation.stop();
                         this.animation.once(Animation.EventType.FINISHED, callback);
                         this.animation.play(clip.name);
-                        if (this.shadeNode) {
-                            let uiOpacity = this.shadeNode.getComponent(UIOpacity);
+                        if (this._shadeNode) {
+                            let uiOpacity = this._shadeNode.getComponent(UIOpacity);
                             uiOpacity.opacity = 0;
                             tween(uiOpacity).to(clip.duration, { opacity: 255 }).start();
                         }
@@ -154,8 +151,8 @@ export class UIBase extends UIForm {
                         this.animation.stop();
                         this.animation.once(Animation.EventType.FINISHED, callback);
                         this.animation.play(clip.name);
-                        if (this.shadeNode) {
-                            let uiOpacity = this.shadeNode.getComponent(UIOpacity);
+                        if (this._shadeNode) {
+                            let uiOpacity = this._shadeNode.getComponent(UIOpacity);
                             tween(uiOpacity).to(clip.duration, { opacity: 0 }).start();
                         }
                     } else {

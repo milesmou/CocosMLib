@@ -5,7 +5,7 @@ import { Publish } from '../scripts/base/publish/Publish';
 import SDKSetting from '../scripts/base/publish/SDKSetting';
 import { TipMsg } from '../scripts/base/ui/tipmsg/TipMsg';
 import { GameSetting } from './GameSetting';
-import { AssetLoaderComponent } from './module/asset/AssetLoaderComponent';
+import { AssetComponent } from './module/asset/AssetComponent';
 import { AudioPlayerComponent } from "./module/audio/AudioPlayerComponent";
 import NodeTag from './module/core/NodeTag';
 import { TimerComponent } from './module/core/TimerComponent';
@@ -29,7 +29,7 @@ export class App extends Component {
     //manager
     public static timer: TimerComponent;
     public static audio: AudioPlayerComponent;
-    public static asset: AssetLoaderComponent;
+    public static asset: AssetComponent;
     public static stroage = StroageMgr;
     public static event = EventMgr;
     public static pool = PoolMgr;
@@ -45,7 +45,7 @@ export class App extends Component {
 
         App.timer = this.addComponent(TimerComponent);
         App.audio = this.addComponent(AudioPlayerComponent);
-        App.asset = this.addComponent(AssetLoaderComponent);
+        App.asset = this.addComponent(AssetComponent);
 
         App.chan = Publish.getChannelInstance();
 

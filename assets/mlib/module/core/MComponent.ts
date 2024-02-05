@@ -1,5 +1,5 @@
 import { _decorator, Component, js } from "cc";
-import { AssetLoaderComponent } from "../asset/AssetLoaderComponent";
+import { AssetComponent } from "../asset/AssetComponent";
 import { MLogger } from "../logger/MLogger";
 import NodeTag from "./NodeTag";
 import { ReferenceCollector } from "./ReferenceCollector";
@@ -14,14 +14,14 @@ export class MComponent extends Component {
 
     private _timer: TimerComponent;
     protected get timer() { return this._timer; }
-    private _assetLoader: AssetLoaderComponent;
-    protected get assetLoader() { return this._assetLoader; }
+    private _asset: AssetComponent;
+    protected get asset() { return this._asset; }
     private _rc: ReferenceCollector;
     protected get rc() { return this._rc; }
 
     protected __preload(): void {
         this._timer = this.getComponentInParent(TimerComponent);
-        this._assetLoader = this.getComponentInParent(AssetLoaderComponent);
+        this._asset = this.getComponentInParent(AssetComponent);
         this._rc = this.getComponent(ReferenceCollector);
     }
 
