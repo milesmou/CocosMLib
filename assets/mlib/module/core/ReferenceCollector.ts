@@ -51,22 +51,22 @@ export class ReferenceCollector extends Component {
         this._refresh = false;
     }
 
-    @property({ type: CollectorNodeData, tooltip: "自动引用名字以$开头的节点", readonly: true })
-    private _nodes: CollectorNodeData[] = [];
     @property({ type: CollectorNodeData, readonly: true })
+    private _nodes: CollectorNodeData[] = [];
+    @property({ type: CollectorNodeData, tooltip: "自动引用名字以$开头的节点", readonly: true })
     private get nodes() { return this._nodes; }
     private set nodes(val: CollectorNodeData[]) { this._nodes = val; }
 
     @property({ type: ManualCollectorNodeData })
     private _manualNodes: ManualCollectorNodeData[] = [];
-    @property({ type: ManualCollectorNodeData })
+    @property({ type: ManualCollectorNodeData, tooltip: "手动添加引用的节点" })
     private get manualNodes() { return this._manualNodes; }
     private set manualNodes(val: ManualCollectorNodeData[]) { this._manualNodes = val; }
 
 
     @property({ type: CollectorAssetData })
     private _assets: CollectorAssetData[] = [];
-    @property({ type: CollectorAssetData })
+    @property({ type: CollectorAssetData, tooltip: "手动添加引用的资源" })
     private get assets() { return this._assets; }
     private set assets(val: CollectorAssetData[]) { this._assets = val; }
 
