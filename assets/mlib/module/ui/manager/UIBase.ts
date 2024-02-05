@@ -1,5 +1,5 @@
-import { Animation, BlockInputEvents, Layers, Node, Sprite, UIOpacity, UITransform, _decorator, color, tween } from "cc";
-const { property, ccclass, requireComponent } = _decorator;
+import { Animation, BlockInputEvents, Node, Sprite, UIOpacity, _decorator, color, tween } from "cc";
+const { property, ccclass } = _decorator;
 
 import { EventKey } from "../../../../scripts/base/GameEnum";
 import { CCUtils } from "../../../utils/CCUtil";
@@ -45,15 +45,12 @@ export class UIBase extends UIForm {
         if (this.node.children[0].name == "shade") {
             this._shadeNode = this.node.children[0];
         } else {
-            this._shadeNode = new Node("shade");
-            this._shadeNode.layer = Layers.Enum.UI_2D;
+            this._shadeNode = CCUtils.createUINode("shade");
             this._shadeNode.parent = this.node;
-            this._shadeNode.addComponent(UITransform);
             this._shadeNode.addComponent(UIOpacity);
             this._shadeNode.setSiblingIndex(0);
             CCUtils.uiNodeMatchParent(this._shadeNode);
-            let imgNode = new Node("img");
-            imgNode.layer = Layers.Enum.UI_2D;
+            let imgNode = CCUtils.createUINode("img");
             imgNode.parent = this._shadeNode;
             let sp = imgNode.addComponent(Sprite);
             sp.sizeMode = Sprite.SizeMode.CUSTOM;
