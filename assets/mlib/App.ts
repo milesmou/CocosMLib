@@ -6,7 +6,7 @@ import SDKSetting from '../scripts/base/publish/SDKSetting';
 import { TipMsg } from '../scripts/base/ui/tipmsg/TipMsg';
 import { GameSetting } from './GameSetting';
 import { AssetComponent } from './module/asset/AssetComponent';
-import { AudioPlayerComponent } from "./module/audio/AudioPlayerComponent";
+import { AudioComponent } from "./module/audio/AudioComponent";
 import NodeTag from './module/core/NodeTag';
 import { TimerComponent } from './module/core/TimerComponent';
 import { EventMgr } from "./module/event/EventMgr";
@@ -28,7 +28,7 @@ export class App extends Component {
     public static chan: Channel;
     //manager
     public static timer: TimerComponent;
-    public static audio: AudioPlayerComponent;
+    public static audio: AudioComponent;
     public static asset: AssetComponent;
     public static stroage = StroageMgr;
     public static event = EventMgr;
@@ -44,7 +44,7 @@ export class App extends Component {
         this.setCanvasResolution();
 
         App.timer = this.addComponent(TimerComponent);
-        App.audio = this.addComponent(AudioPlayerComponent);
+        App.audio = this.addComponent(AudioComponent);
         App.asset = this.addComponent(AssetComponent);
 
         App.chan = Publish.getChannelInstance();

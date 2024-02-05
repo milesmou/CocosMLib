@@ -3,7 +3,7 @@ import { AssetMgr } from "./AssetMgr";
 
 const { ccclass, property } = _decorator;
 
-@ccclass
+@ccclass("AssetComponent")
 export class AssetComponent extends Component {
 
     //Location:Asset

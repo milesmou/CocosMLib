@@ -7,8 +7,8 @@ import { SortedMap } from './SortedMap';
 const { ccclass } = _decorator;
 
 /** 音频播放组件 */
-@ccclass("AudioPlayerComponent")
-export class AudioPlayerComponent extends Component {
+@ccclass("AudioComponent")
+export class AudioComponent extends Component {
 
     private get sMusicVolume() { return "MusicVolume_" + this.node.name; }
     private get sEffectVolume() { return "EffectVolume_" + this.node.name; };
@@ -53,9 +53,9 @@ export class AudioPlayerComponent extends Component {
     }
 
     /** 播放背景音乐 */
-    async playMusic(location: string, priority = 0, volumeScale = 1, args: { fadeIn?: number, fadeOut?: number, onLoadComplete?: (clip: AudioClip) => void } = {}) {
+    async playMusic(location: string, priority = 0, volumeScale = 1, args: { fadeIn?: number, fadeOut?: number, onLoaded?: (clip: AudioClip) => void } = {}) {
         priority = Math.max(0, priority);
-        let { fadeIn, fadeOut, onLoadComplete } = args;
+        let { fadeIn, fadeOut,  onLoaded } = args;
         fadeIn = fadeIn === undefined ? 0 : fadeIn;
         fadeOut = fadeOut === undefined ? 0 : fadeOut;
 
@@ -86,7 +86,7 @@ export class AudioPlayerComponent extends Component {
                 AssetMgr.DecRef(location);
                 return;
             }
-            onLoadComplete && onLoadComplete(clip);
+            onLoaded && onLoaded(clip);
             audioState.audio.clip = clip;
             audioState.audio.volume = this._mVolume * volumeScale;
             audioState.audio.loop = true;
