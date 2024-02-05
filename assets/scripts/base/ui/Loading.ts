@@ -45,6 +45,10 @@ export class Loading extends Component {
         this.m_versionsNum.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
     }
 
+    protected onDestroy(): void {
+        AssetMgr.DecRef("Loading");
+    }
+
     /** 加载游戏配置 */
     async loadCfg(first = false) {
         first && this.setTips(LoadingLanguage.Config);
@@ -132,14 +136,14 @@ export class Loading extends Component {
     async loadRes() {
         //加载游戏数据
         this.setTips(LoadingLanguage.LoadGameRes);
-        
+
         //加载场景
         this.setTips(LoadingLanguage.LoadScene, 2);
-        
+
         this.onProgress(1, 1);
-        
+
         await GameGuide.Inst.checkShowGuide();
-        
+
         //初始化游戏内容
         await GameInit.initBeforeEnterHUD();
 
