@@ -47,10 +47,13 @@
       },
       {
         "__id__": 60
+      },
+      {
+        "__id__": 66
       }
     ],
     "_prefab": {
-      "__id__": 62
+      "__id__": 68
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -283,7 +286,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "lblDesc",
+    "_name": "$lblDesc",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -467,7 +470,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "progressBar",
+    "_name": "$progressBar",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -821,7 +824,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "lblProgress",
+    "_name": "$lblProgress",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1005,7 +1008,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "lblVersion",
+    "_name": "$lblVersion",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -1271,7 +1274,7 @@
     "fileId": "a5xqJYIItLZaRYdMkRGGMa"
   },
   {
-    "__type__": "8fde07ManJA8Yhp/5E9G9EA",
+    "__type__": "e3450sj/MxGAr+R3NNJmPAh",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -1282,17 +1285,68 @@
     "__prefab": {
       "__id__": 61
     },
-    "m_progressBar": {
-      "__id__": 31
+    "_refresh": false,
+    "_nodes": [
+      {
+        "__id__": 62
+      },
+      {
+        "__id__": 63
+      },
+      {
+        "__id__": 64
+      },
+      {
+        "__id__": 65
+      }
+    ],
+    "_manualNodes": [],
+    "_assets": [],
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "0cSTjrprZLuqZtMMyCqev9"
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "lblDesc",
+    "node": {
+      "__id__": 12
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "progressBar",
+    "node": {
+      "__id__": 20
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "lblProgress",
+    "node": {
+      "__id__": 38
+    }
+  },
+  {
+    "__type__": "CollectorNodeData",
+    "key": "lblVersion",
+    "node": {
+      "__id__": 46
+    }
+  },
+  {
+    "__type__": "8fde07ManJA8Yhp/5E9G9EA",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
     },
-    "m_lblDesc": {
-      "__id__": 13
-    },
-    "m_lblProgress": {
-      "__id__": 39
-    },
-    "m_versionsNum": {
-      "__id__": 47
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 67
     },
     "_id": ""
   },
@@ -1309,6 +1363,7 @@
       "__id__": 0
     },
     "fileId": "2agNATbPpLMKPcLmzRp36i",
+    "instance": null,
     "targetOverrides": null
   }
 ]

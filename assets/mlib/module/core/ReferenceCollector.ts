@@ -154,14 +154,13 @@ export class ReferenceCollector extends Component {
     private getValidNode(root: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let arr: Node[] = [];
+        arr.push(...root.children.filter(v => this.isNodeValid(v)));
         let checkArr = root.children.filter(v => this.isNodeChildrenValid(v));
-        arr.push(...checkArr);
+        checkArr.push(...checkArr);
         while (checkArr.length > 0) {
             let v = checkArr.shift();
-            let arr1 = v.children.filter(v => this.isNodeValid(v));
-            arr.push(...arr1);
-            let arr2 = v.children.filter(v => this.isNodeChildrenValid(v));
-            checkArr.push(...arr2);
+            arr.push(...v.children.filter(v => this.isNodeValid(v)));
+            checkArr.push(...v.children.filter(v => this.isNodeChildrenValid(v)));
         }
         return arr;
     }

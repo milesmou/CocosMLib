@@ -1,10 +1,11 @@
-import { Asset, Component, Label, ProgressBar, TextAsset, Tween, UIOpacity, _decorator, game, sys, tween, v3 } from 'cc';
+import { Asset, Label, ProgressBar, TextAsset, Tween, _decorator, game, sys, tween } from 'cc';
 import { App } from '../../../mlib/App';
 import { EGameConfigType, GameSetting } from '../../../mlib/GameSetting';
 import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { MLogger } from '../../../mlib/module/logger/MLogger';
 import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
+import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { MCloudData } from '../../../mlib/sdk/MCloudData';
 import { MResponse } from '../../../mlib/sdk/MResponse';
 import { UIConstant } from '../../gen/UIConstant';
@@ -12,37 +13,33 @@ import { GameConfig } from '../GameConfig';
 import { GameData } from '../GameData';
 import { GameGuide } from '../GameGuide';
 import { GameInit } from '../GameInit';
-import GameTable from '../GameTable';
 const { ccclass, property } = _decorator;
 
 
 @ccclass("Loading")
-export class Loading extends Component {
+export class Loading extends UIComponent {
 
-    @property(ProgressBar)
-    m_progressBar: ProgressBar = null;
-    @property(Label)
-    m_lblDesc: Label = null;
-    @property(Label)
-    m_lblProgress: Label = null;
-
-    /**版本号 */
-    @property(Label)
-    m_versionsNum: Label = null;
+    private _progressBar: ProgressBar = null;
+    private _lblDesc: Label = null;
+    private _lblProgress: Label = null;
+    private _lblVersion: Label = null;
 
     //假进度条
     fakeProgressTween: Tween<{ value: number }>;
     fakeProgressObj = { value: 0 };
 
+    protected onLoad(): void {
+        this._progressBar = this.rc.get("progressBar", ProgressBar);
+        this._lblDesc = this.rc.get("lblDesc", Label);
+        this._lblProgress = this.rc.get("lblProgress", Label);
+        this._lblVersion = this.rc.get("lblVersion", Label);
+    }
+
     async start() {
-        this.node.getComponent(UIOpacity).opacity = 255;
-        this.node.setScale(v3(1, 1));
-
         await GameInit.initBeforeLoadRes();
-
         this.loadCfg(true);
         //版本号
-        this.m_versionsNum.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
+        this._lblVersion.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
     }
 
     protected onDestroy(): void {
@@ -156,24 +153,24 @@ export class Loading extends Component {
     /** 设置加载界面提示文字 */
     setTips(obj: ILanguage, fakeProgressDur: number = 1) {
         let content = this.getText(obj);
-        if (this.m_lblDesc) {
-            this.m_lblDesc.string = content || "";
+        if (this._lblDesc) {
+            this._lblDesc.string = content || "";
         }
-        if (this.m_progressBar) {
-            this.m_progressBar.progress = 0;
+        if (this._progressBar) {
+            this._progressBar.progress = 0;
         }
         this.startFakeProgress(fakeProgressDur);
     }
 
     /** 更新进度 */
     onProgress(loaded: number, total: number) {
-        if (this.m_progressBar) {
+        if (this._progressBar) {
             let progress = loaded / total;
             progress = isNaN(progress) ? 0 : progress;
-            if (this.m_progressBar.progress > progress) return;
-            this.m_progressBar.progress = progress;
-            if (this.m_lblProgress) {
-                this.m_lblProgress.string = Math.round(progress * 100) + "%";
+            if (this._progressBar.progress > progress) return;
+            this._progressBar.progress = progress;
+            if (this._lblProgress) {
+                this._lblProgress.string = Math.round(progress * 100) + "%";
             }
         }
     }
