@@ -2,6 +2,7 @@ import { BuildHook, IBuildResult, IBuildTaskOption } from '../@types';
 import { BuildTemplate } from './postbuild/BuildTemplate';
 import { HotUpdate } from './postbuild/HotUpdate';
 import { LogToFile } from './tools/LogToFile';
+import { MLogger } from './tools/MLogger';
 
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
@@ -22,8 +23,9 @@ export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async 
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     LogToFile.log("onAfterBuild");
+    MLogger.debug("onAfterBuild")
     BuildTemplate.copy(options, result);
-    HotUpdate.modifyMainJs(options, result);
+    HotUpdate.modifyJsFile(options, result);
 
 };
 

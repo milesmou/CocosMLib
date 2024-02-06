@@ -11,24 +11,27 @@
     "buildPath": "project://build",
     "outputName": "android",
     "mainBundleCompressionType": "merge_dep",
-    "platform": "android"
+    "platform": "android",
+    "bundleConfigs": [],
+    "md5Cache": true,
+    "useSplashScreen": true
   },
   "BuildTaskManager": {
     "taskMap": {
-      "1707130012985": {
+      "1707188452087": {
         "type": "build",
-        "id": "1707130012985",
+        "id": "1707188452087",
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-2-5 18:47:46 build success in 53 s!",
+        "message": "2024-2-6 16:55:07 build success in 10 s!",
         "options": {
           "name": "NewProject3",
           "server": "",
           "platform": "android",
           "buildPath": "project://build",
           "debug": false,
-          "md5Cache": false,
+          "md5Cache": true,
           "skipCompressTexture": false,
           "sourceMaps": false,
           "polyfills": {
@@ -55,9 +58,9 @@
           "packages": {},
           "__version__": "1.3.7",
           "buildMode": "normal",
-          "logDest": "project://temp/builder/log/android2024-2-5 18-46.log"
+          "logDest": "project://temp/builder/log/android2024-2-6 11-00.log"
         },
-        "time": "2024-2-5 18:46:52",
+        "time": "2024-2-6 16:54:56",
         "dirty": false
       }
     }

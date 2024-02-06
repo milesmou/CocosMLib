@@ -34,23 +34,25 @@ export class HotUpdate {
     private _onDownloadProgress: (loaded: number, total: number) => void;
     private _onComplete: (code: EHotUpdateResult) => void;
 
+    private get storagePath() { return native.fileUtils.getWritablePath() + 'miles_remote_asset'; }
+
     public start(manifest: Asset, version: string, onStateChange: (code: EHotUpdateState) => void, onDownloadProgress: (loaded: number, total: number) => void, onComplete: (code: EHotUpdateResult) => void) {
         if (!sys.isNative) {
             this._logger.warn("非原生环境");
             return;
         }
+
         this._manifest = manifest;
         this._version = version;
         this._onStateChange = onStateChange;
         this._onDownloadProgress = onDownloadProgress;
         this._onComplete = onComplete;
 
-        let storagePath = ((native.fileUtils ? native.fileUtils.getWritablePath() : '/') + 'miles_remote_asset');
-        this._logger.print('热更新资源存放路径：' + storagePath);
+        this._logger.print('热更新资源存放路径：' + this.storagePath);
 
         this._onStateChange(EHotUpdateState.CheckUpdate);
 
-        this._assetsMgr = new native.AssetsManager("", storagePath, this.versionCompareHandle.bind(this));
+        this._assetsMgr = new native.AssetsManager("", this.storagePath, this.versionCompareHandle.bind(this));
         this._assetsMgr.setVerifyCallback(this.VerifyHandle.bind(this));
         this.checkUpdate();
     }
@@ -77,10 +79,7 @@ export class HotUpdate {
             return;
         }
         if (this._assetsMgr.getState() === native.AssetsManager.State.UNINITED) {
-            let url = this._manifest!.nativeUrl;
-            // if (assetManager.md5Pipe) {
-            //     url = loader.md5Pipe.transformURL(url);
-            // }
+            let url = this._manifest.nativeUrl;
             this._assetsMgr.loadLocalManifest(url);
         }
         if (!this._assetsMgr.getLocalManifest() || !this._assetsMgr.getLocalManifest().isLoaded()) {
@@ -88,7 +87,6 @@ export class HotUpdate {
             this.onUpdateComplete(EHotUpdateResult.ManifestError);
             return;
         }
-        this._logger.debug("搜索路径:", JSON.stringify(this._assetsMgr.getLocalManifest().getSearchPaths()))
         this._assetsMgr.setEventCallback(this.checkUpdateCb.bind(this));
         this._assetsMgr.checkUpdate();
     }
@@ -144,6 +142,7 @@ export class HotUpdate {
                 this._onDownloadProgress(event.getDownloadedFiles(), event.getTotalFiles());
                 break;
             case native.EventAssetsManager.ASSET_UPDATED:
+                this._logger.debug('下载资源', event.getAssetId());
                 break;
             case native.EventAssetsManager.UPDATE_FINISHED:
                 this._logger.debug('更新完成', event.getMessage());
@@ -179,10 +178,13 @@ export class HotUpdate {
     onUpdateComplete(code: EHotUpdateResult.UpToDate | EHotUpdateResult.Success | EHotUpdateResult.ManifestError) {
         this._onStateChange(EHotUpdateState.Finished);
         if (code == EHotUpdateResult.Success) {
+            //重命名main.js依赖的相关文件,去掉文件名中的MD5后缀,不然main.js中无法加载相关资源
+            this.renameSrcFiles();
+            //追加脚本搜索路径
             let searchPaths = native.fileUtils.getSearchPaths();
             let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
             this._logger.debug(`搜索路径 k=${this._version} v=${JSON.stringify(newPaths)}`);
-            Array.prototype.unshift.apply(searchPaths, newPaths);//追加脚本搜索路径
+            Array.prototype.unshift.apply(searchPaths, newPaths);
             // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
             sys.localStorage.setItem(this._version, JSON.stringify(searchPaths));
             native.fileUtils.setSearchPaths(searchPaths);
@@ -194,5 +196,23 @@ export class HotUpdate {
     onUpdateFail() {
         this._assetsMgr.setEventCallback(null);
         this._onComplete(EHotUpdateResult.Fail);
+    }
+
+    renameSrcFiles() {
+        let files = native.fileUtils.listFiles(this.storagePath + "/src");
+        files.forEach(v => {
+            if (!native.fileUtils.isDirectoryExist(v)) {//文件
+                let fileName = v.replace(native.fileUtils.getFileDir(v) + "/", "");
+                let ext = native.fileUtils.getFileExtension(v);
+                let newFileName = fileName.replace(ext, "");
+                if (fileName == "system.bundle") return;
+                let lastIndex = newFileName.lastIndexOf(".");
+                if (lastIndex > -1) {
+                    newFileName = newFileName.substring(0, lastIndex);
+                }
+                newFileName += ext;
+                native.fileUtils.renameFile(v, v.replace(fileName, newFileName));
+            }
+        });
     }
 }

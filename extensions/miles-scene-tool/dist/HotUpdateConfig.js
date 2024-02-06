@@ -8,10 +8,11 @@ class HotUpdateConfig {
     static save() {
         let setting = cc_1.director.getScene().getComponentInChildren("GameSetting");
         if (setting) {
+            let gameName = setting._gameName;
             let channelName = setting._channel;
             let version = setting._version;
             let cdnUrl = setting.m_CdnUrl;
-            let url = `${cdnUrl.trim()}/Channel/${channelName}/${this.getMainVersion(version)}/ResPkg`;
+            let url = `${cdnUrl.trim()}/${gameName}/Channel/${channelName}/${this.getMainVersion(version)}/ResPkg`;
             Config_1.Config.set("hotupdate.url", url);
             Config_1.Config.set("hotupdate.version", version);
             MLogger_1.MLogger.info("更新热更配置成功", url, version);

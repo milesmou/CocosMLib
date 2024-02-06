@@ -4,9 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VersionGenerator = void 0;
+const crypto_1 = __importDefault(require("crypto"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
-const crypto_1 = __importDefault(require("crypto"));
+const Utils_1 = require("../tools/Utils");
 class Manifest {
     constructor() {
         this.packageUrl = 'http://localhost/tutorial-hot-update/remote-assets/';
@@ -27,6 +28,8 @@ class VersionGenerator {
         this.src = src;
         this.dest = dest;
         fs_extra_1.default.emptyDirSync(dest);
+        // 生成热更资源时,还原src目录下资源文件名 追加md5
+        this.renameSrcFiles(path_1.default.join(src, 'src'));
         // Iterate assets and src folder
         this.readDir(path_1.default.join(src, 'src'), manifest.assets);
         this.readDir(path_1.default.join(src, 'assets'), manifest.assets);
@@ -37,6 +40,21 @@ class VersionGenerator {
         delete manifest.assets;
         delete manifest.searchPaths;
         fs_extra_1.default.writeJSONSync(destVersion, manifest);
+    }
+    static renameSrcFiles(dir) {
+        let files = Utils_1.Utils.getAllFiles(dir, [], true);
+        files.forEach(file => {
+            let fileName = path_1.default.basename(file);
+            let ext = path_1.default.extname(file);
+            let newFileName = fileName.replace(ext, "");
+            let lastIndex = newFileName.lastIndexOf(".");
+            if (lastIndex > -1 && newFileName != "system.bundle")
+                return;
+            let md5 = crypto_1.default.createHash('md5').update(fs_extra_1.default.readFileSync(file)).digest('hex');
+            newFileName = newFileName + "." + md5.substring(0, 6);
+            newFileName += ext;
+            fs_extra_1.default.renameSync(file, file.replace(fileName, newFileName));
+        });
     }
     static readDir(dir, obj) {
         try {

@@ -109,8 +109,8 @@ export class GameSetting extends Component {
         this._channel = EChannel[this.m_ChannelId];
         this._mainVersion = this.getMainVersion();
         this._gameCode = this._gameName + "_" + this._channel
-        this._gameConfigUrl = `${this.m_CdnUrl}/Channel/${this._channel}/${this._mainVersion}/GameConfig.txt`;
-        this._remoteResUrl = `${this.m_CdnUrl}/Resources`;
+        this._gameConfigUrl = `${this.m_CdnUrl}/${this._gameName}/Channel/${this._channel}/${this._mainVersion}/GameConfig.txt`;
+        this._remoteResUrl = `${this.m_CdnUrl}/${this._gameName}/Resources`;
         if (!EDITOR_NOT_IN_PREVIEW) {
             director.addPersistRootNode(this.node);
             if (this.m_FrameRate > 0) {

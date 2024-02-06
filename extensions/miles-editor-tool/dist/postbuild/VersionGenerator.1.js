@@ -7,19 +7,10 @@ exports.VersionGenerator = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const crypto_1 = __importDefault(require("crypto"));
-class Manifest {
-    constructor() {
-        this.packageUrl = 'http://localhost/tutorial-hot-update/remote-assets/';
-        this.remoteManifestUrl = 'http://localhost/tutorial-hot-update/remote-assets/project.manifest';
-        this.remoteVersionUrl = 'http://localhost/tutorial-hot-update/remote-assets/version.manifest';
-        this.version = '1.0.0';
-        this.assets = {};
-        this.searchPaths = [];
-    }
-}
+const VersionGenerator_1 = require("./VersionGenerator");
 class VersionGenerator {
     static gen(url, version, src, dest) {
-        let manifest = new Manifest();
+        let manifest = new VersionGenerator_1.Manifest();
         manifest.packageUrl = url;
         manifest.remoteManifestUrl = url + '/project.manifest';
         manifest.remoteVersionUrl = url + '/version.manifest';
@@ -27,6 +18,8 @@ class VersionGenerator {
         this.src = src;
         this.dest = dest;
         fs_extra_1.default.emptyDirSync(dest);
+        // 生成热更资源时,还原src目录下资源文件名 追加md5
+        this.renameSrcFiles(path_1.default.join(src, 'src'));
         // Iterate assets and src folder
         this.readDir(path_1.default.join(src, 'src'), manifest.assets);
         this.readDir(path_1.default.join(src, 'assets'), manifest.assets);
@@ -37,6 +30,9 @@ class VersionGenerator {
         delete manifest.assets;
         delete manifest.searchPaths;
         fs_extra_1.default.writeJSONSync(destVersion, manifest);
+    }
+    static renameSrcFiles(dir) {
+        let files = Utils.getAllFiles(dir, [], true);
     }
     static readDir(dir, obj) {
         try {

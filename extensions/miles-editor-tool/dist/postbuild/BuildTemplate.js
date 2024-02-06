@@ -10,11 +10,13 @@ const Config_1 = require("../tools/Config");
 const Constant_1 = require("../tools/Constant");
 const LogToFile_1 = require("../tools/LogToFile");
 const Utils_1 = require("../tools/Utils");
+const MLogger_1 = require("../tools/MLogger");
 /** 拷贝自定义构建模板资源 */
 class BuildTemplate {
     static copy(options, result) {
         if (!Config_1.Config.get(Constant_1.Constant.BuildTemplateSaveKey, false)) {
             LogToFile_1.LogToFile.log("未启用构建模板");
+            MLogger_1.MLogger.info("未启用构建模板");
             return; //未启用构建模板
         }
         let templatePath = Utils_1.Utils.ProjectPath + "/" + Constant_1.Constant.BuildTemplateDirName + "/" + options.platform;

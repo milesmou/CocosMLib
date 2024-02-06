@@ -5,12 +5,14 @@ import { Config } from "../tools/Config";
 import { Constant } from "../tools/Constant";
 import { LogToFile } from "../tools/LogToFile";
 import { Utils } from "../tools/Utils";
+import { MLogger } from "../tools/MLogger";
 
 /** 拷贝自定义构建模板资源 */
 export class BuildTemplate {
     static copy(options: IBuildTaskOption, result: IBuildResult) {
         if (!Config.get(Constant.BuildTemplateSaveKey, false)) {
             LogToFile.log("未启用构建模板");
+            MLogger.info("未启用构建模板");
             return;//未启用构建模板
         }
         let templatePath = Utils.ProjectPath + "/" + Constant.BuildTemplateDirName + "/" + options.platform;

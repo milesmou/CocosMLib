@@ -4,6 +4,7 @@ exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.onAfterBu
 const BuildTemplate_1 = require("./postbuild/BuildTemplate");
 const HotUpdate_1 = require("./postbuild/HotUpdate");
 const LogToFile_1 = require("./tools/LogToFile");
+const MLogger_1 = require("./tools/MLogger");
 const onBeforeBuild = async function (options, result) {
     // Todo some thing
     LogToFile_1.LogToFile.log("Build Start");
@@ -21,8 +22,9 @@ const onAfterCompressSettings = async function (options, result) {
 exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = async function (options, result) {
     LogToFile_1.LogToFile.log("onAfterBuild");
+    MLogger_1.MLogger.debug("onAfterBuild");
     BuildTemplate_1.BuildTemplate.copy(options, result);
-    HotUpdate_1.HotUpdate.modifyMainJs(options, result);
+    HotUpdate_1.HotUpdate.modifyJsFile(options, result);
 };
 exports.onAfterBuild = onAfterBuild;
 const onError = async function (options, result) {

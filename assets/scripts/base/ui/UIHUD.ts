@@ -39,6 +39,9 @@ export class UIHUD extends UIBase {
             case "ScrollviewEnhance":
                 App.ui.show(UIConstant.UIScrollviewEnhance);
                 break;
+                case "HH":
+                App.tipMsg.showToast("HH");
+                break;
         }
     }
 

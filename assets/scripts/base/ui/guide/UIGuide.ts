@@ -1,7 +1,8 @@
 import { Button, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
 import { App } from '../../../../mlib/App';
 import { AssetMgr } from '../../../../mlib/module/asset/AssetMgr';
-import { ELoggerLevel, MLogger } from '../../../../mlib/module/logger/MLogger';
+import { ELoggerLevel } from '../../../../mlib/module/logger/ELoggerLevel';
+import { MLogger } from '../../../../mlib/module/logger/MLogger';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 import { UIComponent } from '../../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../../mlib/module/ui/manager/UIForm';

@@ -42,7 +42,7 @@ class Utils {
         });
         return p;
     }
-    static getAllFiles(dir, suffix) {
+    static getAllFiles(dir, suffix, topDirOnlay = false) {
         dir = this.toAbsolutePath(dir);
         suffix = suffix || [];
         let files = [];
@@ -55,6 +55,8 @@ class Utils {
                     callback(p);
                 }
                 else if (dirent.isDirectory()) {
+                    if (topDirOnlay)
+                        return;
                     walkSync(p, callback);
                 }
             });
