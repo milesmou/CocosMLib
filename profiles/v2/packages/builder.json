@@ -24,7 +24,7 @@
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-2-7 10:24:19 build success in 10 s!",
+        "message": "2024-2-7 11:23:54 build success in 10 s!",
         "options": {
           "name": "NewProject3",
           "server": "",
@@ -60,7 +60,7 @@
           "buildMode": "normal",
           "logDest": "project://temp/builder/log/android2024-2-6 11-00.log"
         },
-        "time": "2024-2-7 10:24:08",
+        "time": "2024-2-7 11:23:43",
         "dirty": false
       }
     }

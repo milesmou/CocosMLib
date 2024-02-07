@@ -183,8 +183,12 @@ export class HotUpdate {
             //追加脚本搜索路径
             let searchPaths = native.fileUtils.getSearchPaths();
             let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
-            this._logger.debug(`搜索路径 k=${this._version} v=${JSON.stringify(newPaths)}`);
-            Array.prototype.unshift.apply(searchPaths, newPaths);
+            newPaths.forEach(v => {
+                if (!searchPaths.includes(v)) searchPaths.unshift(v);
+            });
+            this._logger.debug(`新增搜索路径 ${JSON.stringify(newPaths)}`);
+            this._logger.debug(`搜索路径 Key=${this._version}`);
+            this._logger.debug(`搜索路径 ${JSON.stringify(searchPaths)}`);
             // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
             sys.localStorage.setItem(this._version, JSON.stringify(searchPaths));
             native.fileUtils.setSearchPaths(searchPaths);
@@ -213,7 +217,7 @@ export class HotUpdate {
                 newFileName += ext;
                 let newFile = v.replace(fileName, newFileName);
                 native.fileUtils.renameFile(v, newFile);
-                this._logger.debug(v, "-->", newFile)
+                this._logger.debug("rename", v, "-->", newFile)
             }
         });
     }
