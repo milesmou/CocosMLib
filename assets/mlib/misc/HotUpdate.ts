@@ -48,22 +48,22 @@ export class HotUpdate {
         this._onDownloadProgress = onDownloadProgress;
         this._onComplete = onComplete;
 
-        this._logger.print('热更新资源存放路径：' + this.storagePath);
+        this._logger.debug('热更新资源存放路径：' + this.storagePath);
 
         this._onStateChange(EHotUpdateState.CheckUpdate);
 
         this._assetsMgr = new native.AssetsManager("", this.storagePath, this.versionCompareHandle.bind(this));
-        this._assetsMgr.setVerifyCallback(this.VerifyHandle.bind(this));
+        this._assetsMgr.setVerifyCallback(this.verifyHandle.bind(this));
         this.checkUpdate();
     }
 
-    versionCompareHandle(versionA: string, versionB: string) {
+    private versionCompareHandle(versionA: string, versionB: string) {
         this._logger.print("客户端版本: " + versionA + ', 当前最新版本: ' + versionB);
         if (versionA != versionB) return -1;
         return 0;
     }
 
-    VerifyHandle(path: string, asset: native.ManifestAsset) {
+    private verifyHandle(path: string, asset: native.ManifestAsset) {
         let { compressed } = asset;
         if (compressed) {
             return true;
@@ -73,7 +73,7 @@ export class HotUpdate {
     }
 
     /** 检查更新 */
-    checkUpdate() {
+    private checkUpdate() {
         this._logger.debug("检查更新");
         if (this._updating) {
             return;
@@ -92,7 +92,7 @@ export class HotUpdate {
     }
 
     /** 下载更新文件 */
-    downloadFiles() {
+    private downloadFiles() {
         this._onStateChange(EHotUpdateState.DownloadFiles);
         this._logger.debug("下载更新");
         if (!this._updating) {
@@ -104,7 +104,7 @@ export class HotUpdate {
 
 
     /** 检查更新回调 */
-    checkUpdateCb(event: native.EventAssetsManager) {
+    private checkUpdateCb(event: native.EventAssetsManager) {
         switch (event.getEventCode()) {
             case native.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST:
                 this._logger.error('manifest文件异常 ERROR_NO_LOCAL_MANIFEST', event.getMessage());
@@ -135,10 +135,10 @@ export class HotUpdate {
     }
 
     /** 下载更新文件回调 */
-    downloadFilesCb(event: native.EventAssetsManager) {
+    private downloadFilesCb(event: native.EventAssetsManager) {
         switch (event.getEventCode()) {
             case native.EventAssetsManager.UPDATE_PROGRESSION:
-                this._logger.debug(`下载更新文件进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()} `);
+                this._logger.debug(`下载总进度 ：${event.getDownloadedFiles()} / ${event.getTotalFiles()} `);
                 this._onDownloadProgress(event.getDownloadedFiles(), event.getTotalFiles());
                 break;
             case native.EventAssetsManager.ASSET_UPDATED:
@@ -175,7 +175,7 @@ export class HotUpdate {
         }
     }
 
-    onUpdateComplete(code: EHotUpdateResult.UpToDate | EHotUpdateResult.Success | EHotUpdateResult.ManifestError) {
+    private onUpdateComplete(code: EHotUpdateResult.UpToDate | EHotUpdateResult.Success | EHotUpdateResult.ManifestError) {
         this._onStateChange(EHotUpdateState.Finished);
         if (code == EHotUpdateResult.Success) {
             //重命名main.js依赖的相关文件,去掉文件名中的MD5后缀,不然main.js中无法加载相关资源
@@ -193,12 +193,12 @@ export class HotUpdate {
         this._onComplete(code);
     }
 
-    onUpdateFail() {
+    private onUpdateFail() {
         this._assetsMgr.setEventCallback(null);
         this._onComplete(EHotUpdateResult.Fail);
     }
 
-    renameSrcFiles() {
+    private renameSrcFiles() {
         let files = native.fileUtils.listFiles(this.storagePath + "/src");
         files.forEach(v => {
             if (!native.fileUtils.isDirectoryExist(v)) {//文件
@@ -211,7 +211,9 @@ export class HotUpdate {
                     newFileName = newFileName.substring(0, lastIndex);
                 }
                 newFileName += ext;
-                native.fileUtils.renameFile(v, v.replace(fileName, newFileName));
+                let newFile = v.replace(fileName, newFileName);
+                native.fileUtils.renameFile(v, newFile);
+                this._logger.debug(v, "-->", newFile)
             }
         });
     }
