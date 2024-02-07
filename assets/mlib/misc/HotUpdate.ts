@@ -186,7 +186,7 @@ export class HotUpdate {
             Array.prototype.unshift.apply(searchPaths, newPaths);
             this._logger.debug(`新增搜索路径 ${JSON.stringify(newPaths)}`);
             this._logger.debug(`搜索路径 Key=${this._version}`);
-            this._logger.debug(`搜索路径 ${JSON.stringify(searchPaths)}`);
+            this._logger.debug(`搜索路径 Value=${JSON.stringify(searchPaths)}`);
             // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
             sys.localStorage.setItem(this._version, JSON.stringify(searchPaths));
             native.fileUtils.setSearchPaths(searchPaths);
