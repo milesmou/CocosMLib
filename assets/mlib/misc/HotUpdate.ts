@@ -183,9 +183,7 @@ export class HotUpdate {
             //追加脚本搜索路径
             let searchPaths = native.fileUtils.getSearchPaths();
             let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
-            newPaths.forEach(v => {
-                if (!searchPaths.includes(v)) searchPaths.unshift(v);
-            });
+            Array.prototype.unshift.apply(searchPaths, newPaths);
             this._logger.debug(`新增搜索路径 ${JSON.stringify(newPaths)}`);
             this._logger.debug(`搜索路径 Key=${this._version}`);
             this._logger.debug(`搜索路径 ${JSON.stringify(searchPaths)}`);
