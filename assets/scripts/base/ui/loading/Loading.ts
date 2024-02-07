@@ -45,7 +45,7 @@ export class Loading extends UIComponent {
     }
 
     protected onDestroy(): void {
-        AssetMgr.DecRef("Loading");
+        AssetMgr.DecRef(UIConstant.Loading);
     }
 
     /** 加载游戏配置 */

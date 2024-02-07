@@ -11,6 +11,7 @@ import { MLogger } from '../../logger/MLogger';
 import { EUIFormPassiveType } from './EUIFormPassiveType';
 import { UIComponent } from './UIComponent';
 import { UIForm } from './UIForm';
+import { UIConstant } from '../../../../scripts/gen/UIConstant';
 
 @ccclass
 export class UIMgr extends Component {
@@ -88,7 +89,7 @@ export class UIMgr extends Component {
             this._defaultSprite = sp;
         });
         //加载Loading界面
-        AssetMgr.loadAsset("Loading", Prefab).then(prefab => {
+        AssetMgr.loadAsset(UIConstant.Loading, Prefab).then(prefab => {
             instantiate(prefab).parent = this._higher;
         });
     }
