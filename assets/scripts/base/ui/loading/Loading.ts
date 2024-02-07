@@ -1,18 +1,20 @@
-import { Asset, Label, ProgressBar, TextAsset, Tween, _decorator, game, native, sys, tween } from 'cc';
-import { App } from '../../../mlib/App';
-import { EGameConfigType, GameSetting } from '../../../mlib/GameSetting';
-import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
-import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
-import { MLogger } from '../../../mlib/module/logger/MLogger';
-import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
-import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
-import { MCloudData } from '../../../mlib/sdk/MCloudData';
-import { MResponse } from '../../../mlib/sdk/MResponse';
-import { UIConstant } from '../../gen/UIConstant';
-import { GameConfig } from '../GameConfig';
-import { GameData } from '../GameData';
-import { GameGuide } from '../GameGuide';
-import { GameInit } from '../GameInit';
+import { Asset, Label, ProgressBar, TextAsset, Tween, _decorator, game, sys, tween } from 'cc';
+import { App } from '../../../../mlib/App';
+import { EGameConfigType, GameSetting } from '../../../../mlib/GameSetting';
+import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../../mlib/misc/HotUpdate';
+import { AssetMgr } from '../../../../mlib/module/asset/AssetMgr';
+import { MLogger } from '../../../../mlib/module/logger/MLogger';
+import { HttpRequest } from '../../../../mlib/module/network/HttpRequest';
+import { UIComponent } from '../../../../mlib/module/ui/manager/UIComponent';
+import { MCloudData } from '../../../../mlib/sdk/MCloudData';
+import { MResponse } from '../../../../mlib/sdk/MResponse';
+import { UIConstant } from '../../../gen/UIConstant';
+import { GameConfig } from '../../GameConfig';
+import { GameData } from '../../GameData';
+import { GameGuide } from '../../GameGuide';
+import { GameInit } from '../../GameInit';
+import GameTable from '../../GameTable';
+import { ILanguage, LoadingText } from './LoadingText';
 const { ccclass, property } = _decorator;
 
 
@@ -36,7 +38,7 @@ export class Loading extends UIComponent {
     }
 
     async start() {
-        await GameInit.initBeforeLoadRes();
+        await GameInit.initBeforeLoadConfig();
         this.loadCfg(true);
         //版本号
         this._lblVersion.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
@@ -48,7 +50,7 @@ export class Loading extends UIComponent {
 
     /** 加载游戏配置 */
     async loadCfg(first = false) {
-        first && this.setTips(LoadingLanguage.Config);
+        first && this.setTips(LoadingText.Config);
 
         if (GameSetting.Inst.gameConfigType == EGameConfigType.Local) {//使用本地配置
             let textAsset = await AssetMgr.loadAsset("GameConfig", TextAsset);
@@ -62,7 +64,7 @@ export class Loading extends UIComponent {
                 this.checkVersion();
             } else {
                 MLogger.error(`加载配置失败 Url=${GameSetting.Inst.gameConfigUrl}`);
-                App.tipMsg.showToast(this.getText(LoadingLanguage.ConfigFail));
+                App.tipMsg.showToast(this.getText(LoadingText.ConfigFail));
                 this.loadCfg();
             }
         }
@@ -70,7 +72,6 @@ export class Loading extends UIComponent {
 
     /** 版本更新检测 */
     async checkVersion() {
-
         if (GameSetting.Inst.hotupdate && GameConfig.rg && sys.isNative) {
             let manifest = await AssetMgr.loadAsset("project", Asset);
             if (manifest) {
@@ -133,10 +134,16 @@ export class Loading extends UIComponent {
     /** 加载游戏资源 */
     async loadRes() {
         //加载游戏数据
-        this.setTips(LoadingLanguage.LoadGameRes);
+        this.setTips(LoadingText.LoadGameRes, 2);
+
+        //加载资源包
+        await AssetMgr.loadAllBundle(null, this.onProgress.bind(this));
+
+        //加载数据表
+        await GameTable.Inst.initData();
 
         //加载场景
-        this.setTips(LoadingLanguage.LoadScene, 2);
+        this.setTips(LoadingText.LoadScene, 2);
 
         this.onProgress(1, 1);
 
@@ -198,13 +205,13 @@ export class Loading extends UIComponent {
     onUpdateStateChange(code: EHotUpdateState) {
         switch (code) {
             case EHotUpdateState.CheckUpdate:
-                this.setTips(LoadingLanguage.CheckUpdate, 0.15);
+                this.setTips(LoadingText.CheckUpdate, 0.15);
                 break;
             case EHotUpdateState.DownloadFiles:
-                this.setTips(LoadingLanguage.DownloadUpdate);
+                this.setTips(LoadingText.DownloadUpdate);
                 break;
             case EHotUpdateState.Finished:
-                this.setTips(LoadingLanguage.UpdateFinished);
+                this.setTips(LoadingText.UpdateFinished);
                 break;
 
         }
@@ -236,30 +243,11 @@ export class Loading extends UIComponent {
     }
 
 
-    /** 从LoadingLanguage获取多语言文本 */
+    /** 从LoadingText获取多语言文本 */
     getText(obj: ILanguage) {
         if (!obj) return "";
         return obj[App.l10n.lang];
     }
 
 
-}
-
-interface ILanguage {
-    sc: string;
-    tc: string;
-    en: string;
-}
-
-/** Loading界面的文本多语言配置 */
-const LoadingLanguage: { [key: string]: ILanguage } = {
-    Config: { sc: "加载配置中", tc: "加載配置中", en: "Loading Config" },
-    ConfigFail: { sc: "加载配置失败,请检查网络", tc: "加載配置失敗,請檢查網絡", en: "Loading configuration failed, please check the network" },
-    CheckUpdate: { sc: "检查更新中", tc: "加載配置中", en: "Loading Config" },
-    DownloadUpdate: { sc: "下载更新中", tc: "加載配置中", en: "Loading Config" },
-    UpdateFinished: { sc: "更新完成", tc: "加載配置中", en: "Loading Config" },
-    Login: { sc: "登录中", tc: "登錄中", en: "Login" },
-    SyncGameData: { sc: "数据同步中", tc: "數據同步中", en: "Sync PlayerData" },
-    LoadGameRes: { sc: "加载游戏资源", tc: "加載遊戲資源", en: "Loading GameData" },
-    LoadScene: { sc: "加载场景", tc: "加載場景", en: "Loading Scene" },
 }

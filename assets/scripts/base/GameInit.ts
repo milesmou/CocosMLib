@@ -11,12 +11,8 @@ import { ShopUtil } from "./iap/ShopUtil";
 /** 初始化游戏内容 */
 export class GameInit {
 
-    /** 加载资源前的初始化 */
-    public static async initBeforeLoadRes() {
-        //加载资源包
-        await AssetMgr.loadAllBundle();
-        //加载数据表
-        await GameTable.Inst.initData();
+    /** 加载配置前的初始化 */
+    public static async initBeforeLoadConfig() {
         //加载提示信息预制件
         await UIMgr.Inst.showResident(UIConstant.UITipMsg);
     }

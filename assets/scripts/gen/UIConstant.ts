@@ -1,7 +1,6 @@
 export const UIConstant = {
     "UIGuide": "uiPrefab/base/UIGuide",
     "UIHUD": "uiPrefab/base/UIHUD",
-    "UITipMsg": "uiPrefab/base/UITipMsg",
     "UIAudioMgr": "uiPrefab/UIAudioMgr",
     "UIExtend": "uiPrefab/UIExtend",
     "UIGuideTest1": "uiPrefab/UIGuideTest1",
@@ -13,4 +12,5 @@ export const UIConstant = {
     "UIUIMgr": "uiPrefab/uiMgrTest/UIUIMgr",
     "UIScrollviewEnhance": "uiPrefab/UIScrollviewEnhance",
     "UITestLocalization": "uiPrefab/UITestLocalization",
+    "UITipMsg": "uiPrefab/UITipMsg",
 }

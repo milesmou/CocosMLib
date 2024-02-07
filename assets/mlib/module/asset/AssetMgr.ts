@@ -1,4 +1,4 @@
-import { Asset, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys } from "cc";
+import { Asset, AssetManager, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys } from "cc";
 import { BundleConstant } from "../../../scripts/gen/BundleConstant";
 import { MLogger } from "../logger/MLogger";
 import { AssetCache } from "./AssetCache";
@@ -92,8 +92,6 @@ export class AssetMgr {
         })
         return p;
     }
-
-
 
     static async loadRemoteSpriteFrame(url: string) {
         let casset = this.cache.get(url);
