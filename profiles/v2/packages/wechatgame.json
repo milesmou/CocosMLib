@@ -14,7 +14,7 @@
         "buildOpenDataContextTemplate": "",
         "separateEngine": false,
         "highPerformanceMode": false,
-        "enabelWebGL2": "off",
+        "enabelWebGL2": "sameAsProjectSetting",
         "wasm": "js",
         "__version__": "1.0.4"
       }
@@ -27,6 +27,16 @@
         "separateEngine": false,
         "highPerformanceMode": false,
         "enabelWebGL2": "off",
+        "wasm": "js",
+        "__version__": "1.0.4"
+      },
+      "1708323403203": {
+        "orientation": "portrait",
+        "appid": "wx6ac3f5090a6b99c5",
+        "buildOpenDataContextTemplate": "",
+        "separateEngine": false,
+        "highPerformanceMode": false,
+        "enabelWebGL2": "sameAsProjectSetting",
         "wasm": "js",
         "__version__": "1.0.4"
       }
