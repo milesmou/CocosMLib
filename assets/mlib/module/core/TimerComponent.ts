@@ -1,12 +1,23 @@
-import { _decorator, Animation, AnimationManager, AnimationState, Component, director, Scheduler, sp } from "cc";
+import { _decorator, Animation, AnimationManager, AnimationState, Component, director, macro, sp } from "cc";
 
 const { ccclass, property } = _decorator;
+
+interface ScheduleValue {
+    callback: (dt: number) => void;
+    thisObj: object;
+    interval: number;
+    delay: number;
+    repeat: number;
+    totalDt: number;
+}
 
 @ccclass
 export class TimerComponent extends Component {
     private _timeScale: number = 1;
     private _pause: boolean = false;
-    private _scheduler: Scheduler;
+
+    private _schedules: Set<ScheduleValue> = new Set();
+
     private _animationManager: AnimationManager;
     private _animations: Set<Animation> = new Set();
     private _skeletons: Set<sp.Skeleton> = new Set();
@@ -14,13 +25,11 @@ export class TimerComponent extends Component {
     private _manualUpdateName = "manualUpdate";
 
     protected onLoad(): void {
-        this._scheduler = new Scheduler();
         this._animationManager = new AnimationManager();
     }
 
     public setTimeScale(timeScale: number) {
         this._timeScale = timeScale;
-        if (this._scheduler) this._scheduler.setTimeScale(timeScale);
     }
 
     public getTimeScale() {
@@ -96,27 +105,46 @@ export class TimerComponent extends Component {
         obj[this._updateName] = manualUpdate;
     }
 
-    public schedule(callback: (dt?: number) => void, interval?: number, repeat?: number, delay?: number, target?: object): void {
-        if (this._scheduler) this._scheduler.schedule(callback, target, interval, repeat, delay);
+    public scheduleM(callback: (dt: number) => void, thisObj: object, interval = 0, repeat = macro.REPEAT_FOREVER, execImmediate = true) {
+        let value: ScheduleValue = { callback: callback, thisObj: thisObj, interval: interval, repeat: repeat, delay: execImmediate ? 0 : interval, totalDt: 0 };
+        this._schedules.add(value);
     }
 
-    public scheduleOnce(callback: (dt?: number) => void, delay?: number, target?: object): void {
-        if (this._scheduler) this._scheduler.schedule(callback, target, delay);
+    public scheduleOnceM(callback: () => void, thisObj: object, delay?: number) {
+        this.scheduleM(callback, thisObj, delay, 1, false);
     }
 
-    public unschedule(callback: (dt?: number) => void, target?: object): void {
-        if (this._scheduler) this._scheduler.unschedule(callback, target);
+    public unScheduleM(callback: (dt: number) => void, thisObj: object) {
+        let iter = this._schedules.values();
+        for (let i = iter.next(); !i.done; i = iter.next()) {
+            const v = i.value as ScheduleValue;
+            if (v.callback == callback && v.thisObj == thisObj) {
+                this._schedules.delete(v);
+                break;
+            }
+        }
     }
 
-    public unscheduleAllCallbacks() {
-        if (this._scheduler) this._scheduler.unscheduleAll();
-    }
-
-    protected update(dt: number): void {
+    public update(dt: number): void {
         if (this._pause) return;
-        if (this._scheduler) {
-            this._scheduler.update(dt);
+        this._schedules.forEach(v => {
+            let realDt = dt * this._timeScale;
+            v.delay -= realDt;
+            v.totalDt += realDt;
+            if (v.delay <= 0) {
+                v.callback.call(v.thisObj, v.totalDt);
+                v.delay = v.interval;
+                v.repeat -= 1;
+                v.totalDt = 0;
+                if (v.repeat < 0) this._schedules.delete(v);
+            }
+        });
+
+        if (this._animationManager) {
             this._animationManager.update(dt * this._timeScale);
+        }
+
+        if (this._skeletons.size > 0) {
             this._skeletons.forEach(v => {
                 if (v?.isValid) {
                     let func: Function = v[this._manualUpdateName];
