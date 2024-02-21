@@ -1,4 +1,4 @@
-import { _decorator, Asset, Component, ImageAsset, Sprite, SpriteFrame } from "cc";
+import { _decorator, Asset, Component, ImageAsset, Sprite, SpriteFrame, Texture2D } from "cc";
 import { AssetMgr } from "./AssetMgr";
 
 const { ccclass, property } = _decorator;
@@ -15,7 +15,15 @@ export class AssetComponent extends Component {
 
     private decRefCount() {
         this._cache.forEach((v, k) => {
-            if (v?.isValid) AssetMgr.DecRef(k, 1);
+            if (v?.isValid) {
+                if (v instanceof SpriteFrame) {
+                    AssetMgr.DecRef(k + "/spriteFrame", 1);
+                } else if (v instanceof Texture2D) {
+                    AssetMgr.DecRef(k + "/texture", 1);
+                } else {
+                    AssetMgr.DecRef(k, 1);
+                }
+            }
         });
     }
 
