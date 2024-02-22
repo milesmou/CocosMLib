@@ -1,8 +1,0 @@
-{
-    "build-template": true,
-    "hotupdate": {
-        "url": "https://zqygame.oss-cn-chengdu.aliyuncs.com/res/zhiqu/OutTest/Channel/Dev/1.0.0/ResPkg",
-        "version": "1.0.0",
-        "src": "D:/Workspace/CocosMLib/build/android"
-    }
-}

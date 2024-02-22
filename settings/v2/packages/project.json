@@ -13,16 +13,8 @@
       "fitHeight": false
     }
   },
-  "layer": [
-    {
-      "name": "default",
-      "value": 1
-    }
-  ],
-  "fbx": {
-    "legacyFbxImporter": {
-      "visible": true
-    }
-  },
-  "custom_joint_texture_layouts": []
+  "custom_joint_texture_layouts": [],
+  "physics": {
+    "autoSimulation": false
+  }
 }
