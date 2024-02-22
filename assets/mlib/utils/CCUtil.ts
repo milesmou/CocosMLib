@@ -1,4 +1,4 @@
-import { Button, Camera, Component, EventHandler, Layers, Node, Prefab, Scene, ScrollView, Toggle, UITransform, Vec3, Widget, instantiate, misc, sp, v2 } from "cc";
+import { Button, Camera, Component, EventHandler, Layers, Node, Prefab, Scene, ScrollView, Toggle, ToggleContainer, UITransform, Vec3, Widget, instantiate, misc, sp, v2 } from "cc";
 import { Utils } from "./Utils";
 
 export class CCUtils {
@@ -124,14 +124,14 @@ export class CCUtils {
     }
 
 
-    public static addEventToComp(comp: Button | Toggle | ScrollView, target: Node, component: string, handler: string) {
+    public static addEventToComp(comp: Button | Toggle | ToggleContainer | ScrollView, target: Node, component: string, handler: string) {
         let evtHandler = new EventHandler();
         evtHandler.target = target;
         evtHandler.component = component;
         evtHandler.handler = handler;
         if (comp instanceof Button) {
             (comp as Button).clickEvents.push(evtHandler);
-        } else if (comp instanceof Toggle) {
+        } else if (comp instanceof Toggle || comp instanceof ToggleContainer) {
             (comp as Toggle).checkEvents.push(evtHandler);
         } else {
             (comp as ScrollView).scrollEvents.push(evtHandler);
