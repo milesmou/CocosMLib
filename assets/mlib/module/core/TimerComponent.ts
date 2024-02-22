@@ -125,6 +125,15 @@ export class TimerComponent extends Component {
         }
     }
 
+    public dealy(delay?: number) {
+        let p = new Promise<void>((resolve, reject) => {
+            this.scheduleOnceM(() => {
+                resolve();
+            }, this, delay || 0);
+        });
+        return p;
+    }
+
     public update(dt: number): void {
         if (this._pause) return;
         this._schedules.forEach(v => {
