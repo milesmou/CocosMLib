@@ -9,5 +9,8 @@
         "lib": [
             "ES2017",
         ]
-    }
+    },
+    "exclude": [
+        "extensions"
+    ]
 }
