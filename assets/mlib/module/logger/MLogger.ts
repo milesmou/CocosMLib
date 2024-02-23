@@ -13,7 +13,7 @@ export class MLogger {
         this.error = level > ELoggerLevel.Error ? this.none : console.error.bind(console, `[${this.globalTag} Error]`);
         this.print = console.log.bind(console, `[${this.globalTag} Print]`);
         this.trace = console.trace ? console.trace.bind(console, `[${this.globalTag} Trace]`) :
-            console.log.bind(console, `[${this.globalTag} NoTrace]`);
+            console.log.bind(console, `[${this.globalTag} Not Support Trace]`);
     }
 
     public static info: (...data) => void;
