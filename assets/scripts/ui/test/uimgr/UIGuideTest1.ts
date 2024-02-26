@@ -2,8 +2,8 @@
 import { _decorator } from 'cc';
 import { App } from '../../../../mlib/App';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
+import { UIGuide } from '../../../base/guide/UIGuide';
 import { UIConstant } from '../../../gen/UIConstant';
-import { UIGuide } from '../../../base/ui/guide/UIGuide';
 
 
 const { ccclass, property } = _decorator;

@@ -1,5 +1,5 @@
-import { _decorator, Node, Label, Component } from "cc";
-import { App } from "../../../../mlib/App";
+import { Component, Label, Node, _decorator } from "cc";
+import { App } from "../../../mlib/App";
 
 const { ccclass, property } = _decorator;
 

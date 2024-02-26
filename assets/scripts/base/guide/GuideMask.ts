@@ -1,6 +1,6 @@
 import { Button, Component, EventTouch, Node, Rect, Sprite, Toggle, UITransform, _decorator, v2, v3 } from "cc";
-import { MEvent } from "../../../../mlib/module/event/MEvent";
-import { MLogger } from "../../../../mlib/module/logger/MLogger";
+import { MEvent } from "../../../mlib/module/event/MEvent";
+import { MLogger } from "../../../mlib/module/logger/MLogger";
 import { HollowOut } from "./HollowOut";
 
 

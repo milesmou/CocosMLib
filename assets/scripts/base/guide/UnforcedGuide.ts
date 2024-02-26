@@ -1,10 +1,8 @@
 import { Component, Node, _decorator, misc, v3 } from "cc";
-import { App } from "../../../../mlib/App";
-import { UIBase } from "../../../../mlib/module/ui/manager/UIBase";
-import { EventKey } from "../../../base/GameEnum";
-import GameTable from "../../../base/GameTable";
-import { UIConstant } from "../../../gen/UIConstant";
-import { CCUtils } from "../../../../mlib/utils/CCUtil";
+import { UIBase } from "../../../mlib/module/ui/manager/UIBase";
+import { CCUtils } from "../../../mlib/utils/CCUtil";
+import { EventKey } from "../GameEnum";
+import { App } from "../../../mlib/App";
 // import { TUnforcedGuide } from "../../../gen/table/Types";
 
 type TUnforcedGuide = any;
@@ -32,7 +30,7 @@ export default class UnforcedGuide extends Component {
     }
 
     private showFinger(ui: UIBase, data: TUnforcedGuide) {
-        let node = CCUtils.getNodeAtPath(ui.node, this._guideMap.get(ui._uiName).NodePath);
+        let node = CCUtils.getNodeAtPath(ui.node, this._guideMap.get(ui.uiName).NodePath);
         var pos = CCUtils.uiNodePosToUINodePos(node.parent, this.node, node.position);
         let dir = misc.clampf(data.FingerDir, 1, 4);
         this.finger.active = true;
@@ -59,7 +57,7 @@ export default class UnforcedGuide extends Component {
 
     private onUIHideBegin(ui: UIBase) {
         if (!this._nowGuideId) return;
-        if (this._guideMap.has(ui._uiName)) {
+        if (this._guideMap.has(ui.uiName)) {
             this.hide();
         }
     }
@@ -86,9 +84,9 @@ export default class UnforcedGuide extends Component {
 
     private onUIShow(ui: UIBase) {
         if (!this._nowGuideId) return;
-        if (!App.ui.isTopUI(ui._uiName)) return;
-        if (this._guideMap.has(ui._uiName)) {
-            this.showFinger(ui, this._guideMap.get(ui._uiName));
+        if (!App.ui.isTopUI(ui.uiName)) return;
+        if (this._guideMap.has(ui.uiName)) {
+            this.showFinger(ui, this._guideMap.get(ui.uiName));
         }
     }
 

@@ -1,5 +1,5 @@
 import { _decorator, Component, v2 } from 'cc';
-import { HollowOut } from './base/ui/guide/HollowOut';
+import { HollowOut } from './base/guide/HollowOut';
 const { ccclass, property } = _decorator;
 
 @ccclass('TestHollow')

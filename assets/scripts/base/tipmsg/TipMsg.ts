@@ -1,4 +1,4 @@
-import { L10nMgr } from "../../../../mlib/module/l10n/L10nMgr";
+import { L10nMgr } from "../../../mlib/module/l10n/L10nMgr";
 import { ConfirmArgs } from "./ConfirmArgs";
 import { UITipMsg } from "./UITipMsg";
 

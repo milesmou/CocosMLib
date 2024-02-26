@@ -1,7 +1,7 @@
 import { App } from "../../mlib/App";
 import { GameData } from "./GameData";
 import { EGuideType, EventKey } from "./GameEnum";
-import { UIGuide } from "./ui/guide/UIGuide";
+import { UIGuide } from "./guide/UIGuide";
 
 /**
 * 引导管理类

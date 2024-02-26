@@ -1,5 +1,5 @@
 import { Component } from "cc";
-import { MEvent } from "../../../../mlib/module/event/MEvent";
+import { MEvent } from "../../../mlib/module/event/MEvent";
 
 export class GuidePrefab extends Component {
 

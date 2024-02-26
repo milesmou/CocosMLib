@@ -3,7 +3,7 @@ const { ccclass, property } = _decorator;
 
 import { Publish } from '../scripts/base/publish/Publish';
 import SDKSetting from '../scripts/base/publish/SDKSetting';
-import { TipMsg } from '../scripts/base/ui/tipmsg/TipMsg';
+import { TipMsg } from '../scripts/base/tipmsg/TipMsg';
 import { GameSetting } from './GameSetting';
 import { AssetComponent } from './module/asset/AssetComponent';
 import { AudioComponent } from "./module/audio/AudioComponent";
