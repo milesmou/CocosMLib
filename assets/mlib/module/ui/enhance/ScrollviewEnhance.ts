@@ -33,7 +33,7 @@ export class ScrollviewEnhance extends Component {
         slide: true,
     })
     @integer
-    private m_dcOptimizeFrame = 1;
+    private m_dcOptimizeFrame = 2;
 
     private _scrollview: ScrollView;
     private _view: Node;
@@ -76,7 +76,7 @@ export class ScrollviewEnhance extends Component {
         if (!this.m_dcOptimize) return;
         this.onViewChanged();
         this.onContentChildChanged();
-        CCUtils.addEventToComp(this._scrollview, this.node, "ScrollviewHelper", "onScrolling");
+        CCUtils.addEventToComp(this._scrollview, this.node, "ScrollviewEnhance", "onScrolling");
     }
 
     private onViewChanged() {
@@ -107,7 +107,7 @@ export class ScrollviewEnhance extends Component {
     private updateItemsVisible() {
         if (!this._canUpdateItemVisible) return;
         this._canUpdateItemVisible = false;
-        
+
         this._itemVisible.clear();
         this._siblingIndexLeft = -1;
         this._siblingIndexRight = -1;
