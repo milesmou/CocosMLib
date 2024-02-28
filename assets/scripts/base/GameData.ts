@@ -16,7 +16,8 @@ export class GameData extends LocalStroage {
         this._inst = null;
     }
 
-    name = "GameData";
+    /** 存档名字 为避免浏览器存档冲突 最好不同游戏不同名字 */
+    public name = "GameData";
 
 }
 

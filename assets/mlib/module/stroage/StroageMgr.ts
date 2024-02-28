@@ -1,8 +1,8 @@
 import { sys, tween } from "cc";
 import { InventoryItemSO } from "../../misc/PlayerInventory";
 import { TaskItemSO } from "../../misc/PlayerTask";
-import { Utils } from "../../utils/Utils";
 import { LZString } from "../../third/lzstring/LZString";
+import { Utils } from "../../utils/Utils";
 import { MLogger } from "../logger/MLogger";
 
 
@@ -100,7 +100,7 @@ export abstract class LocalStroage {
         StroageMgr.setValue(this.name, strData);
     }
 
-    /** 从本地缓存读取存档 (替换存档不需要传参数)*/
+    /** 从本地缓存读取存档 */
     public static deserialize<T extends LocalStroage>(inst: T): T {
         return StroageMgr.deserialize(inst);
     }
@@ -111,10 +111,16 @@ export abstract class LocalStroage {
  */
 export class StroageMgr {
 
-    //用户自定义语言存档的Key
-    public static readonly UserLanguageCodeKey = "UserLanguageCodeKey";
     /** 字典或数组集合的元素的key的后缀 */
-    public static readonly CollectionItemSuffix = "$item";
+    private static readonly collectionItemSuffix = "$item";
+    // /** 为所有存档的Key添加前缀 避免不同游戏的存档数据冲突 */
+    // public static stroageKeyPrefix = "GameName";
+
+    /** 获取拼接了前缀的 */
+    public static getStroageKey(key: string) {
+        // return this.stroageKeyPrefix + "_" + key;
+        return key;
+    }
 
     /** 从本地缓存读取存档 */
     public static deserialize<T extends LocalStroage>(inst: T): T {
@@ -138,7 +144,7 @@ export class StroageMgr {
         let name = inst.name;
         let jsonStr = JSON.stringify(inst, function (key, value) {
             if (key.startsWith("__")) return;
-            if (key.endsWith(StroageMgr.CollectionItemSuffix)) return;
+            if (key.endsWith(StroageMgr.collectionItemSuffix)) return;
             return value;
         });
         this.setValue(name, jsonStr);
@@ -148,17 +154,17 @@ export class StroageMgr {
     private static mergeValue(target: object, source: object) {
         for (const key in target) {
             if (Reflect.has(source, key)) {
-                if (key.endsWith(this.CollectionItemSuffix)) continue;
+                if (key.endsWith(this.collectionItemSuffix)) continue;
                 if (Object.prototype.toString.call(target[key]) === "[object Object]" && Object.prototype.toString.call(source[key]) === "[object Object]") {//对象拷贝
                     if (JSON.stringify(target[key]) === "{}") {//使用空字典存储,完整赋值
                         target[key] = source[key];
-                        if (target[key + this.CollectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.CollectionItemSuffix]);
+                        if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
                     } else {//递归赋值
                         this.mergeValue(target[key], source[key]);
                     }
                 } else if (Object.prototype.toString.call(target[key]) === "[object Array]" && Object.prototype.toString.call(source[key]) === "[object Array]") {//数组{
                     target[key] = source[key];
-                    if (target[key + this.CollectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.CollectionItemSuffix]);
+                    if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
                 }
                 else {//直接完整赋值
                     target[key] = source[key];
@@ -191,10 +197,11 @@ export class StroageMgr {
 
     /**
      * 从本地存储中获取缓存的值
-     * @param stroageKey StroageKey键枚举
+     * @param stroageKey 键
      * @param defaultV 默认值
      */
     public static getValue<T>(stroageKey: string, defaultV: T): T {
+        stroageKey = this.getStroageKey(stroageKey);
         let value: any = sys.localStorage.getItem(stroageKey);
         if (!value) return defaultV;
         if (typeof defaultV === "number") {
@@ -224,6 +231,7 @@ export class StroageMgr {
      * 设置本地存储值
      */
     public static setValue(stroageKey: string, value: any) {
+        stroageKey = this.getStroageKey(stroageKey);
         if (typeof value === "object") {
             value = JSON.stringify(value);
         }

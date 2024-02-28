@@ -20,6 +20,8 @@ class CompManagedArgs {
 
 /** 多语言管理器 */
 export class L10nMgr {
+    
+    private static readonly userLanguageCodeKey = "UserLanguageCodeKey"
 
     private static m_lang: ELanguageCode;
     public static get lang() {
@@ -43,7 +45,7 @@ export class L10nMgr {
         let languageId = GameSetting.Inst.languageId;
         let v: ELanguageCode = ELanguageCode.ChineseSimplified;
         if (languageId == ELanguage.Auto) {
-            let code = StroageMgr.getValue(StroageMgr.UserLanguageCodeKey, "");
+            let code = StroageMgr.getValue(this.userLanguageCodeKey, "");
             if (code) {
                 v = code as ELanguageCode;
             }
@@ -66,7 +68,7 @@ export class L10nMgr {
     public static async switchLanguage(languageCode: ELanguageCode) {
         if (this.lang == languageCode) return;
         this.m_lang = languageCode;
-        StroageMgr.setValue(StroageMgr.UserLanguageCodeKey, this.lang);
+        StroageMgr.setValue(this.userLanguageCodeKey, this.lang);
         await this.loadFont();
         this.reload();
     }
