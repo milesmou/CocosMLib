@@ -86,33 +86,82 @@ export class Utils {
     }
 
     /**
-     * 将比较大的数字用K,M,B,T来显示
+     * 将比较大的数字格式化显示 英文后缀
      * @param fractionDigits 保留小数位数
      * @param canEndWithZero 是否需要用0填补小数位数 默认为false
      */
     static formatNum(value: number, fractionDigits: number, canEndWithZero = false) {
-        let prefix = value >= 0 ? "" : "-";
-        let v = "";
-        let suffix = "";
-        value = Math.abs(value);
-        if (value >= 0 && value < Math.pow(10, 3)) {
-            v = this.fixFloat(value, fractionDigits, canEndWithZero);
-        } else if (value >= Math.pow(10, 3) && value < Math.pow(10, 6)) {
-            v = this.fixFloat(value / Math.pow(10, 3), fractionDigits, canEndWithZero);
-            suffix = "K";
-        } else if (value >= Math.pow(10, 6) && value < Math.pow(10, 9)) {
-            v = this.fixFloat(value / Math.pow(10, 6), fractionDigits, canEndWithZero);
-            suffix = "M";
+         //每个单位间相差10的3次方倍
+         let arr = [
+            "", "K", "M", "B", "T"
+        ]
+
+        let result = "";
+
+
+        if (value == 0) {
+            return "0";
         }
-        else if (value >= Math.pow(10, 9) && value < Math.pow(10, 12)) {
-            v = this.fixFloat(value / Math.pow(10, 9), fractionDigits, canEndWithZero);
-            suffix = "B";
-        } else {
-            v = this.fixFloat(value / Math.pow(10, 12), fractionDigits, canEndWithZero);
-            suffix = "T";
+
+        if (value < 0) {
+            result += "-";
+            value = -value;
         }
-        return prefix + v + suffix;
+
+        let exponent = 3;
+
+        for (let i = 0; i < arr.length; i++) {
+            const v = arr[i];
+            if (value >= Math.pow(10, exponent * i)) {
+                if (value < Math.pow(10, exponent * (i + 1)) || i == arr.length - 1) {
+                    result += (Utils.fixFloat(value / Math.pow(10, exponent * i), fractionDigits, canEndWithZero) + v);
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
+
+    /**
+     * 将比较大的数字格式化显示 中文后缀
+     * @param fractionDigits 保留小数位数
+     * @param canEndWithZero 是否需要用0填补小数位数 默认为false
+     */
+    static formatNumCN(value: number, fractionDigits: number, canEndWithZero = false) {
+        //每个单位间相差10的4次方倍
+        let arr = [
+            "", "万", "亿", "万亿", "兆", "万兆", "京", "万京", "垓", "万垓", "秭", "万秭",
+            "壤", "万壤", "沟", "万沟", "涧", "万涧", "正", "万正", "载", "万载", "极", "万极"
+        ]
+
+        let result = "";
+
+
+        if (value == 0) {
+            return "0";
+        }
+
+        if (value < 0) {
+            result += "-";
+            value = -value;
+        }
+
+        let exponent = 4;
+
+        for (let i = 0; i < arr.length; i++) {
+            const v = arr[i];
+            if (value >= Math.pow(10, exponent * i)) {
+                if (value < Math.pow(10, exponent * (i + 1)) || i == arr.length - 1) {
+                    result += (Utils.fixFloat(value / Math.pow(10, exponent * i), fractionDigits, canEndWithZero) + v);
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
 
 
     static splitString(str: string, sep = ","): number[] {
