@@ -1,8 +1,8 @@
 import { Component, Label, Node, PageView, _decorator, misc } from 'cc';
 const { ccclass, property } = _decorator;
 
-@ccclass('PageViewHelper')
-export class PageViewHelper extends Component {
+@ccclass('PageViewEnhance')
+export class PageViewEnhance extends Component {
     @property({
         type: Node,
         visible: function () { return this.getComponent(PageView) }

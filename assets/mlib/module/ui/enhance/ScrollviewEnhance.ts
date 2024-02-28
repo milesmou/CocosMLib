@@ -18,9 +18,9 @@ let eventMap = {
     'scroll-began': 12,
 };
 
-@ccclass('ScrollviewHelper')
+@ccclass('ScrollviewEnhance')
 @requireComponent(ScrollView)
-export class ScrollviewHelper extends Component {
+export class ScrollviewEnhance extends Component {
     @property({
         displayName: "DC优化",
         tooltip: "滚动时检测Item节点是否在视图范围内，自动隐藏视图范围外Item节点"
