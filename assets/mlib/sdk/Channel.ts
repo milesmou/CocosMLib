@@ -1,5 +1,6 @@
 import { _decorator, sys } from 'cc';
 import { MLogger } from '../module/logger/MLogger';
+import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
 import { EIAPResult, ELoginResult, EReawrdedAdResult, GameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
@@ -8,11 +9,14 @@ const { ccclass } = _decorator;
 @ccclass("Channel")
 export class Channel {
 
-    /** 用户id */
-    public userId: string;
-
     /** 环境 开发版 体验版 正式版*/
     public env: 'develop' | 'trial' | 'release';
+
+    /** 用户id */
+    public userId = new StroageValue("userId", "");
+
+    /** 震动开关 */
+    public verbrate = new StroageValue("verbrate", true);
 
     /** 用户数据云存档保存Key */
     public userDataCloudSaveKey = "UserDataSaveKey";
@@ -34,13 +38,11 @@ export class Channel {
 
     /** 登录 */
     login(args: LoginArgs) {
-        let userId = sys.localStorage.getItem("userId");
-        if (!userId) {
-            userId = Utils.genUUID();
-            sys.localStorage.setItem("userId", userId);
+        if (!this.userId.value) {
+            this.userId.value = Utils.genUUID();
         }
         SDKCallback.login = args;
-        MSDKWrapper.onLogin(ELoginResult.Success + "|" + userId)
+        MSDKWrapper.onLogin(ELoginResult.Success + "|" + this.userId.value)
     }
 
     /** 获取玩家存档 */
