@@ -1,5 +1,5 @@
 import { tween } from "cc";
-import { LocalStroage } from "../module/stroage/StroageMgr";
+import { GameSave } from "../module/stroage/StroageMgr";
 import { MLogger } from "../module/logger/MLogger";
 
 /** 背包物品的基本信息 */
@@ -22,7 +22,7 @@ export class InventoryItemSO {
 }
 
 export class PlayerInventory {
-    private _localStroage: LocalStroage;
+    private _localStroage: GameSave;
 
     private _itemCache: { [key: string]: InventoryItemSO } = {};
 
@@ -31,7 +31,7 @@ export class PlayerInventory {
     private _mergeInventoryItem: boolean;
 
     /** 初始化玩家背包 */
-    protected init(localStroage: LocalStroage, onInventoryChange?: () => void, mergeInventoryItem = false) {
+    protected init(localStroage: GameSave, onInventoryChange?: () => void, mergeInventoryItem = false) {
         this._localStroage = localStroage;
         this._onInventoryChange = onInventoryChange;
         this._mergeInventoryItem = mergeInventoryItem;

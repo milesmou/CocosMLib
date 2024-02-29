@@ -1,12 +1,13 @@
-import { sys, tween } from "cc";
+import { tween } from "cc";
 import { InventoryItemSO } from "../../misc/PlayerInventory";
 import { TaskItemSO } from "../../misc/PlayerTask";
 import { LZString } from "../../third/lzstring/LZString";
 import { Utils } from "../../utils/Utils";
 import { MLogger } from "../logger/MLogger";
+import { LocalStorage } from "./LocalStorage";
 
-
-export abstract class LocalStroage {
+/** 游戏数据存档基类 */
+export abstract class GameSave {
 
     public abstract name: string;
     /** 存档描述(多存档时使用) */
@@ -55,7 +56,7 @@ export abstract class LocalStroage {
      * @param onNewUser 新用户回调
      * @param onDateChange 日期变化回调
      */
-    init(onInit: () => void, onNewUser: () => void, onDateChange: (lastDate: number, today: number) => void) {
+    public init(onInit: () => void, onNewUser: () => void, onDateChange: (lastDate: number, today: number) => void) {
         onInit && onInit();
         if (!this._createDate) {
             this._createDate = Utils.getDate();
@@ -71,12 +72,13 @@ export abstract class LocalStroage {
     }
 
     /** 立即存档 */
-    save() {
+    public save() {
         this.time = Date.now();
-        StroageMgr.serialize(this);
+        GameSave.serialize(this);
     }
+
     /** 延迟存档 */
-    delaySave() {
+    public delaySave() {
         if (!this._readySave) {
             this._readySave = true;
             tween({}).delay(0.01).call(() => {
@@ -86,48 +88,34 @@ export abstract class LocalStroage {
         }
     }
 
+    /** 从本地缓存读取存档 */
+    public deserialize<T extends GameSave>(inst: T): T {
+        return GameSave.deserialize(inst);
+    }
 
     /** 获取存档序列化后的字符串 compress默认true */
-    getSerializeStr(compress = true) {
+    public getSerializeStr(compress = true) {
         this.time = Date.now();
         let str = JSON.stringify(this);
         return compress ? LZString.compressToUTF16(str) : str;
     }
 
     /** 替换本地存档 */
-    replaceGameData(strData: string, isCompress = true) {
+    public replaceGameData(strData: string, isCompress = true) {
         if (strData && isCompress) strData = LZString.decompressFromUTF16(strData);
-        StroageMgr.setValue(this.name, strData);
+        LocalStorage.setValue(this.name, strData);
     }
 
-    /** 从本地缓存读取存档 */
-    public static deserialize<T extends LocalStroage>(inst: T): T {
-        return StroageMgr.deserialize(inst);
-    }
-}
-
-/**
- * 本地存储工具类 (以__开头的字段不会被存档)
- */
-export class StroageMgr {
 
     /** 字典或数组集合的元素的key的后缀 */
     private static readonly collectionItemSuffix = "$item";
-    // /** 为所有存档的Key添加前缀 避免不同游戏的存档数据冲突 */
-    // public static stroageKeyPrefix = "GameName";
-
-    /** 获取拼接了前缀的 */
-    public static getStroageKey(key: string) {
-        // return this.stroageKeyPrefix + "_" + key;
-        return key;
-    }
 
     /** 从本地缓存读取存档 */
-    public static deserialize<T extends LocalStroage>(inst: T): T {
+    public static deserialize<T extends GameSave>(inst: T): T {
         Reflect.defineProperty(inst, "name", { enumerable: false });
         Reflect.defineProperty(inst, "_readySave", { enumerable: false });
         let name = inst.name;
-        let jsonStr = this.getValue(name, "");
+        let jsonStr = LocalStorage.getValue(name, "");
         if (jsonStr) {
             try {
                 let obj = JSON.parse(jsonStr) || {};
@@ -140,14 +128,14 @@ export class StroageMgr {
     }
 
     /** 将数据写入到本地存档中 */
-    public static serialize<T extends LocalStroage>(inst: T) {
+    private static serialize<T extends GameSave>(inst: T) {
         let name = inst.name;
         let jsonStr = JSON.stringify(inst, function (key, value) {
             if (key.startsWith("__")) return;
-            if (key.endsWith(StroageMgr.collectionItemSuffix)) return;
+            if (key.endsWith(this.collectionItemSuffix)) return;
             return value;
         });
-        this.setValue(name, jsonStr);
+        LocalStorage.setValue(name, jsonStr);
     }
 
     /** 合并存档默认数据和本地数据 */
@@ -162,11 +150,10 @@ export class StroageMgr {
                     } else {//递归赋值
                         this.mergeValue(target[key], source[key]);
                     }
-                } else if (Object.prototype.toString.call(target[key]) === "[object Array]" && Object.prototype.toString.call(source[key]) === "[object Array]") {//数组{
+                } else if (Object.prototype.toString.call(target[key]) === "[object Array]" && Object.prototype.toString.call(source[key]) === "[object Array]") {//数组
                     target[key] = source[key];
                     if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
-                }
-                else {//直接完整赋值
+                } else {//直接完整赋值
                     target[key] = source[key];
                 }
             }
@@ -194,47 +181,5 @@ export class StroageMgr {
             }
         }
     }
-
-    /**
-     * 从本地存储中获取缓存的值
-     * @param stroageKey 键
-     * @param defaultV 默认值
-     */
-    public static getValue<T>(stroageKey: string, defaultV: T): T {
-        stroageKey = this.getStroageKey(stroageKey);
-        let value: any = sys.localStorage.getItem(stroageKey);
-        if (!value) return defaultV;
-        if (typeof defaultV === "number") {
-            let v = parseFloat(value);
-            if (isNaN(v)) {
-                MLogger.error(stroageKey, ": 转化为数字类型错误 ", value);
-                value = defaultV;
-            } else {
-                value = v;
-            }
-        } else if (typeof defaultV === "string") {
-            return value;
-        } else if (typeof defaultV === "boolean") {
-            return (value === "true") as any;
-        } else {
-            try {
-                value = JSON.parse(value);
-            } catch (err) {
-                MLogger.error(stroageKey, ": 转化对象类型错误 ", value);
-                value = defaultV;
-            }
-        }
-        return value;
-    }
-
-    /**
-     * 设置本地存储值
-     */
-    public static setValue(stroageKey: string, value: any) {
-        stroageKey = this.getStroageKey(stroageKey);
-        if (typeof value === "object") {
-            value = JSON.stringify(value);
-        }
-        sys.localStorage.setItem(stroageKey, String(value));
-    }
 }
+

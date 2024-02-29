@@ -5,7 +5,7 @@ import { Utils } from "../../utils/Utils";
 import { AssetComponent } from "../asset/AssetComponent";
 import { AssetMgr } from "../asset/AssetMgr";
 import { MLogger } from "../logger/MLogger";
-import { StroageMgr } from "../stroage/StroageMgr";
+import { StroageValue } from "../stroage/StroageValue";
 import { ELanguage, ELanguageCode } from "./ELanguage";
 import { IL10n } from "./IL10n";
 
@@ -20,8 +20,8 @@ class CompManagedArgs {
 
 /** 多语言管理器 */
 export class L10nMgr {
-    
-    private static readonly userLanguageCodeKey = "UserLanguageCodeKey"
+
+    private static languageCode = new StroageValue("UserLanguageCodeKey", "");;
 
     private static m_lang: ELanguageCode;
     public static get lang() {
@@ -45,7 +45,7 @@ export class L10nMgr {
         let languageId = GameSetting.Inst.languageId;
         let v: ELanguageCode = ELanguageCode.ChineseSimplified;
         if (languageId == ELanguage.Auto) {
-            let code = StroageMgr.getValue(this.userLanguageCodeKey, "");
+            let code = this.languageCode.value;
             if (code) {
                 v = code as ELanguageCode;
             }
@@ -68,7 +68,7 @@ export class L10nMgr {
     public static async switchLanguage(languageCode: ELanguageCode) {
         if (this.lang == languageCode) return;
         this.m_lang = languageCode;
-        StroageMgr.setValue(this.userLanguageCodeKey, this.lang);
+        this.languageCode.value = this.languageCode.value;
         await this.loadFont();
         this.reload();
     }

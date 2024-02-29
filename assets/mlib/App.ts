@@ -13,7 +13,7 @@ import { EventMgr } from "./module/event/EventMgr";
 import { L10nMgr } from './module/l10n/L10nMgr';
 import { MLogger } from './module/logger/MLogger';
 import { PoolMgr } from "./module/pool/PoolMgr";
-import { StroageMgr } from "./module/stroage/StroageMgr";
+import { LocalStorage } from './module/stroage/LocalStorage';
 import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 import { SingletonFactory } from './utils/SingletonFactory';
@@ -30,7 +30,7 @@ export class App extends Component {
     public static timer: TimerComponent;
     public static audio: AudioComponent;
     public static asset: AssetComponent;
-    public static stroage = StroageMgr;
+    public static stroage = LocalStorage;
     public static event = EventMgr;
     public static pool = PoolMgr;
     public static ui: UIMgr;

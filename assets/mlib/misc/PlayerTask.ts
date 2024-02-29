@@ -1,4 +1,4 @@
-import { LocalStroage } from "../module/stroage/StroageMgr";
+import { GameSave } from "../module/stroage/StroageMgr";
 
 /** 任务状态 */
 export enum TaskState {
@@ -36,11 +36,11 @@ export class TaskItemSO {
 }
 
 export class PlayerTask {
-    private _localStroage: LocalStroage;
+    private _localStroage: GameSave;
 
     private _onTaskChange: () => void;
 
-    protected Init(localStroage: LocalStroage, onTaskChange) {
+    protected Init(localStroage: GameSave, onTaskChange) {
         this._localStroage = localStroage;
         this._onTaskChange = onTaskChange;
     }
