@@ -89,10 +89,10 @@ export class UIMgr extends Component {
         AssetMgr.loadAsset("DefaultSprite", SpriteFrame).then(sp => {
             this._defaultSprite = sp;
         });
-        //加载Loading界面
-        // AssetMgr.loadAsset(UIConstant.Loading, Prefab).then(prefab => {
-        //     instantiate(prefab).parent = this._higher;
-        // });
+        // 加载Loading界面
+        AssetMgr.loadAsset(UIConstant.Loading, Prefab).then(prefab => {
+            instantiate(prefab).parent = this._higher;
+        });
     }
 
     public async show<T extends UIForm>(uiName: string, obj: { args?: any, blockTime?: number, parent?: Node, playAnim?: boolean, visible?: boolean } = {}): Promise<T> {
@@ -337,6 +337,6 @@ export class UIMgr extends Component {
 
     update(dt: number) {
         if (this._blockTime > 0) this._blockTime -= dt;
-        // this._blockInput.active = this._blockTime > 0;
+        this._blockInput.active = this._blockTime > 0;
     }
 }

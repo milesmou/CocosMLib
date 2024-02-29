@@ -1,6 +1,6 @@
 import { AudioClip, AudioSource, Component, Tween, _decorator, misc, tween } from 'cc';
 import { AssetMgr } from '../asset/AssetMgr';
-import { StroageMgr } from '../stroage/StroageMgr';
+import { StroageValue } from '../stroage/StroageValue';
 import { AudioState } from './AudioState';
 import { SortedMap } from './SortedMap';
 
@@ -14,11 +14,9 @@ export class AudioComponent extends Component {
     private get sEffectVolume() { return "EffectVolume_" + this.node.name; };
 
     /** 音乐音量 */
-    private _mVolume: number = 1;
-    public get mVolume() { return this._mVolume; }
+    public mVolume: StroageValue<number>;
     /** 音效音量 */
-    private _eVolume: number = 1;
-    public get eVolume() { return this._eVolume; }
+    public eVolume: StroageValue<number>;
     /** 当前音乐是否暂停 */
     private _pause = false;
     public get pause() { return this._pause; }
@@ -33,10 +31,10 @@ export class AudioComponent extends Component {
     private loopEffect: AudioState[] = [];
 
     onLoad() {
-        this._mVolume = StroageMgr.getValue(this.sMusicVolume, 1);
-        this._eVolume = StroageMgr.getValue(this.sEffectVolume, 1);
+        this.mVolume = new StroageValue("MusicVolume_" + this.node.name, 1);
+        this.eVolume = new StroageValue("EffectVolume_" + this.node.name, 1);
         this.effectOneShot = this.addComponent(AudioSource);
-        this.effectOneShot.volume = this._eVolume;
+        this.effectOneShot.volume = this.eVolume.value;
     }
 
     private musicGet(priority: number, audioName: string) {
@@ -55,7 +53,7 @@ export class AudioComponent extends Component {
     /** 播放背景音乐 */
     async playMusic(location: string, priority = 0, volumeScale = 1, args: { fadeIn?: number, fadeOut?: number, onLoaded?: (clip: AudioClip) => void } = {}) {
         priority = Math.max(0, priority);
-        let { fadeIn, fadeOut,  onLoaded } = args;
+        let { fadeIn, fadeOut, onLoaded } = args;
         fadeIn = fadeIn === undefined ? 0 : fadeIn;
         fadeOut = fadeOut === undefined ? 0 : fadeOut;
 
@@ -88,7 +86,7 @@ export class AudioComponent extends Component {
             }
             onLoaded && onLoaded(clip);
             audioState.audio.clip = clip;
-            audioState.audio.volume = this._mVolume * volumeScale;
+            audioState.audio.volume = this.mVolume.value * volumeScale;
             audioState.audio.loop = true;
             if (!this.stack.isTop(priority, location)) {//不是优先级最高的音乐暂停播放 
                 return;
@@ -119,7 +117,7 @@ export class AudioComponent extends Component {
             let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
             this.loopEffect.push(audioState);
             audioState.audio.clip = clip;
-            audioState.audio.volume = this._eVolume * volumeScale;
+            audioState.audio.volume = this.eVolume.value * volumeScale;
             audioState.audio.loop = true;
             audioState.audio.play();
             onStart && onStart(clip);
@@ -236,8 +234,7 @@ export class AudioComponent extends Component {
             }
         }
 
-        this._mVolume = volume;
-        StroageMgr.setValue(this.sMusicVolume, this._mVolume);
+        this.mVolume.value = volume;
     }
 
     /** 设置音效音量 */
@@ -247,8 +244,7 @@ export class AudioComponent extends Component {
             if (v.audio) v.audio.volume = v.volumeScale * volume;
         });
         this.effectOneShot.volume = volume;
-        this._eVolume = volume;
-        StroageMgr.setValue(this.sEffectVolume, this._eVolume);
+        this.eVolume.value = volume;
     }
 
     private fadeInMusic(dur: number, audioState: AudioState) {
@@ -256,7 +252,7 @@ export class AudioComponent extends Component {
         if (dur > 0) {
             audioState.audio.volume = 0;
             audioState.audio.play();
-            tween(audioState.audio).to(dur, { volume: audioState.volumeScale * this._mVolume }).start();
+            tween(audioState.audio).to(dur, { volume: audioState.volumeScale * this.mVolume.value }).start();
         }
         else {
             audioState.audio.play();
