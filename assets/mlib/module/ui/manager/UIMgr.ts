@@ -3,6 +3,7 @@ import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, _decora
 const { ccclass, property } = _decorator;
 
 import { EventKey } from '../../../../scripts/base/GameEnum';
+import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { Utils } from '../../../utils/Utils';
 import { AssetMgr } from '../../asset/AssetMgr';
@@ -11,7 +12,6 @@ import { MLogger } from '../../logger/MLogger';
 import { EUIFormPassiveType } from './EUIFormPassiveType';
 import { UIComponent } from './UIComponent';
 import { UIForm } from './UIForm';
-import { UIConstant } from '../../../../scripts/gen/UIConstant';
 
 @ccclass
 export class UIMgr extends Component {
@@ -84,14 +84,15 @@ export class UIMgr extends Component {
         this._blockInput.addComponent(BlockInputEvents);
         this._blockInput.parent = this.node;
         CCUtils.uiNodeMatchParent(this._blockInput);
-        //加载默认的单色精灵帧
+        this._blockInput.active = false;
+        // 加载默认的单色精灵帧
         AssetMgr.loadAsset("DefaultSprite", SpriteFrame).then(sp => {
             this._defaultSprite = sp;
         });
         //加载Loading界面
-        AssetMgr.loadAsset(UIConstant.Loading, Prefab).then(prefab => {
-            instantiate(prefab).parent = this._higher;
-        });
+        // AssetMgr.loadAsset(UIConstant.Loading, Prefab).then(prefab => {
+        //     instantiate(prefab).parent = this._higher;
+        // });
     }
 
     public async show<T extends UIForm>(uiName: string, obj: { args?: any, blockTime?: number, parent?: Node, playAnim?: boolean, visible?: boolean } = {}): Promise<T> {
@@ -336,6 +337,6 @@ export class UIMgr extends Component {
 
     update(dt: number) {
         if (this._blockTime > 0) this._blockTime -= dt;
-        this._blockInput.active = this._blockTime > 0;
+        // this._blockInput.active = this._blockTime > 0;
     }
 }

@@ -14,7 +14,7 @@ export class UIComponent extends MComponent {
         this.getComponentsInChildren(Button).forEach(v => {
             let root = CCUtils.getComponentInParent(v.node, UIComponent, true);
             if (root != this) return;//忽略其它UI组件所在节点下的按钮
-            v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name))
+            v.node.on(Button.EventType.CLICK, this.onClickButton.bind(this, v.node.name, v));
         });
     }
 
@@ -28,7 +28,7 @@ export class UIComponent extends MComponent {
         this.sendMessageUpwards("UIComponent", methodName, ...args);
     }
 
-    protected onClickButton(btnName: string) {
+    protected onClickButton(btnName: string, btn: Button) {
 
     }
 }
