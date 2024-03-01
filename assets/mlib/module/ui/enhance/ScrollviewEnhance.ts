@@ -27,6 +27,12 @@ export class ScrollviewEnhance extends Component {
     })
     private m_dcOptimize = true;
     @property({
+        type: Node,
+        displayName: "Content",
+        tooltip: "需要优化DC元素的父节点，默认使用ScrollView的content"
+    })
+    private m_content: Node;
+    @property({
         displayName: "检测频率",
         tooltip: "滚动时，多少帧进行一次优化DC的检测",
         range: [1, 5],
@@ -37,7 +43,6 @@ export class ScrollviewEnhance extends Component {
 
     private _scrollview: ScrollView;
     private _view: Node;
-    private _content: Node;
     private _viewRect: Rect;
 
     private _scrollingFrameCnt = 0;
@@ -57,22 +62,22 @@ export class ScrollviewEnhance extends Component {
     protected onEnable(): void {
         this._view.on(Node.EventType.SIZE_CHANGED, this.onViewChanged, this);
         this._view.on(Node.EventType.TRANSFORM_CHANGED, this.onViewChanged, this);
-        this._content.on(Node.EventType.CHILD_ADDED, this.onContentChildChanged, this);
-        this._content.on(Node.EventType.CHILD_REMOVED, this.onContentChildChanged, this);
+        this.m_content.on(Node.EventType.CHILD_ADDED, this.onContentChildChanged, this);
+        this.m_content.on(Node.EventType.CHILD_REMOVED, this.onContentChildChanged, this);
     }
 
     protected onDisable(): void {
         this._view.off(Node.EventType.SIZE_CHANGED, this.onViewChanged, this);
         this._view.off(Node.EventType.TRANSFORM_CHANGED, this.onViewChanged, this);
-        this._content.off(Node.EventType.CHILD_ADDED, this.onContentChildChanged, this);
-        this._content.off(Node.EventType.CHILD_REMOVED, this.onContentChildChanged, this);
+        this.m_content.off(Node.EventType.CHILD_ADDED, this.onContentChildChanged, this);
+        this.m_content.off(Node.EventType.CHILD_REMOVED, this.onContentChildChanged, this);
     }
 
     private init() {
         this._scrollview = this.getComponent(ScrollView);
         if (!this._scrollview) return;
         this._view = this.getComponentInChildren(Mask).node;
-        this._content = this._scrollview.content;
+        this.m_content = this.m_content || this._scrollview.content;
         if (!this.m_dcOptimize) return;
         this.onViewChanged();
         this.onContentChildChanged();
@@ -115,7 +120,7 @@ export class ScrollviewEnhance extends Component {
         let maxOffset = this._scrollview.getMaxScrollOffset();
         let offset = this._scrollview.getScrollOffset();
         if (maxOffset.x > 0 && offset.x < maxOffset.x / 2 || maxOffset.y > 0 && offset.y < maxOffset.y / 2) {//顺序
-            for (let i = 0, len = this._content.children.length; i < len; i++) {
+            for (let i = 0, len = this.m_content.children.length; i < len; i++) {
                 this.setItemVisible(i);
                 if (i > 0 && this._siblingIndexRight < 0) {
                     if (!this._itemVisible.get(i) && this._itemVisible.get(i - 1)) {
@@ -124,9 +129,9 @@ export class ScrollviewEnhance extends Component {
                 }
             }
         } else {//倒序
-            for (let i = this._content.children.length - 1; i >= 0; i--) {
+            for (let i = this.m_content.children.length - 1; i >= 0; i--) {
                 this.setItemVisible(i);
-                if (i < this._content.children.length - 1 && this._siblingIndexLeft < 0) {
+                if (i < this.m_content.children.length - 1 && this._siblingIndexLeft < 0) {
                     if (!this._itemVisible.get(i) && this._itemVisible.get(i + 1)) {
                         this._siblingIndexLeft = i;
                     }
@@ -136,7 +141,7 @@ export class ScrollviewEnhance extends Component {
     }
 
     private setItemVisible(index: number) {
-        const item = this._content.children[index];
+        const item = this.m_content.children[index];
         let uiOpacity = item.getComponent(UIOpacity);
         if (!uiOpacity) uiOpacity = item.addComponent(UIOpacity);
 
