@@ -5,8 +5,8 @@ import { GameSetting } from "../GameSetting";
 
 export class MCloudDataSDK {
 
-    private static readonly EventHost = "https://zeroplay.cn/gevent/reportevt";
-    private static readonly DataHost = "https://zeroplay.cn/gdata/gamedata";
+    private static readonly EventHost = "https://**/gevent/reportevt";
+    private static readonly DataHost = "https://**/gdata/gamedata";
 
     /** 上传存档数据 */
     public static async saveGameData(uid: string, key: string, data: string, commit = "") {
