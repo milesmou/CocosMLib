@@ -2,9 +2,10 @@ import { EventHandler, EventTouch, Node, Toggle, _decorator } from 'cc';
 import { App } from '../../../App';
 import { MEvent } from '../../event/MEvent';
 
-const { ccclass, property } = _decorator;
+const { ccclass, property,disallowMultiple } = _decorator;
 
 @ccclass('MToggle')
+@disallowMultiple
 export class MToggle extends Toggle {
     public static DefaultClickAudio = "audio/test/click";
     @property({

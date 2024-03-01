@@ -3,9 +3,10 @@ import { App } from '../../../App';
 import { MEvent } from '../../event/MEvent';
 import { MLogger } from '../../logger/MLogger';
 
-const { ccclass, property } = _decorator;
+const { ccclass, property,disallowMultiple } = _decorator;
 
 @ccclass('MButton')
+@disallowMultiple
 export class MButton extends Button {
 
     public static DefaultClickAudio = "audio/test/click";
