@@ -57,7 +57,7 @@ export class MButton extends Button {
         displayName: "长按连续触发事件",
         visible() { return this.m_LongPressButton; }
     })
-    private m_LongPressRepeatInvoke = true;
+    private m_LongPressRepeatInvoke = false;
     @property({
         displayName: "长按连续触发间隔(秒)",
         range: [0.05, 5],
