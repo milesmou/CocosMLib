@@ -1,8 +1,8 @@
-import { EventHandler, EventTouch, Node, Toggle, _decorator } from 'cc';
+import { EventTouch, Node, Toggle, _decorator } from 'cc';
 import { App } from '../../../App';
 import { MEvent } from '../../event/MEvent';
 
-const { ccclass, property,disallowMultiple } = _decorator;
+const { ccclass, property, disallowMultiple } = _decorator;
 
 @ccclass('MToggle')
 @disallowMultiple
@@ -37,7 +37,7 @@ export class MToggle extends Toggle {
     /** 上一次是否被选中 */
     private _lastIsChecked: boolean;
 
-    private _onValueChange: MEvent = new MEvent();
+    private _onValueChange: MEvent<Toggle> = new MEvent<Toggle>();
     public get onValueChange() { return this._onValueChange; }
 
     private get clickAudio() {
@@ -61,7 +61,7 @@ export class MToggle extends Toggle {
         } else {
             if (this.clickAudio && App.audio) App.audio.playEffect(this.clickAudio);
         }
-        this.onValueChange.dispatch();
+        this.onValueChange.dispatch(toggle);
         this.updateBackground();
         this._lastIsChecked = this.isChecked;
     }
