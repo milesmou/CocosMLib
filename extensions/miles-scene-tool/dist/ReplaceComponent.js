@@ -7,6 +7,7 @@ class ReplaceComponent {
     static replace() {
         this.replaceButton();
         this.replaceToggle();
+        this.replaceSlider();
     }
     static replaceButton() {
         let buttons = cc_1.director.getScene().getComponentsInChildren(cc_1.Button);
@@ -69,6 +70,25 @@ class ReplaceComponent {
             tog.destroy();
         });
         MLogger_1.MLogger.info(`替换Toggle为MToggle完成,共计${btnCnt}个`);
+    }
+    static replaceSlider() {
+        let sliders = cc_1.director.getScene().getComponentsInChildren(cc_1.Slider);
+        let cnt = 0;
+        sliders.forEach(sld => {
+            if (cc_1.js.getClassName(sld) != "cc.Slider")
+                return;
+            if (sld.getComponent("MSlider"))
+                return;
+            cnt++;
+            let mSlider = sld.addComponent("MSlider");
+            mSlider.enabled = sld.enabled;
+            mSlider.handle = sld.handle;
+            mSlider.direction = sld.direction;
+            mSlider.progress = sld.progress;
+            mSlider.slideEvents = sld.slideEvents;
+            sld.destroy();
+        });
+        MLogger_1.MLogger.info(`替换Slider为MSlider完成,共计${cnt}个`);
     }
 }
 exports.ReplaceComponent = ReplaceComponent;

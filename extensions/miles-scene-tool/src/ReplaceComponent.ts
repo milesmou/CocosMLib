@@ -1,13 +1,12 @@
-import { Button, Toggle, director, js } from "cc";
+import { Button, Slider, Toggle, director, js } from "cc";
 import { MLogger } from "./tools/MLogger";
-import { Component } from "cc";
-import { instantiate } from "cc";
 
 export class ReplaceComponent {
 
     static replace() {
         this.replaceButton();
         this.replaceToggle();
+        this.replaceSlider();
     }
 
     private static replaceButton() {
@@ -49,7 +48,7 @@ export class ReplaceComponent {
             mTog.enabled = tog.enabled;
             mTog.target = tog.target;
             mTog.isChecked = tog.isChecked;
-            mTog.checkMark=tog.checkMark;
+            mTog.checkMark = tog.checkMark;
             mTog.clickEvents = tog.clickEvents;
             mTog.checkEvents = tog.checkEvents;
             mTog.interactable = tog.interactable;
@@ -69,5 +68,25 @@ export class ReplaceComponent {
         });
         MLogger.info(`替换Toggle为MToggle完成,共计${btnCnt}个`);
     }
+
+
+    private static replaceSlider() {
+        let sliders = director.getScene().getComponentsInChildren(Slider);
+        let cnt = 0;
+        sliders.forEach(sld => {
+            if (js.getClassName(sld) != "cc.Slider") return;
+            if (sld.getComponent("MSlider")) return;
+            cnt++;
+            let mSlider: Slider = sld.addComponent("MSlider") as Slider;
+            mSlider.enabled = sld.enabled;
+            mSlider.handle = sld.handle;
+            mSlider.direction = sld.direction;
+            mSlider.progress = sld.progress;
+            mSlider.slideEvents = sld.slideEvents;
+            sld.destroy();
+        });
+        MLogger.info(`替换Slider为MSlider完成,共计${cnt}个`);
+    }
+
 
 }
