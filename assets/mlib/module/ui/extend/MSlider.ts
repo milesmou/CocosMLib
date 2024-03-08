@@ -43,14 +43,6 @@ export class MSlider extends Slider {
         this.onProgressChange();
     }
 
-    // private registerEvent() {
-    //     let evtHandler = new EventHandler();
-    //     evtHandler.target = this.node;
-    //     evtHandler.component = "MSlider";
-    //     evtHandler.handler = "onSliderEvent";
-    //     this.slideEvents.push(evtHandler);
-    // }
-
     private onProgressChange() {
         if (this.m_BarSprite?.isValid) {
             if (this.m_BarSprite.type == Sprite.Type.FILLED) {
