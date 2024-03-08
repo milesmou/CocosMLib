@@ -1,4 +1,4 @@
-import { Component, Node, _decorator } from "cc";
+import { Component, Game, Node, _decorator, game } from "cc";
 import { MLogger } from "../logger/MLogger";
 
 const { ccclass, property } = _decorator;
@@ -21,7 +21,7 @@ export default class NodeTag extends Component {
         NodeTag.delete(this.m_Tag);
     }
 
-    private static map: Map<string, Node> = new Map();
+    public static map: Map<string, Node> = new Map();
 
     public static add(tag: string, node: Node) {
         if (NodeTag.map.has(tag)) {
@@ -40,3 +40,5 @@ export default class NodeTag extends Component {
     }
 
 }
+
+game.on(Game.EVENT_RESTART, () => { NodeTag.map.clear(); }, this);

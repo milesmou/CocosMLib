@@ -10,9 +10,6 @@ const { ccclass } = _decorator;
 @ccclass("AudioComponent")
 export class AudioComponent extends Component {
 
-    private get sMusicVolume() { return "MusicVolume_" + this.node.name; }
-    private get sEffectVolume() { return "EffectVolume_" + this.node.name; };
-
     /** 音乐音量 */
     public mVolume: StroageValue<number>;
     /** 音效音量 */
@@ -79,6 +76,7 @@ export class AudioComponent extends Component {
             }
         } else { //播放音乐
             let clip = await AssetMgr.loadAsset<AudioClip>(location, AudioClip);
+            if (!this.isValid) return;
             if (!clip) return;
             if (!this.stack.isTop(priority, location)) {//未加载音乐完就已停止
                 AssetMgr.DecRef(location);
@@ -113,6 +111,7 @@ export class AudioComponent extends Component {
         let { loop, deRef, onStart, onFinished } = args;
         deRef = deRef === undefined ? true : deRef;
         var clip = await AssetMgr.loadAsset(location, AudioClip);
+        if (!this.isValid) return;
         if (loop) {
             let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
             this.loopEffect.push(audioState);
