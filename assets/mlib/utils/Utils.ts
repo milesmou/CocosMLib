@@ -406,20 +406,4 @@ export class Utils {
             arr[index] = tmp;
         }
     }
-
-    /**
-     * 随机打乱数组
-     * @param arr 
-     */
-    static disOriginArr(arr: number[]) {
-        let len = arr.length - 1;
-        while (len) {
-            let index = Math.floor(Math.random() * arr.length);
-            let temp = arr[len];
-            arr[len] = arr[index];
-            arr[index] = temp;
-            len--;
-        }
-        return arr;
-    }
 }
