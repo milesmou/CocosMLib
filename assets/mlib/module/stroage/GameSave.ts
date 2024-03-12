@@ -118,8 +118,8 @@ export abstract class GameSave {
         let jsonStr = LocalStorage.getValue(name, "");
         if (jsonStr) {
             try {
-                let obj = JSON.parse(jsonStr) || {};
-                this.mergeValue(inst, obj);
+                let obj = JSON.parse(jsonStr);
+                if (obj) this.mergeValue(inst, obj);
             } catch (err) {
                 MLogger.error(err);
             }
@@ -143,18 +143,22 @@ export abstract class GameSave {
         for (const key in target) {
             if (Reflect.has(source, key)) {
                 if (key.endsWith(this.collectionItemSuffix)) continue;
-                if (Object.prototype.toString.call(target[key]) === "[object Object]" && Object.prototype.toString.call(source[key]) === "[object Object]") {//对象拷贝
-                    if (JSON.stringify(target[key]) === "{}") {//使用空字典存储,完整赋值
+                console.log(key, typeof target[key]);
+                if (Array.isArray(target[key]) && Array.isArray(source[key])) {//数组
+                    console.log(key, 1);
+                    target[key] = source[key];
+                    if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
+                } else if (typeof target[key] === "object" && typeof source[key] === "object") {//对象拷贝
+                    if (!target[key] || Object.keys(target[key]).length == 0) {//为空或使用空字典存储,完整赋值
                         target[key] = source[key];
                         if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
                     } else {//递归赋值
                         this.mergeValue(target[key], source[key]);
                     }
-                } else if (Object.prototype.toString.call(target[key]) === "[object Array]" && Object.prototype.toString.call(source[key]) === "[object Array]") {//数组
-                    target[key] = source[key];
-                    if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
+                    console.log(key, 2);
                 } else {//直接完整赋值
                     target[key] = source[key];
+                    console.log(key, 3);
                 }
             }
         }
