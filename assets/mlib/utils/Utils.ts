@@ -200,6 +200,27 @@ export class Utils {
     }
 
     /**
+    * 获取一些随机整数数，区间[min,max]
+    * @param min 最小值
+    * @param max 最大值
+    * @param num 数量
+    */
+    static randomNums(min: number, max: number, num: number, canRepeat = false) {
+        let result: number[] = [];
+        num = Math.min(num, max - min + 1);
+        let delta = max - min;
+        while (result.length < num) {
+            let value = Math.round(Math.random() * delta + min);
+            if (canRepeat) {
+                result.push(value);
+            } else if (!result.includes(value)) {
+                result.push(value);
+            }
+        }
+        return result;
+    }
+
+    /**
     *  修正小数位数
     * @param fractionDigits 保留小数位数
     * @param canEndWithZero 是否需要用0填补小数位数 默认为false
