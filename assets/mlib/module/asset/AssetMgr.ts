@@ -1,4 +1,4 @@
-import { Asset, AssetManager, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys } from "cc";
+import { Asset, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys } from "cc";
 import { BundleConstant } from "../../../scripts/gen/BundleConstant";
 import { MLogger } from "../logger/MLogger";
 import { AssetCache } from "./AssetCache";
@@ -11,27 +11,44 @@ import { BundleMgr } from "./BundleMgr";
  */
 export class AssetMgr {
 
-    static get cache() {
+    private static get cache() {
         return AssetCache.Inst.cache;
     }
 
-    static async loadAllBundle(bundleNames?: string[], onFileProgress?: (loaded: number, total: number) => void) {
+    public static async loadAllBundle(bundleNames?: string[], onFileProgress?: (loaded: number, total: number) => void) {
         if (!bundleNames) {
             bundleNames = BundleConstant;
         }
         await BundleMgr.Inst.loadAllBundle(bundleNames, onFileProgress);
     }
 
-    static isAssetExists(location: string) {
+    public static isAssetExists(location: string) {
         return BundleMgr.Inst.isAssetExists(location);
     }
 
-    static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
-        if (js.getClassName(type) === "cc.SpriteFrame") {
+    public static parseLocation<T extends Asset>(location: string, type: (new (...args: any[]) => T) | T) {
+        let className = js.getClassName(type);
+        if (className === "cc.SpriteFrame") {
             location += "/spriteFrame";
-        } else if (js.getClassName(type) === "cc.Texture2D") {
+        } else if (className === "cc.Texture2D") {
             location += "/texture";
+        } else if (className === "sp.SkeletonData") {
+            location += "/sp.SkeletonData";
         }
+        return location;
+    }
+
+    private static unparseLocation<T extends Asset>(location: string, type: (new (...args: any[]) => T)) {
+        let className = js.getClassName(type);
+        if (className === "sp.SkeletonData") {
+            location = location.replace("/sp.SkeletonData", "");
+        }
+        return location;
+    }
+
+
+    public static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+        location = this.parseLocation(location, type);
         let p = new Promise<T>((resolve, reject) => {
             let casset = this.cache.get(location) as T;
             if (casset?.isValid) {
@@ -40,7 +57,7 @@ export class AssetMgr {
                 return;
             }
             let bundle = BundleMgr.Inst.getBundleByLocation(location);
-            bundle.load(location, type, (err, asset) => {
+            bundle.load(this.unparseLocation(location, type), type, (err, asset) => {
                 if (err) {
                     MLogger.error(err);
                     resolve(null);
@@ -55,7 +72,7 @@ export class AssetMgr {
         return p;
     }
 
-    static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+    public static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
         let list = BundleMgr.Inst.getDirectoryAddress(location);
         if (!list || list.length == 0) {
             MLogger.error("目录中无资源");
@@ -70,7 +87,7 @@ export class AssetMgr {
         return result;
     }
 
-    static loadRemoteAsset<T extends Asset>(url: string) {
+    public static loadRemoteAsset<T extends Asset>(url: string) {
         let p = new Promise<T>((resolve, reject) => {
             let casset = this.cache.get(url) as T;
             if (casset?.isValid) {
@@ -93,7 +110,7 @@ export class AssetMgr {
         return p;
     }
 
-    static async loadRemoteSpriteFrame(url: string) {
+    public static async loadRemoteSpriteFrame(url: string) {
         let casset = this.cache.get(url);
         if (casset?.isValid) {
             return casset as SpriteFrame;
@@ -114,7 +131,7 @@ export class AssetMgr {
     * @param sprite 目标Sprite组件
     * @param location 路径（本地路径不带扩展名 远程路径带扩展名）
     */
-    static async loadSprite(sprite: Sprite, location: string) {
+    public static async loadSprite(sprite: Sprite, location: string) {
         if (!sprite?.isValid) {
             MLogger.error("Sprite无效 " + location);
             return;
@@ -133,7 +150,7 @@ export class AssetMgr {
      * @param url 文件下载链接
      * @param onFileProgress 文件下载进度回调(同一url仅第一次传入的回调有效)
      */
-    static download(url: string, onFileProgress?: (loaded: number, total: number) => void) {
+    public static download(url: string, onFileProgress?: (loaded: number, total: number) => void) {
         let ext = url.substring(url.lastIndexOf("."));
         let p = new Promise<any>((resolve, reject) => {
             if (sys.isBrowser) {
@@ -159,7 +176,7 @@ export class AssetMgr {
     }
 
     /** 让资源引用计数增加 */
-    static AddRef(location: string, decCount = 1) {
+    public static AddRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
             for (let i = 0; i < decCount; i++) {
@@ -171,7 +188,7 @@ export class AssetMgr {
     }
 
     /** 让资源引用计数减少 */
-    static DecRef(location: string, decCount = 1) {
+    public static DecRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
             for (let i = 0; i < decCount; i++) {
@@ -183,7 +200,7 @@ export class AssetMgr {
     }
 
     /** 让目录下所有资源引用计数减少 */
-    static DecDirRef(location: string, decCount = 1) {
+    public static DecDirRef(location: string, decCount = 1) {
         let list = BundleMgr.Inst.getDirectoryAddress(location);
         if (!list || list.length == 0) {
             MLogger.error("目录中无资源");

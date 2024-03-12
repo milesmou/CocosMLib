@@ -1,4 +1,4 @@
-import { AssetManager, assetManager, resources } from "cc";
+import { AssetManager, assetManager, js, resources } from "cc";
 import { SingletonFactory } from "../../utils/SingletonFactory";
 import { MLogger } from "../logger/MLogger";
 
@@ -27,9 +27,14 @@ export class BundleMgr {
         bundle["_config"].paths.forEach(v => {
             v.forEach(v1 => {
                 let path: string = v1.path;
+
                 // MLogger.debug(bundle.name, path);
                 let dir = path.substring(0, path.lastIndexOf("/"));
                 if (!this.dirAddress.get(dir)) this.dirAddress.set(dir, []);
+                let typeName = js.getClassName(v1.ctor);
+                if (v.length > 1 && typeName != "cc.ImageAsset") {//对同名的多个资源添加类型后缀
+                    path = path + "/" + js.getClassName(v1.ctor);
+                }
                 this.dirAddress.get(dir).push(path);
 
                 if (!this.address.has(path)) {
@@ -40,6 +45,7 @@ export class BundleMgr {
                 }
             });
         });
+
     }
 
     public loadBundle(bundleName: string, onFileProgress?: (loaded: number, total: number) => void) {

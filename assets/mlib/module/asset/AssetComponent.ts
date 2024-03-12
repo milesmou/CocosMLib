@@ -1,4 +1,4 @@
-import { _decorator, Asset, Component, ImageAsset, Sprite, SpriteFrame, Texture2D } from "cc";
+import { _decorator, Asset, Component, ImageAsset, Sprite, SpriteFrame } from "cc";
 import { AssetMgr } from "./AssetMgr";
 
 const { ccclass, property } = _decorator;
@@ -16,18 +16,13 @@ export class AssetComponent extends Component {
     private decRefCount() {
         this._cache.forEach((v, k) => {
             if (v?.isValid) {
-                if (v instanceof SpriteFrame) {
-                    AssetMgr.DecRef(k + "/spriteFrame", 1);
-                } else if (v instanceof Texture2D) {
-                    AssetMgr.DecRef(k + "/texture", 1);
-                } else {
-                    AssetMgr.DecRef(k, 1);
-                }
+                let location = AssetMgr.parseLocation(k, v)
+                AssetMgr.DecRef(location, 1);
             }
         });
     }
 
-    async loadAsset<T extends Asset>(location: string, type?: new (...args: any[]) => T): Promise<T> {
+    async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T): Promise<T> {
         let asset = this._cache.get(location);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadAsset<T>(location, type);
