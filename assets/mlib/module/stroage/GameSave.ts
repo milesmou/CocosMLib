@@ -106,7 +106,6 @@ export abstract class GameSave {
         LocalStorage.setValue(this.name, strData);
     }
 
-
     /** 字典或数组集合的元素的key的后缀 */
     private static readonly collectionItemSuffix = "$item";
 
@@ -143,9 +142,7 @@ export abstract class GameSave {
         for (const key in target) {
             if (Reflect.has(source, key)) {
                 if (key.endsWith(this.collectionItemSuffix)) continue;
-                console.log(key, typeof target[key]);
                 if (Array.isArray(target[key]) && Array.isArray(source[key])) {//数组
-                    console.log(key, 1);
                     target[key] = source[key];
                     if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
                 } else if (typeof target[key] === "object" && typeof source[key] === "object") {//对象拷贝
@@ -155,16 +152,14 @@ export abstract class GameSave {
                     } else {//递归赋值
                         this.mergeValue(target[key], source[key]);
                     }
-                    console.log(key, 2);
                 } else {//直接完整赋值
                     target[key] = source[key];
-                    console.log(key, 3);
                 }
             }
         }
     }
 
-    //检查数组或字典的元素是否丢失字段
+    /** 检查数组或字典的元素是否丢失字段 */
     private static checkMissProperty<T extends object>(collect: T[] | { [key: string]: T }, itemObj: T) {
         if (collect instanceof Array) {
             for (const key in itemObj) {

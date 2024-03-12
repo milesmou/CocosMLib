@@ -2,7 +2,9 @@ import { GameSave } from "../../mlib/module/stroage/GameSave";
 
 
 /**
- * 游戏存档数据管理类 (存档中不要使用Map、Set等数据类型，反序列化时无法正确识别类型；以__开头的字段不会被存档)
+ * 游戏存档数据管理类
+ * 存档中不要使用Map、Set等数据类型，反序列化时无法正确识别类型；以__开头的字段不会被存档
+ * 所有的字段都应当给予默认值 object类型应当给予默认值null
  */
 export class GameData extends GameSave {
     private static _inst: GameData = null;
