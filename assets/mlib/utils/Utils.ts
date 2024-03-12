@@ -5,7 +5,7 @@
 export class Utils {
 
     /** 获取日期(格式:20220101) 默认获取当天日期 */
-    public static getDate(timeMS?: number) {
+    static getDate(timeMS?: number) {
         let lt10 = (v: number) => {
             return v < 10 ? "0" + v : v.toString();
         }
@@ -17,7 +17,7 @@ export class Utils {
     /**
      * 计算两个日期的天数差 日期格式20200101
      */
-    public static deltaDay(date1: number, date2: number) {
+    static deltaDay(date1: number, date2: number) {
         let d1 = new Date();
         d1.setFullYear(Math.floor(date1 / 10000), Math.floor(date1 % 10000 / 100) - 1, date1 % 100);
         d1.setHours(0, 0, 0, 0);
@@ -34,7 +34,7 @@ export class Utils {
     * @param format hh:时 mm:分 ss:秒
     * @returns 格式化的字符串 hh:mm:ss 返回 00:30:30
     */
-    public static formatCountdown(timeMS: number, format: string) {
+    static formatCountdown(timeMS: number, format: string) {
         let lt10 = (v: number) => {
             return v < 10 ? "0" + v : v.toString();
         }
@@ -54,7 +54,7 @@ export class Utils {
      * @param format 占位符 YYYY:年 MM:月 DD:日 hh:时 mm:分 ss:秒
      * @returns 格式化的字符串 例 YYYY-MM-DD hh:mm:ss 返回 2022-01-01 12:30:30
      */
-    public static formatTime(format: string, date?: Date) {
+    static formatTime(format: string, date?: Date) {
         if (date == undefined) {
             date = new Date();
         }
@@ -77,7 +77,7 @@ export class Utils {
     }
 
     /** 筛选出字符串中所有数字(0-9) 然后转化为整数 */
-    public static string2Number(str: string) {
+    static string2Number(str: string) {
         if (!str) return -1;
         str = str.replace(/[^0-9]/g, "");
         let num = parseInt(str);
@@ -89,7 +89,7 @@ export class Utils {
      * @param fractionDigits 保留小数位数
      * @param canEndWithZero 是否需要用0填补小数位数 默认为false
      */
-    public static formatNum(value: number, fractionDigits: number, canEndWithZero = false) {
+    static formatNum(value: number, fractionDigits: number, canEndWithZero = false) {
         //每个单位间相差10的3次方倍
         let arr = [
             "", "K", "M", "B", "T"
@@ -127,7 +127,7 @@ export class Utils {
      * @param fractionDigits 保留小数位数
      * @param canEndWithZero 是否需要用0填补小数位数 默认为false
      */
-    public static formatNumCN(value: number, fractionDigits: number, canEndWithZero = false) {
+    static formatNumCN(value: number, fractionDigits: number, canEndWithZero = false) {
         //每个单位间相差10的4次方倍
         let arr = [
             "", "万", "亿", "万亿", "兆", "万兆", "京", "万京", "垓", "万垓", "秭", "万秭",
@@ -162,7 +162,7 @@ export class Utils {
     }
 
     /** 分割字符串 */
-    public static splitString(str: string, sep = ","): number[] {
+    static splitString(str: string, sep = ","): number[] {
         let arr: number[] = [];
         let sArr = str.trim().split(sep);
         for (const s of sArr) {
@@ -173,7 +173,7 @@ export class Utils {
     }
 
     /** 分割字符串为二维数组 */
-    public static splitStrings(strs: string, sep1 = ";", sep2 = ","): number[][] {
+    static splitStrings(strs: string, sep1 = ";", sep2 = ","): number[][] {
         let arr: number[][] = [];
         let sArr = strs.trim().split(sep1);
         for (const s of sArr) {
@@ -190,7 +190,7 @@ export class Utils {
      * @param max 最大值
      * @param isInteger 是否是整数 默认true
      */
-    public static randomNum(min: number, max: number, isInteger = true) {
+    static randomNum(min: number, max: number, isInteger = true) {
         let delta = max - min;
         let value = Math.random() * delta + min;
         if (isInteger) {
@@ -204,7 +204,7 @@ export class Utils {
     * @param fractionDigits 保留小数位数
     * @param canEndWithZero 是否需要用0填补小数位数 默认为false
     */
-    public static fixFloat(value: number, fractionDigits: number, canEndWithZero = false) {
+    static fixFloat(value: number, fractionDigits: number, canEndWithZero = false) {
         if (fractionDigits < 0) fractionDigits = 0;
         let str = value.toFixed(fractionDigits);
         if (canEndWithZero) {
@@ -226,8 +226,8 @@ export class Utils {
     }
 
     /** 从list中随机出一个值 */
-    public static randomValue<T>(list: T[]) {
-        let arr = this.randomValueByWeight(list, 1, v => 1);
+    public static randomOneValue<T>(list: T[], weight?: (item: T) => number) {
+        let arr = this.randomValueByWeight(list, 1, weight);
         if (arr.length > 0) return arr[0];
         return null;
     }
@@ -279,7 +279,7 @@ export class Utils {
     /**
      * 格式化字符串,用args的内容替换str中的{i},i从0开始
      */
-    public static formatString(str: string, ...args: any[]) {
+    static formatString(str: string, ...args: any[]) {
         args.forEach((v, i) => {
             str = str.replace(`{${i}}`, v);
         });
@@ -289,7 +289,7 @@ export class Utils {
     /**
      * 裁剪前后指定的字符
      */
-    public static trim(source: string, ...strs: string[]) {
+    static trim(source: string, ...strs: string[]) {
         if (!source) return source;
         if (strs.length == 0) return source.trim();
         for (const str of strs) {
@@ -304,21 +304,21 @@ export class Utils {
     }
 
     /** 首字母大写 */
-    public static upperFirst(source: string) {
+    static upperFirst(source: string) {
         if (!source) return source;
         if (source.length < 2) return source.toUpperCase();
         return source[0].toUpperCase() + source.substring(1);
     }
 
     /** 首字母小写 */
-    public static lowerFirst(source: string) {
+    static lowerFirst(source: string) {
         if (!source) return source;
         if (source.length < 2) return source.toLowerCase();
         return source[0].toLowerCase() + source.substring(1);
     }
 
     /** 从数组删除元素 */
-    public static delItemFromArray<T>(arr: T[], ...item: T[]) {
+    static delItemFromArray<T>(arr: T[], ...item: T[]) {
         if (arr.length > 0 && item.length > 0) {
             item.forEach(v => {
                 let index = arr.indexOf(v);
@@ -329,8 +329,25 @@ export class Utils {
         }
     }
 
+    /** 从数组删元素 */
+    static delFromArray<T>(arr: T[], items: T[], predicate?: (item: T) => boolean) {
+        if (arr.length > 0 && items.length > 0) {
+            items.forEach(v => {
+                let index = -1;
+                if (!predicate) {
+                    index = arr.indexOf(v);
+                } else {
+                    index = arr.findIndex(predicate);
+                }
+                if (index > -1) {
+                    arr.splice(index, 1);
+                }
+            })
+        }
+    }
+
     /** 统计元素在数组中出现次数 */
-    public static countValueTimes<T>(arr: T[], predicate: (value: T) => boolean) {
+    static countValueTimes<T>(arr: T[], predicate: (value: T) => boolean) {
         let times = 0;
         arr.forEach(v => {
             if (predicate(v)) {
@@ -341,7 +358,7 @@ export class Utils {
     }
 
     /** 生成UUID */
-    public static genUUID() {
+    static genUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             let r = Math.random() * 16 | 0;
             let v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -350,7 +367,7 @@ export class Utils {
     }
 
     /** 迭代器转化为数组 */
-    public static iterator2Array<T>(iterator: IterableIterator<T>) {
+    static iterator2Array<T>(iterator: IterableIterator<T>) {
         let result: T[] = [];
         for (let iter = iterator.next(); !iter.done; iter = iterator.next()) {
             result.push(iter.value);
@@ -359,7 +376,7 @@ export class Utils {
     }
 
     /**  随机打乱数组 */
-    public static disarrangeArray<T>(arr: T[]) {
+    static disarrangeArray<T>(arr: T[]) {
         if (!arr) return;
         for (let i = 0; i < arr.length; i++) {
             let index = Math.floor(Math.random() * arr.length);
@@ -367,5 +384,21 @@ export class Utils {
             arr[i] = arr[index];
             arr[index] = tmp;
         }
+    }
+
+    /**
+     * 随机打乱数组
+     * @param arr 
+     */
+    static disOriginArr(arr: number[]) {
+        let len = arr.length - 1;
+        while (len) {
+            let index = Math.floor(Math.random() * arr.length);
+            let temp = arr[len];
+            arr[len] = arr[index];
+            arr[index] = temp;
+            len--;
+        }
+        return arr;
     }
 }
