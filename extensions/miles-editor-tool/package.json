@@ -15,6 +15,15 @@
                 }
             }
         },
+        "assets": {
+            "menu": {
+                "methods": "./dist/AssetMenu.js",
+                "createMenu": "onCreateMenu",
+                "assetMenu": "onAssetMenu",
+                "dbMenu": "onDBMenu",
+                "panelMenu": "onPanelMenu"
+            }
+        },
         "messages": {
             "formatProject": {
                 "public": false,
