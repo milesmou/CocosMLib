@@ -192,7 +192,7 @@ export class L10nMgr {
 
     /** 通过Key获取语言表上当前语言的内容 */
     public static getStringByKey(key: string, ...args: any[]): string {
-        let data = GameTable.Inst.Table.TbLocalization.get(key);
+        let data = GameTable.Table.TbLocalization.get(key);
         if (!data) {
             MLogger.error(`key=${key} Lang=${this.lang}  在语言表中无对应内容`);
             return "";

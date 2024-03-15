@@ -57,7 +57,7 @@ export class UIGM extends UIBase {
             App.tipMsg.showToast("请输入ID和数量");
             return;
         }
-        // if (!GameTable.Inst.Table.TbItem.get(+_itemId)) {
+        // if (!GameTable.Table.TbItem.get(+_itemId)) {
         //     App.tipMsg.showToast("请输入正确的道具ID");
         //     return;
         // }

@@ -29,11 +29,11 @@ export class ShopUtil {
     private static reqProductDetail() {
         if (ProductDetail.productDetailMap) return;
         let ids: string[] = [];
-        // let list1 = GameTable.Inst.Table.TbStore.getDataList();
+        // let list1 = GameTable.Table.TbStore.getDataList();
         // list1.forEach(v => {
         //     if (v.IAPID) ids.push(v.IAPID);
         // });
-        // let list2 = GameTable.Inst.Table.TbGiftBag.getDataList();
+        // let list2 = GameTable.Table.TbGiftBag.getDataList();
         // list2.forEach(v => {
         //     if (v.IAPID) ids.push(v.IAPID);
         // });
@@ -86,7 +86,7 @@ export class ShopUtil {
         try {
             if (content == "default") {
                 ProductDetail.productDetailMap = new Map();
-                // let list1 = GameTable.Inst.Table.TbStore.getDataList();
+                // let list1 = GameTable.Table.TbStore.getDataList();
                 // list1.forEach(v => {
                 //     if (v.IAPID) {
                 //         let p = new ProductDetail();
@@ -98,7 +98,7 @@ export class ShopUtil {
                 //         ProductDetail.productDetailMap.set(p.productId, p);
                 //     }
                 // });
-                // let list2 = GameTable.Inst.Table.TbGiftBag.getDataList();
+                // let list2 = GameTable.Table.TbGiftBag.getDataList();
                 // list2.forEach(v => {
                 //     if (v.IAPID) {
                 //         let p = new ProductDetail();

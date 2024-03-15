@@ -95,7 +95,7 @@ export class Loading extends UIComponent {
         App.chan.login({
             success: uid => {
                 MLogger.debug("登录成功", uid);
-                App.chan.userId = uid;
+                App.chan.userId.value = uid;
                 this.syncGameData();
             },
             fail: reason => {
@@ -107,7 +107,7 @@ export class Loading extends UIComponent {
     /** 同步玩家数据 */
     syncGameData() {
         App.chan.getGameData({
-            userId: App.chan.userId,
+            userId: App.chan.userId.value,
             success: (obj: MResponse) => {
                 MLogger.debug("获取数据成功", obj);
                 if (obj.code == 100 && obj.data) {
@@ -140,7 +140,7 @@ export class Loading extends UIComponent {
         await AssetMgr.loadAllBundle(null, this.onProgress.bind(this));
 
         //加载数据表
-        await GameTable.Inst.initData();
+        await GameTable.initData();
 
         //加载场景
         this.setTips(LoadingText.LoadScene, 2);

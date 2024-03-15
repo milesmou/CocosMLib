@@ -73,7 +73,7 @@ export class GameGuide {
     public checkGuideCondition(guide: EGuideType) {
         if (this.isInGuide(guide)) return false;
         if (this.isGuideFinished(guide)) return false;
-        // let data = GameTable.Inst.Table.TbGuideOpenPlan.get(guide);
+        // let data = GameTable.Table.TbGuideOpenPlan.get(guide);
         // if (data) {
         //     if (data.NeedPlayerLv) {
         //         return GameData.Inst.playerLv >= data.NeedPlayerLv;
