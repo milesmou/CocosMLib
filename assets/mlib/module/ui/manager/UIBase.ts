@@ -1,5 +1,5 @@
 import { Animation, BlockInputEvents, Node, Sprite, UIOpacity, _decorator, color, tween } from "cc";
-const { property, ccclass } = _decorator;
+const { property, ccclass, requireComponent } = _decorator;
 
 import { EventKey } from "../../../../scripts/base/GameEnum";
 import { CCUtils } from "../../../utils/CCUtil";
@@ -69,9 +69,11 @@ export class UIBase extends UIForm {
         this.visible = visible;
         let uiOpacity = this.getComponent(UIOpacity);
         if (visible) {
-            uiOpacity.opacity = 255;
             this.node.active = true;
+            this.node.setScale(1, 1);
+            uiOpacity.opacity = 255;
         } else {
+            this.node.setScale(0, 0);
             uiOpacity.opacity = 0;
         }
     }

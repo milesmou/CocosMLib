@@ -1,8 +1,9 @@
-import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, _decorator, instantiate, v3 } from 'cc';
+import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, _decorator, instantiate } from 'cc';
 
 const { ccclass, property } = _decorator;
 
 import { EventKey } from '../../../../scripts/base/GameEnum';
+import { EWaitShowType, UIWaitCfg } from '../../../../scripts/base/wait/UIWaitCfg';
 import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { Utils } from '../../../utils/Utils';
@@ -59,6 +60,8 @@ export class UIMgr extends Component {
 
     /** 记录上一次请求打开UI的时间 抛出短时间内(0.1s)连续打开同一UI的警告 */
     private _openUITime: Map<string, number> = new Map();
+    /** 当前在显示等待界面的UI */
+    private _showWaitUI: Map<string, number> = new Map();
 
     /** UI参数缓存 方便可以在onLoad时手动拿到参数 */
     private _uiArgs: Map<string, object> = new Map();
@@ -84,14 +87,13 @@ export class UIMgr extends Component {
         this._blockInput.addComponent(BlockInputEvents);
         this._blockInput.parent = this.node;
         CCUtils.uiNodeMatchParent(this._blockInput);
-        this._blockInput.active = false;
-        // 加载默认的单色精灵帧
+        //加载默认的单色精灵帧
         AssetMgr.loadAsset("DefaultSprite", SpriteFrame).then(sp => {
             this._defaultSprite = sp;
         });
-        // 加载Loading界面
+        //加载Loading界面
         AssetMgr.loadAsset(UIConstant.Loading, Prefab).then(prefab => {
-            instantiate(prefab).parent = this._higher;
+            instantiate(prefab).parent = this._resident;
         });
     }
 
@@ -108,6 +110,7 @@ export class UIMgr extends Component {
             if (visible) this._subUINameStack.push(uiName);
         }
         this.checkShowUI(uiName);
+        if (visible) this.checkShowWait(uiName);
         this.blockTime = blockTime;
         EventMgr.emit(EventKey.OnUIInitBegin, uiName);
         this._uiArgs[uiName] = args;
@@ -121,6 +124,7 @@ export class UIMgr extends Component {
         }
         ui.setArgs(args);
         if (visible) {
+            this.checkHideWait(uiName);
             let belowUI = this._uiStack[this._uiStack.length - 2];
             ui.onShowBegin();
             belowUI?.onPassive(EUIFormPassiveType.HideBegin, ui);
@@ -197,11 +201,10 @@ export class UIMgr extends Component {
 
     }
 
-    public async showHigher(uiName: string, args?: any) {
+    public async showHigher(uiName: string, args?: any, visible = true) {
         this.blockTime = 0.2;
-        let ui = await this.initUI(uiName, this._higher);
+        let ui = await this.initUI(uiName, this._higher, visible);
         ui.setArgs(args);
-        ui.node.setSiblingIndex(999999);
         EventMgr.emit(EventKey.OnUIShow, ui);
         return ui;
     }
@@ -222,7 +225,7 @@ export class UIMgr extends Component {
     }
 
     public hideAll(...exclude: string[]) {
-        var hideList = this._uiStack.filter(ui => exclude.indexOf(ui.uiName) == -1);
+        let hideList = this._uiStack.filter(ui => exclude.indexOf(ui.uiName) == -1);
         hideList.forEach(ui => {
             this.hide(ui.uiName, 0.2, true);
         });
@@ -238,22 +241,57 @@ export class UIMgr extends Component {
         }
         ui.node.active = true;
         ui.setVisible(visible);
-        if (visible) {
-            ui.node.setSiblingIndex(999999);
-            ui.node.position = v3(0, 0, 0);
-        } else {
-            ui.node.setSiblingIndex(0);
-            ui.node.position = v3(-10086, 0, 0);
-        }
+        ui.node.setSiblingIndex(visible ? 999999 : 0);
         return ui;
     }
 
     private async instNode(uiName: string, parent: Node): Promise<Node> {
         let prefab = await AssetMgr.loadAsset(uiName, Prefab);
-        var uiObj = instantiate(prefab);
+        let uiObj = instantiate(prefab);
         CCUtils.uiNodeMatchParent(uiObj);
         uiObj.parent = parent;
         return uiObj;
+    }
+
+    private checkShowWait(uiName: string) {
+        if (!this._showWaitUI.get(uiName)) {
+            let waitCfgInfo = UIWaitCfg[uiName];
+            if (!waitCfgInfo) return;
+            if (waitCfgInfo.showType == EWaitShowType.None) {
+                return;
+            } else if (waitCfgInfo.showType == EWaitShowType.Always) {
+                this._showWaitUI.set(uiName, Date.now());
+                this.showHigher(UIConstant.UIWait);
+            } else {
+                let ui = this._uiDict.get(uiName);
+                if (!ui || !ui.isValid) {
+                    if (waitCfgInfo.showType == EWaitShowType.First) {
+                        this._showWaitUI.set(uiName, Date.now());
+                        this.showHigher(UIConstant.UIWait);
+                    }
+                }
+                else {
+                    if (waitCfgInfo.showType == EWaitShowType.ExceptFirst) {
+                        this._showWaitUI.set(uiName, Date.now());
+                        this.showHigher(UIConstant.UIWait);
+                    }
+                }
+            }
+        }
+    }
+
+    private checkHideWait(uiName: string) {
+        if (this._showWaitUI.has(uiName)) {
+            let waitCfgInfo = UIWaitCfg[uiName];
+            let timeMS = this._showWaitUI.get(uiName);
+            let dur = Math.max(0, waitCfgInfo.showDuration - (Date.now() - timeMS) / 1000);
+            this._showWaitUI.delete(uiName);
+            if (this._showWaitUI.size == 0) {
+                this.scheduleOnce(() => {
+                    this.hideHigher(UIConstant.UIWait);
+                }, dur);
+            }
+        }
     }
 
     public getUIArgs(uiName: string) {
