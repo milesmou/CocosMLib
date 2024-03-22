@@ -1,4 +1,4 @@
-import { Asset, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys } from "cc";
+import { Asset, AssetManager, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys } from "cc";
 import { BundleConstant } from "../../../scripts/gen/BundleConstant";
 import { MLogger } from "../logger/MLogger";
 import { AssetCache } from "./AssetCache";
@@ -46,7 +46,7 @@ export class AssetMgr {
         return location;
     }
 
-
+    /** 加载资源 */
     public static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
         location = this.parseLocation(location, type);
         let p = new Promise<T>((resolve, reject) => {
@@ -56,7 +56,7 @@ export class AssetMgr {
                 resolve(casset);
                 return;
             }
-            let bundle = BundleMgr.Inst.getBundleByLocation(location);
+            let bundle = BundleMgr.Inst.getBundle(location);
             bundle.load(this.unparseLocation(location, type), type, (err, asset) => {
                 if (err) {
                     MLogger.error(err);
@@ -72,6 +72,7 @@ export class AssetMgr {
         return p;
     }
 
+    /** 加载目录中的所有资源 */
     public static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
         let list = BundleMgr.Inst.getDirectoryAddress(location);
         if (!list || list.length == 0) {
@@ -87,6 +88,7 @@ export class AssetMgr {
         return result;
     }
 
+    /** 加载远程资源 */
     public static loadRemoteAsset<T extends Asset>(url: string) {
         let p = new Promise<T>((resolve, reject) => {
             let casset = this.cache.get(url) as T;
@@ -110,6 +112,7 @@ export class AssetMgr {
         return p;
     }
 
+    /** 加载远程的图片精灵 */
     public static async loadRemoteSpriteFrame(url: string) {
         let casset = this.cache.get(url);
         if (casset?.isValid) {
@@ -144,6 +147,28 @@ export class AssetMgr {
             sprite.spriteFrame = spFrame;
         }
     }
+
+
+    /** 
+     * 加载场景 
+     * @param location 由bundle名字和场景名字组成 bundleName/SceneName
+     */
+    public static loadScene(location: string, onProgress?: (finished: number, total: number, item: AssetManager.RequestItem) => void) {
+        let p = new Promise<void>((resolve, reject) => {
+            let bundle = BundleMgr.Inst.getSceneBundle(location);
+            let sceneName = location.substring(location.indexOf("/") + 1);
+            bundle.loadScene(sceneName, onProgress, err => {
+                if (err) {
+                    MLogger.error(err);
+                    resolve();
+                } else {
+                    resolve();
+                }
+            });
+        })
+        return p;
+    }
+
 
     /**
      * 原生平台下载文件到本地

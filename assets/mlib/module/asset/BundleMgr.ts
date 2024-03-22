@@ -1,4 +1,4 @@
-import { AssetManager, assetManager, js, resources } from "cc";
+import { AssetManager, assetManager, js } from "cc";
 import { SingletonFactory } from "../../utils/SingletonFactory";
 import { MLogger } from "../logger/MLogger";
 
@@ -13,22 +13,24 @@ export class BundleMgr {
     private address: Map<string, string> = new Map();
     //资源目录:资源地址数组
     private dirAddress: Map<string, string[]> = new Map();
+    //场景地址:Bundle名字
+    private scenes: Map<string, string> = new Map();
 
-    private onInst() {
-        this.resolveResources();
+    protected onInst() {
+        this.parseBuiltin();
     }
 
-    private resolveResources() {
-        if (resources) this.resolveBundle(resources);
+    private parseBuiltin() {
+        this.parseBundle(assetManager.getBundle("resources"));
+        this.parseBundle(assetManager.getBundle("main"));
     }
 
-    private resolveBundle(bundle: AssetManager.Bundle) {
+    private parseBundle(bundle: AssetManager.Bundle) {
         this.bundles.set(bundle.name, bundle);
+        //普通资源
         bundle["_config"].paths.forEach(v => {
             v.forEach(v1 => {
                 let path: string = v1.path;
-
-                // MLogger.debug(bundle.name, path);
                 let dir = path.substring(0, path.lastIndexOf("/"));
                 if (!this.dirAddress.get(dir)) this.dirAddress.set(dir, []);
                 let typeName = js.getClassName(v1.ctor);
@@ -45,6 +47,17 @@ export class BundleMgr {
                 }
             });
         });
+        //场景资源
+        bundle["_config"].scenes.forEach(v => {
+            let path: string = v.path;
+            let sceneName = path.substring(path.lastIndexOf("/") + 1);
+            let location = bundle.name + "/" + sceneName;
+            if (this.scenes.has(location)) {
+                MLogger.error(`场景名字不能重复  ${location}`);
+            } else {
+                this.scenes.set(location, bundle.name);
+            }
+        });
 
     }
 
@@ -57,7 +70,7 @@ export class BundleMgr {
                         MLogger.error(err);
                         reject(err);
                     } else {
-                        this.resolveBundle(bundle);
+                        this.parseBundle(bundle);
                         resolve(bundle);
                     }
                 }
@@ -91,7 +104,7 @@ export class BundleMgr {
                             reject(err)
                         } else {
                             bundleArr.push(bundle);
-                            this.resolveBundle(bundle);
+                            this.parseBundle(bundle);
                             if (bundleArr.length == bundleNames.length) {
                                 resolve(bundleArr);
                             }
@@ -107,7 +120,8 @@ export class BundleMgr {
         return this.address.has(location);
     }
 
-    public getBundleByLocation(location: string): AssetManager.Bundle {
+    /** 通过资源地址获取所在的Bundle */
+    public getBundle(location: string): AssetManager.Bundle {
         let ab: AssetManager.Bundle = null;
         if (this.address.has(location)) {
             ab = this.bundles.get(this.address.get(location));
@@ -119,7 +133,21 @@ export class BundleMgr {
         return ab;
     }
 
+    /** 获取目录下所有的资源地址 */
     public getDirectoryAddress(location: string): string[] {
         return this.dirAddress.get(location);
+    }
+
+    /** 获取场景所在的Bundle */
+    public getSceneBundle(location: string): AssetManager.Bundle {
+        let ab: AssetManager.Bundle = null;
+        if (this.scenes.has(location)) {
+            ab = this.bundles.get(this.scenes.get(location));
+            if (!ab) console.error(`location: ${location}  场景所在Bundle未加载`);
+
+        } else {
+            console.error(`location: ${location}  场景不存在或所在Bundle未加载`);
+        }
+        return ab;
     }
 }

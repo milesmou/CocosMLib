@@ -359,6 +359,18 @@ export class UIMgr extends Component {
         return false;
     }
 
+    /** 调用指定UI上的methodName方法 */
+    public sendMessage(uiName: string, methodName: string, ...args: any[]) {
+        let ui = this._uiDict.get(uiName);
+        if (!ui?.isValid) return -1;
+        let method: Function = ui[methodName];
+        if (method && typeof method === "function") {
+            method.apply(ui, args);
+        } else {
+            MLogger.error(`${UIConstant[uiName]}上未找到指定方法 ${methodName}`);
+        }
+    }
+
     /** 检测是否在短时间内(0.1s)连续打开同一UI 抛出警告 */
     private checkShowUI(uiName: string) {
         let now = Date.now();
@@ -373,7 +385,7 @@ export class UIMgr extends Component {
         else this._openUITime.set(uiName, now);
     }
 
-    update(dt: number) {
+    protected update(dt: number) {
         if (this._blockTime > 0) this._blockTime -= dt;
         this._blockInput.active = this._blockTime > 0;
     }
