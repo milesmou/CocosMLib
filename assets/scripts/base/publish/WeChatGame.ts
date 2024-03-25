@@ -341,13 +341,15 @@ export class WeChatGame extends Channel {
         });
     }
 
+    public vibrate(...args: any[]): void {
+        
+    }
 
-    reportCustomEvent() { }
     /**
      *  判断系统SDK版本是否符合最低版本要求
      * @ver 最低SDK版本要求 格式：1.0.0
      */
-    compareVersion(ver: string): boolean {
+    private compareVersion(ver: string): boolean {
         let sdkVer = this.systemInfo!.SDKVersion;
         let pat = /\d+.\d+.\d+/;
         if (!pat.test(ver) || !pat.test(sdkVer)) {
@@ -370,7 +372,7 @@ export class WeChatGame extends Channel {
     /**
      * 开启版本更新检测
      */
-    checkUpdate() {
+    private checkUpdate() {
         let updateManager = wx.getUpdateManager();
         updateManager.onUpdateReady(() => {
             wx.showModal({
@@ -384,12 +386,7 @@ export class WeChatGame extends Channel {
             })
         })
     }
-    /**
-     * 使手机发生震动
-     * @param long 默认false较短时间震动  true较长时间震动
-     */
-    vibrate(long = false) {
-        long && wx.vibrateLong();
-        !long || wx.vibrateShort(null);
-    }
+
+
+
 }

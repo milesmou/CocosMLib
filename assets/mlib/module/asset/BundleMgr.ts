@@ -26,6 +26,12 @@ export class BundleMgr {
     }
 
     private parseBundle(bundle: AssetManager.Bundle) {
+
+        if (this.bundles.has(bundle.name)) {
+            MLogger.warn("重复的Bundle名字", bundle.name);
+            return;
+        }
+
         this.bundles.set(bundle.name, bundle);
         //普通资源
         bundle["_config"].paths.forEach(v => {
@@ -43,7 +49,7 @@ export class BundleMgr {
                     this.address.set(path, bundle.name);
                 }
                 else {
-                    MLogger.error(`资源地址不能重复  ${bundle.name}  ${v1.path}`);
+                    MLogger.error(`资源地址不能重复  ${bundle.name} ${this.address.get(path)} ${v1.path}`);
                 }
             });
         });
