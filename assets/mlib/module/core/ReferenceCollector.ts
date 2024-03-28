@@ -1,4 +1,4 @@
-import { _decorator, Asset, CCObject, Component, error, js, log, Node } from "cc";
+import { _decorator, Asset, CCObject, Component, error, js, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
@@ -9,21 +9,6 @@ class CollectorNodeData {
     public key = "";
     @property({ type: Node, readonly: true })
     public node: Node = null;
-}
-
-@ccclass("ManualCollectorNodeData")
-class ManualCollectorNodeData {
-    @property
-    public key = "";
-    @property(Node)
-    private _node: Node;
-    @property(Node)
-    public get node() { return this._node; }
-    private set node(val: Node) {
-        if (!val) return;
-        this._node = val;
-        this.key = this._node.name.trim();
-    }
 }
 
 @ccclass("CollectorAssetData")
@@ -47,26 +32,20 @@ export class ReferenceCollector extends Component {
     private set refresh(val: boolean) {
         if (EDITOR_NOT_IN_PREVIEW) {
             this.initNodeList();
+            this.genCode();
         }
         this._refresh = false;
     }
 
     @property({ type: CollectorNodeData, readonly: true })
     private _nodes: CollectorNodeData[] = [];
-    @property({ type: CollectorNodeData, tooltip: "自动引用名字以$开头的节点", readonly: true })
+    @property({ type: CollectorNodeData, tooltip: "自动引用节点(名字以$开头的)", readonly: true })
     private get nodes() { return this._nodes; }
     private set nodes(val: CollectorNodeData[]) { this._nodes = val; }
 
-    @property({ type: ManualCollectorNodeData })
-    private _manualNodes: ManualCollectorNodeData[] = [];
-    @property({ type: ManualCollectorNodeData, tooltip: "手动添加引用的节点" })
-    private get manualNodes() { return this._manualNodes; }
-    private set manualNodes(val: ManualCollectorNodeData[]) { this._manualNodes = val; }
-
-
     @property({ type: CollectorAssetData })
     private _assets: CollectorAssetData[] = [];
-    @property({ type: CollectorAssetData, tooltip: "手动添加引用的资源" })
+    @property({ type: CollectorAssetData, tooltip: "手动引用资源" })
     private get assets() { return this._assets; }
     private set assets(val: CollectorAssetData[]) { this._assets = val; }
 
@@ -85,14 +64,6 @@ export class ReferenceCollector extends Component {
     private initNodeMap() {
         this._nodeMap.clear();
         for (const collectorNodeData of this.nodes) {
-            let key = collectorNodeData.key.trim();
-            if (!this._nodeMap.has(key)) {
-                this._nodeMap.set(key, collectorNodeData.node);
-            } else {
-                error("[MLogger Error]", this.node.name, "引用的节点名字重复 Key=" + key);
-            }
-        }
-        for (const collectorNodeData of this.manualNodes) {
             let key = collectorNodeData.key.trim();
             if (!this._nodeMap.has(key)) {
                 this._nodeMap.set(key, collectorNodeData.node);
@@ -119,13 +90,13 @@ export class ReferenceCollector extends Component {
     }
 
     public get<T extends CCObject>(key: string, type: new (...args: any[]) => T): T {
-        if (js.isChildClassOf(type, Node)) {
+        if (js.isChildClassOf(type, Component)) {
+            let node = this._nodeMap.get(key);
+            if (node) return node.getComponent(type);
+        } else if (js.isChildClassOf(type, Node)) {
             return this._nodeMap.get(key) as any;
         } else if (js.isChildClassOf(type, Asset)) {
             return this._assetMap.get(key) as any;
-        } else if (js.isChildClassOf(type, Component)) {
-            let node = this._nodeMap.get(key);
-            if (node) return node.getComponent(type);
         }
         return null;
     }
@@ -172,9 +143,24 @@ export class ReferenceCollector extends Component {
 
     private isNodeValid(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
-        return node.name.startsWith(this._tag);
+        if (node.name.startsWith(this._tag)) return true;
+        return false;
     }
 
+    /** 生成引用节点的获取代码 并复制到剪切板 */
+    private genCode() {
+        if (!EDITOR_NOT_IN_PREVIEW) return;
+        let text = "";
+        this.nodes.forEach(data => {
+            let key = data.key;
+            if (text) text += "\n";
+            let name = "_" + key[0].toLowerCase() + key.substring(1);
+            let line = `this.${name} = this.rc.get("${key}",Node);`;
+            text += line;
+        });
+        Editor.Clipboard.write("text", text);
+        console.log("已复制到剪切板");
+    }
     //#endregion
 
 }
