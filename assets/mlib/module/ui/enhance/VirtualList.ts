@@ -22,7 +22,7 @@ let eventMap = {
 };
 /**
  * DC优化 循环利用Item节点
- * 使用说明Content中的字节点为空节点 在空节点中放Item节点并循环利用
+ * 使用说明： Content中的子节点为空节点 在空节点中放Item节点并循环利用
  * 空节点的作用是用于定位和检测显示隐藏
  */
 @ccclass('VirtualList')
