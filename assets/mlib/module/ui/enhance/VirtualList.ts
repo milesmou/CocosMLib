@@ -112,8 +112,6 @@ export class VirtualList extends Component {
         });
 
         this._view = this.getComponentInChildren(Mask).node;
-        console.log(this._view);
-
         CCUtils.addEventToComp(this._scrollview, this.node, "VirtualList", "onScrolling");
     }
 
