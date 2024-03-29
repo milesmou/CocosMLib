@@ -36,23 +36,32 @@ export class UITipMsg extends UIComponent {
     private _confirmBox: Node;
     private _btnOk: Node;
     private _btnCancel: Node;
+
+    private _titleText: string;//标题默认文字
     private _okText: string;//确认按钮默认文字
     private _cancelText: string;//取消按钮默认文字
+    private _confirmTitle: Label;
+    private _confirmDesc: Label;
 
     private _autoHideConfirm: boolean;
     private _cbConfirm: Function;
     private _cbCancel: Function;
 
 
+
     onLoad() {
         UITipMsg.Inst = this;
 
-        this._singleTip = this.rc.getNode("singleTip");
-        this._toastGroup = this.rc.getNode("toastGroup");
-        this._confirmBox = this.rc.getNode("confirmBox");
-        this._btnOk = this.rc.getNode("btnOk");
+        this._singleTip = this.rc.get("SingleTip", Node);
+        this._toastGroup = this.rc.get("ToastGroup", Node);
+        this._confirmBox = this.rc.get("ConfirmBox", Node);
+        this._confirmTitle = this.rc.get("ConfirmTitle", Label);
+        this._confirmDesc = this.rc.get("ConfirmDesc", Label);
+        this._btnOk = this.rc.get("btnOk", Node);
+        this._btnCancel = this.rc.get("btnCancel", Node);
+
+        this._titleText = this._confirmTitle.string;
         this._okText = this._btnOk.getComponentInChildren(Label).string;
-        this._btnCancel = this.rc.getNode("btnCancel");
         this._cancelText = this._btnCancel.getComponentInChildren(Label).string;
 
         this.init();
@@ -143,14 +152,16 @@ export class UITipMsg extends UIComponent {
     /**
      * 显示确认框
      */
-    showConfirm(content: string, args: ConfirmArgs) {
-        let { type, autoHide, cbOk, cbCancel, okText, cancelText } = args || {};
+    showConfirm(desc: string, args: ConfirmArgs) {
+        let { type, autoHide, cbOk, cbCancel, title, okText, cancelText } = args || {};
         autoHide = autoHide === undefined ? true : autoHide;
+        title = title || this._titleText;
         okText = okText || this._okText;
         cancelText = cancelText || this._cancelText;
 
         this._confirmBox.active = true;
-        this._confirmBox.getComponentInChildren(Label).string = content;
+        this._confirmTitle.string = title;
+        this._confirmDesc.string = desc;
 
         this._btnOk.once("click", this.confirm, this);
         this._btnOk.getComponentInChildren(Label).string = okText;

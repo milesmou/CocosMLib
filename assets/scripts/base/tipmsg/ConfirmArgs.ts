@@ -7,6 +7,8 @@ export interface ConfirmArgs {
     cbOk?: () => void;
     /** 取消按钮回调 */
     cbCancel?: () => void;
+    /** 标题 */
+    title?: string;
     /** 确认按钮文本 */
     okText?: string;
     /** 取消按钮文本 */
