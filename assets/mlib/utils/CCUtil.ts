@@ -5,9 +5,10 @@ export class CCUtils {
 
 
     /** 创建一个UI节点 */
-    public static createUINode(name: string) {
+    public static createUINode(name: string, parent?: Node) {
         let node = new Node(name);
-        node.layer = Layers.Enum.UI_2D;
+        node.layer = parent ? parent.layer : Layers.Enum.UI_2D;
+        if (parent) node.parent = parent;
         node.addComponent(UITransform);
         return node;
     }
@@ -202,10 +203,13 @@ export class CCUtils {
             let { item, frameTimeMS, comp } = args || {};
             frameTimeMS = frameTimeMS === undefined ? 2 : frameTimeMS;
 
-            if (!content || listData == null) return;
+            if (!content || listData == null) {
+                console.error("Content或listData不正确");
+                return;
+            }
 
             if (!item && content.children.length == 0) {
-                reject("当content无子节点时 必须传入预制体");
+                console.error("当content无子节点时 必须传入预制体");
                 return;
             }
 
@@ -306,6 +310,14 @@ export class CCUtils {
                 }
             }
         }
+    }
+
+    /** 计算两个点之间的距离 */
+    public static calculationDis(localPos: Vec3, tarPos: Vec3) {
+        let dx = localPos.x - tarPos.x;
+        let dy = localPos.y - tarPos.y;
+        let dis = Math.sqrt(dx * dx + dy * dy);
+        return dis;
     }
 
 }
