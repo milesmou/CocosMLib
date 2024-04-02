@@ -6,13 +6,13 @@ import { EventKey } from '../../../../scripts/base/GameEnum';
 import { EWaitShowType, UIWaitCfg } from '../../../../scripts/base/wait/UIWaitCfg';
 import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
-import { Utils } from '../../../utils/Utils';
 import { AssetMgr } from '../../asset/AssetMgr';
 import { EventMgr } from '../../event/EventMgr';
 import { MLogger } from '../../logger/MLogger';
 import { EUIFormPassiveType } from './EUIFormPassiveType';
 import { UIComponent } from './UIComponent';
 import { UIForm } from './UIForm';
+import { UIStack } from './UIStack';
 
 @ccclass
 export class UIMgr extends Component {
@@ -34,13 +34,13 @@ export class UIMgr extends Component {
     /** UI的缓存Dict */
     private _uiDict: Map<string, UIForm> = new Map();
     /** 实时的UI栈(加载UI需要时间) */
-    private _uiNameStack: string[] = [];
+    private _uiNameStack: UIStack<string> = new UIStack();
     /** 加载完成的UI栈 */
-    private _uiStack: UIForm[] = [];
+    private _uiStack: UIStack<UIForm> = new UIStack();
     /** 实时的子UI栈 */
-    private _subUINameStack: string[] = [];
+    private _subUINameStack: UIStack<string> = new UIStack();
     /** 加载完成的子UI栈 */
-    private _subUIStack: UIForm[] = [];
+    private _subUIStack: UIStack<UIForm> = new UIStack();
 
     public _defaultSprite: SpriteFrame = null;
     /** 纯白色贴图 */
@@ -97,30 +97,27 @@ export class UIMgr extends Component {
         });
     }
 
-    public async show<T extends UIForm>(uiName: string, obj: { args?: any, blockTime?: number, parent?: Node, playAnim?: boolean, visible?: boolean } = {}): Promise<T> {
-        let { args, blockTime, parent, playAnim, visible } = obj;
+    public async show<T extends UIForm>(uiName: string, obj: { args?: any, blockTime?: number, parent?: Node, playAnim?: boolean, visible?: boolean, bottom?: boolean } = {}): Promise<T> {
+        let { args, blockTime, parent, playAnim, visible, bottom } = obj;
         blockTime = blockTime === undefined ? 0.2 : blockTime;
-        playAnim = playAnim === undefined ? true : visible;
+        playAnim = playAnim === undefined ? true : playAnim;
         visible = visible === undefined ? true : visible;
+        bottom = bottom === undefined ? false : bottom;
         if (!parent) {//主UI
-            Utils.delItemFromArray(this._uiNameStack, uiName);
-            if (visible) this._uiNameStack.push(uiName);
+            this._uiNameStack.add(uiName, !visible || bottom)
         } else {//子UI
-            Utils.delItemFromArray(this._uiNameStack, uiName);
-            if (visible) this._subUINameStack.push(uiName);
+            this._subUINameStack.add(uiName, !visible || bottom)
         }
         this.checkShowUI(uiName);
         if (visible) this.checkShowWait(uiName);
         this.blockTime = blockTime;
         EventMgr.emit(EventKey.OnUIInitBegin, uiName);
         this._uiArgs[uiName] = args;
-        let ui = await this.initUI(uiName, parent || this._normal, visible);
+        let ui = await this.initUI(uiName, parent || this._normal, visible, bottom);
         if (!parent) {//主UI
-            Utils.delItemFromArray(this._uiStack, ui);
-            if (visible) this._uiStack.push(ui);
+            this._uiStack.add(ui, !visible || bottom)
         } else {//子UI
-            Utils.delItemFromArray(this._subUIStack, ui);
-            if (visible) this._subUIStack.push(ui);
+            this._subUIStack.add(ui, !visible || bottom)
         }
         ui.setArgs(args);
         if (visible) {
@@ -142,8 +139,8 @@ export class UIMgr extends Component {
 
     public async hide(uiName: string, blockTime = 0.2, fastHide = false): Promise<void> {
         this.blockTime = blockTime;
-        Utils.delItemFromArray(this._uiNameStack, uiName);
-        Utils.delItemFromArray(this._subUINameStack, uiName);
+        this._uiNameStack.remove(uiName);
+        this._subUINameStack.remove(uiName);
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) return;
         let hideUI = () => {
@@ -158,7 +155,7 @@ export class UIMgr extends Component {
         };
         let index = this._uiStack.indexOf(ui)
         if (index > -1) {//关闭主UI
-            Utils.delItemFromArray(this._uiStack, ui);
+            this._uiStack.remove(ui);
             if (index == this._uiStack.length) {//关闭最上层UI
                 let topUI = this._uiStack[this._uiStack.length - 1];
                 ui.onHideBegin();
@@ -179,7 +176,7 @@ export class UIMgr extends Component {
         }
         index = this._subUIStack.indexOf(ui)
         if (index > -1) {//关闭子UI
-            Utils.delItemFromArray(this._subUIStack, ui);
+            this._subUIStack.remove(ui);
             if (index == this._subUIStack.length) {//关闭最上层UI
                 let topUI = this._subUIStack[this._subUIStack.length - 1];
                 ui.onHideBegin();
@@ -231,7 +228,7 @@ export class UIMgr extends Component {
         });
     }
 
-    public async initUI(uiName: string, parent: Node, visible = true): Promise<UIForm> {
+    public async initUI(uiName: string, parent: Node, visible = true, bottom = false): Promise<UIForm> {
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) {
             let node = await this.instNode(uiName, parent);
@@ -241,7 +238,7 @@ export class UIMgr extends Component {
         }
         ui.node.active = true;
         ui.setVisible(visible);
-        ui.node.setSiblingIndex(visible ? 999999 : 0);
+        ui.node.setSiblingIndex(visible && !bottom ? 999999 : 0);
         return ui;
     }
 
@@ -284,7 +281,7 @@ export class UIMgr extends Component {
         if (this._showWaitUI.has(uiName)) {
             let waitCfgInfo = UIWaitCfg[uiName];
             let timeMS = this._showWaitUI.get(uiName);
-            let dur = Math.max(0, waitCfgInfo.showDuration - (Date.now() - timeMS) / 1000);
+            let dur = Math.max(0.15, waitCfgInfo.showDuration - (Date.now() - timeMS) / 1000);
             this._showWaitUI.delete(uiName);
             if (this._showWaitUI.size == 0) {
                 this.scheduleOnce(() => {

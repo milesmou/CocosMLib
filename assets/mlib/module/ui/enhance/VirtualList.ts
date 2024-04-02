@@ -24,6 +24,7 @@ let eventMap = {
  * DC优化 循环利用Item节点
  * 使用说明： Content中的子节点为空节点 在空节点中放Item节点并循环利用
  * 空节点的作用是用于定位和检测显示隐藏
+ * 只适用于Item尺寸一致的列表
  */
 @ccclass('VirtualList')
 @requireComponent(ScrollView)
