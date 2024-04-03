@@ -1,5 +1,4 @@
-import { _decorator, Animation, Button, UIOpacity, Widget } from "cc";
-import { ReferenceCollector } from "../../core/ReferenceCollector";
+import { _decorator, Animation, Button, UIOpacity } from "cc";
 import { MEvent } from "../../event/MEvent";
 import { EUIFormAnim } from "./EUIFormAnim";
 import { EUIFormPassiveType } from "./EUIFormPassiveType";
@@ -8,7 +7,7 @@ import { UIComponent } from "./UIComponent";
 const { property, ccclass, requireComponent } = _decorator;
 
 @ccclass("UIForm")
-@requireComponent([UIOpacity, Widget, ReferenceCollector])
+@requireComponent([UIOpacity])
 export abstract class UIForm extends UIComponent {
     @property({
         displayName: "销毁",

@@ -1,4 +1,4 @@
-import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, _decorator, instantiate } from 'cc';
+import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, UITransform, _decorator, instantiate, view } from 'cc';
 
 const { ccclass, property } = _decorator;
 
@@ -245,7 +245,7 @@ export class UIMgr extends Component {
     private async instNode(uiName: string, parent: Node): Promise<Node> {
         let prefab = await AssetMgr.loadAsset(uiName, Prefab);
         let uiObj = instantiate(prefab);
-        CCUtils.uiNodeMatchParent(uiObj);
+        uiObj.getComponent(UITransform).setContentSize(view.getVisibleSize());
         uiObj.parent = parent;
         return uiObj;
     }
