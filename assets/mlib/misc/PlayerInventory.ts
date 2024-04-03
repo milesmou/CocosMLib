@@ -1,6 +1,6 @@
 import { tween } from "cc";
-import { GameSave } from "../module/stroage/StroageMgr";
 import { MLogger } from "../module/logger/MLogger";
+import { GameSave } from "../module/stroage/GameSave";
 
 /** 背包物品的基本信息 */
 export class InventoryItemSO {
@@ -22,7 +22,7 @@ export class InventoryItemSO {
 }
 
 export class PlayerInventory {
-    private _localStroage: GameSave;
+    private _gameSave: GameSave;
 
     private _itemCache: { [key: string]: InventoryItemSO } = {};
 
@@ -31,8 +31,8 @@ export class PlayerInventory {
     private _mergeInventoryItem: boolean;
 
     /** 初始化玩家背包 */
-    protected init(localStroage: GameSave, onInventoryChange?: () => void, mergeInventoryItem = false) {
-        this._localStroage = localStroage;
+    protected init(gameSave: GameSave, onInventoryChange?: () => void, mergeInventoryItem = false) {
+        this._gameSave = gameSave;
         this._onInventoryChange = onInventoryChange;
         this._mergeInventoryItem = mergeInventoryItem;
     }
@@ -84,18 +84,18 @@ export class PlayerInventory {
             this.onDelCostItem(type, id, num, tag);
             let itemSO = this.getCacheItemSO(type, id);
             if (itemSO) {
-                this.delGameItem(itemSO, num);
+                this.delGameItem(itemSO, num, false);
             }
             else {
-                var inventoryItemSos = this._localStroage.inventory.filter(v => v.type == type && v.id == id);
+                var inventoryItemSos = this._gameSave.inventory.filter(v => v.type == type && v.id == id);
                 for (const itemSo of inventoryItemSos) {
                     if (num > 0) {
                         if (num >= itemSo.amount) {
-                            this.delGameItem(itemSo, itemSo.amount);
+                            this.delGameItem(itemSo, itemSo.amount, false);
                             num -= itemSo.amount;
                         }
                         else {
-                            this.delGameItem(itemSo, num);
+                            this.delGameItem(itemSo, num, false);
                             num = 0;
                         }
                     }
@@ -130,7 +130,7 @@ export class PlayerInventory {
     public getItemAmount(type: number, itemId: number) {
         let itemSo = this.getCacheItemSO(type, itemId);
         if (itemSo) return itemSo.amount;
-        var inventoryItemSos = this._localStroage.inventory.filter(v => v.type == type && v.id == itemId);
+        var inventoryItemSos = this._gameSave.inventory.filter(v => v.type == type && v.id == itemId);
         if (inventoryItemSos.length == 0) return 0;
         else {
             let num = 0;
@@ -143,7 +143,7 @@ export class PlayerInventory {
     }
 
     /** 添加物品到背包中 */
-    public addGameItem(type: number, itemId: number, itemNum: number) {
+    private addGameItem(type: number, itemId: number, itemNum: number) {
         let stackLimit = this.getItemStackLimit(type, itemId);
         //无堆叠上限
         if (stackLimit <= 0) {
@@ -152,7 +152,7 @@ export class PlayerInventory {
             if (!inventoryItemSo) {
                 inventoryItemSo = this.genInventoryItemSO(type, itemId);
                 this._itemCache[key] = inventoryItemSo;
-                this._localStroage.inventory.push(inventoryItemSo);
+                this._gameSave.inventory.push(inventoryItemSo);
             }
 
             inventoryItemSo.amount += itemNum;
@@ -160,7 +160,7 @@ export class PlayerInventory {
         else {
             let remain = itemNum;
             //补充背包未堆叠满的物品
-            var inventoryItemSos = this._localStroage.inventory.filter(v => v.type == type && v.id == itemId && v.amount < stackLimit);
+            var inventoryItemSos = this._gameSave.inventory.filter(v => v.type == type && v.id == itemId && v.amount < stackLimit);
             for (const itemSo of inventoryItemSos) {
                 if (itemSo.amount + remain <= stackLimit) {
                     itemSo.amount += remain;
@@ -190,7 +190,6 @@ export class PlayerInventory {
             }
         }
 
-        this.saveInventory();
     }
 
     /** 从获取缓存的物品对象 */
@@ -201,10 +200,10 @@ export class PlayerInventory {
         let inventoryItemSo = this._itemCache[key];
         if (inventoryItemSo) return inventoryItemSo;
         else {
-            inventoryItemSo = this._localStroage.inventory.find(v => v.type == type && v.id == itemId);
+            inventoryItemSo = this._gameSave.inventory.find(v => v.type == type && v.id == itemId);
             if (inventoryItemSo == null) {
                 inventoryItemSo = this.genInventoryItemSO(type, itemId);
-                this._localStroage.inventory.push(inventoryItemSo);
+                this._gameSave.inventory.push(inventoryItemSo);
             }
             this._itemCache[key] = inventoryItemSo;
         }
@@ -214,7 +213,7 @@ export class PlayerInventory {
     /**可重写 生成用于缓存的物品对象 */
     protected genInventoryItemSO(type: number, itemId: number): InventoryItemSO {
         var inventoryItemSo = new InventoryItemSO();
-        inventoryItemSo.uid = this._localStroage.newUid;
+        inventoryItemSo.uid = this._gameSave.newUid;
         inventoryItemSo.type = type;
         inventoryItemSo.id = itemId;
         inventoryItemSo.amount = 0;
@@ -226,18 +225,20 @@ export class PlayerInventory {
         return 0;
     }
 
-    /** 从背包中删除指定物品和数量 */
-    public delGameItem(itemSo: InventoryItemSO, num: number) {
+    /** 从背包中删除指定物品和数量
+     * @param saveInventory 是否立即保存背包信息
+     */
+    public delGameItem(itemSo: InventoryItemSO, num: number, saveInventory = true) {
         if (itemSo && num > 0) {
             itemSo.amount -= num;
             if (itemSo.amount <= 0) {
                 delete this._itemCache[itemSo.type + "_" + itemSo.id];
-                let index = this._localStroage.inventory.indexOf(itemSo);
-                if (index > -1) this._localStroage.inventory.splice(index, 1);
+                let index = this._gameSave.inventory.indexOf(itemSo);
+                if (index > -1) this._gameSave.inventory.splice(index, 1);
             }
         }
 
-        this.saveInventory();
+        if (saveInventory) this.saveInventory();
     }
 
     /** 格式化不同方式的道具配置 */
@@ -266,7 +267,7 @@ export class PlayerInventory {
         let map: { [key: string]: InventoryItemSO[] } = {};
         let mapAmount: { [key: string]: number } = {};
         let mapLimit: { [key: string]: number } = {};
-        for (const itemSo of this._localStroage.inventory) {
+        for (const itemSo of this._gameSave.inventory) {
             let limit = this.getItemStackLimit(itemSo.type, itemSo.id);
             if (limit <= 0) continue;
             if (itemSo.amount >= limit) continue;
@@ -288,8 +289,8 @@ export class PlayerInventory {
                 if (i < num1) itemSo.amount = limit;
                 else if (num2 > 0 && i == num1) itemSo.amount = num2;
                 else {
-                    let index = this._localStroage.inventory.indexOf(itemSo);
-                    if (index > -1) this._localStroage.inventory.splice(index, 1);
+                    let index = this._gameSave.inventory.indexOf(itemSo);
+                    if (index > -1) this._gameSave.inventory.splice(index, 1);
                 }
             }
         }
@@ -307,7 +308,7 @@ export class PlayerInventory {
                 this.mergeInventoryItem();
             }).start();
         }
-        this._localStroage.delaySave();
+        this._gameSave.delaySave();
         this._onInventoryChange && this._onInventoryChange();
     }
 
