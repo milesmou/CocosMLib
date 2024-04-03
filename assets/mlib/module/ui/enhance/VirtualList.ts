@@ -81,6 +81,7 @@ export class VirtualList extends Component {
                 node = instantiate(this.m_childNode);
                 node.parent = this._content;
             }
+            node.active = true;
         }
         for (let i = value, len = this._content.children.length; i < len; i++) {
             this._content.children[i].active = false;
@@ -188,7 +189,7 @@ export class VirtualList extends Component {
 
     private setItemVisible(index: number) {
         const childNode = this._content.children[index];
-        if(!childNode.active) return;//忽略隐藏的Item
+        if (!childNode.active) return;//忽略隐藏的Item
         let visible: boolean;
         if (this._siblingIndexLeft > -1 && index < this._siblingIndexLeft) {
             visible = false;
