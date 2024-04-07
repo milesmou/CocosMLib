@@ -57,17 +57,17 @@ export class ScrollviewEnhance extends Component {
     }
 
     protected onEnable(): void {
-        this._view.on(Node.EventType.SIZE_CHANGED, this.onViewChanged, this);
-        this._view.on(Node.EventType.TRANSFORM_CHANGED, this.onViewChanged, this);
-        this.m_content.on(Node.EventType.CHILD_ADDED, this.onContentChildChanged, this);
-        this.m_content.on(Node.EventType.CHILD_REMOVED, this.onContentChildChanged, this);
+        this._view.on(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
+        this._view.on(Node.EventType.TRANSFORM_CHANGED, this.delayUpdateItemsVisible, this);
+        this.m_content.on(Node.EventType.CHILD_ADDED, this.delayUpdateItemsVisible, this);
+        this.m_content.on(Node.EventType.CHILD_REMOVED, this.delayUpdateItemsVisible, this);
     }
 
     protected onDisable(): void {
-        this._view.off(Node.EventType.SIZE_CHANGED, this.onViewChanged, this);
-        this._view.off(Node.EventType.TRANSFORM_CHANGED, this.onViewChanged, this);
-        this.m_content.off(Node.EventType.CHILD_ADDED, this.onContentChildChanged, this);
-        this.m_content.off(Node.EventType.CHILD_REMOVED, this.onContentChildChanged, this);
+        this._view.off(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
+        this._view.off(Node.EventType.TRANSFORM_CHANGED, this.delayUpdateItemsVisible, this);
+        this.m_content.off(Node.EventType.CHILD_ADDED, this.delayUpdateItemsVisible, this);
+        this.m_content.off(Node.EventType.CHILD_REMOVED, this.delayUpdateItemsVisible, this);
     }
 
     private init() {
@@ -75,19 +75,11 @@ export class ScrollviewEnhance extends Component {
         if (!this._scrollview) return;
         this._view = this.getComponentInChildren(Mask).node;
         this.m_content = this.m_content || this._scrollview.content;
-        this.onViewChanged();
-        this.onContentChildChanged();
+        this.delayUpdateItemsVisible();
         CCUtils.addEventToComp(this._scrollview, this.node, "ScrollviewEnhance", "onScrolling");
     }
 
-    private onViewChanged() {
-        this._view.getComponent(UITransform).getComputeAABB(this._viewAABB);
-        this.delayUpdateItemsVisible();
-    }
 
-    private onContentChildChanged() {
-        this.delayUpdateItemsVisible();
-    }
 
     private onScrolling(scrollview: ScrollView, event: number) {
         switch (event) {
@@ -116,6 +108,8 @@ export class ScrollviewEnhance extends Component {
 
     private updateItemsVisible() {
 
+        this._view.getComponent(UITransform).getComputeAABB(this._viewAABB);
+        
         this._onceUpdateitemVisible.clear();
         this._siblingIndexLeft = -1;
         this._siblingIndexRight = -1;
@@ -157,12 +151,9 @@ export class ScrollviewEnhance extends Component {
             item.getComponent(UITransform).getComputeAABB(this._childAABB);
             visible = geometry.intersect.aabbWithAABB(this._viewAABB, this._childAABB);
         }
-
+        
         uiOpacity.opacity = visible ? 255 : 0;
         this._onceUpdateitemVisible.set(index, visible);
     }
 
-
 }
-
-
