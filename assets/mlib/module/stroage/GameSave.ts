@@ -1,4 +1,4 @@
-import { tween } from "cc";
+import { Tween, tween } from "cc";
 import { InventoryItemSO } from "../../misc/PlayerInventory";
 import { TaskItemSO } from "../../misc/PlayerTask";
 import { LZString } from "../../third/lzstring/LZString";
@@ -22,9 +22,11 @@ export abstract class GameSave {
     private _createDate = 0;
     /** 上一次重置每日数据日期 */
     private _date = 0;
+    /** 替换本地存档时的处理 */
+    private _onReplaceGameData: () => void;
 
     /** 自增且唯一的UID */
-    get newUid() {
+    public get newUid() {
         this._uid++;
         this.delaySave();
         return this._uid;
@@ -49,6 +51,11 @@ export abstract class GameSave {
 
     /** 标记存档 */
     public flag: { [key: string]: string } = {};
+
+
+    public constructor(onReplaceGameData: () => void) {
+        this._onReplaceGameData = onReplaceGameData;
+    }
 
     /**
      * 初始化
@@ -81,7 +88,7 @@ export abstract class GameSave {
     public delaySave() {
         if (!this._readySave) {
             this._readySave = true;
-            tween({}).delay(0.01).call(() => {
+            tween(this).delay(0.01).call(() => {
                 this._readySave = false;
                 this.save();
             }).start();
@@ -102,8 +109,10 @@ export abstract class GameSave {
 
     /** 替换本地存档 */
     public replaceGameData(strData: string, isCompress = true) {
+        Tween.stopAllByTarget(this);
         if (strData && isCompress) strData = LZString.decompressFromUTF16(strData);
         LocalStorage.setValue(this.name, strData);
+        this._onReplaceGameData && this._onReplaceGameData();
     }
 
     /** 字典或数组集合的元素的key的后缀 */

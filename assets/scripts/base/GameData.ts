@@ -10,13 +10,10 @@ export class GameData extends GameSave {
     private static _inst: GameData = null;
     /** 游戏数据单例 */
     public static get Inst(): GameData {
-        if (!this._inst) this._inst = this.deserialize(new GameData());
+        if (!this._inst) this._inst = this.deserialize(new GameData(() => {
+            this._inst = null;
+        }));
         return this._inst;
-    }
-
-    /** 清除数据 */
-    public static clear() {
-        this._inst = null;
     }
 
     /** 存档名字 为避免浏览器存档冲突 最好不同游戏不同名字 */
