@@ -86,6 +86,7 @@ export class VirtualList extends Component {
         for (let i = value, len = this._content.children.length; i < len; i++) {
             this._content.children[i].active = false;
         }
+        this._itemVisible.clear();//刷新数据时,清除显隐缓存
         this.scheduleOnce(this.delayUpdateItemsVisible);
     }
 
@@ -105,7 +106,9 @@ export class VirtualList extends Component {
             return;
         }
         this._itemNode = this.m_childNode.children[0];
-        this._itemNode.parent = null;
+        this.m_childNode.removeFromParent();
+        this.m_childNode.removeAllChildren();
+
         this._itemPool = new ObjectPool<Node>({
             defaultCreateNum: 5,
             newObject: () => {
@@ -205,12 +208,17 @@ export class VirtualList extends Component {
         this._itemVisible.set(index, visible);
         if (lastVisible != visible) {
             if (visible) {
-                let item = this._itemPool.get();
-                item.parent = childNode;
+                let item = childNode.children[0];
+                if (!item?.isValid) {
+                    item = this._itemPool.get();
+                    item.parent = childNode;
+                }
                 this._itemRenderer(item, index);
             } else {
                 let item = childNode.children[0];
-                this._itemPool.put(item);
+                if (item?.isValid) {
+                    this._itemPool.put(item);
+                }
             }
         }
     }
