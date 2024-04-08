@@ -200,7 +200,7 @@ export class VirtualList extends Component {
             visible = false;
         } else {
             this._childAABB = childNode.getComponent(UITransform).getComputeAABB();
-            visible = geometry.intersect.aabbWithAABB(this._viewAABB, this._childAABB)
+            visible = geometry.intersect.aabbWithAABB(this._viewAABB, this._childAABB);
         }
 
         this._onceUpdateitemVisible.set(index, visible);
