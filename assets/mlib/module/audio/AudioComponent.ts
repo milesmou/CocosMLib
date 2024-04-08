@@ -1,19 +1,29 @@
-import { AudioClip, AudioSource, Component, Tween, _decorator, misc, tween } from 'cc';
+import { AudioClip, AudioSource, Component, Tween, _decorator, tween } from 'cc';
 import { AssetMgr } from '../asset/AssetMgr';
-import { StroageValue } from '../stroage/StroageValue';
+import { AudioConfig } from './AudioConfig';
+import { AudioMgr } from './AudioMgr';
 import { AudioState } from './AudioState';
+import { IAudioComponent } from './IAudioComponent';
 import { SortedMap } from './SortedMap';
 
-const { ccclass } = _decorator;
+const { ccclass, property } = _decorator;
 
 /** 音频播放组件 */
 @ccclass("AudioComponent")
-export class AudioComponent extends Component {
+export class AudioComponent extends Component implements IAudioComponent {
+
+    @property({
+        displayName: "Key"
+    })
+    private m_key = "";
 
     /** 音乐音量 */
-    public mVolume: StroageValue<number>;
+    private get mVolume() { return AudioMgr.GlobalCfg.mVolume.value * this.audioConfig.mVolume.value; }
     /** 音效音量 */
-    public eVolume: StroageValue<number>;
+    private get eVolume() { return AudioMgr.GlobalCfg.eVolume.value * this.audioConfig.eVolume.value; }
+
+    public audioConfig: AudioConfig;
+
     /** 当前音乐是否暂停 */
     private _pause = false;
     public get pause() { return this._pause; }
@@ -27,11 +37,21 @@ export class AudioComponent extends Component {
     /** 循环播放的音效 */
     private loopEffect: AudioState[] = [];
 
-    onLoad() {
-        this.mVolume = new StroageValue("MusicVolume_" + this.node.name, 1);
-        this.eVolume = new StroageValue("EffectVolume_" + this.node.name, 1);
+    protected onLoad() {
         this.effectOneShot = this.addComponent(AudioSource);
-        this.effectOneShot.volume = this.eVolume.value;
+        this.setKey(this.m_key);
+    }
+
+    protected onDestroy(): void {
+        AudioMgr.remove(this.m_key);
+    }
+
+    public setKey(key: string) {
+        if (!key) return;
+        this.m_key = key;
+        this.audioConfig = new AudioConfig(key, this.refreshMusicVolume.bind(this), this.refreshEffectVolume.bind(this));
+        this.effectOneShot.volume = this.eVolume;
+        AudioMgr.add(this.m_key, this);
     }
 
     private musicGet(priority: number, audioName: string) {
@@ -48,7 +68,7 @@ export class AudioComponent extends Component {
     }
 
     /** 播放背景音乐 */
-    async playMusic(location: string, priority = 0, volumeScale = 1, args: { fadeIn?: number, fadeOut?: number, onLoaded?: (clip: AudioClip) => void } = {}) {
+    public async playMusic(location: string, priority = 0, volumeScale = 1, args: { fadeIn?: number, fadeOut?: number, onLoaded?: (clip: AudioClip) => void } = {}) {
         priority = Math.max(0, priority);
         let { fadeIn, fadeOut, onLoaded } = args;
         fadeIn = fadeIn === undefined ? 0 : fadeIn;
@@ -84,7 +104,7 @@ export class AudioComponent extends Component {
             }
             onLoaded && onLoaded(clip);
             audioState.audio.clip = clip;
-            audioState.audio.volume = this.mVolume.value * volumeScale;
+            audioState.audio.volume = this.mVolume * volumeScale;
             audioState.audio.loop = true;
             if (!this.stack.isTop(priority, location)) {//不是优先级最高的音乐暂停播放 
                 return;
@@ -105,18 +125,18 @@ export class AudioComponent extends Component {
     /**
      * 播放音效
      * @param loop loop=true时不会触发onFinished
-     * @param deRef 默认为true 是否在音效结束时释引用次数-1
+     * @param deRef 默认为false 是否在音效结束时释引用次数-1
      */
-    async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
+    public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
         let { loop, deRef, onStart, onFinished } = args;
-        deRef = deRef === undefined ? true : deRef;
+        deRef = deRef === undefined ? false : deRef;
         var clip = await AssetMgr.loadAsset(location, AudioClip);
         if (!this.isValid) return;
         if (loop) {
             let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
             this.loopEffect.push(audioState);
             audioState.audio.clip = clip;
-            audioState.audio.volume = this.eVolume.value * volumeScale;
+            audioState.audio.volume = this.eVolume * volumeScale;
             audioState.audio.loop = true;
             audioState.audio.play();
             onStart && onStart(clip);
@@ -134,7 +154,7 @@ export class AudioComponent extends Component {
     }
 
     /** 暂停恢复音乐 */
-    pauseMusic(isPause: boolean, dur = 0) {
+    public pauseMusic(isPause: boolean, dur = 0) {
         this._pause = isPause;
         if (this.stack.size > 0) {
             var audioState = this.musicGet(this.stack.topKey, this.stack.topValue);
@@ -147,13 +167,14 @@ export class AudioComponent extends Component {
         }
     }
 
-
-    //停止播放当前音乐
-    //location 停止指定名字音乐的地址 默认停止当前音乐
-    //priority 音乐的优先级
-    //autoPlay 是否自动播放上一个音乐 默认为true
-    //fadeIn 上一个音乐渐入时间
-    //fadeOut 当前音乐渐出时间
+    /**
+     * 停止播放当前音乐
+     * @param location 停止指定名字音乐的地址 默认停止当前音乐
+     * @param priority 音乐的优先级
+     * @param autoPlay 是否自动播放上一个音乐 默认为true
+     * @param fadeIn 上一个音乐渐入时间
+     * @param fadeOut 当前音乐渐出时间
+     */
     public stopMusic(location?: string, priority = 0, autoPlay = true, fadeIn = 0, fadeOut = 0) {
         let isTop = false;
         if (location === undefined) {
@@ -175,8 +196,10 @@ export class AudioComponent extends Component {
         }
     }
 
-    //停止播放所有音乐
-    //fadeOut 音乐渐出时间
+    /**
+     * 停止播放所有音乐
+     * @param fadeOut 音乐渐出时间
+     */
     public stopAllMusic(fadeOut = 0) {
         if (this.stack.size > 0) {
             for (let key in this.music) {
@@ -187,7 +210,7 @@ export class AudioComponent extends Component {
         }
     }
 
-    // 停止播放指定的循环音效
+    /** 停止播放指定的循环音效 */
     public stopEffect(audioClip: AudioClip) {
         if (audioClip) {
             let index = this.loopEffect.findIndex(v => v.audio.clip == audioClip);
@@ -202,7 +225,7 @@ export class AudioComponent extends Component {
         }
     }
 
-    // 停止播放所有音效
+    /** 停止播放所有音效 */
     public stopAllEffect() {
         this.loopEffect.forEach(v => {
             if (v.audio?.isValid) {
@@ -214,36 +237,31 @@ export class AudioComponent extends Component {
         this.effectOneShot.stop();
     }
 
-    /* 设置音乐音量 */
-    public setMusicVolume(volume: number, dur = 0) {
-        volume = misc.clampf(volume, 0, 1);
+    /** 刷新正在播放的音乐的音量 */
+    public refreshMusicVolume(dur?: number) {
         if (this.stack.size > 0) {
             if (dur > 0) {
                 this.stack.forEach((priority, audioName) => {
                     let state = this.musicGet(audioName, priority);
                     if (state?.audio)
-                        tween(state.audio).to(dur, { volume: state.volumeScale * volume }).start();
+                        tween(state.audio).to(dur, { volume: state.volumeScale * this.mVolume }).start();
                 });
             }
             else {
                 this.stack.forEach((audioName, priority) => {
                     let state = this.musicGet(priority, audioName);
-                    if (state?.audio) state.audio.volume = state.volumeScale * volume;
+                    if (state?.audio) state.audio.volume = state.volumeScale * this.mVolume;
                 });
             }
         }
-
-        this.mVolume.value = volume;
     }
 
-    /** 设置音效音量 */
-    public setEffectVolume(volume: number) {
-        volume = misc.clampf(volume, 0, 1);
+    /** 刷新正在播放的音效的音量 */
+    public refreshEffectVolume() {
         this.loopEffect.forEach(v => {
-            if (v.audio) v.audio.volume = v.volumeScale * volume;
+            if (v.audio) v.audio.volume = v.volumeScale * this.eVolume;
         });
-        this.effectOneShot.volume = volume;
-        this.eVolume.value = volume;
+        this.effectOneShot.volume = this.eVolume;
     }
 
     private fadeInMusic(dur: number, audioState: AudioState) {
@@ -251,7 +269,7 @@ export class AudioComponent extends Component {
         if (dur > 0) {
             audioState.audio.volume = 0;
             audioState.audio.play();
-            tween(audioState.audio).to(dur, { volume: audioState.volumeScale * this.mVolume.value }).start();
+            tween(audioState.audio).to(dur, { volume: audioState.volumeScale * this.mVolume }).start();
         }
         else {
             audioState.audio.play();

@@ -45,6 +45,7 @@ export class App extends Component {
 
         App.timer = this.addComponent(TimerComponent);
         App.audio = this.addComponent(AudioComponent);
+        App.audio.setKey("App");
         App.asset = this.addComponent(AssetComponent);
 
         App.chan = Publish.getChannelInstance();
