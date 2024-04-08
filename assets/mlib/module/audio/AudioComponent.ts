@@ -46,6 +46,7 @@ export class AudioComponent extends Component implements IAudioComponent {
         AudioMgr.remove(this.m_key);
     }
 
+    /** 为音频播放组件设置一个Key */
     public setKey(key: string) {
         if (!key) return;
         this.m_key = key;
@@ -98,7 +99,7 @@ export class AudioComponent extends Component implements IAudioComponent {
             let clip = await AssetMgr.loadAsset<AudioClip>(location, AudioClip);
             if (!this.isValid) return;
             if (!clip) return;
-            if (!this.stack.isTop(priority, location)) {//未加载音乐完就已停止
+            if (!this.stack.has(priority, location)) {//未加载音乐完就已停止
                 AssetMgr.DecRef(location);
                 return;
             }
@@ -130,7 +131,7 @@ export class AudioComponent extends Component implements IAudioComponent {
     public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
         let { loop, deRef, onStart, onFinished } = args;
         deRef = deRef === undefined ? false : deRef;
-        var clip = await AssetMgr.loadAsset(location, AudioClip);
+        let clip = await AssetMgr.loadAsset(location, AudioClip);
         if (!this.isValid) return;
         if (loop) {
             let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
@@ -157,7 +158,7 @@ export class AudioComponent extends Component implements IAudioComponent {
     public pauseMusic(isPause: boolean, dur = 0) {
         this._pause = isPause;
         if (this.stack.size > 0) {
-            var audioState = this.musicGet(this.stack.topKey, this.stack.topValue);
+            let audioState = this.musicGet(this.stack.topKey, this.stack.topValue);
             if (isPause) {
                 this.fadeOutMusic(dur, audioState);
             }
@@ -278,10 +279,9 @@ export class AudioComponent extends Component implements IAudioComponent {
 
     private fadeOutMusic(dur: number, audioState: AudioState, stop = false) {
         if (audioState == null || !audioState.audio?.isValid) return;
-        var audioSource = audioState.audio;
+        let audioSource = audioState.audio;
         let onEnd = () => {
             if (stop) {
-
                 audioSource?.isValid && audioSource.destroy();
                 AssetMgr.DecRef(audioState.location);
             }

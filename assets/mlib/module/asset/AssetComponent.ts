@@ -22,7 +22,7 @@ export class AssetComponent extends Component {
         });
     }
 
-    async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T): Promise<T> {
+    public async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T): Promise<T> {
         let asset = this._cache.get(location);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadAsset<T>(location, type);
@@ -30,7 +30,7 @@ export class AssetComponent extends Component {
         return asset as T;
     }
 
-    async loadRemoteAsset<T extends Asset>(url: string): Promise<T> {
+    public async loadRemoteAsset<T extends Asset>(url: string): Promise<T> {
         let asset = this._cache.get(url);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset<T>(url);
@@ -38,7 +38,7 @@ export class AssetComponent extends Component {
         return asset as T;
     }
 
-    async loadRemoteSpriteFrame(url: string) {
+    public async loadRemoteSpriteFrame(url: string) {
         let img = await this.loadRemoteAsset<ImageAsset>(url);
         if (img) {
             return SpriteFrame.createWithImage(img as ImageAsset);
@@ -51,7 +51,7 @@ export class AssetComponent extends Component {
     * @param sprite 目标Sprite组件
     * @param location 路径（本地路径不带扩展名 远程路径带扩展名）
     */
-    async loadSprite(sprite: Sprite, location: string) {
+    public async loadSprite(sprite: Sprite, location: string) {
         if (!sprite?.isValid) {
             console.error("Sprite无效 " + location);
             return;
@@ -62,6 +62,15 @@ export class AssetComponent extends Component {
         } else {
             let spFrame = await this.loadAsset<SpriteFrame>(location, SpriteFrame);
             sprite.spriteFrame = spFrame;
+        }
+    }
+
+    /** 让资源引用计数减少 */
+    public decRef(location: string) {
+        if (this._cache.has(location)) {
+            location = AssetMgr.parseLocation(location, this._cache.get(location));
+            this._cache.delete(location);
+            AssetMgr.DecRef(location, 1);
         }
     }
 }
