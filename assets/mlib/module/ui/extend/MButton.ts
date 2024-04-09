@@ -3,7 +3,7 @@ import { App } from '../../../App';
 import { MEvent } from '../../event/MEvent';
 import { MLogger } from '../../logger/MLogger';
 
-const { ccclass, property,disallowMultiple } = _decorator;
+const { ccclass, property, disallowMultiple } = _decorator;
 
 @ccclass('MButton')
 @disallowMultiple
@@ -67,9 +67,11 @@ export class MButton extends Button {
 
     private _onClick = new MEvent();
     public get onClick() { return this._onClick; }
+    public set onClick(value: MEvent) { this._onClick = value; }
 
     private _onLongPress = new MEvent();
     public get onLongPress() { return this._onLongPress; }
+    public set onLongPress(value: MEvent) { this._onLongPress = value; }
 
     /** 是否冷却中 */
     private _isCoolingDown = false;
