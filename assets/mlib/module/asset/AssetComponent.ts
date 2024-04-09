@@ -26,6 +26,7 @@ export class AssetComponent extends Component {
         let asset = this._cache.get(location);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadAsset<T>(location, type);
+        if (!this.isValid) return;
         if (asset?.isValid) this._cache.set(location, asset);
         return asset as T;
     }
@@ -34,12 +35,14 @@ export class AssetComponent extends Component {
         let asset = this._cache.get(url);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset<T>(url);
+        if (!this.isValid) return;
         if (asset?.isValid) this._cache.set(url, asset);
         return asset as T;
     }
 
     public async loadRemoteSpriteFrame(url: string) {
         let img = await this.loadRemoteAsset<ImageAsset>(url);
+        if (!this.isValid) return;
         if (img) {
             return SpriteFrame.createWithImage(img as ImageAsset);
         }
@@ -56,13 +59,14 @@ export class AssetComponent extends Component {
             console.error("Sprite无效 " + location);
             return;
         }
+        let spFrame: SpriteFrame;
         if (location.startsWith("http") || location.startsWith("/")) {
-            let spFrame = await this.loadRemoteSpriteFrame(location);
-            sprite.spriteFrame = spFrame;
+            spFrame = await this.loadRemoteSpriteFrame(location);
         } else {
-            let spFrame = await this.loadAsset<SpriteFrame>(location, SpriteFrame);
-            sprite.spriteFrame = spFrame;
+            spFrame = await this.loadAsset<SpriteFrame>(location, SpriteFrame);
         }
+        if (!this.isValid) return;
+        sprite.spriteFrame = spFrame;
     }
 
     /** 让资源引用计数减少 */
