@@ -430,12 +430,12 @@ export class TUnforcedGuide {
         this.ID = _json_.ID
         if (_json_.GuideID === undefined) { throw new Error() }
         this.GuideID = _json_.GuideID
+        if (_json_.StepIndex === undefined) { throw new Error() }
+        this.StepIndex = _json_.StepIndex
         if (_json_.UIName === undefined) { throw new Error() }
         this.UIName = _json_.UIName
         if (_json_.NodePath === undefined) { throw new Error() }
         this.NodePath = _json_.NodePath
-        if (_json_.FingerDir === undefined) { throw new Error() }
-        this.FingerDir = _json_.FingerDir
         if (_json_.FingerOffset === undefined) { throw new Error() }
         this.FingerOffset = Vector2.deserializeFromJson(_json_.FingerOffset)
     }
@@ -449,6 +449,10 @@ export class TUnforcedGuide {
      */
     readonly GuideID: number
     /**
+     * 步骤索引
+     */
+    readonly StepIndex: number
+    /**
      * 节点所在UI名字
      */
     readonly UIName: string
@@ -456,10 +460,6 @@ export class TUnforcedGuide {
      * 节点在UI中的路径
      */
     readonly NodePath: string
-    /**
-     * 手指方向
-     */
-    readonly FingerDir: number
     /**
      * 手指相对目标节点偏移
      */
@@ -508,12 +508,8 @@ export class TGuideOpenPlan {
     constructor(_json_: any) {
         if (_json_.ID === undefined) { throw new Error() }
         this.ID = _json_.ID
-        if (_json_.NeedPlayerLv === undefined) { throw new Error() }
-        this.NeedPlayerLv = _json_.NeedPlayerLv
-        if (_json_.NeedBattleLv === undefined) { throw new Error() }
-        this.NeedBattleLv = _json_.NeedBattleLv
-        if (_json_.NeedMainTask === undefined) { throw new Error() }
-        this.NeedMainTask = _json_.NeedMainTask
+        if (_json_.FuncOpenID === undefined) { throw new Error() }
+        this.FuncOpenID = _json_.FuncOpenID
     }
 
     /**
@@ -521,17 +517,9 @@ export class TGuideOpenPlan {
      */
     readonly ID: number
     /**
-     * 等级要求
+     * 功能开启ID
      */
-    readonly NeedPlayerLv: number
-    /**
-     * 关卡要求
-     */
-    readonly NeedBattleLv: number
-    /**
-     * 主线任务要求
-     */
-    readonly NeedMainTask: number
+    readonly FuncOpenID: number
 
     resolve(_tables: Map<string, any>) {
     }

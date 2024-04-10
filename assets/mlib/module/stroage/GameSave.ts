@@ -49,6 +49,9 @@ export abstract class GameSave {
     /** 引导数据存档 */
     public guide: number[] = [];
 
+    /** 当前进行的非强制引导ID */
+    public unforcedGuide = 0;
+
     /** 标记存档 */
     public flag: { [key: string]: string } = {};
 

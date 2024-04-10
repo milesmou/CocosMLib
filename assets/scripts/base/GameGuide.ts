@@ -1,3 +1,4 @@
+import { Node } from "cc";
 import { App } from "../../mlib/App";
 import { GameData } from "./GameData";
 import { EGuideType, EventKey } from "./GameEnum";
@@ -96,6 +97,17 @@ export class GameGuide {
 
 
 
+    //#region 非强制引导条件判断
+
+    public checkUnforcedGuide(guideId: number, stepIndex: number): boolean {
+        return false;
+    }
+
+    public async getUnforcedGuideStepNode(guideId: number, stepIndex: number): Promise<Node> {
+        return null;
+    }
+
+    //#endregion
 
 
 }

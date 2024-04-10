@@ -2,9 +2,9 @@
   {
     "ID": 1,
     "GuideID": 201,
+    "StepIndex": 0,
     "UIName": "UIHUD",
     "NodePath": "home/downHome/down/left/$MainTaskBtn",
-    "FingerDir": 3,
     "FingerOffset": {
       "x": 0,
       "y": 0
@@ -13,9 +13,9 @@
   {
     "ID": 2,
     "GuideID": 201,
+    "StepIndex": 1,
     "UIName": "MainTasksWin",
     "NodePath": "home/btnGet",
-    "FingerDir": 1,
     "FingerOffset": {
       "x": 0,
       "y": 0
