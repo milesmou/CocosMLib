@@ -1,5 +1,6 @@
 import { Node } from "cc";
 import { App } from "../../mlib/App";
+import { TUnforcedGuide } from "../gen/table/Types";
 import { GameData } from "./GameData";
 import { EGuideType, EventKey } from "./GameEnum";
 import { UIGuide } from "./guide/UIGuide";
@@ -103,7 +104,7 @@ export class GameGuide {
         return false;
     }
 
-    public async getUnforcedGuideStepNode(guideId: number, stepIndex: number): Promise<Node> {
+    public async getUnforcedGuideStepNode(guideData: TUnforcedGuide): Promise<Node> {
         return null;
     }
 
