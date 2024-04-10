@@ -161,7 +161,7 @@ export class MButton extends Button {
                 //已触发长按事件 忽略点击事件
             }
             else {
-                if (this['_pressed'] && this.clickAudio) App.audio.playEffect(this.clickAudio);
+                if (this['_pressed'] && this.clickAudio) App.audio.playEffect(this.clickAudio, 1, { deRef: false });
                 this.onClick.dispatch();
                 super._onTouchEnded(event);
             }
@@ -171,7 +171,7 @@ export class MButton extends Button {
     }
 
     private dispatchLongPress(first: boolean) {
-        if (first && this.clickAudio) App.audio.playEffect(this.clickAudio);
+        if (first && this.clickAudio) App.audio.playEffect(this.clickAudio, 1, { deRef: false });
         this._longPressEvtCount++;
         this.onLongPress.dispatch();
         EventHandler.emitEvents(this.longPressEvents);
