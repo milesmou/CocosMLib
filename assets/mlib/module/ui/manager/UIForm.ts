@@ -3,6 +3,7 @@ import { MEvent } from "../../event/MEvent";
 import { EUIFormAnim } from "./EUIFormAnim";
 import { EUIFormPassiveType } from "./EUIFormPassiveType";
 import { UIComponent } from "./UIComponent";
+import { MButton } from "../extend/MButton";
 
 const { property, ccclass, requireComponent } = _decorator;
 
@@ -43,11 +44,11 @@ export abstract class UIForm extends UIComponent {
     })
     action = EUIFormAnim.NONE;
     @property({
-        type: Button,
+        type: MButton,
         displayName: "关闭按钮",
         tooltip: "自动为按钮绑定UI关闭事件"
     })
-    closeBtn: Button = null;
+    closeBtn: MButton = null;
 
     public abstract get uiName(): string;
     protected animation: Animation;

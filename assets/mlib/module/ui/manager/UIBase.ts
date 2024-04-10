@@ -37,7 +37,7 @@ export class UIBase extends UIForm {
         if (this.autoHide) this.enableAutoHide();
         if (this.blockInputEvent) this.addComponent(BlockInputEvents);
 
-        this.closeBtn && this.closeBtn.node.on("click", this.safeClose, this);
+        this.closeBtn && this.closeBtn.onClick.addListener(this.safeClose, this);
         this.animation = this.getComponent(Animation) || CCUtils.getComponentInChildren(this.node, Animation);
     }
 
