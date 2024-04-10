@@ -1,8 +1,10 @@
-import { Node } from "cc";
+import { Node, find } from "cc";
 import { App } from "../../mlib/App";
+import { UIConstant } from "../gen/UIConstant";
 import { TUnforcedGuide } from "../gen/table/Types";
 import { GameData } from "./GameData";
-import { EGuideType, EventKey } from "./GameEnum";
+import { EGuideType, EUnforcedGuideType, EventKey } from "./GameEnum";
+import { PlayerData } from "./PlayerData";
 import { UIGuide } from "./guide/UIGuide";
 
 /**
@@ -97,15 +99,33 @@ export class GameGuide {
     }
 
 
-
+    
     //#region 非强制引导条件判断
 
-    public checkUnforcedGuide(guideId: number, stepIndex: number): boolean {
+    public checkUnforcedGuide(guideData: TUnforcedGuide): boolean {
+        if (guideData.GuideID == EUnforcedGuideType.RequireEvent1) return this.checkGuide1001(guideData);
         return false;
     }
 
     public async getUnforcedGuideStepNode(guideData: TUnforcedGuide): Promise<Node> {
+        let uiNode = App.ui.getUI(UIConstant[guideData.UIName]).node;
+        if (guideData.GuideID == EUnforcedGuideType.RequireEvent1) {
+            if (guideData.StepIndex == 2) {
+                return find("home/Bottom/$Content", uiNode).children[0];
+            } else if (guideData.StepIndex == 7) {
+                return find("home/$ScrollView/view/content", uiNode).children[0];
+            }
+        }
         return null;
+    }
+
+    private checkGuide1001(guideData: TUnforcedGuide): boolean {
+        if (guideData.StepIndex < 4) {//
+            return PlayerData.Inst.getItemAmount(1, 1011) == 0;//背包没有肉夹馍
+        } else {//供销社按钮
+            return PlayerData.Inst.getItemAmount(1, 1011) > 0;//背包有肉夹馍
+        }
+        return false;
     }
 
     //#endregion

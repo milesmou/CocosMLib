@@ -197,7 +197,7 @@ export class CCUtils {
     }
 
     public static loadList<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
-        args?: { item?: Prefab, frameTimeMS?: number, comp?: Component }) {
+        args?: { item?: Node | Prefab, frameTimeMS?: number, comp?: Component }) {
 
         return new Promise<void>((resolve, reject) => {
             let { item, frameTimeMS, comp } = args || {};
@@ -253,7 +253,7 @@ export class CCUtils {
     }
 
     private static *listGenerator<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
-        item: Prefab = null) {
+        item: Node | Prefab = null) {
         let instNode = (index: number) => {
             if (!content?.isValid) return;
             let child: Node;
@@ -261,7 +261,7 @@ export class CCUtils {
                 child = content.children[index];
             }
             else {
-                child = item ? instantiate(item) : instantiate(content.children[0]);
+                child = item ? instantiate(item) as Node : instantiate(content.children[0]);
                 child.parent = content;
             }
 

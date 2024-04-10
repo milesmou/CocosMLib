@@ -45,12 +45,12 @@ export default class UnforcedGuide extends Component {
         } else {
             targetNode = await GameGuide.Inst.getUnforcedGuideStepNode(guideData);
         }
-        this.finger.active = true;
+        this.finger.parent = targetNode;
         this.finger.worldPosition = targetNode.worldPosition.add(v3(guideData.FingerOffset.x, guideData.FingerOffset.y));
     }
 
     private hide() {
-        this.finger.active = false;
+        this.finger.parent = null;
     }
 
     private check() {
@@ -58,13 +58,16 @@ export default class UnforcedGuide extends Component {
         if (!this._guideDatas) return;
         let guideData: TUnforcedGuide = null;
         for (const data of this._guideDatas) {
-            if (App.ui.isTopUI(UIConstant[data.UIName]) && GameGuide.Inst.checkUnforcedGuide(this.nowGuideId, data.StepIndex)) {
+            if (!App.ui.isTopUI(UIConstant[data.UIName])) continue;
+            if (GameGuide.Inst.checkUnforcedGuide(data)) {
                 guideData = data;
                 break;
             }
         }
         if (guideData) {//满足条件的一个软引导
-            this.showFinger(guideData);
+            this.scheduleOnce(() => {
+                this.showFinger(guideData);
+            });
         } else {
             this.hide();
         }
@@ -72,7 +75,7 @@ export default class UnforcedGuide extends Component {
     }
 
     public startGuide(guideId: number) {
-        GameData.Inst.unforcedGuide = 0;
+        GameData.Inst.unforcedGuide = guideId;
         this._guideDatas = GameTable.Inst.getUnforcedGuideGroup(guideId);
         if (this._guideDatas.length > 0) {
             this.check();
@@ -81,7 +84,8 @@ export default class UnforcedGuide extends Component {
         }
     }
 
-    public endGuide() {
+    public endGuide(guideId: number) {
+        if (GameData.Inst.unforcedGuide != guideId) return;
         GameData.Inst.unforcedGuide = 0;
         GameData.Inst.delaySave();
         this.hide();

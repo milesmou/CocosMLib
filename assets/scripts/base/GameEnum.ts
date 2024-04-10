@@ -182,66 +182,18 @@ export enum EGuideType {
     ///
     /** 开场战斗 */
     WelcomeBattle = 102,
-    /** AVG1 */
-    WelcomeBattle_2 = 103,
-    /** 解锁兵线 */
-    WelcomeBattle_3 = 104,
-    /** 装配武器 */
-    WelcomeBattle_4 = 105,
-    /** 调度区 准备进战场 */
-    WelcomeBattle_4_1 = 106,
+}
+
+/**
+ * 非强制引导枚举
+ */
+export enum EUnforcedGuideType {
+    None = 0,
     ///
-    /** 救援 */
-    Rescue = 107,
-    /** 解锁康复区 */
-    Rescue_2 = 108,
-    /** 康复区AVG */
-    Rescue_3 = 109,
-    /** 医疗站治疗 */
-    Rescue_4 = 110,
-    ///
-    /** 训练站解锁员工 */
-    Training = 111,
-    /** 解锁员工AVG */
-    Training_1 = 112,
-    ///
-    /** 挑战boss引导 */
-    KillBoss = 113,
-    /** boss死亡avg */
-    KillBoss_1 = 114,
-    /** 解锁鸡舍 */
-    KillBoss_2 = 115,
-    /** 解锁鸡舍后AVG */
-    KillBoss_3 = 116,
-    ///
-    /** 解锁枪鸡兵线 */
-    UnlockGunLane = 117,
 
-    ///
-    /** 抽取武器 */
-    BuyEquip = 118,
+    /** 引导买肉夹馍给女儿 */
+    RequireEvent1 = 1001,
 
-    /** 解锁生产区 AVG */
-    UnlockProduce = 119,
-
-    ///
-    /** 解锁法鸡兵线 */
-    UnlockMageLane = 120,
-
-    /** 小偷第一次到来 */
-    ThiefFirstCome = 130,
-    /** 富豪第一次到来 */
-    RichmanFirstCome = 131,
-    /** 酒鬼第一次到来 */
-    DrunkardFirstCome = 132,
-
-
-    /** 引导点击boss */
-    ClickAttackBoss = 133,
-
-
-    /** 引导点击传单 */
-    ClickLeaflet = 134,
 }
 
 /** 引导中的场景解锁按钮 */
