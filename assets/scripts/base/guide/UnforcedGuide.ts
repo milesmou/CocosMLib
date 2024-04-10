@@ -27,7 +27,7 @@ export default class UnforcedGuide extends Component {
         this.hide();
         App.event.on(EventKey.OnUIHideBegin, this.hide, this);
         App.event.on(EventKey.OnUIHide, this.check, this);
-        App.event.on(EventKey.OnUIHideBegin, this.hide, this);
+        App.event.on(EventKey.OnUIShowBegin, this.hide, this);
         App.event.on(EventKey.OnUIShow, this.check, this);
     }
 
@@ -64,14 +64,13 @@ export default class UnforcedGuide extends Component {
                 break;
             }
         }
-        if (guideData) {//满足条件的一个软引导
-            this.scheduleOnce(() => {
+        this.scheduleOnce(() => {
+            if (guideData) {//满足条件的一个软引导
                 this.showFinger(guideData);
-            });
-        } else {
-            this.hide();
-        }
-
+            } else {
+                this.hide();
+            }
+        });
     }
 
     public startGuide(guideId: number) {
