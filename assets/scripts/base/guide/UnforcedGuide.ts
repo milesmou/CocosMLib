@@ -8,7 +8,6 @@ import { EventKey } from "../GameEnum";
 import { GameGuide } from "../GameGuide";
 import GameTable from "../GameTable";
 
-
 const { ccclass, property } = _decorator;
 
 @ccclass('UnforcedGuide')
@@ -26,8 +25,9 @@ export default class UnforcedGuide extends Component {
     protected onLoad() {
         UnforcedGuide.Inst = this;
         this.hide();
-
+        App.event.on(EventKey.OnUIHideBegin, this.hide, this);
         App.event.on(EventKey.OnUIHide, this.check, this);
+        App.event.on(EventKey.OnUIHideBegin, this.hide, this);
         App.event.on(EventKey.OnUIShow, this.check, this);
     }
 
