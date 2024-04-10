@@ -1,9 +1,9 @@
-import { _decorator, Animation, Button, UIOpacity } from "cc";
+import { _decorator, Animation, UIOpacity } from "cc";
 import { MEvent } from "../../event/MEvent";
+import { MButton } from "../extend/MButton";
 import { EUIFormAnim } from "./EUIFormAnim";
 import { EUIFormPassiveType } from "./EUIFormPassiveType";
 import { UIComponent } from "./UIComponent";
-import { MButton } from "../extend/MButton";
 
 const { property, ccclass, requireComponent } = _decorator;
 
