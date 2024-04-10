@@ -2,6 +2,8 @@ import { Button, Component, EventTouch, Node, Rect, Sprite, Toggle, UITransform,
 import { MEvent } from "../../../mlib/module/event/MEvent";
 import { MLogger } from "../../../mlib/module/logger/MLogger";
 import { HollowOut } from "./HollowOut";
+import { MButton } from "../../../mlib/module/ui/extend/MButton";
+import { MToggle } from "../../../mlib/module/ui/extend/MToggle";
 
 
 const { ccclass, property, requireComponent } = _decorator;
@@ -120,6 +122,7 @@ export class GuideMask extends Component {
             if (btn) {
                 Component.EventHandler.emitEvents(btn.clickEvents, evt);
                 btn.node.emit("click", btn);
+                if (btn instanceof MButton) btn.onClick.dispatch();
                 return;
             }
             let tog = this._eventTarget.getComponent(Toggle);
@@ -134,5 +137,3 @@ export class GuideMask extends Component {
     }
 
 }
-
-
