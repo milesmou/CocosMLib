@@ -25,12 +25,16 @@ export default class UnforcedGuide extends Component {
 
     protected onLoad() {
         UnforcedGuide.Inst = this;
-        if (this.nowGuideId) {
-            this._guideDatas = GameTable.Inst.getUnforcedGuideGroup(this.nowGuideId);
-        }
         this.hide();
+
         App.event.on(EventKey.OnUIHide, this.check, this);
         App.event.on(EventKey.OnUIShow, this.check, this);
+    }
+
+    protected start(): void {
+        if (this.nowGuideId) {
+            this.startGuide(this.nowGuideId);
+        }
     }
 
     private async showFinger(guideData: TUnforcedGuide) {
