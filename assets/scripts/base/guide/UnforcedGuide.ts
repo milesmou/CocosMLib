@@ -1,4 +1,4 @@
-import { Component, Node, _decorator, v3 } from "cc";
+import { Component, Node, _decorator, instantiate, v3 } from "cc";
 import { App } from "../../../mlib/App";
 import { CCUtils } from "../../../mlib/utils/CCUtil";
 import { UIConstant } from "../../gen/UIConstant";
@@ -14,7 +14,9 @@ const { ccclass, property } = _decorator;
 export default class UnforcedGuide extends Component {
 
     @property(Node)
-    private finger: Node = null;
+    private m_finger: Node = null;
+
+    private _finger: Node;
 
     public static Inst: UnforcedGuide;
 
@@ -24,10 +26,11 @@ export default class UnforcedGuide extends Component {
 
     protected onLoad() {
         UnforcedGuide.Inst = this;
+        this.m_finger.removeFromParent();
         this.hide();
-        App.event.on(EventKey.OnUIHideBegin, this.hide, this);
+        // App.event.on(EventKey.OnUIHideBegin, this.hide, this);
         App.event.on(EventKey.OnUIHide, this.check, this);
-        App.event.on(EventKey.OnUIShowBegin, this.hide, this);
+        // App.event.on(EventKey.OnUIShowBegin, this.hide, this);
         App.event.on(EventKey.OnUIShow, this.check, this);
     }
 
@@ -45,12 +48,15 @@ export default class UnforcedGuide extends Component {
         } else {
             targetNode = await GameGuide.Inst.getUnforcedGuideStepNode(guideData);
         }
-        this.finger.parent = targetNode;
-        this.finger.worldPosition = targetNode.worldPosition.add(v3(guideData.FingerOffset.x, guideData.FingerOffset.y));
+        this._finger = this._finger?.isValid ? this._finger : instantiate(this.m_finger);
+        this._finger.parent = targetNode;
+        this._finger.worldPosition = targetNode.worldPosition.add(v3(guideData.FingerOffset.x, guideData.FingerOffset.y));
     }
 
     private hide() {
-        this.finger.parent = null;
+        if (this._finger?.isValid) {
+            this._finger.parent = null;
+        }
     }
 
     private check() {
@@ -68,7 +74,7 @@ export default class UnforcedGuide extends Component {
             if (guideData) {//满足条件的一个软引导
                 this.showFinger(guideData);
             } else {
-                this.hide();
+                // this.hide();
             }
         });
     }
