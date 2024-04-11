@@ -263,28 +263,29 @@ export class Utils {
      */
     public static randomValueByWeight<T>(list: T[], num = 1, weight?: (item: T) => number, canRepeat = false) {
         let result: T[] = [];
-        if (!list || list.length == 0) return result;
-        if (list.length < num) console.warn("需要返回的item数量大于集合长度");
         if (!weight) weight = (item: T) => 1;
-
-        let count: number = Math.min(list.length, num);
+        let itemCnt = list.filter(v => weight(v) > 0).length;//实际的元素数量 排除0权重的元素
+        if (!list || itemCnt == 0) return result;
+        if (!canRepeat) {
+            if (itemCnt < num) console.warn("需要返回的item数量大于集合长度");
+            num = Math.min(itemCnt, num);
+        }
         let totalWeight = 0;
 
         for (const item of list) {
             totalWeight += weight(item);
         }
 
-        while (result.length < count) {
-            let randomV = Math.floor(Math.random() * totalWeight);;
+        while (result.length < num) {
+            let randomV = Math.floor(Math.random() * totalWeight);
             let tmpWeight = 0;
-
+            list = this.disarrangeArray(list);//打乱数组
             for (const item of list) {
                 let w = weight(item);
                 if (randomV >= tmpWeight && randomV < tmpWeight + w) {
                     if (!canRepeat) //检查是否重复元素
                     {
-                        var index = result.indexOf(item);
-                        if (index == -1) result.push(item);
+                        if (!result.includes(item)) result.push(item);
                         else break;
                     }
                     else {
@@ -336,6 +337,15 @@ export class Utils {
         if (!source) return source;
         if (source.length < 2) return source.toLowerCase();
         return source[0].toLowerCase() + source.substring(1);
+    }
+
+    /** 从集合中获取一个元素的位置 */
+    static getItemPosInList(space: number, index: number, length: number, origin: "center" | "left" = "center") {
+        if (origin == "center") {
+            return space * (index - length / 2 + 0.5);
+        } else {
+            return space * index;
+        }
     }
 
     /** 从数组删除元素 */
@@ -398,12 +408,13 @@ export class Utils {
 
     /**  随机打乱数组 */
     static disarrangeArray<T>(arr: T[]) {
-        if (!arr) return;
+        if (!arr) return [];
         for (let i = 0; i < arr.length; i++) {
             let index = Math.floor(Math.random() * arr.length);
             let tmp = arr[i];
             arr[i] = arr[index];
             arr[index] = tmp;
         }
+        return arr;
     }
 }
