@@ -26,8 +26,11 @@ export class AssetComponent extends Component {
         let asset = this._cache.get(location);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadAsset<T>(location, type);
-        if (!this.isValid) return;
         if (asset?.isValid) this._cache.set(location, asset);
+        if (!this.isValid) {
+            this.decRef(location);
+            return null;
+        }
         return asset as T;
     }
 
@@ -35,14 +38,16 @@ export class AssetComponent extends Component {
         let asset = this._cache.get(url);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset<T>(url);
-        if (!this.isValid) return;
         if (asset?.isValid) this._cache.set(url, asset);
+        if (!this.isValid) {
+            this.decRef(url);
+            return null;
+        }
         return asset as T;
     }
 
     public async loadRemoteSpriteFrame(url: string) {
         let img = await this.loadRemoteAsset<ImageAsset>(url);
-        if (!this.isValid) return;
         if (img) {
             return SpriteFrame.createWithImage(img as ImageAsset);
         }
