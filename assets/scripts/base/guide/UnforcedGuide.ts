@@ -41,15 +41,15 @@ export default class UnforcedGuide extends Component {
     }
 
     private async showFinger(guideData: TUnforcedGuide) {
+        let ui = App.ui.getUI(UIConstant[guideData.UIName]);
         let targetNode: Node = null;
         if (guideData.NodePath) {
-            let ui = App.ui.getUI(UIConstant[guideData.UIName]);
             targetNode = CCUtils.getNodeAtPath(ui.node, guideData.NodePath);
         } else {
             targetNode = await GameGuide.Inst.getUnforcedGuideStepNode(guideData);
         }
         this._finger = this._finger?.isValid ? this._finger : instantiate(this.m_finger);
-        this._finger.parent = targetNode;
+        this._finger.parent = ui.node;
         this._finger.worldPosition = targetNode.worldPosition.add(v3(guideData.FingerOffset.x, guideData.FingerOffset.y));
     }
 
