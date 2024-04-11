@@ -264,25 +264,27 @@ export class Utils {
     public static randomValueByWeight<T>(list: T[], num = 1, weight?: (item: T) => number, canRepeat = false) {
         let result: T[] = [];
         if (!weight) weight = (item: T) => 1;
-        let itemCnt = list.filter(v => weight(v) > 0).length;//实际的元素数量 排除0权重的元素
-        if (!list || itemCnt == 0) return result;
+        list = list.filter(v => weight(v) > 0)//排除0权重的元素
+        if (!list || list.length == 0) return result;
         if (!canRepeat) {
-            if (itemCnt < num) console.warn("需要返回的item数量大于集合长度");
-            num = Math.min(itemCnt, num);
+            if (list.length < num) console.warn("需要返回的item数量大于集合长度");
+            num = Math.min(list.length, num);
         }
+        let accumulatedWeightList: number[] = [];//保存每个元素的累计权重
         let totalWeight = 0;
 
-        for (const item of list) {
-            totalWeight += weight(item);
+        for (let i = 0; i < list.length; i++) {
+            let w = weight(list[i]);
+            totalWeight += w;
+            accumulatedWeightList[i] = totalWeight;
         }
 
         while (result.length < num) {
-            let randomV = Math.floor(Math.random() * totalWeight);
-            let tmpWeight = 0;
-            list = this.disarrangeArray(list);//打乱数组
-            for (const item of list) {
+            let randomW = Math.floor(Math.random() * totalWeight);
+            for (let i = 0; i < list.length; i++) {
+                const item = list[i];
                 let w = weight(item);
-                if (randomV >= tmpWeight && randomV < tmpWeight + w) {
+                if (w >= randomW) {
                     if (!canRepeat) //检查是否重复元素
                     {
                         if (!result.includes(item)) result.push(item);
@@ -292,8 +294,6 @@ export class Utils {
                         result.push(item);
                     }
                 }
-
-                tmpWeight += w;
             }
         }
         return result;
