@@ -216,8 +216,12 @@ export class AssetMgr {
     public static DecRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
-            for (let i = 0; i < decCount; i++) {
-                asset.decRef();
+            if (decCount < 0) {
+                asset.destroy();
+            } else {
+                for (let i = 0; i < decCount; i++) {
+                    asset.decRef();
+                }
             }
         } else {
             MLogger.warn(`[DecRef] 资源已销毁 ${location}`);
