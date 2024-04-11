@@ -282,9 +282,9 @@ export class Utils {
         while (result.length < num) {
             let randomW = Math.floor(Math.random() * totalWeight);
             for (let i = 0; i < list.length; i++) {
-                const item = list[i];
-                let w = weight(item);
+                let w = accumulatedWeightList[i];
                 if (w >= randomW) {
+                    const item = list[i];
                     if (!canRepeat) //检查是否重复元素
                     {
                         if (!result.includes(item)) result.push(item);
