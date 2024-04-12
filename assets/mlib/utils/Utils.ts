@@ -288,11 +288,11 @@ export class Utils {
                     if (!canRepeat) //检查是否重复元素
                     {
                         if (!result.includes(item)) result.push(item);
-                        else break;
                     }
                     else {
                         result.push(item);
                     }
+                    break;
                 }
             }
         }
