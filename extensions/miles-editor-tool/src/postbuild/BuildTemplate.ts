@@ -1,15 +1,15 @@
 import fs from "fs-extra";
 import path from "path";
-import { IBuildTaskOption, IBuildResult } from "../../@types";
+import { IBuildResult, IBuildTaskOption } from "../../@types";
 import { Config } from "../tools/Config";
 import { Constant } from "../tools/Constant";
 import { LogToFile } from "../tools/LogToFile";
-import { Utils } from "../tools/Utils";
 import { MLogger } from "../tools/MLogger";
+import { Utils } from "../tools/Utils";
 
 /** 拷贝自定义构建模板资源 */
 export class BuildTemplate {
-    static copy(options: IBuildTaskOption, result: IBuildResult) {
+    public static copy(options: IBuildTaskOption, result: IBuildResult) {
         if (!Config.get(Constant.BuildTemplateSaveKey, false)) {
             LogToFile.log("未启用构建模板");
             MLogger.info("未启用构建模板");
@@ -18,17 +18,33 @@ export class BuildTemplate {
         let templatePath = Utils.ProjectPath + "/" + Constant.BuildTemplateDirName + "/" + options.platform;
         fs.ensureDirSync(templatePath);
         //拷贝模板目录资源
+        let insertPrefix = "insert_";//以这个前缀开头的文件 会将构建模版中的内容插入到构建后的文件开头
         let buildPath = Utils.toUniSeparator(result.dest);
         let files = Utils.getAllFiles(templatePath);
+        let buildDest = this.resolveBuildDest(buildPath, options.platform);
         for (const file of files) {
-            let f = file.replace(templatePath, "");
-            let newFile = this.resolveBuildDest(buildPath, options.platform) + f;
-            LogToFile.log("copy file", f.replace("/", ""));
-            fs.ensureDirSync(path.dirname(newFile));
-            fs.copyFileSync(file, newFile);
+            let f = file.replace(templatePath, "").replace("/", "");
+            if (f.startsWith("insert_")) {
+                f = f.replace("insert_", "");
+                let newFile = buildDest + "/" + f;
+                LogToFile.log("insert code ", f);
+                this.insertCode(file, newFile);
+            } else {
+                let newFile = buildDest + "/" + f;
+                LogToFile.log("copy file", f);
+                fs.ensureDirSync(path.dirname(newFile));
+                fs.copyFileSync(file, newFile);
+            }
         }
-
     }
+
+    /** 如果构建模板中有特殊脚本 插入内容到构建出的文件内容开头 */
+    private static insertCode(src: string, dest: string) {
+        let code = fs.readFileSync(src, { encoding: "utf8" });
+        let destContent = fs.readFileSync(dest, { encoding: "utf8" });
+        fs.writeFileSync(dest, code + "\n" + destContent);
+    }
+
 
     private static resolveBuildDest(buildDest, platform) {
         // if (platform == "android") {

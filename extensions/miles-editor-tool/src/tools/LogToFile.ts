@@ -7,5 +7,6 @@ export class LogToFile {
     public static log(...data: any[]) {
         fs.ensureFileSync(this.logFilePath);
         fs.appendFileSync(this.logFilePath, `[${new Date().toLocaleString()}] ${data.join(" ")} \n`)
+        console.log(`[${new Date().toLocaleString()}] ${data.join(" ")} \n`)
     }
 }

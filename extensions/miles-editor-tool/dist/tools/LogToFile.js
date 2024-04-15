@@ -10,6 +10,7 @@ class LogToFile {
     static log(...data) {
         fs_extra_1.default.ensureFileSync(this.logFilePath);
         fs_extra_1.default.appendFileSync(this.logFilePath, `[${new Date().toLocaleString()}] ${data.join(" ")} \n`);
+        console.log(`[${new Date().toLocaleString()}] ${data.join(" ")} \n`);
     }
 }
 exports.LogToFile = LogToFile;

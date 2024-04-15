@@ -51,6 +51,8 @@ export class GameConfig {
     public static sh = false;
     /** GM工具 */
     public static gm = false;
+    /** 打点 */
+    public static event = true;
 
     /** 远程bundle名字:版本 */
     public static bundleVersion: Map<string, string> = new Map();
@@ -69,6 +71,7 @@ export class GameConfig {
                 else if (line.startsWith("RG=")) this.rg = this.convertBool(line.replace("RG=", ""));
                 else if (line.startsWith("SH=")) this.sh = this.convertBool(line.replace("SH=", ""));
                 else if (line.startsWith("GM=")) this.gm = this.convertBool(line.replace("GM=", ""));
+                else if (line.startsWith("Event=")) this.event = this.convertBool(line.replace("Event=", ""));
             }
         }
 
