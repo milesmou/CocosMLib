@@ -83,6 +83,7 @@ export class Channel {
     public showRewardedAd(args: ShowRewardedAdArgs) {
         SDKCallback.rewardedAd = args;
         SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(args.extParam);
+        MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Show.toString());//测试直接成功
         MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Success.toString());//测试直接成功
     }
 

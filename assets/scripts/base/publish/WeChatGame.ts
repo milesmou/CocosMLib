@@ -5,6 +5,9 @@ import { Channel } from "../../../mlib/sdk/Channel";
 import { EIAPResult, ELoginResult, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../mlib/sdk/MSDKWrapper";
 
 const { ccclass } = _decorator;
+
+const skipAdAndIap = true;//用于测试 跳过广告和内购
+
 @ccclass("WeChatGame")
 export class WeChatGame extends Channel {
 
@@ -27,7 +30,6 @@ export class WeChatGame extends Channel {
         SDKCallback.login = args;
         wx.login({
             success: loginRes => {
-                args.success && args.success(loginRes.code);
                 MSDKWrapper.onLogin(ELoginResult.Success + "|" + loginRes.code);
             },
             fail: loginRes => {
@@ -283,6 +285,14 @@ export class WeChatGame extends Channel {
     /** 展示激励视频广告 */
     showRewardedAd(args: ShowRewardedAdArgs) {
         SDKCallback.rewardedAd = args;
+        SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(args.extParam);
+        
+        if (skipAdAndIap) {
+            MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Show.toString());
+            MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Success.toString());
+            return;
+        }
+
         let video = wx.createRewardedVideoAd({
             adUnitId: "adunit-d2249df174d486a8"
         });
@@ -291,6 +301,7 @@ export class WeChatGame extends Channel {
             video.offError();
             video.load().then(() => {
                 video.show();
+                MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Show.toString());
             });
             video.onClose(res => {
                 if (res.isEnded) {
@@ -303,7 +314,6 @@ export class WeChatGame extends Channel {
                 MLogger.error(err);
             });
         }
-        SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(args.extParam);
     }
 
     interstitial = null;//插屏广告
@@ -327,6 +337,10 @@ export class WeChatGame extends Channel {
 
     /** 发起内购 */
     requestIAP(args: RequestIAPArgs) {
+        if (skipAdAndIap) {
+            MSDKWrapper.onInAppPurchase(EIAPResult.Success + "|" + args.productId);
+            return;
+        }
         wx.requestMidasPayment({
             offerId: "",
             currencyType: "CNY",
@@ -342,7 +356,12 @@ export class WeChatGame extends Channel {
     }
 
     public vibrate(...args: any[]): void {
-        
+        if (!this.vibrateEnable) return;
+        if (args.length > 0 && args[0]) {
+            wx.vibrateLong();
+        } else {
+            wx.vibrateShort({ type: "light" });
+        }
     }
 
     /**
