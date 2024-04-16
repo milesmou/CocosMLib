@@ -50,7 +50,7 @@ export default class UnforcedGuide extends Component {
         }
         this._finger = this._finger?.isValid ? this._finger : instantiate(this.m_finger);
         this._finger.parent = ui.node;
-        this._finger.worldPosition = targetNode.worldPosition.add(v3(guideData.FingerOffset.x, guideData.FingerOffset.y));
+        this._finger.worldPosition = targetNode.worldPosition.clone().add(v3(guideData.FingerOffset.x, guideData.FingerOffset.y));
     }
 
     private hide() {
