@@ -58,16 +58,12 @@ export class ScrollviewEnhance extends Component {
 
     protected onEnable(): void {
         this._view.on(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
-        this._view.on(Node.EventType.TRANSFORM_CHANGED, this.delayUpdateItemsVisible, this);
-        this.m_content.on(Node.EventType.CHILD_ADDED, this.delayUpdateItemsVisible, this);
-        this.m_content.on(Node.EventType.CHILD_REMOVED, this.delayUpdateItemsVisible, this);
+        this.m_content.on(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
     }
 
     protected onDisable(): void {
         this._view.off(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
-        this._view.off(Node.EventType.TRANSFORM_CHANGED, this.delayUpdateItemsVisible, this);
-        this.m_content.off(Node.EventType.CHILD_ADDED, this.delayUpdateItemsVisible, this);
-        this.m_content.off(Node.EventType.CHILD_REMOVED, this.delayUpdateItemsVisible, this);
+        this.m_content.off(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
     }
 
     private init() {
