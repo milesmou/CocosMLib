@@ -26,9 +26,6 @@ export class Loading extends UIComponent {
     private _lblProgress: Label = null;
     private _lblVersion: Label = null;
 
-    //假进度条
-    fakeProgressTween: Tween<{ value: number }>;
-    fakeProgressObj = { value: 0 };
 
     protected onLoad(): void {
         this._progressBar = this.rc.get("progressBar", ProgressBar);
@@ -39,6 +36,8 @@ export class Loading extends UIComponent {
 
     async start() {
         await GameInit.initBeforeLoadConfig();
+        App.chan.reportEvent("开始加载配置");
+        App.chan.reportEventDaily("每日开始加载配置");
         this.loadCfg(true);
         //版本号
         this._lblVersion.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
@@ -60,9 +59,13 @@ export class Loading extends UIComponent {
         } else {
             let strRes = await HttpRequest.requestRepeat(GameSetting.Inst.gameConfigUrl + "?" + Date.now(), v => v, 3, 1);
             if (strRes) {
+                App.chan.reportEvent("加载配置成功");
+                App.chan.reportEventDaily("每日加载配置成功");
                 GameConfig.deserialize(strRes);
                 this.checkVersion();
             } else {
+                App.chan.reportEvent("加载配置失败");
+                App.chan.reportEventDaily("每日加载配置失败");
                 MLogger.error(`加载配置失败 Url=${GameSetting.Inst.gameConfigUrl}`);
                 App.tipMsg.showToast(this.getText(LoadingText.ConfigFail));
                 this.loadCfg();
@@ -92,10 +95,12 @@ export class Loading extends UIComponent {
 
     /** 登录 */
     login() {
+        console.log("开始登录");
+
         App.chan.login({
             success: uid => {
                 MLogger.debug("登录成功", uid);
-                App.chan.userId.value = uid;
+                App.chan.userId = uid;
                 this.syncGameData();
             },
             fail: reason => {
@@ -106,8 +111,10 @@ export class Loading extends UIComponent {
 
     /** 同步玩家数据 */
     syncGameData() {
+        this.loadRes();
+        return;
         App.chan.getGameData({
-            userId: App.chan.userId.value,
+            userId: App.chan.userId,
             success: (obj: MResponse) => {
                 MLogger.debug("获取数据成功", obj);
                 if (obj.code == 100 && obj.data) {
@@ -115,7 +122,6 @@ export class Loading extends UIComponent {
                     if (cData.updateTime * 1000 > GameData.Inst.time) {
                         MLogger.debug("使用云存档");
                         GameData.Inst.replaceGameData(cData.data);
-                        GameData.clear();
                     } else {
                         MLogger.debug("使用本地存档");
                     }
@@ -134,7 +140,7 @@ export class Loading extends UIComponent {
     /** 加载游戏资源 */
     async loadRes() {
         //加载游戏数据
-        this.setTips(LoadingText.LoadGameRes, 2);
+        this.setTips(LoadingText.LoadGameRes, 3, true);
 
         //加载资源包
         await AssetMgr.loadAllBundle(null, this.onProgress.bind(this));
@@ -142,24 +148,39 @@ export class Loading extends UIComponent {
         //加载数据表
         await GameTable.initData();
 
+        this.onProgress(1, 1);
+
+        await App.timer.dealy();
+
         //加载场景
         this.setTips(LoadingText.LoadScene, 2);
 
-        this.onProgress(1, 1);
+        App.chan.reportEvent("解析配置完成");
+        App.chan.reportEventDaily("每日解析配置完成");
 
         await GameGuide.Inst.checkShowGuide();
 
         //初始化游戏内容
         await GameInit.initBeforeEnterHUD();
 
-        await App.ui.show(UIConstant.UIHUD);
+        await App.ui.showHigher(UIConstant.UIWait, null, false);
+
+        await App.ui.show(UIConstant.UIHUD, { bottom: true });
+
+        this.onProgress(1, 1);
+
+        await App.timer.dealy(0.15);
 
         this.node.destroy();
 
     }
 
+    async restart() {
+
+    }
+
     /** 设置加载界面提示文字 */
-    setTips(obj: ILanguage, fakeProgressDur: number = 1) {
+    setTips(obj: ILanguage, fakeProgressDur: number = 1, repeatefakeProgress = false) {
         let content = this.getText(obj);
         if (this._lblDesc) {
             this._lblDesc.string = content || "";
@@ -167,7 +188,7 @@ export class Loading extends UIComponent {
         if (this._progressBar) {
             this._progressBar.progress = 0;
         }
-        this.startFakeProgress(fakeProgressDur);
+        this.startFakeProgress(fakeProgressDur, repeatefakeProgress);
     }
 
     /** 更新进度 */
@@ -184,20 +205,22 @@ export class Loading extends UIComponent {
     }
 
     /** 开始一个假的进度条 */
-    startFakeProgress(dur: number) {
-        if (this.fakeProgressTween) {
-            this.fakeProgressTween.stop();
-        }
-        tween(4).to(2, 1);
-        this.fakeProgressTween = tween(this.fakeProgressObj).to(dur, { value: 1 }, {
-            progress: (start, end, current, ratio) => {
-                let v = start + (end - start) * ratio;
-                this.onProgress(v, end);
-                return v;
+    startFakeProgress(dur: number, repeate: boolean) {
+        let tag = 10101;
+        let fakeProgressObj = { value: 0 };
+        Tween.stopAllByTag(tag);
+        tween(fakeProgressObj).tag(tag).to(dur, { value: 1 }, {
+            onUpdate: (target, ratio) => {
+                this.onProgress(fakeProgressObj.value, 1);
+            },
+        }).call(() => {
+            if (repeate) {
+                if (this._progressBar) {
+                    this._progressBar.progress = 0;
+                }
+                this.startFakeProgress(dur, repeate);
             }
-        });
-        this.fakeProgressObj.value = 0;
-        this.fakeProgressTween.start();
+        }).start();
     }
 
 
