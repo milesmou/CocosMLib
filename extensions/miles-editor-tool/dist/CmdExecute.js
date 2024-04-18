@@ -11,6 +11,10 @@ const Constant_1 = require("./tools/Constant");
 const MLogger_1 = require("./tools/MLogger");
 const Utils_1 = require("./tools/Utils");
 class CmdExecute {
+    /** 保存游戏配置到本地 */
+    static saveGameSetting(jsonStr) {
+        Config_1.Config.set("gameSetting", JSON.parse(jsonStr));
+    }
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录

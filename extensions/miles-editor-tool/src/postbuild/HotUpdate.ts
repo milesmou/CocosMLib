@@ -62,10 +62,8 @@ export class HotUpdate {
             }
 
             if (fs.existsSync(mainjs)) {
-                let version = Config.get("hotupdate.version", "");
+                let version = Config.get("gameSetting.mainVersion", "");
                 if (version) {
-                    let arr = version.split(".");
-                    if (arr.length == 4) version = arr.slice(0, 3).join(".");
                     let content = fs.readFileSync(mainjs, { encoding: "utf8" });
                     fileNameMap.forEach((v, k) => {
                         let regex = new RegExp(k, "g");
@@ -83,9 +81,9 @@ export class HotUpdate {
     }
 
     static genHotUpdateRes() {
-        let url = Config.get("hotupdate.url", "");
-        let version = Config.get("hotupdate.version", "");
         let src = Config.get("hotupdate.src", "");
+        let url = Config.get("gameSetting.hotupdateServer", "");
+        let version = Config.get("gameSetting.version", "");
         let dest = Utils.ProjectPath + "/hotupdate/" + version;
         if (!url || !version) {
             MLogger.info(`热更配置不正确,请先检查热更配置`);

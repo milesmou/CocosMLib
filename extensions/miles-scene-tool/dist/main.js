@@ -4,7 +4,6 @@ exports.unload = exports.load = exports.methods = void 0;
 const path_1 = require("path");
 const GenProperty_1 = require("./GenProperty");
 module.paths.push((0, path_1.join)(Editor.App.path, 'node_modules'));
-const HotUpdateConfig_1 = require("./HotUpdateConfig");
 const ReplaceComponent_1 = require("./ReplaceComponent");
 /**
  * @en Registration method for the main process of Extension
@@ -13,7 +12,6 @@ const ReplaceComponent_1 = require("./ReplaceComponent");
 exports.methods = {
     autoGenProperty: GenProperty_1.GenProperty.gen.bind(GenProperty_1.GenProperty),
     replaceComponent: ReplaceComponent_1.ReplaceComponent.replace.bind(ReplaceComponent_1.ReplaceComponent),
-    saveHotUpdateConfig: HotUpdateConfig_1.HotUpdateConfig.save.bind(HotUpdateConfig_1.HotUpdateConfig),
 };
 /**
  * @en Hooks triggered after extension loading is complete

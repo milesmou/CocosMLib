@@ -16,7 +16,26 @@ class Utils {
         return this.projectPath;
     }
     static isNative(platform) {
-        return platform == "win32" || platform == "android" || platform == "ios";
+        switch (platform) {
+            case "windows":
+            case "mac":
+            case "linux":
+            case "android":
+            case "ios":
+                return true;
+        }
+        return false;
+    }
+    static isMinigame(platform) {
+        switch (platform) {
+            case "wechatgame":
+            case "alipay-mini-game":
+            case "bytedance-mini-game":
+            case "baidu-mini-game":
+            case "taobao-creative-app":
+                return true;
+        }
+        return false;
     }
     static exeCMD(workDir, cmd, onMsg) {
         let p = new Promise((resolve, reject) => {

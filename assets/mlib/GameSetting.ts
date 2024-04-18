@@ -25,7 +25,33 @@ export class GameSetting extends Component {
         tooltip: "名字会用来拼接CND地址，上报事件等"
     })
     public get gameName() { return this._gameName; }
-    private set gameName(val: string) { this._gameName = val; }
+    private set gameName(val: string) { this._gameName = val; this.saveGameSetting(); }
+
+    @property private _channelId = EChannel.Dev;
+    @property({
+        displayName: "渠道",
+        type: EChannel
+    })
+    public get channelId() { return this._channelId; }
+    private set channelId(val: number) { this._channelId = val; this.saveGameSetting(); }
+
+    @property private _version = "1.0.0";
+    @property({
+        displayName: "版本",
+        tooltip: "整包使用3位版本号(x.x.x),补丁包使用4位版本号(x.x.x.x)\n与远程资源相关的都只会使用前3位版本号"
+    })
+    public get version() { return this._version; }
+    private set version(val: string) { this._version = val.trim(); this.saveGameSetting(); }
+
+    @property private _cdnUrl = "";
+    @property({
+        displayName: "CDN",
+        tooltip: "项目的CDN地址"
+    })
+    public get cdnUrl() { return this._cdnUrl; }
+    private set cdnUrl(val: string) { this._cdnUrl = val; this.saveGameSetting(); }
+
+
 
     @property private _languageId = ELanguage.SimplifiedChinese;
     @property({
@@ -44,25 +70,6 @@ export class GameSetting extends Component {
     public get gameConfigType() { return this._gameConfigType; }
     private set gameConfigType(val: number) { this._gameConfigType = val; }
 
-    @property({
-        displayName: "渠道",
-        type: EChannel
-    })
-    private m_ChannelId = EChannel.Dev;
-
-    @property private _version = "1.0.0";
-    @property({
-        displayName: "版本",
-        tooltip: "整包使用3位版本号(x.x.x),补丁包使用4位版本号(x.x.x.x)\n与远程资源相关的都只会使用前3位版本号"
-    })
-    public get version() { return this._version; }
-    private set version(val: string) { this._version = val.trim(); }
-
-    @property({
-        displayName: "CDN",
-        tooltip: "项目的CDN地址"
-    })
-    private m_CdnUrl = "";
 
     @property private _hotupdate = true;
     @property({
@@ -106,11 +113,11 @@ export class GameSetting extends Component {
 
     protected onLoad(): void {
         GameSetting.Inst = this;
-        this._channel = EChannel[this.m_ChannelId];
+        this._channel = EChannel[this._channelId];
         this._mainVersion = this.getMainVersion();
         this._gameCode = this._gameName + "_" + this._channel
-        this._gameConfigUrl = `${this.m_CdnUrl}/${this._gameName}/Channel/${this._channel}/${this._mainVersion}/GameConfig.txt`;
-        this._remoteResUrl = `${this.m_CdnUrl}/${this._gameName}/Resources`;
+        this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this._channel}/${this._mainVersion}/GameConfig.txt`;
+        this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
         if (!EDITOR_NOT_IN_PREVIEW) {
             director.addPersistRootNode(this.node);
             if (this.m_FrameRate > 0) {
@@ -118,6 +125,7 @@ export class GameSetting extends Component {
             }
             MLogger.setLevel(this.m_LogLevel);
         }
+
     }
 
     /** 主版本号 取前三位 */
@@ -127,6 +135,20 @@ export class GameSetting extends Component {
             return versionArr.slice(0, 3).join(".");
         }
         return this._version;
+    }
+
+    private saveGameSetting() {
+        if (!EDITOR_NOT_IN_PREVIEW) return;
+        let gameSetting = {
+            gameName: this._gameName,
+            channel: this._channel,
+            version: this._version,
+            cdnUrl: this._cdnUrl,
+            mainVersion: this.mainVersion,
+            hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this._channel}/${this._version}/ResPkg`,
+            minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this._channel}/${this._version}/ResPkg/`,
+        };
+        Editor.Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
     }
 }
 

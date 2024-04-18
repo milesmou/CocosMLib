@@ -28,15 +28,4 @@ export class SceneCmdExecute {
 
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
-
-    static saveHotUpdateConfig() {
-
-        const options: ExecuteSceneScriptMethodOptions = {
-            name: "miles-scene-tool",
-            method: 'saveHotUpdateConfig',
-            args: [],
-        };
-
-        Editor.Message.request('scene', 'execute-scene-script', options);
-    }
 }

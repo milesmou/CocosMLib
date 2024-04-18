@@ -7,6 +7,12 @@ import { Utils } from "./tools/Utils";
 
 export class CmdExecute {
 
+    /** 保存游戏配置到本地 */
+    static saveGameSetting(jsonStr: string) {
+        Config.set("gameSetting", JSON.parse(jsonStr));
+    }
+
+
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录
@@ -87,7 +93,7 @@ export class CmdExecute {
                     }
                 }
             }
-            
+
             let content = `export const BundleConstant = ${JSON.stringify(result)};`
             fs.writeFileSync(outFile, content);
             Utils.refreshAsset(outFile);

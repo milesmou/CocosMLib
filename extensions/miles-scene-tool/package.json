@@ -15,12 +15,6 @@
                 "methods": [
                     "replaceComponent"
                 ]
-            },
-            "saveHotUpdateConfig": {
-                "public": true,
-                "methods": [
-                    "saveHotUpdateConfig"
-                ]
             }
         }
     },

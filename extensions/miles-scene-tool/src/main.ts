@@ -5,7 +5,6 @@ module.paths.push(join(Editor.App.path, 'node_modules'));
 
 // 临时在当前模块增加编辑器内的模块为搜索路径，为了能够正常 require 到 cc 模块，后续版本将优化调用方式
 import { CmdExecute } from './CmdExecute';
-import { HotUpdateConfig } from './HotUpdateConfig';
 import { ReplaceComponent } from './ReplaceComponent';
 
 /**
@@ -15,7 +14,6 @@ import { ReplaceComponent } from './ReplaceComponent';
 export const methods: { [key: string]: (...any: any) => any } = {
     autoGenProperty: GenProperty.gen.bind(GenProperty),
     replaceComponent: ReplaceComponent.replace.bind(ReplaceComponent),
-    saveHotUpdateConfig: HotUpdateConfig.save.bind(HotUpdateConfig),
 };
 
 /**

@@ -9,6 +9,7 @@ const SceneCmdExecute_1 = require("./scene/SceneCmdExecute");
  * @zh 为扩展的主进程的注册方法
  */
 exports.methods = {
+    saveGameSetting: CmdExecute_1.CmdExecute.saveGameSetting,
     loadExcel: CmdExecute_1.CmdExecute.loadExcel,
     genConst: CmdExecute_1.CmdExecute.genConst,
     formatProject: CmdExecute_1.CmdExecute.formatProject,
@@ -21,7 +22,6 @@ exports.methods = {
     //场景操作命令
     autoGenProperty: SceneCmdExecute_1.SceneCmdExecute.autoGenProperty,
     replaceComponent: SceneCmdExecute_1.SceneCmdExecute.replaceComponent,
-    saveHotUpdateConfig: SceneCmdExecute_1.SceneCmdExecute.saveHotUpdateConfig,
 };
 /**
  * @en Hooks triggered after extension loading is complete

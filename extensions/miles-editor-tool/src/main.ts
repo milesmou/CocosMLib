@@ -8,6 +8,7 @@ import { SceneCmdExecute } from "./scene/SceneCmdExecute";
  * @zh 为扩展的主进程的注册方法
  */
 export const methods: { [key: string]: (...any: any) => any } = {
+    saveGameSetting: CmdExecute.saveGameSetting,
     loadExcel: CmdExecute.loadExcel,
     genConst: CmdExecute.genConst,
     formatProject: CmdExecute.formatProject,
@@ -20,7 +21,6 @@ export const methods: { [key: string]: (...any: any) => any } = {
     //场景操作命令
     autoGenProperty: SceneCmdExecute.autoGenProperty,
     replaceComponent: SceneCmdExecute.replaceComponent,
-    saveHotUpdateConfig: SceneCmdExecute.saveHotUpdateConfig,
 };
 
 /**

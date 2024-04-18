@@ -12,7 +12,27 @@ export class Utils {
     }
 
     static isNative(platform: string) {
-        return platform == "win32" || platform == "android" || platform == "ios";
+        switch (platform) {
+            case "windows":
+            case "mac":
+            case "linux":
+            case "android":
+            case "ios":
+                return true;
+        }
+        return false;
+    }
+
+    static isMinigame(platform: string) {
+        switch (platform) {
+            case "wechatgame":
+            case "alipay-mini-game":
+            case "bytedance-mini-game":
+            case "baidu-mini-game":
+            case "taobao-creative-app":
+                return true;
+        }
+        return false;
     }
 
     static exeCMD(workDir: string, cmd, onMsg: (msg: string) => void) {

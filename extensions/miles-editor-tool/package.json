@@ -25,6 +25,12 @@
             }
         },
         "messages": {
+            "saveGameSetting": {
+                "public": true,
+                "methods": [
+                    "saveGameSetting"
+                ]
+            },
             "formatProject": {
                 "public": false,
                 "methods": [
@@ -77,12 +83,6 @@
                 "public": false,
                 "methods": [
                     "closeBuildTemplate"
-                ]
-            },
-            "saveHotUpdateConfig": {
-                "public": false,
-                "methods": [
-                    "saveHotUpdateConfig"
                 ]
             },
             "genHotUpdateRes": {
@@ -140,12 +140,6 @@
                 "label": "禁用",
                 "icon": "./static/icon.png",
                 "message": "closeBuildTemplate"
-            },
-            {
-                "path": "MTools/热更",
-                "label": "保存热更配置",
-                "icon": "./static/icon.png",
-                "message": "saveHotUpdateConfig"
             },
             {
                 "path": "MTools/热更",
