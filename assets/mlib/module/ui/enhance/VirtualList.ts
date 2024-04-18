@@ -125,12 +125,12 @@ export class VirtualList extends Component {
 
     protected onEnable(): void {
         this._view.on(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
-        this._view.on(Node.EventType.TRANSFORM_CHANGED, this.delayUpdateItemsVisible, this);
+        this._content.on(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
     }
 
     protected onDisable(): void {
         this._view.off(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
-        this._view.off(Node.EventType.TRANSFORM_CHANGED, this.delayUpdateItemsVisible, this);
+        this._content.off(Node.EventType.SIZE_CHANGED, this.delayUpdateItemsVisible, this);
     }
 
 
