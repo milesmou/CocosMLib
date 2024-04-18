@@ -94,9 +94,8 @@ export class GameSetting extends Component {
     })
     private m_LogLevel = LogLevel.Info;
 
-    private _channel: string;
     /**  渠道名字 */
-    public get channel() { return this._channel; }
+    public get channel() { return EChannel[this._channelId]; }
     private _mainVersion: string;
     /** 游戏的主版本号 (只有3位 X.X.X) */
     public get mainVersion() { return this._mainVersion; }
@@ -113,10 +112,9 @@ export class GameSetting extends Component {
 
     protected onLoad(): void {
         GameSetting.Inst = this;
-        this._channel = EChannel[this._channelId];
         this._mainVersion = this.getMainVersion();
-        this._gameCode = this._gameName + "_" + this._channel
-        this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this._channel}/${this._mainVersion}/GameConfig.txt`;
+        this._gameCode = this._gameName + "_" + this.channel
+        this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
         this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
         if (!EDITOR_NOT_IN_PREVIEW) {
             director.addPersistRootNode(this.node);
@@ -141,12 +139,12 @@ export class GameSetting extends Component {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let gameSetting = {
             gameName: this._gameName,
-            channel: this._channel,
+            channel: this.channel,
             version: this._version,
             cdnUrl: this._cdnUrl,
             mainVersion: this.mainVersion,
-            hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this._channel}/${this._version}/ResPkg`,
-            minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this._channel}/${this._version}/ResPkg/`,
+            hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg`,
+            minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg/`,
         };
         Editor.Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
     }

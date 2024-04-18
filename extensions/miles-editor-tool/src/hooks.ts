@@ -1,38 +1,32 @@
 import { BuildHook, IBuildResult, IBuildTaskOption } from '../@types';
 import { BuildTemplate } from './postbuild/BuildTemplate';
 import { HotUpdate } from './postbuild/HotUpdate';
+import { Minigame } from './postbuild/Minigame';
 import { Config } from './tools/Config';
 import { LogToFile } from './tools/LogToFile';
-import { MLogger } from './tools/MLogger';
 import { Utils } from './tools/Utils';
 
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    LogToFile.log("Build Start");
-    if (Utils.isMinigame(options.platform)) {//小游戏修改服务器地址
-        let server = Config.get("gameSetting.minigameServer", "");
-        LogToFile.log("修改小游戏服务器地址为:" + server);
-        options.server = server;
-    }
-
+    LogToFile.log("onBeforeBuild");
 };
 
 export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    LogToFile.log('get settings test', result.settings);
+    LogToFile.log('onBeforeCompressSettings');
 };
 
 export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    LogToFile.log('webTestOption ' + 'onAfterCompressSettings');
+    LogToFile.log('onAfterCompressSettings');
 };
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     LogToFile.log("onAfterBuild");
     BuildTemplate.copy(options, result);
     HotUpdate.modifyJsFile(options, result);
-    LogToFile.log("小游戏服务器地址为:" + options.server);
+    Minigame.modifyServer(options,result);
 };
 
 export const onError: BuildHook.onError = async function (options, result) {
