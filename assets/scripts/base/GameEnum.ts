@@ -12,6 +12,7 @@ export enum EventKey {
     OnUIHideBegin,
     OnUIShow,
     OnUIHide,
+    SpecialNodeChange,
     OnInventoryChange,
     OnTaskChange,
     ShowGuide,

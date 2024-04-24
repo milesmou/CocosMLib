@@ -87,13 +87,12 @@ export class VirtualList extends Component {
             this._content.children[i].active = false;
         }
         this._itemVisible.clear();//刷新数据时,清除显隐缓存
-        this.scheduleOnce(this.delayUpdateItemsVisible);
+        this.delayUpdateItemsVisible
     }
 
     public set itemRenderer(value: (item: Node, index: number) => void) {
         this._itemRenderer = value;
     }
-
 
     protected onLoad(): void {
         this._scrollview = this.getComponent(ScrollView);

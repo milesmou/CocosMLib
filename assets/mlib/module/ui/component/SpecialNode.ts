@@ -1,96 +1,39 @@
-import { Component, Enum, _decorator, sys } from 'cc';
-import { GameConfig } from '../../../../scripts/base/GameConfig';
+import { Component, UIOpacity, _decorator } from 'cc';
+import { EventKey } from '../../../../scripts/base/GameEnum';
+import { CESpecialNodeType } from '../../../../scripts/base/specialNode/ESpecialNodeType';
+import { SpecialNodeMgr } from '../../../../scripts/base/specialNode/SpecialNodeMgr';
+import { App } from '../../../App';
 const { ccclass, property } = _decorator;
 
-
-const ESpecialNodeType = Enum({
-    None: 0,
-    GM: 1,
-    SH: 2,
-    Android: 3,
-    IOS: 4,
-    MiniGame: 5
-})
 
 @ccclass('SpecialNode')
 export class SpecialNode extends Component {
     @property({
-        type: ESpecialNodeType,
+        type: CESpecialNodeType,
         tooltip: "节点的类型"
     })
-    type = ESpecialNodeType.None;
+    type = CESpecialNodeType.None;
     @property({
-        tooltip: "反转显示(默认满足条件时显示,反转后满足条件隐藏)"
+        tooltip: "反转显示(默认满足条件时显示,反转后满足条件隐藏,仅针对节点的active)"
     })
     reverse = false;
 
-    onLoad() {
-        if (this.type == ESpecialNodeType.GM) this.checkGMVisible();
-        else if (this.type == ESpecialNodeType.SH) this.checkSHVisible();
-        else if (this.type == ESpecialNodeType.Android) this.checkAndroidVisible();
-        else if (this.type == ESpecialNodeType.IOS) this.checkIOSVisible();
-        else if (this.type == ESpecialNodeType.MiniGame) this.checkMiniGameVisible();
+    protected onEnable() {
+        App.event.on(EventKey.SpecialNodeChange, this.initVisible, this);
+        this.initVisible();
     }
 
-    checkGMVisible() {
-        let visible = true;
-        if (GameConfig.gm) {
-            visible = !this.reverse;
-        }
-        else {
-            visible = this.reverse;
-        }
-
-        this.node.active = visible;
+    protected onDisable() {
+        App.event.off(EventKey.SpecialNodeChange, this.initVisible, this);
     }
 
-    checkSHVisible() {
-        let visible = true;
-        if (GameConfig.sh) {
-            visible = !this.reverse;
-        }
-        else {
-            visible = this.reverse;
-        }
-
-        this.node.active = visible;
+    private initVisible() {
+        let active = SpecialNodeMgr.Inst.getActive(this.type);
+        this.node.active = this.reverse ? !active : active;
+        let uiOpacity = this.getComponent(UIOpacity) || this.addComponent(UIOpacity);
+        uiOpacity.opacity = SpecialNodeMgr.Inst.getOpacity(this.type);
     }
 
-    checkAndroidVisible() {
-        let visible = true;
-        if (sys.platform == sys.Platform.ANDROID) {
-            visible = !this.reverse;
-        }
-        else {
-            visible = this.reverse;
-        }
-
-        this.node.active = visible;
-    }
-
-    checkIOSVisible() {
-        let visible = true;
-        if (sys.platform == sys.Platform.IOS) {
-            visible = !this.reverse;
-        }
-        else {
-            visible = this.reverse;
-        }
-
-        this.node.active = visible;
-    }
-
-    checkMiniGameVisible() {
-        let visible = true;
-        if (sys.platform == sys.Platform.WECHAT_GAME) {
-            visible = !this.reverse;
-        }
-        else {
-            visible = this.reverse;
-        }
-
-        this.node.active = visible;
-    }
 }
 
 
