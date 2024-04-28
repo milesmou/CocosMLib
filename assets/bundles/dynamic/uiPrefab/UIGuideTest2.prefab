@@ -427,6 +427,29 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
+    "_enableOutline": false,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_outlineWidth": 2,
+    "_enableShadow": false,
+    "_shadowColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_shadowOffset": {
+      "__type__": "cc.Vec2",
+      "x": 2,
+      "y": 2
+    },
+    "_shadowBlur": 2,
     "_id": ""
   },
   {
@@ -520,7 +543,7 @@
     "fileId": "2bmY2r1spEGL2uuYTQFG8D"
   },
   {
-    "__type__": "cc.Button",
+    "__type__": "f82dbosV3FC4bcvzz3xiOu/",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -583,11 +606,21 @@
     "_target": {
       "__id__": 10
     },
+    "m_DefaultAudio": true,
+    "m_CustomAudio": "",
+    "m_Cooldown": 0.2,
+    "m_PolygonButton": false,
+    "m_LongPressButton": false,
+    "longPressEvents": [],
+    "m_LongPressIgnoreClick": true,
+    "m_LongPressDuration": 1,
+    "m_LongPressRepeatInvoke": false,
+    "m_LongPressRepeatInterval": 0.15,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "41gk2HIBRFOIWfd6jBvguo"
+    "fileId": "69RlbJq/9OLJVTZxO9eG+E"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -719,6 +752,29 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
+    "_enableOutline": false,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_outlineWidth": 2,
+    "_enableShadow": false,
+    "_shadowColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_shadowOffset": {
+      "__type__": "cc.Vec2",
+      "x": 2,
+      "y": 2
+    },
+    "_shadowBlur": 2,
     "_id": ""
   },
   {
@@ -912,6 +968,29 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
+    "_enableOutline": false,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_outlineWidth": 2,
+    "_enableShadow": false,
+    "_shadowColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_shadowOffset": {
+      "__type__": "cc.Vec2",
+      "x": 2,
+      "y": 2
+    },
+    "_shadowBlur": 2,
     "_id": ""
   },
   {
@@ -1005,7 +1084,7 @@
     "fileId": "77BcV1zfNHo4LI4KRqZupe"
   },
   {
-    "__type__": "cc.Button",
+    "__type__": "f82dbosV3FC4bcvzz3xiOu/",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -1068,11 +1147,21 @@
     "_target": {
       "__id__": 30
     },
+    "m_DefaultAudio": true,
+    "m_CustomAudio": "",
+    "m_Cooldown": 0.2,
+    "m_PolygonButton": false,
+    "m_LongPressButton": false,
+    "longPressEvents": [],
+    "m_LongPressIgnoreClick": true,
+    "m_LongPressDuration": 1,
+    "m_LongPressRepeatInvoke": false,
+    "m_LongPressRepeatInterval": 0.15,
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "2fOwBXUwBNvaJ4NyyrOq4C"
+    "fileId": "5dzJs4OUlFGqfw1edxk+rS"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -1188,9 +1277,7 @@
     "autoHide": false,
     "blockInputEvent": true,
     "action": 0,
-    "closeBtn": {
-      "__id__": 21
-    },
+    "closeBtn": null,
     "_id": ""
   },
   {

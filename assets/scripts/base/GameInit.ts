@@ -1,11 +1,9 @@
 import { App } from "../../mlib/App";
-import { AssetMgr } from "../../mlib/module/asset/AssetMgr";
 import { L10nMgr } from "../../mlib/module/l10n/L10nMgr";
 import { UIMgr } from "../../mlib/module/ui/manager/UIMgr";
 import { UIConstant } from "../gen/UIConstant";
 import { GameDataPost } from "./GameDataPost";
 import { GameRedDot } from "./GameRedDot";
-import GameTable from "./GameTable";
 import { ShopUtil } from "./iap/ShopUtil";
 
 /** 初始化游戏内容 */
