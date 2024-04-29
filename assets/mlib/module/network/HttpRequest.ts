@@ -1,32 +1,15 @@
 import { MLogger } from "../logger/MLogger";
 
+interface RequestArgs {
+    method?: "GET" | "POST";
+    data?: object | string;
+    timeout?: number;
+}
 
 export class HttpRequest {
 
-    public static async request(url: string, args: { method?: "GET" | "POST", data?: any, timeout?: number } = {}) {
-        let xhr = await this.requestXHR(url, args);
-        if (xhr) return xhr.responseText;
-        return null;
-    }
-
-    public static async requestObject(url: string, args: { method?: "GET" | "POST", data?: any, timeout?: number } = {}) {
-        let xhr = await this.requestXHR(url, args);
-        if (xhr) {
-            try {
-                return JSON.parse(xhr.responseText) as object;
-            } catch (error) {
-                MLogger.error(error);
-            }
-        }
-        return null;
-    }
-
-    public static async requestXHR(url: string, args: { method?: "GET" | "POST", data?: any, timeout?: number } = {}) {
-        let { method, data, timeout } = args;
-        if (data) {
-            if (typeof data === "object") data = JSON.stringify(data);
-            else data = data.toString();
-        }
+    public static async request(url: string, args: RequestArgs) {
+        let { method, data, timeout } = args || {};
         method = method || "GET";
         timeout = timeout || 5000;
         let p = new Promise<XMLHttpRequest>((resolve, reject) => {
@@ -34,34 +17,64 @@ export class HttpRequest {
 
             xhr.timeout = timeout;
             xhr.ontimeout = () => {
-                MLogger.error(url + " timeout");
+                MLogger.error(url, "timeout");
                 resolve(null);
             };
             xhr.onabort = () => {
-                MLogger.error(url + " user abort");
+                MLogger.error(url, "user abort");
                 resolve(null);
             };
             xhr.onerror = () => {
-                MLogger.error(url + " network error");
+                MLogger.error(url, "network error");
                 resolve(null);
             };
             xhr.onreadystatechange = () => {
                 if (xhr.readyState == 4) {
-                    if(xhr.status >= 200 && xhr.status < 400){
+                    if (xhr.status >= 200 && xhr.status < 400) {
                         resolve(xhr);
-                    }else{
+                    } else {
                         resolve(null);
                     }
                 }
             }
             xhr.open(method, url, true);
-            if (data) {
+            if (data && data instanceof ArrayBuffer) {
+                xhr.responseType = "arraybuffer";
+            } else if (data) {
+                if (typeof data === "object") data = JSON.stringify(data);
+                else data = data.toString();
                 xhr.setRequestHeader("Content-Type", "application/json");
             }
             xhr.send(data);
         });
         return p;
     }
+
+
+    public static async requestText(url: string, args: RequestArgs) {
+        let xhr = await this.request(url, args);
+        if (xhr) return xhr.responseText;
+        return null;
+    }
+
+    public static async requestObject(url: string, args: RequestArgs) {
+        let text = await this.requestText(url, args);
+        try {
+            return JSON.parse(text) as object;
+        } catch (error) {
+            MLogger.error(error);
+        }
+        return null;
+    }
+
+    public static async requestBuffer(url: string, args: RequestArgs) {
+        let xhr = await this.request(url, args);
+        if (xhr?.response && xhr.response instanceof ArrayBuffer) {
+            return new Uint8Array(xhr.response);;
+        }
+        return null;
+    }
+
 
     /**
      * 重复请求地址
@@ -71,11 +84,11 @@ export class HttpRequest {
      * @param interval 请求间隔时间 单位:秒
      * @returns 
      */
-    public static async requestRepeat(url: string, predicate: (string) => boolean, repeat: number, interval: number, args: { method?: "GET" | "POST", data?: any } = {}): Promise<string> {
+    public static async requestRepeat(url: string, predicate: (string) => boolean, repeat: number, interval: number, args: RequestArgs): Promise<string> {
         repeat -= 1;
         let now = Date.now();
         let nextReqTimeMS = now + interval * 1000;
-        let result = await this.request(url, args);
+        let result = await this.requestText(url, args);
         let now1 = Date.now();
         if (predicate(result)) {
             return result;

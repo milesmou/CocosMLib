@@ -5,8 +5,8 @@ import { GameSetting } from "../GameSetting";
 
 export class MCloudDataSDK {
 
-    private static readonly EventHost = "https://**/gevent/reportevt";
-    private static readonly DataHost = "https://**/gdata/gamedata";
+    private static readonly EventHost = "https://zq.zqygame.com/gevent/reportevt";
+    private static readonly DataHost = "https://zq.zqygame.com/gdata/gamedata";
 
     /** 上传存档数据 */
     public static async saveGameData(uid: string, key: string, data: string, commit = "") {
@@ -62,7 +62,7 @@ export class MCloudDataSDK {
             param: paramStr,
             sum: num
         };
-        HttpRequest.request(this.EventHost, { method: "POST", data: body });
+        HttpRequest.requestText(this.EventHost, { method: "POST", data: body });
     }
 
 

@@ -1,0 +1,6 @@
+syntax = "proto3";
+ 
+message PetSkill {
+    int32 skill = 1;
+    repeated int32 skillBuffId = 2;
+}

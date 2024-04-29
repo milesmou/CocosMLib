@@ -1,0 +1,8 @@
+syntax = "proto3";
+ 
+message PlayerInfo {
+    int32 userId = 1;
+    int32 gender = 2;
+    string userName = 3;
+    string nickName = 4;
+}

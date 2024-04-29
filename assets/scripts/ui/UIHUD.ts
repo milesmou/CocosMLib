@@ -3,6 +3,7 @@ import { Node, Prefab, _decorator } from 'cc';
 import { App } from '../../mlib/App';
 import { UIBase } from '../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../gen/UIConstant';
+import { HttpRequest } from '../../mlib/module/network/HttpRequest';
 
 const { ccclass, property } = _decorator;
 
@@ -11,14 +12,24 @@ export class UIHUD extends UIBase {
 
 
     protected start(): void {
-        let Node222 = this.rc.get("Node222", Node);
-        let ui = this.rc.get("Node222", UIBase);
-        let Node2221 = this.rc.getNode("Node222");
-        let haha = this.rc.get("asdas", Prefab);
-        console.log(Node222);
-        console.log(ui);
-        console.log(Node2221);
-        console.log(haha);
+        let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
+        let buffer: Uint8Array = pbroot.PlayerInfo.encode(jsonObj).finish();
+        
+        console.log(pbroot.PlayerInfo.getTypeUrl());
+        
+        
+        let buff = buffer.slice().buffer;
+        console.log(buff);
+        let decodeObj = pbroot.PlayerInfo.decode(buffer);
+        console.log(decodeObj);
+
+        HttpRequest.requestBuffer("http://127.0.1:7098/test/pb", { method: "POST", data: buff }).then(bb => {
+            
+            console.log(bb);
+            let decodeObj1= pbroot.PlayerInfo.decode(bb);
+            console.log(decodeObj1);
+        });
+
 
     }
 
@@ -39,7 +50,7 @@ export class UIHUD extends UIBase {
             case "ScrollviewEnhance":
                 App.ui.show(UIConstant.UIScrollviewEnhance);
                 break;
-                case "HH":
+            case "HH":
                 App.tipMsg.showToast("HH");
                 break;
         }
