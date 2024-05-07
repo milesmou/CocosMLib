@@ -1,4 +1,4 @@
-import { GameSave } from "../module/stroage/StroageMgr";
+import { GameSave } from "../module/stroage/GameSave";
 
 /** 任务状态 */
 export enum TaskState {

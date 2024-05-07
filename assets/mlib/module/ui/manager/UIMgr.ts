@@ -245,7 +245,6 @@ export class UIMgr extends Component {
     private async instNode(uiName: string, parent: Node): Promise<Node> {
         let prefab = await AssetMgr.loadAsset(uiName, Prefab);
         let uiObj = instantiate(prefab);
-        uiObj.getComponent(UITransform).setContentSize(view.getVisibleSize());
         uiObj.parent = parent;
         return uiObj;
     }
