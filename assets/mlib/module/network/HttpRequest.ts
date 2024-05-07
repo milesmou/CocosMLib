@@ -70,7 +70,7 @@ export class HttpRequest {
     public static async requestBuffer(url: string, args: RequestArgs) {
         let xhr = await this.request(url, args);
         if (xhr?.response && xhr.response instanceof ArrayBuffer) {
-            return new Uint8Array(xhr.response);;
+            return xhr.response;;
         }
         return null;
     }
