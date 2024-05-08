@@ -61,7 +61,6 @@ export class L10n extends UIComponent implements IL10n {
     private args: any[] = [];
 
     onLoad() {
-        super.onLoad();
         App.l10n.add(this);
         this.refreshContent();
     }
