@@ -11,6 +11,12 @@ interface ScheduleValue {
     totalDt: number;
 }
 
+/**
+ * 一个时间管理组件 可以控制schedule、animation、spine的速度
+ * schedule：自定义了一套scheduler方法
+ * animation：通过修改animation的AnimationManager为自定义的AnimationManager来控制
+ * spine：通过置空spine原来的update方法，然后使用本组件来驱动spine的update
+ */
 @ccclass
 export class TimerComponent extends Component {
     private _timeScale: number = 1;
@@ -19,6 +25,7 @@ export class TimerComponent extends Component {
     private _schedules: Set<ScheduleValue> = new Set();
 
     private _animationManager: AnimationManager;
+
     private _animations: Set<Animation> = new Set();
     private _skeletons: Set<sp.Skeleton> = new Set();
     private _updateName = "update";
@@ -71,6 +78,7 @@ export class TimerComponent extends Component {
         }
     }
 
+    /** 获取animation的所有AnimationState */
     private getAnimationStates(anim: Animation) {
         let states: AnimationState[] = [];
         for (const clip of anim.clips) {
@@ -84,6 +92,7 @@ export class TimerComponent extends Component {
         return states;
     }
 
+    /** 切换animation的AnimationManager */
     private swapAnimationManager(anim: Animation, isAdd: boolean) {
         let sysAnimationManager = director.getSystem(AnimationManager.ID) as AnimationManager;
         let states = this.getAnimationStates(anim);
@@ -98,6 +107,7 @@ export class TimerComponent extends Component {
         }
     }
 
+    /** 切换spine的update方法 */
     private swapUpdateFunction(obj: Component) {
         let manualUpdate = obj[this._manualUpdateName] || this.noneUpdate;
         let update = obj[this._updateName];
@@ -168,6 +178,6 @@ export class TimerComponent extends Component {
     }
 
     private noneUpdate(dt: number): void {
-
+        //空的update方法 用于屏蔽引擎引擎对spine的驱动
     }
 }
