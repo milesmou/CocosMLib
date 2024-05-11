@@ -1,4 +1,4 @@
-import { _decorator, Animation, AnimationManager, AnimationState, Component, director, macro, sp } from "cc";
+import { _decorator, Animation, AnimationManager, AnimationState, Component, director, macro, sp, Tween, TweenAction } from "cc";
 
 const { ccclass, property } = _decorator;
 
@@ -12,7 +12,8 @@ interface ScheduleValue {
 }
 
 /**
- * 一个时间管理组件 可以控制schedule、animation、spine的速度
+ * 一个时间管理组件 可以控制tween、schedule、animation、spine的速度
+ * tween：通过私有属性修改TweenAction的速度
  * schedule：自定义了一套scheduler方法
  * animation：通过修改animation的AnimationManager为自定义的AnimationManager来控制
  * spine：通过置空spine原来的update方法，然后使用本组件来驱动spine的update
@@ -26,6 +27,7 @@ export class TimerComponent extends Component {
 
     private _animationManager: AnimationManager;
 
+    private _tweens: Set<Tween<any>> = new Set();
     private _animations: Set<Animation> = new Set();
     private _skeletons: Set<sp.Skeleton> = new Set();
     private _updateName = "update";
@@ -37,6 +39,7 @@ export class TimerComponent extends Component {
 
     public setTimeScale(timeScale: number) {
         this._timeScale = timeScale;
+        this.refresh();
     }
 
     public getTimeScale() {
@@ -45,29 +48,47 @@ export class TimerComponent extends Component {
 
     public pause() {
         this._pause = true;
+        this.refresh();
     }
 
     public resume() {
         this._pause = false;
+        this.refresh();
     }
 
-    /** 添加对象 管理动作播放速度 */
-    public add(obj: Animation | sp.Skeleton) {
-        if (!obj?.isValid) return;
-        if (obj instanceof Animation) {
-            if (this._animations.has(obj)) return;
-            this._animations.add(obj);
-            this.swapAnimationManager(obj, true);
-        } else if (obj instanceof sp.Skeleton) {
-            if (this._skeletons.has(obj)) return;
-            this._skeletons.add(obj)
-            this.swapUpdateFunction(obj);
+    /** 
+     * 添加对象 管理动作播放速度
+     * tween在添加时会自动开始，结束后会自动移除
+     */
+    public add(obj: Tween<any> | Animation | sp.Skeleton) {
+        if (obj instanceof Tween) {
+            if (obj && this._tweens.add(obj)) {
+                obj.call(() => {
+                    this._tweens.delete(obj);
+                }).start();
+                this.changeTweenActionSpeed(obj, true);
+            }
+        } else {
+            if (!obj?.isValid) return;
+            if (obj instanceof Animation) {
+                if (this._animations.has(obj)) return;
+                this._animations.add(obj);
+                this.swapAnimationManager(obj, true);
+            } else if (obj instanceof sp.Skeleton) {
+                if (this._skeletons.has(obj)) return;
+                this._skeletons.add(obj)
+                this.swapUpdateFunction(obj);
+            }
         }
     }
 
     /** 移除对象 改为由引擎管理播放速度 */
-    public delete(obj: Animation | sp.Skeleton) {
-        if (obj instanceof Animation) {
+    public delete(obj: Tween<any> | Animation | sp.Skeleton) {
+        if (obj instanceof Tween) {
+            if (this._tweens.delete(obj)) {
+                this.changeTweenActionSpeed(obj, false)
+            }
+        } else if (obj instanceof Animation) {
             if (this._animations.delete(obj)) {
                 this.swapAnimationManager(obj, false)
             }
@@ -75,6 +96,25 @@ export class TimerComponent extends Component {
             if (this._skeletons.delete(obj)) {
                 this.swapUpdateFunction(obj);
             }
+        }
+    }
+
+    private refresh() {
+        this.changeAllTweenActionSpeed();
+    }
+
+    private changeAllTweenActionSpeed() {
+        this._tweens.forEach(v => {
+            this.changeTweenActionSpeed(v, true);
+        });
+    }
+
+    private changeTweenActionSpeed(tween: Tween<any>, isAdd: boolean) {
+        let finalAction: TweenAction = tween['_finalAction'];
+        let speed = isAdd ? this._timeScale : 1;
+        if (this._pause) speed = 0;
+        if (finalAction) {
+            finalAction.setSpeed && finalAction.setSpeed(speed);
         }
     }
 
@@ -146,6 +186,8 @@ export class TimerComponent extends Component {
 
     public update(dt: number): void {
         if (this._pause) return;
+
+        //Scheduler
         this._schedules.forEach(v => {
             let realDt = dt * this._timeScale;
             v.delay -= realDt;
@@ -155,14 +197,16 @@ export class TimerComponent extends Component {
                 v.delay = v.interval;
                 v.repeat -= 1;
                 v.totalDt = 0;
-                if (v.repeat < 0) this._schedules.delete(v);
+                if (v.repeat <= 0) this._schedules.delete(v);
             }
         });
 
+        //Animation
         if (this._animationManager) {
             this._animationManager.update(dt * this._timeScale);
         }
 
+        //Spine
         if (this._skeletons.size > 0) {
             this._skeletons.forEach(v => {
                 if (v?.isValid) {
