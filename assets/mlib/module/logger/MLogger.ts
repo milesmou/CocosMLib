@@ -58,4 +58,4 @@ export class MLogger {
     public trace: (...data) => void;
 }
 
-logger.setLevel(ELoggerLevel.Info);
+MLogger.setLevel(ELoggerLevel.Info);

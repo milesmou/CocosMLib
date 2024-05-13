@@ -7,6 +7,7 @@ import { TipMsg } from '../scripts/base/tipmsg/TipMsg';
 import { GameSetting } from './GameSetting';
 import { AssetComponent } from './module/asset/AssetComponent';
 import { AudioComponent } from "./module/audio/AudioComponent";
+import { AudioMgr } from './module/audio/AudioMgr';
 import { TimerComponent } from './module/core/TimerComponent';
 import { EventMgr } from "./module/event/EventMgr";
 import { L10nMgr } from './module/l10n/L10nMgr';
@@ -22,7 +23,7 @@ import { SingletonFactory } from './utils/SingletonFactory';
 export class App extends Component {
 
     public chan: Channel;
-    //manager
+
     public timer: TimerComponent;
     public audio: AudioComponent;
     public asset: AssetComponent;
@@ -30,8 +31,10 @@ export class App extends Component {
     public event = EventMgr;
     public pool = PoolMgr;
     public ui: UIMgr;
-    public tipMsg = TipMsg;
     public l10n = L10nMgr;
+    public audioMgr = AudioMgr;
+    public tipMsg = TipMsg;
+
 
     protected onLoad() {
         registerToGlobal("app", this);
