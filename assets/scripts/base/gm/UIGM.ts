@@ -1,5 +1,4 @@
 import { Button, EditBox, Node, Toggle, _decorator } from 'cc';
-import { App } from '../../../mlib/App';
 import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { EventKey } from '../GameEnum';
 import { PlayerData } from '../PlayerData';
@@ -50,11 +49,11 @@ export class UIGM extends UIBase {
         let _itemId = +editBoxs[0].string;
         let _itemNum = +editBoxs[1].string;;
         if (typeof _itemId != "number" || typeof _itemId != "number") {
-            App.tipMsg.showToast("咱就说起码得输入数字吧");
+            app.tipMsg.showToast("咱就说起码得输入数字吧");
             return;
         }
         if (!_itemId || !_itemNum) {
-            App.tipMsg.showToast("请输入ID和数量");
+            app.tipMsg.showToast("请输入ID和数量");
             return;
         }
         // if (!GameTable.Table.TbItem.get(+_itemId)) {
@@ -63,12 +62,12 @@ export class UIGM extends UIBase {
         // }
         if (_itemNum > 0) {
             PlayerData.Inst.getReward([+_itemId, +_itemNum]);
-            App.tipMsg.showToast("添加道具成功");
+            app.tipMsg.showToast("添加道具成功");
         } else {
             PlayerData.Inst.delCost([_itemId, Math.abs(_itemNum)])
-            App.tipMsg.showToast("删除道具成功");
+            app.tipMsg.showToast("删除道具成功");
         }
-        App.event.emit(EventKey.OnInventoryChange);
+        app.event.emit(EventKey.OnInventoryChange);
 
     }
 }

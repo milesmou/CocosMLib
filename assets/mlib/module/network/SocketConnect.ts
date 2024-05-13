@@ -1,5 +1,4 @@
 import { _decorator, Component, macro } from 'cc';
-import { App } from "../../App";
 
 export class SocketConnect extends Component {
     public constructor(url: string) {
@@ -65,7 +64,7 @@ export class SocketConnect extends Component {
         let obj = JSON.parse(data);
         let msgId = obj.msgId;
         let content = obj.content;
-        App.event.emit(msgId, content);
+        app.event.emit(msgId, content);
     }
 
     public sendMessage(msgId: number, content: any) {

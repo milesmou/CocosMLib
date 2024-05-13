@@ -1,7 +1,5 @@
 import { _decorator, Button, EventHandler, EventTouch, Intersection2D, macro, PolygonCollider2D, UITransform, Vec2, Vec3 } from 'cc';
-import { App } from '../../../App';
 import { MEvent } from '../../event/MEvent';
-import { MLogger } from '../../logger/MLogger';
 
 const { ccclass, property, disallowMultiple } = _decorator;
 
@@ -94,7 +92,7 @@ export class MButton extends Button {
         if (this.m_PolygonButton) {
             this._polygon = this.getComponent(PolygonCollider2D);
             if (!this._polygon) {
-                MLogger.error(`节点${this.node.name}上没有PolygonCollider2D组件`);
+                logger.error(`节点${this.node.name}上没有PolygonCollider2D组件`);
                 return;
             }
         }
@@ -161,7 +159,7 @@ export class MButton extends Button {
                 //已触发长按事件 忽略点击事件
             }
             else {
-                if (this['_pressed'] && this.clickAudio) App.audio.playEffect(this.clickAudio, 1, { deRef: false });
+                if (this['_pressed'] && this.clickAudio) app.audio.playEffect(this.clickAudio, 1, { deRef: false });
                 this.onClick.dispatch();
                 super._onTouchEnded(event);
             }
@@ -171,7 +169,7 @@ export class MButton extends Button {
     }
 
     private dispatchLongPress(first: boolean) {
-        if (first && this.clickAudio) App.audio.playEffect(this.clickAudio, 1, { deRef: false });
+        if (first && this.clickAudio) app.audio.playEffect(this.clickAudio, 1, { deRef: false });
         this._longPressEvtCount++;
         this.onLongPress.dispatch();
         EventHandler.emitEvents(this.longPressEvents);

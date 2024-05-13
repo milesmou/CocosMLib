@@ -1,6 +1,5 @@
 
 import { _decorator, Component, Node, Label } from 'cc';
-import { App } from '../../../../mlib/App';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../../../gen/UIConstant';
 
@@ -21,13 +20,13 @@ export class UIB extends UIBase {
     protected onClickButton(btnName: string): void {
         switch (btnName) {
             case "OpenA":
-                App.ui.show(UIConstant.UIA, { args: "B" });
+                app.ui.show(UIConstant.UIA, { args: "B" });
                 break;
             case "OpenB":
-                App.ui.show(UIConstant.UIB, { args: "B" });
+                app.ui.show(UIConstant.UIB, { args: "B" });
                 break;
             case "OpenC":
-                App.ui.show(UIConstant.UIC, { args: "B" });
+                app.ui.show(UIConstant.UIC, { args: "B" });
                 break;
 
             default:

@@ -1,5 +1,4 @@
 import { Component, Label, Node, _decorator } from "cc";
-import { App } from "../../../mlib/App";
 
 const { ccclass, property } = _decorator;
 
@@ -23,7 +22,7 @@ export default class GuideTips extends Component {
 
     /** 挑战boss提示文字 */
     public setTipText1Visible(visible: boolean) {
-        this._tipText1.string = App.l10n.getStringByKey("GuideText_076");
+        this._tipText1.string = app.l10n.getStringByKey("GuideText_076");
         this.c_TipText1.active = visible;
     }
 

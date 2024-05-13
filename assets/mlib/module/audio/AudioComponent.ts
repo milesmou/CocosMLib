@@ -1,5 +1,5 @@
 import { AudioClip, AudioSource, Component, Tween, _decorator, tween } from 'cc';
-import { AssetMgr } from '../asset/AssetMgr';
+import { AssetComponent } from '../asset/AssetComponent';
 import { AudioConfig } from './AudioConfig';
 import { AudioMgr } from './AudioMgr';
 import { AudioState } from './AudioState';
@@ -17,6 +17,9 @@ export class AudioComponent extends Component implements IAudioComponent {
     })
     private m_key = "";
 
+    /** 资源加载组件 */
+    private _asset: AssetComponent;
+
     /** 音乐音量 */
     private get mVolume() { return AudioMgr.GlobalCfg.mVolume.value * this.audioConfig.mVolume.value; }
     /** 音效音量 */
@@ -33,12 +36,13 @@ export class AudioComponent extends Component implements IAudioComponent {
     /** 音乐播放状态 */
     public music: Map<string, AudioState> = new Map<string, AudioState>();
     /** 单次播放音效的AudioSource */
-    private effectOneShot: AudioSource;
+    private _effectOneShot: AudioSource;
     /** 循环播放的音效 */
-    private loopEffect: AudioState[] = [];
+    private _loopEffect: AudioState[] = [];
 
     protected onLoad() {
-        this.effectOneShot = this.addComponent(AudioSource);
+        this._asset = this.getComponent(AssetComponent) || this.addComponent(AssetComponent);
+        this._effectOneShot = this.addComponent(AudioSource);
         this.setKey(this.m_key);
     }
 
@@ -51,7 +55,7 @@ export class AudioComponent extends Component implements IAudioComponent {
         if (!key) return;
         this.m_key = key;
         this.audioConfig = new AudioConfig(key, this.refreshMusicVolume.bind(this), this.refreshEffectVolume.bind(this));
-        this.effectOneShot.volume = this.eVolume;
+        this._effectOneShot.volume = this.eVolume;
         AudioMgr.add(this.m_key, this);
     }
 
@@ -96,11 +100,11 @@ export class AudioComponent extends Component implements IAudioComponent {
                 this.fadeInMusic(fadeIn, audioState);
             }
         } else { //播放音乐
-            let clip = await AssetMgr.loadAsset<AudioClip>(location, AudioClip);
+            let clip = await this._asset.loadAsset<AudioClip>(location, AudioClip);
             if (!this.isValid) return;
             if (!clip) return;
             if (!this.stack.has(priority, location)) {//未加载音乐完就已停止
-                AssetMgr.DecRef(location);
+                this._asset.decRef(location);
                 return;
             }
             onLoaded && onLoaded(clip);
@@ -131,23 +135,23 @@ export class AudioComponent extends Component implements IAudioComponent {
     public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
         let { loop, deRef, onStart, onFinished } = args;
         deRef = deRef === undefined ? true : deRef;
-        let clip = await AssetMgr.loadAsset(location, AudioClip);
+        let clip = await this._asset.loadAsset(location, AudioClip);
         if (!this.isValid) return;
         if (loop) {
             let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
-            this.loopEffect.push(audioState);
+            this._loopEffect.push(audioState);
             audioState.audio.clip = clip;
             audioState.audio.volume = this.eVolume * volumeScale;
             audioState.audio.loop = true;
             audioState.audio.play();
             onStart && onStart(clip);
         } else {
-            this.effectOneShot.playOneShot(clip, volumeScale);
+            this._effectOneShot.playOneShot(clip, volumeScale);
             Tween.stopAllByTarget(clip);
             tween(clip)
                 .delay(clip.getDuration())
                 .call(() => {
-                    if (deRef) AssetMgr.DecRef(location);
+                    if (deRef) this._asset.decRef(location);
                     onFinished && onFinished();
                 })
                 .start();
@@ -214,13 +218,13 @@ export class AudioComponent extends Component implements IAudioComponent {
     /** 停止播放指定的循环音效 */
     public stopEffect(audioClip: AudioClip) {
         if (audioClip) {
-            let index = this.loopEffect.findIndex(v => v.audio.clip == audioClip);
+            let index = this._loopEffect.findIndex(v => v.audio.clip == audioClip);
             if (index > -1) {
-                let audioState = this.loopEffect[index];
-                this.loopEffect = this.loopEffect.splice(index, 1);
+                let audioState = this._loopEffect[index];
+                this._loopEffect = this._loopEffect.splice(index, 1);
                 if (audioState.audio?.isValid) {
                     audioState.audio.destroy();
-                    AssetMgr.DecRef(audioState.location);
+                    this._asset.decRef(audioState.location);
                 }
             }
         }
@@ -228,14 +232,14 @@ export class AudioComponent extends Component implements IAudioComponent {
 
     /** 停止播放所有音效 */
     public stopAllEffect() {
-        this.loopEffect.forEach(v => {
+        this._loopEffect.forEach(v => {
             if (v.audio?.isValid) {
-                AssetMgr.DecRef(v.location);
+                this._asset.decRef(v.location);
                 v.audio.destroy();
             }
         });
-        this.loopEffect.length = 0;
-        this.effectOneShot.stop();
+        this._loopEffect.length = 0;
+        this._effectOneShot.stop();
     }
 
     /** 刷新正在播放的音乐的音量 */
@@ -259,10 +263,10 @@ export class AudioComponent extends Component implements IAudioComponent {
 
     /** 刷新正在播放的音效的音量 */
     public refreshEffectVolume() {
-        this.loopEffect.forEach(v => {
+        this._loopEffect.forEach(v => {
             if (v.audio) v.audio.volume = v.volumeScale * this.eVolume;
         });
-        this.effectOneShot.volume = this.eVolume;
+        this._effectOneShot.volume = this.eVolume;
     }
 
     private fadeInMusic(dur: number, audioState: AudioState) {
@@ -283,7 +287,7 @@ export class AudioComponent extends Component implements IAudioComponent {
         let onEnd = () => {
             if (stop) {
                 audioSource?.isValid && audioSource.destroy();
-                AssetMgr.DecRef(audioState.location);
+                this._asset.decRef(audioState.location);
             }
             else {
                 audioSource.pause();

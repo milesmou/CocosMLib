@@ -1,6 +1,5 @@
 
 import { _decorator } from 'cc';
-import { App } from '../../mlib/App';
 import { HttpRequest } from '../../mlib/module/network/HttpRequest';
 import { UIBase } from '../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../gen/UIConstant';
@@ -11,12 +10,11 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIHUD')
 export class UIHUD extends UIBase {
-
+    
 
     protected start(): void {
         let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
         let buffer: Uint8Array = pbroot.PlayerInfo.encode(jsonObj).finish();
-
         console.log(pbroot.PlayerInfo.getTypeUrl());
 
 
@@ -54,22 +52,22 @@ export class UIHUD extends UIBase {
     protected onClickButton(btnName: string): void {
         switch (btnName) {
             case "AudioMgr":
-                App.ui.show(UIConstant.UIAudioMgr);
+                app.ui.show(UIConstant.UIAudioMgr);
                 break;
             case "UIMgr":
-                App.ui.show(UIConstant.UIUIMgr);
+                app.ui.show(UIConstant.UIUIMgr);
                 break;
             case "Guide":
-                App.ui.show(UIConstant.UIGuideTest1);
+                app.ui.show(UIConstant.UIGuideTest1);
                 break;
             case "UIExtend":
-                App.ui.show(UIConstant.UIExtend);
+                app.ui.show(UIConstant.UIExtend);
                 break;
             case "ScrollviewEnhance":
-                App.ui.show(UIConstant.UIScrollviewEnhance);
+                app.ui.show(UIConstant.UIScrollviewEnhance);
                 break;
             case "HH":
-                App.tipMsg.showToast("HH");
+                app.tipMsg.showToast("HH");
                 break;
         }
     }

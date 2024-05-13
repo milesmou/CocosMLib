@@ -32,17 +32,17 @@ export class MLogger {
 
     //日志打印对象
     constructor(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
-        this.info = MLogger.globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ? MLogger.none :
-            console.log.bind(console, `[${MLogger.globalTag} ${tag} Info]`);
-        this.debug = MLogger.globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ? MLogger.none :
-            console.log.bind(console, `[${MLogger.globalTag} ${tag} Debug]`);
-        this.warn = MLogger.globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ? MLogger.none :
-            console.warn.bind(console, `[${MLogger.globalTag} ${tag} Warn]`);
-        this.error = MLogger.globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ? MLogger.none :
-            console.error.bind(console, `[${MLogger.globalTag} ${tag} Error]`);
-        this.print = console.log.bind(console, `[${MLogger.globalTag} ${tag} Print]`);
-        this.trace = console.trace ? console.trace.bind(console, `[${MLogger.globalTag} Trace]`) :
-            console.log.bind(console, `[${MLogger.globalTag} NoTrace]`);
+        this.info = logger.globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ? logger.none :
+            console.log.bind(console, `[${logger.globalTag} ${tag} Info]`);
+        this.debug = logger.globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ? logger.none :
+            console.log.bind(console, `[${logger.globalTag} ${tag} Debug]`);
+        this.warn = logger.globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ? logger.none :
+            console.warn.bind(console, `[${logger.globalTag} ${tag} Warn]`);
+        this.error = logger.globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ? logger.none :
+            console.error.bind(console, `[${logger.globalTag} ${tag} Error]`);
+        this.print = console.log.bind(console, `[${logger.globalTag} ${tag} Print]`);
+        this.trace = console.trace ? console.trace.bind(console, `[${logger.globalTag} Trace]`) :
+            console.log.bind(console, `[${logger.globalTag} NoTrace]`);
     }
 
     public info: (...data) => void;
@@ -58,4 +58,4 @@ export class MLogger {
     public trace: (...data) => void;
 }
 
-MLogger.setLevel(ELoggerLevel.Info);
+logger.setLevel(ELoggerLevel.Info);

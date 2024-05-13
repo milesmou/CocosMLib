@@ -3,7 +3,6 @@ import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
 import { ELoggerLevel } from './module/logger/ELoggerLevel';
-import { MLogger } from './module/logger/MLogger';
 const { ccclass, property, integer, executeInEditMode } = _decorator;
 
 
@@ -121,7 +120,7 @@ export class GameSetting extends Component {
             if (this.m_FrameRate > 0) {
                 game.frameRate = this.m_FrameRate;
             }
-            MLogger.setLevel(this.m_LogLevel);
+            logger.setLevel(this.m_LogLevel);
         }
 
     }

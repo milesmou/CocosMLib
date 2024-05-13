@@ -1,5 +1,4 @@
 import { sys } from "cc";
-import { MLogger } from "../logger/MLogger";
 
 /**
  * 本地存储类
@@ -16,7 +15,7 @@ export class LocalStorage {
         if (typeof defaultV === "number") {
             let v = parseFloat(value);
             if (isNaN(v)) {
-                MLogger.error(stroageKey, ": 转化为数字类型错误 ", value);
+                logger.error(stroageKey, ": 转化为数字类型错误 ", value);
                 value = defaultV;
             } else {
                 value = v;
@@ -29,7 +28,7 @@ export class LocalStorage {
             try {
                 value = JSON.parse(value);
             } catch (err) {
-                MLogger.error(stroageKey, ": 转化对象类型错误 ", value);
+                logger.error(stroageKey, ": 转化对象类型错误 ", value);
                 value = defaultV;
             }
         }

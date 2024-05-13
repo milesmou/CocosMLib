@@ -3,7 +3,6 @@ import { InventoryItemSO } from "../../misc/PlayerInventory";
 import { TaskItemSO } from "../../misc/PlayerTask";
 import { LZString } from "../../third/lzstring/LZString";
 import { Utils } from "../../utils/Utils";
-import { MLogger } from "../logger/MLogger";
 import { LocalStorage } from "./LocalStorage";
 
 /** 游戏数据存档基类 */
@@ -132,7 +131,7 @@ export abstract class GameSave {
                 let obj = JSON.parse(jsonStr);
                 if (obj) this.mergeValue(inst, obj);
             } catch (err) {
-                MLogger.error(err);
+                logger.error(err);
             }
         }
         return inst;

@@ -4,7 +4,6 @@ import { GameSetting } from "../../GameSetting";
 import { Utils } from "../../utils/Utils";
 import { AssetComponent } from "../asset/AssetComponent";
 import { AssetMgr } from "../asset/AssetMgr";
-import { MLogger } from "../logger/MLogger";
 import { StroageValue } from "../stroage/StroageValue";
 import { ELanguage, ELanguageCode } from "./ELanguage";
 import { IL10n } from "./IL10n";
@@ -194,7 +193,7 @@ export class L10nMgr {
     public static getStringByKey(key: string, ...args: any[]): string {
         let data = GameTable.Table.TbLocalization.get(key);
         if (!data) {
-            MLogger.error(`key=${key} Lang=${this.lang}  在语言表中无对应内容`);
+            logger.error(`key=${key} Lang=${this.lang}  在语言表中无对应内容`);
             return "";
         }
         return Utils.formatString(data[this.lang], ...args);

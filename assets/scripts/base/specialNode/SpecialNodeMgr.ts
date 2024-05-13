@@ -3,7 +3,6 @@ import { SingletonFactory } from "../../../mlib/utils/SingletonFactory";
 import { GameConfig } from "../GameConfig";
 import { GameData } from "../GameData";
 import { ESpecialNodeType } from "./ESpecialNodeType";
-import { App } from "../../../mlib/App";
 import { GameSetting } from "../../../mlib/GameSetting";
 import { EChannel } from "../publish/EChannel";
 

@@ -1,9 +1,8 @@
 import { Button, EditBox, Node, ScrollView, _decorator, game } from 'cc';
-import { App } from '../../../mlib/App';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { MCloudDataSDK } from '../../../mlib/sdk/MCloudDataSDK';
-import { GameData } from '../GameData';
 import { CCUtils } from '../../../mlib/utils/CCUtil';
+import { GameData } from '../GameData';
 import { GMCloudDataItem } from './GMCloudDataItem';
 const { ccclass, property } = _decorator;
 
@@ -55,9 +54,9 @@ export class GMCloudDataMgr extends UIComponent {
 
         MCloudDataSDK.saveGameData(this._gmUid, Date.now().toString(), data, desc).then(v => {
             if (v && v["code"] == 100) {
-                App.tipMsg.showToast("存档保存成功");
+                app.tipMsg.showToast("存档保存成功");
             } else {
-                App.tipMsg.showToast("存档保存失败");
+                app.tipMsg.showToast("存档保存失败");
             }
         })
     }
@@ -86,7 +85,7 @@ export class GMCloudDataMgr extends UIComponent {
                     item.getComponent(GMCloudDataItem).initData(desc, date, this.onClickDelKey.bind(this, uid, date), this.onClickReadKey.bind(this, data));
                 });
             } else {
-                App.tipMsg.showToast("获取存档失败");
+                app.tipMsg.showToast("获取存档失败");
             }
         });
 
@@ -94,15 +93,12 @@ export class GMCloudDataMgr extends UIComponent {
 
     /**建立新存档 */
     private newGame() {
-        App.tipMsg.showConfirm(
+        app.tipMsg.showConfirm(
             "开启新存档会丢失当前存档，请确保需要保存当前存档!",
             {
                 type: 2,
                 cbOk: () => {
                     GameData.Inst.replaceGameData("");
-                    GameData.clear();
-                    GameData.Inst.save();
-                    GameData.clear();
                     game.restart();
                 }
             });
@@ -110,16 +106,16 @@ export class GMCloudDataMgr extends UIComponent {
 
     /**删除存档 */
     private onClickDelKey(uid: string, key: string) {
-        App.tipMsg.showConfirm(
+        app.tipMsg.showConfirm(
             "删除存档不可逆，真的要删除么？!", {
             type: 2,
             cbOk: () => {
                 MCloudDataSDK.delGameData(uid, key).then(v => {
                     if (v && v["code"] == 100) {
-                        App.tipMsg.showToast("删除存档成功");
+                        app.tipMsg.showToast("删除存档成功");
                         this.renderScrollView();
                     } else {
-                        App.tipMsg.showToast("删除存档失败");
+                        app.tipMsg.showToast("删除存档失败");
                     }
                 });
             }
@@ -128,17 +124,17 @@ export class GMCloudDataMgr extends UIComponent {
     }
 
     /**读取存档 */
-    private onClickReadKey(data: string) {
-        App.tipMsg.showConfirm(
+    private onClickReadKey(data: any) {
+        app.tipMsg.showConfirm(
             "读取将失去现在的存档，请先确保当前存档保存了", {
             type: 2,
             cbOk: () => {
-                GameData.Inst.replaceGameData(data);
-                GameData.clear();
-                GameData.Inst.save();
-                GameData.clear();
-                App.tipMsg.showToast("读取存档成功");
-                game.restart();
+                try {
+                    GameData.Inst.replaceGameData(data.data);
+                    game.restart();
+                } catch (e) {
+                    console.error(e);
+                }
             }
         }
         );

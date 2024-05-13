@@ -1,5 +1,4 @@
 import { tween } from "cc";
-import { MLogger } from "../module/logger/MLogger";
 import { GameSave } from "../module/stroage/GameSave";
 
 /** 背包物品的基本信息 */
@@ -360,10 +359,10 @@ export class ParseItemTool {
             for (let i = start; i < 3; i++) {
                 let v = parseFloat(arr[i + di]);
                 if (!isNaN(v)) result[i] = v;
-                else MLogger.error("请检查物品配置:", str);
+                else logger.error("请检查物品配置:", str);
             }
         } else {
-            MLogger.error("请检查物品配置:", str);
+            logger.error("请检查物品配置:", str);
         }
         return result;
     }

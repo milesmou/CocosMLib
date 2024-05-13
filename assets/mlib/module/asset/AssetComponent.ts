@@ -17,7 +17,7 @@ export class AssetComponent extends Component {
         this._cache.forEach((v, k) => {
             if (v?.isValid) {
                 let location = AssetMgr.parseLocation(k, v)
-                AssetMgr.DecRef(location, 1);
+                AssetMgr.decRef(location, 1);
             }
         });
     }
@@ -79,7 +79,7 @@ export class AssetComponent extends Component {
         if (this._cache.has(location)) {
             location = AssetMgr.parseLocation(location, this._cache.get(location));
             this._cache.delete(location);
-            AssetMgr.DecRef(location, 1);
+            AssetMgr.decRef(location, 1);
         }
     }
 }

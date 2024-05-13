@@ -1,5 +1,4 @@
 import { Component, Label, Node, _decorator } from 'cc';
-import { MLogger } from '../../logger/MLogger';
 import { RedDotMgr } from './RedDotMgr';
 
 const { ccclass, property, menu } = _decorator;
@@ -24,7 +23,7 @@ export class RedDot extends Component {
     onLoad() {
         this.redDotName = this.redDotName.trim();
         if (!this.redDotName) {
-            MLogger.error("RedDotName不能为空");
+            logger.error("RedDotName不能为空");
             return;
         }
     }

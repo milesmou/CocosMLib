@@ -1,5 +1,4 @@
 import { Component, Game, Node, _decorator, game } from "cc";
-import { MLogger } from "../logger/MLogger";
 
 const { ccclass, property } = _decorator;
 
@@ -11,7 +10,7 @@ export default class NodeTag extends Component {
 
     protected onLoad(): void {
         if (!this.m_Tag) {
-            MLogger.error(`Tag不能为空`, this.node);
+            logger.error(`Tag不能为空`, this.node);
             return;
         }
         NodeTag.add(this.m_Tag, this.node);
@@ -25,7 +24,7 @@ export default class NodeTag extends Component {
 
     public static add(tag: string, node: Node) {
         if (NodeTag.map.has(tag)) {
-            MLogger.error(`${tag} Tag重复`, node);
+            logger.error(`${tag} Tag重复`, node);
             return;
         }
         NodeTag.map.set(tag, node);

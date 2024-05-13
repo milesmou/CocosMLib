@@ -1,4 +1,3 @@
-import { MLogger } from '../logger/MLogger';
 import { ObjectPool } from './ObjectPool';
 import { ObjectPoolArgs } from './ObjectPoolArgs';
 
@@ -22,7 +21,7 @@ export class PoolMgr {
             let pool = new ObjectPool(args);
             this.pools.set(poolName, pool);
         } else {
-            MLogger.warn("请勿重复创建对象池!");
+            logger.warn("请勿重复创建对象池!");
         }
     }
     /**
@@ -34,7 +33,7 @@ export class PoolMgr {
             let pool = this.pools.get(poolName);
             return pool.get() as T;
         } else {
-            MLogger.error("对象池不存在!");
+            logger.error("对象池不存在!");
         }
     }
     /**
@@ -53,7 +52,7 @@ export class PoolMgr {
                 pool.put(obj);
             }
         } else {
-            MLogger.error("对象池不存在!");
+            logger.error("对象池不存在!");
         }
     }
 }

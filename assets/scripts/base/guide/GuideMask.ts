@@ -1,6 +1,5 @@
 import { Button, Component, EventTouch, Node, Rect, Sprite, Toggle, UITransform, _decorator, v2, v3 } from "cc";
 import { MEvent } from "../../../mlib/module/event/MEvent";
-import { MLogger } from "../../../mlib/module/logger/MLogger";
 import { HollowOut } from "./HollowOut";
 import { MButton } from "../../../mlib/module/ui/extend/MButton";
 import { MToggle } from "../../../mlib/module/ui/extend/MToggle";
@@ -131,7 +130,7 @@ export class GuideMask extends Component {
                 tog.node.emit("click", tog);
                 return;
             }
-            MLogger.warn("节点上没有Button或Toggle", this._eventTarget);
+            logger.warn("节点上没有Button或Toggle", this._eventTarget);
         }
 
     }

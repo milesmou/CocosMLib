@@ -1,6 +1,5 @@
 
 import { AudioClip, EventTouch, _decorator } from 'cc';
-import { App } from '../../../../mlib/App';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 
 const { ccclass, property } = _decorator;
@@ -13,25 +12,25 @@ export class UIAudioMgr extends UIBase {
     protected onClickButton(btnName: string): void {
         switch (btnName) {
             case "playMusic1":
-                App.audio.playMusic("audio/test/bgm1");
+                app.audio.playMusic("audio/test/bgm1");
                 break;
             case "playMusic2":
-                App.audio.playMusic("audio/test/bgm2", 1, 1);
+                app.audio.playMusic("audio/test/bgm2", 1, 1);
                 break;
             case "stopMusic1":
-                App.audio.stopMusic("audio/test/bgm1");
+                app.audio.stopMusic("audio/test/bgm1");
                 break;
             case "stopMusic2":
-                App.audio.stopMusic("audio/test/bgm2", 1);
+                app.audio.stopMusic("audio/test/bgm2", 1);
                 break;
             case "stopMusic3":
-                App.audio.stopMusic();
+                app.audio.stopMusic();
                 break;
             case "play_pause_music":
                 this.playOrPauseMusic();
                 break;
             case "playEffect1":
-                App.audio.playEffect("audio/test/click", 1, {
+                app.audio.playEffect("audio/test/click", 1, {
                     loop: false,
                     deRef: false,
                     onStart: (clip: AudioClip) => {
@@ -43,13 +42,13 @@ export class UIAudioMgr extends UIBase {
                 });
                 break;
             case "playEffect2":
-                App.audio.playEffect("audio/test/bomb", 1);
+                app.audio.playEffect("audio/test/bomb", 1);
                 break;
             case "stopEffect":
-                App.audio.stopAllEffect();
+                app.audio.stopAllEffect();
                 break;
             case "playEffect1Loop":
-                App.audio.playEffect("audio/test/click", 1, {
+                app.audio.playEffect("audio/test/click", 1, {
                     loop: true,
                     onStart: (clip: AudioClip) => {
                         console.log("onStart playEffect1Loop", clip);
@@ -62,7 +61,7 @@ export class UIAudioMgr extends UIBase {
                 break;
             case "stopPlayEffect1":
                 if (this.effect1Clip) {
-                    App.audio.stopEffect(this.effect1Clip);
+                    app.audio.stopEffect(this.effect1Clip);
                 }
                 break;
             default:
@@ -72,10 +71,10 @@ export class UIAudioMgr extends UIBase {
 
 
     playOrPauseMusic() {
-        if (App.audio.pause) {
-            App.audio.pauseMusic(false);
+        if (app.audio.pause) {
+            app.audio.pauseMusic(false);
         } else {
-            App.audio.pauseMusic(true);
+            app.audio.pauseMusic(true);
         }
     }
 

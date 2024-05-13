@@ -2,9 +2,7 @@ import { Enum, Label, Node, RichText, Sprite, _decorator } from "cc";
 
 const { ccclass, property, menu } = _decorator;
 
-import { App } from "../../App";
 import { CCUtils } from "../../utils/CCUtil";
-import { MLogger } from "../logger/MLogger";
 import { UIComponent } from "../ui/manager/UIComponent";
 import { IL10n } from "./IL10n";
 import { L10nMgr } from "./L10nMgr";
@@ -61,12 +59,12 @@ export class L10n extends UIComponent implements IL10n {
     private args: any[] = [];
 
     onLoad() {
-        App.l10n.add(this);
+        app.l10n.add(this);
         this.refreshContent();
     }
 
     onDestroy() {
-        App.l10n.remove(this);
+        app.l10n.remove(this);
     }
 
     /** 设置文本参数并刷新内容(针对文本中有动态内容,便于切换语言环境自动刷新内容) */
@@ -91,7 +89,7 @@ export class L10n extends UIComponent implements IL10n {
             for (const comp of node["_components"]) {
                 if (comp instanceof Label || comp instanceof RichText) {
                     if (this.needSwitchFont) {
-                        let font = App.l10n.getFont();
+                        let font = app.l10n.getFont();
                         if (font) {
                             comp.useSystemFont = false;
                             comp.font = font;
@@ -104,15 +102,15 @@ export class L10n extends UIComponent implements IL10n {
                             comp.enabled = true;
                         })
                     }
-                    App.l10n.setStringByKey(comp, this.key, ...this.args);
+                    app.l10n.setStringByKey(comp, this.key, ...this.args);
                     return;
                 } else if (comp instanceof Sprite) {
-                    App.l10n.setSpriteFrameByKey(comp, this.key, this.asset);
+                    app.l10n.setSpriteFrameByKey(comp, this.key, this.asset);
                     return;
                 }
             }
         } else {
-            MLogger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${CCUtils.getNodePath(this.node)}`);
+            logger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${CCUtils.getNodePath(this.node)}`);
         }
     }
 

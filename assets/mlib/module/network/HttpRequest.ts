@@ -1,4 +1,3 @@
-import { MLogger } from "../logger/MLogger";
 
 interface RequestArgs {
     method?: "GET" | "POST";
@@ -17,15 +16,15 @@ export class HttpRequest {
 
             xhr.timeout = timeout;
             xhr.ontimeout = () => {
-                MLogger.error(url, "timeout");
+                logger.error(url, "timeout");
                 resolve(null);
             };
             xhr.onabort = () => {
-                MLogger.error(url, "user abort");
+                logger.error(url, "user abort");
                 resolve(null);
             };
             xhr.onerror = () => {
-                MLogger.error(url, "network error");
+                logger.error(url, "network error");
                 resolve(null);
             };
             xhr.onreadystatechange = () => {
@@ -62,7 +61,7 @@ export class HttpRequest {
         try {
             return JSON.parse(text) as object;
         } catch (error) {
-            MLogger.error(error);
+            logger.error(error);
         }
         return null;
     }

@@ -4,7 +4,6 @@
 //3.通常使用3位版本号(x.x.x)作为存储搜索路径的key
 
 import { Asset, native, sys } from "cc";
-import { MLogger } from "../module/logger/MLogger";
 
 export enum EHotUpdateState {
     CheckUpdate,//检查更新

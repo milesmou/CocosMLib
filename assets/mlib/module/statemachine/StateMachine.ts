@@ -1,4 +1,3 @@
-import { MLogger } from "../logger/MLogger";
 
 export interface IStateNode {
     name: string;
@@ -39,7 +38,7 @@ export class StateMachine {
         if (this._curNode)
             this._curNode.onEnter();
         else
-        MLogger.error(`Not found entry node : ${nodeName}`);
+        logger.error(`Not found entry node : ${nodeName}`);
     }
 
 
@@ -55,7 +54,7 @@ export class StateMachine {
             this._nodes.set(node.name, node);
         }
         else {
-            MLogger.warn(`Node ${node.name} already existed`);
+            logger.warn(`Node ${node.name} already existed`);
         }
     }
 
@@ -63,7 +62,7 @@ export class StateMachine {
     public changeState(nodeName: string) {
         let node = this._nodes.get(nodeName);
         if (!node) {
-            MLogger.error(`Can not found node ${nodeName}`);
+            logger.error(`Can not found node ${nodeName}`);
             return;
         }
         this._preNode = this._curNode;

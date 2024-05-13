@@ -1,15 +1,14 @@
-import { Label, _decorator } from 'cc';
-import { App } from '../../../../mlib/App';
+import { _decorator } from 'cc';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('UIExtend')
 export class UIExtend extends UIBase {
-    
+
     start() {
-        
-        
+
+
     }
 
 
@@ -17,13 +16,13 @@ export class UIExtend extends UIBase {
         switch (btnName) {
             case "ButtonDD":
                 console.log("hahaha");
-                
-                break; 
-                case "Button-00122":
-                console.log("Button-00122");
-                
+
                 break;
-        
+            case "Button-00122":
+                console.log("Button-00122");
+
+                break;
+
             default:
                 break;
         }
@@ -31,11 +30,11 @@ export class UIExtend extends UIBase {
 
 
     onLongPress11() {
-        App.ui.showToast("点击");
+        app.tipMsg.showToast("点击");
     }
 
     onLongPress12() {
-        App.ui.showToast("长按");
+        app.tipMsg.showToast("长按");
     }
 }
 

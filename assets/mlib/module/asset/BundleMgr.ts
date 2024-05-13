@@ -1,6 +1,5 @@
 import { AssetManager, assetManager, js } from "cc";
 import { SingletonFactory } from "../../utils/SingletonFactory";
-import { MLogger } from "../logger/MLogger";
 
 export class BundleMgr {
 
@@ -28,7 +27,7 @@ export class BundleMgr {
     private parseBundle(bundle: AssetManager.Bundle) {
 
         if (this.bundles.has(bundle.name)) {
-            MLogger.warn("重复的Bundle名字", bundle.name);
+            logger.warn("重复的Bundle名字", bundle.name);
             return;
         }
 
@@ -49,7 +48,7 @@ export class BundleMgr {
                     this.address.set(path, bundle.name);
                 }
                 else {
-                    MLogger.error(`资源地址不能重复  ${bundle.name} ${this.address.get(path)} ${v1.path}`);
+                    logger.error(`资源地址不能重复  ${bundle.name} ${this.address.get(path)} ${v1.path}`);
                 }
             });
         });
@@ -59,7 +58,7 @@ export class BundleMgr {
             let sceneName = path.substring(path.lastIndexOf("/") + 1);
             let location = bundle.name + "/" + sceneName;
             if (this.scenes.has(location)) {
-                MLogger.error(`场景名字不能重复  ${location}`);
+                logger.error(`场景名字不能重复  ${location}`);
             } else {
                 this.scenes.set(location, bundle.name);
             }
@@ -73,7 +72,7 @@ export class BundleMgr {
                 { onFileProgress: onFileProgress },
                 (err, bundle) => {
                     if (err) {
-                        MLogger.error(err);
+                        logger.error(err);
                         reject(err);
                     } else {
                         this.parseBundle(bundle);
@@ -106,7 +105,7 @@ export class BundleMgr {
                     },
                     (err, bundle) => {
                         if (err) {
-                            MLogger.error(err);
+                            logger.error(err);
                             reject(err)
                         } else {
                             bundleArr.push(bundle);

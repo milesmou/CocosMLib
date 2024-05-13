@@ -1,4 +1,3 @@
-import { App } from "../../mlib/App";
 import { GameData } from "./GameData";
 import { EventKey } from "./GameEnum";
 
@@ -116,6 +115,6 @@ export class GameTask {
 
     private saveTaskInfo() {
         GameData.Inst.delaySave();
-        App.event.emit(EventKey.OnTaskChange);
+        app.event.emit(EventKey.OnTaskChange);
     }
 }

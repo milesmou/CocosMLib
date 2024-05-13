@@ -1,5 +1,4 @@
 import { Component, Node, _decorator, instantiate, v3 } from "cc";
-import { App } from "../../../mlib/App";
 import { CCUtils } from "../../../mlib/utils/CCUtil";
 import { UIConstant } from "../../gen/UIConstant";
 import { TUnforcedGuide } from "../../gen/table/Types";
@@ -29,9 +28,9 @@ export default class UnforcedGuide extends Component {
         this.m_finger.removeFromParent();
         this.hide();
         // App.event.on(EventKey.OnUIHideBegin, this.hide, this);
-        App.event.on(EventKey.OnUIHide, this.check, this);
+        app.event.on(EventKey.OnUIHide, this.check, this);
         // App.event.on(EventKey.OnUIShowBegin, this.hide, this);
-        App.event.on(EventKey.OnUIShow, this.check, this);
+        app.event.on(EventKey.OnUIShow, this.check, this);
     }
 
     protected start(): void {
@@ -41,7 +40,7 @@ export default class UnforcedGuide extends Component {
     }
 
     private async showFinger(guideData: TUnforcedGuide) {
-        let ui = App.ui.getUI(UIConstant[guideData.UIName]);
+        let ui = app.ui.getUI(UIConstant[guideData.UIName]);
         let targetNode: Node = null;
         if (guideData.NodePath) {
             targetNode = CCUtils.getNodeAtPath(ui.node, guideData.NodePath);
@@ -64,7 +63,7 @@ export default class UnforcedGuide extends Component {
         if (!this._guideDatas) return;
         let guideData: TUnforcedGuide = null;
         for (const data of this._guideDatas) {
-            if (!App.ui.isTopUI(UIConstant[data.UIName])) continue;
+            if (!app.ui.isTopUI(UIConstant[data.UIName])) continue;
             if (GameGuide.Inst.checkUnforcedGuide(data)) {
                 guideData = data;
                 break;

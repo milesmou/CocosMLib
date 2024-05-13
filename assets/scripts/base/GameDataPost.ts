@@ -1,10 +1,8 @@
-import { App } from "../../mlib/App";
-import { MLogger } from "../../mlib/module/logger/MLogger";
 import { GameData } from "./GameData";
 
 /** 对本地存档的初始化和后处理 */
 export class GameDataPost {
-    public static get Inst() { return App.getSingleInst(GameDataPost); }
+    public static get Inst() { return app.getSingleInst(GameDataPost); }
 
     /** 初始化本地存档 */
     initGameData() {
@@ -18,14 +16,14 @@ export class GameDataPost {
 
     /** 新用户 */
     private onNewUser() {
-        MLogger.debug("新手玩家");
+        logger.debug("新手玩家");
 
 
     }
 
     /** 跨天处理 */
     private onDateChange(lastDate: number, today: number) {
-        MLogger.debug("onDateChange", lastDate, today);
+        logger.debug("onDateChange", lastDate, today);
 
 
 

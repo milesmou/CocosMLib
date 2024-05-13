@@ -1,5 +1,4 @@
 import { _decorator, sys } from 'cc';
-import { MLogger } from '../module/logger/MLogger';
 import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
@@ -50,7 +49,7 @@ export class Channel {
 
     /** 获取玩家存档 */
     public getGameData(args: GameDataArgs) {
-        MLogger.debug("getGameData", args.userId);
+        logger.debug("getGameData", args.userId);
         SDKCallback.getGameData = args;
         MCloudDataSDK.getGameData(args.userId, this.userDataCloudSaveKey).then(v => {
             if (v) {
@@ -63,7 +62,7 @@ export class Channel {
 
     /** 上传玩家存档 */
     public uploadGameData(args: GameDataArgs) {
-        MLogger.debug("uploadGameData", args.userId);
+        logger.debug("uploadGameData", args.userId);
         SDKCallback.uploadGameData = args;
         MCloudDataSDK.saveGameData(args.userId, this.userDataCloudSaveKey, args.userGameData).then(v => {
             if (v) {

@@ -1,5 +1,4 @@
 import { Node, find } from "cc";
-import { App } from "../../mlib/App";
 import { UIConstant } from "../gen/UIConstant";
 import { TUnforcedGuide } from "../gen/table/Types";
 import { GameData } from "./GameData";
@@ -12,16 +11,16 @@ import { UIGuide } from "./guide/UIGuide";
 */
 export class GameGuide {
 
-    public static get Inst() { return App.getSingleInst(GameGuide); }
+    public static get Inst() { return app.getSingleInst(GameGuide); }
     private onInst() {
         this._readyToGuide = false;
-        App.event.on(EventKey.OnGuideStart, () => {
+        app.event.on(EventKey.OnGuideStart, () => {
             this._readyToGuide = false;
         }, this);
-        App.event.on(EventKey.OnGuideEnd, (guideId: number) => {
+        app.event.on(EventKey.OnGuideEnd, (guideId: number) => {
             this.finisheGuide(guideId);
         }, this);
-        App.event.on(EventKey.ShowGuide, this.showGuide, this);
+        app.event.on(EventKey.ShowGuide, this.showGuide, this);
     }
 
     /** 准备开始引导 但还在等待中 */
@@ -87,7 +86,7 @@ export class GameGuide {
         //         return GameData.Inst.myMainTaskData.taskId > data.NeedMainTask;
         //     }
         // } else {
-        //     MLogger.error(`GuideOpenPlan表中未配置 ID=${guide}`)
+        //     logger.error(`GuideOpenPlan表中未配置 ID=${guide}`)
         // }
         return false;
     }
@@ -99,7 +98,7 @@ export class GameGuide {
     }
 
 
-    
+
     //#region 非强制引导条件判断
 
     public checkUnforcedGuide(guideData: TUnforcedGuide): boolean {
@@ -108,7 +107,7 @@ export class GameGuide {
     }
 
     public async getUnforcedGuideStepNode(guideData: TUnforcedGuide): Promise<Node> {
-        let uiNode = App.ui.getUI(UIConstant[guideData.UIName]).node;
+        let uiNode = app.ui.getUI(UIConstant[guideData.UIName]).node;
         if (guideData.GuideID == EUnforcedGuideType.RequireEvent1) {
             if (guideData.StepIndex == 2) {
                 return find("home/Bottom/$Content", uiNode).children[0];

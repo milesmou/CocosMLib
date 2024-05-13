@@ -1,4 +1,3 @@
-import { App } from "../../mlib/App";
 import { PlayerInventory } from "../../mlib/misc/PlayerInventory";
 import { GameData } from "./GameData";
 import { EventKey, ItemId } from "./GameEnum";
@@ -9,11 +8,11 @@ import { EventKey, ItemId } from "./GameEnum";
 
 export class PlayerData extends PlayerInventory {
 
-    public static get Inst() { return App.getSingleInst(PlayerData); }
+    public static get Inst() { return app.getSingleInst(PlayerData); }
 
     private onInst() {
         this.init(GameData.Inst, () => {
-            App.event.emit(EventKey.OnInventoryChange);
+            app.event.emit(EventKey.OnInventoryChange);
         });
     }
 
@@ -33,7 +32,7 @@ export class PlayerData extends PlayerInventory {
                 return true;
             } else {
                 if (showTips) {
-                    App.tipMsg.showToast(tipText ? tipText : App.l10n.getStringByKey("100022"));//金币数量不足
+                    app.tipMsg.showToast(tipText ? tipText : app.l10n.getStringByKey("100022"));//金币数量不足
                 }
                 return false;
             }
@@ -56,7 +55,7 @@ export class PlayerData extends PlayerInventory {
                 return true;
             } else {
                 if (showTips) {
-                    App.tipMsg.showToast(tipText ? tipText : App.l10n.getStringByKey("100023"));//钻石数量不足
+                    app.tipMsg.showToast(tipText ? tipText : app.l10n.getStringByKey("100023"));//钻石数量不足
                 }
                 return false;
             }

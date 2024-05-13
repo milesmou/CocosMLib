@@ -1,4 +1,3 @@
-import { App } from "../../mlib/App";
 import { L10nMgr } from "../../mlib/module/l10n/L10nMgr";
 import { UIMgr } from "../../mlib/module/ui/manager/UIMgr";
 import { UIConstant } from "../gen/UIConstant";
@@ -23,6 +22,6 @@ export class GameInit {
         await L10nMgr.init();
         await UIMgr.Inst.showResident(UIConstant.UIGuide);
         ShopUtil.init();
-        App.chan.initIAP();
+        app.chan.initIAP();
     }
 }

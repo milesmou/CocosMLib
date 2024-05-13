@@ -7,11 +7,9 @@ import { TipMsg } from '../scripts/base/tipmsg/TipMsg';
 import { GameSetting } from './GameSetting';
 import { AssetComponent } from './module/asset/AssetComponent';
 import { AudioComponent } from "./module/audio/AudioComponent";
-import NodeTag from './module/core/NodeTag';
 import { TimerComponent } from './module/core/TimerComponent';
 import { EventMgr } from "./module/event/EventMgr";
 import { L10nMgr } from './module/l10n/L10nMgr';
-import { MLogger } from './module/logger/MLogger';
 import { PoolMgr } from "./module/pool/PoolMgr";
 import { LocalStorage } from './module/stroage/LocalStorage';
 import { UIMgr } from "./module/ui/manager/UIMgr";
@@ -23,39 +21,36 @@ import { SingletonFactory } from './utils/SingletonFactory';
 @ccclass('App')
 export class App extends Component {
 
-    public static Inst: App;
-
-    public static chan: Channel;
+    public chan: Channel;
     //manager
-    public static timer: TimerComponent;
-    public static audio: AudioComponent;
-    public static asset: AssetComponent;
-    public static stroage = LocalStorage;
-    public static event = EventMgr;
-    public static pool = PoolMgr;
-    public static ui: UIMgr;
-    public static tipMsg = TipMsg;
-    public static l10n = L10nMgr;
+    public timer: TimerComponent;
+    public audio: AudioComponent;
+    public asset: AssetComponent;
+    public stroage = LocalStorage;
+    public event = EventMgr;
+    public pool = PoolMgr;
+    public ui: UIMgr;
+    public tipMsg = TipMsg;
+    public l10n = L10nMgr;
 
     protected onLoad() {
-        App.Inst = this;
+        registerToGlobal("app", this);
         director.addPersistRootNode(this.node);
-        NodeTag.add("App", this.node);
         this.setCanvasResolution();
 
-        App.timer = this.addComponent(TimerComponent);
-        App.audio = this.addComponent(AudioComponent);
-        App.audio.setKey("App");
-        App.asset = this.addComponent(AssetComponent);
+        this.timer = this.addComponent(TimerComponent);
+        this.asset = this.addComponent(AssetComponent);
+        this.audio = this.addComponent(AudioComponent);
+        this.audio.setKey("App");
 
-        App.chan = Publish.getChannelInstance();
+        this.chan = Publish.getChannelInstance();
 
-        MLogger.print(`GameSetting Channel=${GameSetting.Inst.channel}|${js.getClassName(App.chan)} Version=${GameSetting.Inst.version} Language=${L10nMgr.lang}`);
-        MLogger.print(`SDKSetting ${SDKSetting.Inst.getPrintInfo()}`);
+        logger.print(`GameSetting Channel=${GameSetting.Inst.channel}|${js.getClassName(this.chan)} Version=${GameSetting.Inst.version} Language=${L10nMgr.lang}`);
+        logger.print(`SDKSetting ${SDKSetting.Inst.getPrintInfo()}`);
     }
 
     protected start() {
-        App.ui = UIMgr.Inst;
+        this.ui = UIMgr.Inst;
     }
 
     protected onDestroy(): void {
@@ -84,7 +79,7 @@ export class App extends Component {
         }
     }
 
-    public static getSingleInst<T>(clazz: { new(): T }) {
+    public getSingleInst<T>(clazz: { new(): T }) {
         return SingletonFactory.getInstance(clazz);
     }
 }

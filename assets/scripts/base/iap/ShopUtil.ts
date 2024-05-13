@@ -1,5 +1,3 @@
-import { App } from "../../../mlib/App";
-import { MLogger } from "../../../mlib/module/logger/MLogger";
 import { EIAPResult, SDKCallback } from "../../../mlib/sdk/MSDKWrapper";
 import { ProductDetail } from "./ProductDetail";
 // import UIWait from "../ui/UIWait";
@@ -22,7 +20,7 @@ export class ShopUtil {
         SDKCallback.onStartInAppPurchase = this.onStartInAppPurchase.bind(this);
         SDKCallback.inAppPurchase = this.onPurchaseUpdate.bind(this);
         this.reqProductDetail();
-        App.chan.restoreIAP();
+        app.chan.restoreIAP();
     }
 
     /** 获取商品详情 */
@@ -37,13 +35,13 @@ export class ShopUtil {
         // list2.forEach(v => {
         //     if (v.IAPID) ids.push(v.IAPID);
         // });
-        App.chan.reqProductDetails(ids.join("|"));
-        App.Inst.scheduleOnce(this.reqProductDetail.bind(this), 5);
+        app.chan.reqProductDetails(ids.join("|"));
+        app.scheduleOnce(this.reqProductDetail.bind(this), 5);
     }
 
     private static onStartInAppPurchase(productId: string) {
         // UIWait.Inst.show();
-        App.chan.reportEvent("iap_start", { k: productId });
+        app.chan.reportEvent("iap_start", { k: productId });
     }
 
     private static onPurchaseUpdate(code: EIAPResult, arg: string) {
@@ -52,12 +50,12 @@ export class ShopUtil {
         }
         switch (code) {
             case EIAPResult.NoEnv:
-                // App.ui.showToast("IAP0001", true);
-                App.chan.reportEvent("iap_fail", { k: arg });
+                // app.ui.showToast("IAP0001", true);
+                app.chan.reportEvent("iap_fail", { k: arg });
                 break;
             case EIAPResult.NoProduct:
-                // App.ui.showToast("IAP0002", true);
-                App.chan.reportEvent("iap_fail", { k: arg });
+                // app.ui.showToast("IAP0002", true);
+                app.chan.reportEvent("iap_fail", { k: arg });
                 break;
             case EIAPResult.Success:
                 this.purchaseSuccess(arg, true);
@@ -66,11 +64,11 @@ export class ShopUtil {
                 this.purchaseSuccess(arg, false);
                 break;
             case EIAPResult.Fail:
-                // App.ui.showToast("IAP0004", true);//支付失败
-                App.chan.reportEvent("iap_fail", { k: arg });
+                // app.ui.showToast("IAP0004", true);//支付失败
+                app.chan.reportEvent("iap_fail", { k: arg });
                 break;
             case EIAPResult.VerifyFail:
-                // App.ui.showToast("IAP0003", true);//验证失败，支付结果可能会有延迟
+                // app.ui.showToast("IAP0003", true);//验证失败，支付结果可能会有延迟
                 break;
             case EIAPResult.ProductDetail:
                 this.onGetProductDetail(arg);
@@ -82,7 +80,7 @@ export class ShopUtil {
 
     /** 从后台获取商品详情 default:使用数据表的商品详情*/
     private static onGetProductDetail(content: string) {
-        MLogger.debug("onGetProductDetail");
+        logger.debug("onGetProductDetail");
         try {
             if (content == "default") {
                 ProductDetail.productDetailMap = new Map();
@@ -118,19 +116,19 @@ export class ShopUtil {
             }
 
         } catch (error) {
-            MLogger.error(error);
+            logger.error(error);
         }
     }
 
     /** 支付成功 */
     private static purchaseSuccess(productId: string, showReward: boolean) {
-        MLogger.debug("purchaseSuccess");
+        logger.debug("purchaseSuccess");
         this.settleProduct(productId, showReward);
     }
 
     /** 结算商品，内部需要处理所有IAPID的购买逻辑 */
     private static settleProduct(productId: string, showReward: boolean) {
-        // App.ui.showToast(`支付成功 ${productId} ${showReward}`);
+        // app.ui.showToast(`支付成功 ${productId} ${showReward}`);
 
 
     }
@@ -138,7 +136,7 @@ export class ShopUtil {
 
 
     private static restoreSuccess(goodsIds: string[]) {
-        MLogger.debug("restoreSuccess");
+        logger.debug("restoreSuccess");
     }
 }
 

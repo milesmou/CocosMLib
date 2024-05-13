@@ -1,5 +1,4 @@
 import { Button, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
-import { App } from '../../../mlib/App';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel } from '../../../mlib/module/logger/ELoggerLevel';
 import { MLogger } from '../../../mlib/module/logger/MLogger';
@@ -86,7 +85,7 @@ export class UIGuide extends UIComponent {
     }
 
     private guideOver() {
-        App.event.emit(EventKey.OnGuideEnd, this._guideId);
+        app.event.emit(EventKey.OnGuideEnd, this._guideId);
         this._guideId = 0;
         this.hide();
         this._onEnded && this._onEnded();
@@ -97,7 +96,7 @@ export class UIGuide extends UIComponent {
         this._logger.debug("---------结束引导步骤", this._guideId, this.stepIndex);
         this._logger.debug();
         let data = this._guideData[this._dataIndex];
-        App.chan.reportEvent("guide_step", { k: data.ID });
+        app.chan.reportEvent("guide_step", { k: data.ID });
         if (this._dataIndex == this._guideData.length - 1) {
             this._logger.debug("结束引导" + this._guideId);
             this.guideOver();
@@ -132,7 +131,7 @@ export class UIGuide extends UIComponent {
         this._guideData = GameTable.Inst.getGuideGroup(guideId);
         if (this._guideData != null) {
             this._logger.debug("开始引导" + guideId);
-            App.event.emit(EventKey.OnGuideStart, this._guideId);
+            app.event.emit(EventKey.OnGuideStart, this._guideId);
             this._onStep = onStep;
             this._onStepNode = onStepNode;
             this._onManualStep = onManualStep;
@@ -202,7 +201,7 @@ export class UIGuide extends UIComponent {
         this._logger.debug();
         this._logger.debug("---------开始引导步骤", this._guideId, this.stepIndex);
 
-        App.ui.blockTime = 99999;
+        app.ui.blockTime = 99999;
         this.setMaskVisible(true)
         this.setMaskTouchEnable(true);
         this._mask.reset();
@@ -240,13 +239,13 @@ export class UIGuide extends UIComponent {
 
         let p = new Promise<UIForm>((resovle, reject) => {
             this.scheduleOnce(() => {
-                this._logger.debug(`IsTopUI=${App.ui.isTopUI(uiName)}`);
+                this._logger.debug(`IsTopUI=${app.ui.isTopUI(uiName)}`);
 
                 let checkUI = () => {
                     this._logger.debug(`${uiName} 已被打开`);
-                    this._logger.debug(`isAnimEnd=${App.ui.getUI(uiName).isAnimEnd}`);
-                    let ui = App.ui.getUI(uiName);
-                    if (App.ui.getUI(uiName).isAnimEnd) {
+                    this._logger.debug(`isAnimEnd=${app.ui.getUI(uiName).isAnimEnd}`);
+                    let ui = app.ui.getUI(uiName);
+                    if (app.ui.getUI(uiName).isAnimEnd) {
                         resovle(ui);
                     } else {
                         ui.onAnimEnd.addListener(() => {
@@ -255,21 +254,21 @@ export class UIGuide extends UIComponent {
                     }
                 }
 
-                if (App.ui.isTopUI(uiName)) {//UI已打开
+                if (app.ui.isTopUI(uiName)) {//UI已打开
                     checkUI();
                 }
                 else //等待UI被打开
                 {
                     this._logger.debug(`${uiName} 等待被打开`);
                     let func = ui => {
-                        if (App.ui.isTopUI(uiName)) {
-                            App.event.off(EventKey.OnUIShow, func);
-                            App.event.off(EventKey.OnUIHide, func);
+                        if (app.ui.isTopUI(uiName)) {
+                            app.event.off(EventKey.OnUIShow, func);
+                            app.event.off(EventKey.OnUIHide, func);
                             checkUI();
                         }
                     };
-                    App.event.on(EventKey.OnUIShow, func);
-                    App.event.on(EventKey.OnUIHide, func);
+                    app.event.on(EventKey.OnUIShow, func);
+                    app.event.on(EventKey.OnUIHide, func);
                 }
             }, Math.max(0.05, guide.DelayCheckUI));
         });
@@ -279,7 +278,7 @@ export class UIGuide extends UIComponent {
     private async waitManualStartStep() {
         this._logger.debug("等待手动开始引导步骤");
         this._onManualStep && this._onManualStep(this.stepIndex);
-        App.event.emit(EventKey.ManualGuideStep, this._guideId, this.stepIndex);
+        app.event.emit(EventKey.ManualGuideStep, this._guideId, this.stepIndex);
     }
 
 
@@ -287,7 +286,7 @@ export class UIGuide extends UIComponent {
         this._logger.debug("点击屏幕即可");
         this._btnScreen.active = true
         this._btnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
-        App.ui.blockTime = -1;
+        app.ui.blockTime = -1;
     }
 
     public async showPrefab() {
@@ -315,7 +314,7 @@ export class UIGuide extends UIComponent {
             comp.onClose.addListener(this.checkOver, this, true);
             comp.init(this._guideId, this.stepIndex);
         }
-        App.ui.blockTime = -1;
+        app.ui.blockTime = -1;
     }
 
     /** 销毁加载的预制件 */
@@ -323,7 +322,7 @@ export class UIGuide extends UIComponent {
         if (this._prefabParent.children.length > 0) {
             let nodeName = this._prefabParent.children[0].name;
             this._prefabParent.destroyAllChildren();
-            AssetMgr.DecRef("prefab/guide/" + nodeName);
+            AssetMgr.decRef("prefab/guide/" + nodeName);
         }
     }
 
@@ -366,7 +365,7 @@ export class UIGuide extends UIComponent {
             eventTarget.once("click", this.checkOver.bind(this));
             this._logger.debug(`挖孔Size width=${this._hollowTargetTf.width} height=${this._hollowTargetTf.height}`);
             this.scheduleOnce(() => {
-                App.ui.blockTime = -1;
+                app.ui.blockTime = -1;
                 let pos = CCUtils.uiNodePosToUINodePos(hollowTarget.parent, this.node, hollowTarget.position);
                 this.showRing(guide.RingScale, pos, guide.RingOffset);
                 this.showFinger(guide.FingerDir, pos, guide.FingerOffset);
@@ -455,7 +454,7 @@ export class UIGuide extends UIComponent {
             this._tip.active = true;
             this._tip.position = v3(pos.x, pos.y);
             let lbl = this._tip.getComponentInChildren(Label);
-            lbl.string = App.l10n.getStringByKey(text);
+            lbl.string = app.l10n.getStringByKey(text);
         }
     }
 

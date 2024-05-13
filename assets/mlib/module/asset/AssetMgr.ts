@@ -1,6 +1,5 @@
 import { Asset, AssetManager, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys } from "cc";
 import { BundleConstant } from "../../../scripts/gen/BundleConstant";
-import { MLogger } from "../logger/MLogger";
 import { AssetCache } from "./AssetCache";
 import { BundleMgr } from "./BundleMgr";
 
@@ -59,7 +58,7 @@ export class AssetMgr {
             let bundle = BundleMgr.Inst.getBundle(location);
             bundle.load(this.unparseLocation(location, type), type, (err, asset) => {
                 if (err) {
-                    MLogger.error(err);
+                    logger.error(err);
                     resolve(null);
                 }
                 else {
@@ -76,7 +75,7 @@ export class AssetMgr {
     public static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
         let list = BundleMgr.Inst.getDirectoryAddress(location);
         if (!list || list.length == 0) {
-            MLogger.error("目录中无资源");
+            logger.error("目录中无资源");
             return;
         }
 
@@ -99,7 +98,7 @@ export class AssetMgr {
             }
             assetManager.loadRemote<T>(url, { ext: url.substring(url.lastIndexOf(".")) }, (err, asset) => {
                 if (err) {
-                    MLogger.error(err);
+                    logger.error(err);
                     resolve(null);
                 }
                 else {
@@ -136,7 +135,7 @@ export class AssetMgr {
     */
     public static async loadSprite(sprite: Sprite, location: string) {
         if (!sprite?.isValid) {
-            MLogger.error("Sprite无效 " + location);
+            logger.error("Sprite无效 " + location);
             return;
         }
         if (location.startsWith("http") || location.startsWith("/")) {
@@ -159,7 +158,7 @@ export class AssetMgr {
             let sceneName = location.substring(location.indexOf("/") + 1);
             bundle.loadScene(sceneName, onProgress, err => {
                 if (err) {
-                    MLogger.error(err);
+                    logger.error(err);
                     resolve();
                 } else {
                     resolve();
@@ -189,7 +188,7 @@ export class AssetMgr {
                 },
                 (err, res) => {
                     if (err) {
-                        MLogger.error(url, "download fail", err?.message);
+                        logger.error(url, "download fail", err?.message);
                         reject(null);
                     } else {
                         resolve(res);
@@ -201,19 +200,19 @@ export class AssetMgr {
     }
 
     /** 让资源引用计数增加 */
-    public static AddRef(location: string, decCount = 1) {
+    public static addRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
             for (let i = 0; i < decCount; i++) {
                 asset.addRef();
             }
         } else {
-            MLogger.warn(`[AddRef] 资源已销毁 ${location}`);
+            logger.warn(`[addRef] 资源已销毁 ${location}`);
         }
     }
 
     /** 让资源引用计数减少 */
-    public static DecRef(location: string, decCount = 1) {
+    public static decRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
             if (decCount < 0) {
@@ -224,19 +223,19 @@ export class AssetMgr {
                 }
             }
         } else {
-            MLogger.warn(`[DecRef] 资源已销毁 ${location}`);
+            logger.warn(`[decRef] 资源已销毁 ${location}`);
         }
     }
 
     /** 让目录下所有资源引用计数减少 */
-    public static DecDirRef(location: string, decCount = 1) {
+    public static decDirRef(location: string, decCount = 1) {
         let list = BundleMgr.Inst.getDirectoryAddress(location);
         if (!list || list.length == 0) {
-            MLogger.error("目录中无资源");
+            logger.warn(`[decDirRef] 目录中无资源 ${location}`);
             return;
         }
         for (const v of list) {
-            this.DecRef(v, decCount);
+            this.decRef(v, decCount);
         }
     }
 

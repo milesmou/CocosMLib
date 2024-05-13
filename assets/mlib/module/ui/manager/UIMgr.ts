@@ -8,7 +8,6 @@ import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { AssetMgr } from '../../asset/AssetMgr';
 import { EventMgr } from '../../event/EventMgr';
-import { MLogger } from '../../logger/MLogger';
 import { EUIFormPassiveType } from './EUIFormPassiveType';
 import { UIComponent } from './UIComponent';
 import { UIForm } from './UIForm';
@@ -147,7 +146,7 @@ export class UIMgr extends Component {
             if (ui.destroyNode) {
                 ui.node.destroy();
                 this._uiDict.delete(uiName);
-                AssetMgr.DecRef(uiName);
+                AssetMgr.decRef(uiName);
             }
             else {
                 ui.node.active = false;
@@ -363,7 +362,7 @@ export class UIMgr extends Component {
         if (method && typeof method === "function") {
             method.apply(ui, args);
         } else {
-            MLogger.error(`${UIConstant[uiName]}上未找到指定方法 ${methodName}`);
+            logger.error(`${UIConstant[uiName]}上未找到指定方法 ${methodName}`);
         }
     }
 
@@ -373,7 +372,7 @@ export class UIMgr extends Component {
         if (this._openUITime.has(uiName)) {
             let lastTime = this._openUITime[uiName];
             if (now - lastTime < 100) {
-                MLogger.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
+                logger.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
                 this._openUITime.delete(uiName);
             }
             this._openUITime[uiName] = now;

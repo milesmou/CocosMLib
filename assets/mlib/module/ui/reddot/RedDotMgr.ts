@@ -1,4 +1,3 @@
-import { MLogger } from "../../logger/MLogger";
 
 class RedDotNode {
 
@@ -23,7 +22,7 @@ class RedDotNode {
 
     public set value(val) {
         if (this.child.length > 0) {
-            MLogger.error("只能修改叶子节点的值", this.name);
+            logger.error("只能修改叶子节点的值", this.name);
             return;
         }
         this.nodeValue = val;
@@ -62,7 +61,7 @@ export class RedDotMgr {
                 this.addRedDot(nodeName, parentName);
             }
             else {
-                MLogger.error(`节点路径错误 ${strPath}`);
+                logger.error(`节点路径错误 ${strPath}`);
             }
         }
     }
@@ -77,11 +76,11 @@ export class RedDotMgr {
                 this.nodes[name] = node;
             }
             else {
-                MLogger.error(`节点已存在 ${name}`);
+                logger.error(`节点已存在 ${name}`);
             }
         }
         else {
-            MLogger.error(`父节点不存在 ${name}`);
+            logger.error(`父节点不存在 ${name}`);
         }
     }
 
@@ -92,7 +91,7 @@ export class RedDotMgr {
             node.onValueChange = onValueChange;
         }
         else {
-            MLogger.error(`节点不存在 ${name}`);
+            logger.error(`节点不存在 ${name}`);
         }
     }
 
@@ -104,11 +103,11 @@ export class RedDotMgr {
                 node.value = value;
             }
             else {
-                MLogger.error(`只能修改叶子节点的值 ${name}`);
+                logger.error(`只能修改叶子节点的值 ${name}`);
             }
         }
         else {
-            MLogger.error(`节点不存在 ${name}`);
+            logger.error(`节点不存在 ${name}`);
         }
     }
 
@@ -119,7 +118,7 @@ export class RedDotMgr {
             return node.value;
         }
         else {
-            MLogger.error(`节点不存在 ${name}`);
+            logger.error(`节点不存在 ${name}`);
             return 0;
         }
     }
@@ -128,7 +127,7 @@ export class RedDotMgr {
     public static printAllRedDotValue() {
         for (const name in this.nodes) {
             let node = this.nodes[name];
-            MLogger.debug(`name=${name} value=${node.value} isLeaf=${node.child.length == 0}`)
+            logger.debug(`name=${name} value=${node.value} isLeaf=${node.child.length == 0}`)
         }
     }
 }

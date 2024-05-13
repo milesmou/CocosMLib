@@ -23,7 +23,7 @@ export default class GameTable {
             let obj = datas.get(file)?.json;
             return obj;
         });
-        AssetMgr.DecDirRef(dir);
+        AssetMgr.decDirRef(dir);
     }
 
     //引导
