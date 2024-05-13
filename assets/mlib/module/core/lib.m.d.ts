@@ -28,9 +28,14 @@ declare global {
          * 从数组中删除一个元素
          */
         delete<T>(item: T): boolean;
+
         /**
-        * 从数组中删除一个元素
-        */
+         * 从数组中删除一个元素
+         */
         delete<T>(predicate: (value: T, index: number, obj: T[]) => boolean): boolean;
+        /**
+         * 数组随机打乱
+         */
+        disarrange();
     }
 }

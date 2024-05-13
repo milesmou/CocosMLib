@@ -36,3 +36,13 @@ Array.prototype.delete = function <T>(itemOrPredicate: T | ((value: T, index: nu
     }
     return false;
 }
+//数组随机打乱
+Array.prototype.disarrange = function <T>() {
+    let self: T[] = this;
+    for (let i = 0; i < self.length; i++) {
+        let index = Math.floor(Math.random() * self.length);
+        let tmp = self[i];
+        self[i] = self[index];
+        self[index] = tmp;
+    }
+}
