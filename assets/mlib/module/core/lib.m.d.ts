@@ -11,6 +11,12 @@ declare module "cc" {
          */
         getComponentInParent<T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef?: boolean);
     }
+
+    export namespace sp {
+        interface Skeleton {
+            
+        }
+    }
 }
 
 declare global {
