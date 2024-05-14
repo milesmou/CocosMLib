@@ -1,4 +1,5 @@
 import { Asset, Label, ProgressBar, TextAsset, Tween, _decorator, game, sys, tween } from 'cc';
+import { PREVIEW } from 'cc/env';
 import { EGameConfigType, GameSetting } from '../../../mlib/GameSetting';
 import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
@@ -73,19 +74,21 @@ export class Loading extends UIComponent {
 
     /** 版本更新检测 */
     async checkVersion() {
-        if (GameSetting.Inst.hotupdate && GameConfig.rg && sys.isNative) {
-            let manifest = await AssetMgr.loadAsset("project", Asset);
-            if (manifest) {
-                HotUpdate.Inst.start(
-                    manifest,
-                    GameSetting.Inst.mainVersion,
-                    this.onUpdateStateChange.bind(this),
-                    this.onUpdateDownloadProgress.bind(this),
-                    this.onUpdateComplete.bind(this)
-                );
-                return;
-            } else {
-                logger.error("加载清单文件失败");
+        if (!PREVIEW) {
+            if (GameSetting.Inst.hotupdate && GameConfig.rg && sys.isNative) {
+                let manifest = await AssetMgr.loadAsset("project", Asset);
+                if (manifest) {
+                    HotUpdate.Inst.start(
+                        manifest,
+                        GameSetting.Inst.mainVersion,
+                        this.onUpdateStateChange.bind(this),
+                        this.onUpdateDownloadProgress.bind(this),
+                        this.onUpdateComplete.bind(this)
+                    );
+                    return;
+                } else {
+                    logger.error("加载清单文件失败");
+                }
             }
         }
         this.login();

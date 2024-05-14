@@ -62,7 +62,7 @@ export class MCloudDataSDK {
             param: paramStr,
             sum: num
         };
-        HttpRequest.requestText(this.EventHost, { method: "POST", data: body });
+        // HttpRequest.requestText(this.EventHost, { method: "POST", data: body });
     }
 
 
