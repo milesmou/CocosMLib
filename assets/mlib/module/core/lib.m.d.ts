@@ -14,6 +14,7 @@ declare module "cc" {
 }
 
 declare global {
+
     /** 将属性注册到全局 */
     let registerToGlobal: (key: string, value: any) => void;
     /** 应用程序管理单例 */
@@ -26,11 +27,18 @@ declare global {
          * 从数组中删除一个元素
          */
         delete<T>(item: T): boolean;
-
         /**
          * 从数组中删除一个元素
          */
         delete<T>(predicate: (value: T, index: number, obj: T[]) => boolean): boolean;
+        /**
+         * 获取第一个元素
+         */
+        first(): T;
+        /** 
+         * 获取最后一个元素
+         */
+        last(): T;
         /**
          * 数组随机打乱
          */

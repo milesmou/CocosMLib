@@ -28,6 +28,7 @@ export class UIHUD extends UIBase {
        
         console.log( a.upperFirst());
         
+        Node
 
 
         HttpRequest.requestBuffer("http://127.0.1:7098/test/pb", { method: "POST", data: buff }).then(bb => {

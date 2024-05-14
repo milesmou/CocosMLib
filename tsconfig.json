@@ -8,6 +8,10 @@
         "target": "ES2017",
         "lib": [
             "ES2017",
+            "DOM"
+        ],
+        "types": [
+            "minigame-api-typings"
         ]
     },
     "exclude": [

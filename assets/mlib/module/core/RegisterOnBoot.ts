@@ -36,6 +36,18 @@ Array.prototype.delete = function <T>(itemOrPredicate: T | ((value: T, index: nu
     return false;
 }
 
+Array.prototype.first = function <T>() {
+    let self: T[] = this;
+    if (self.length == 0) return undefined;
+    return self[0];
+}
+
+Array.prototype.last = function <T>() {
+    let self: T[] = this;
+    if (self.length == 0) return undefined;
+    return self[self.length - 1];
+}
+
 Array.prototype.disarrange = function <T>() {
     let self: T[] = this;
     for (let i = 0; i < self.length; i++) {

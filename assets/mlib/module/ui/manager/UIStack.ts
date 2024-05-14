@@ -12,6 +12,4 @@ export class UIStack<T> extends Array<T> {
             this.splice(index, 1);
         }
     }
-
-
 }
