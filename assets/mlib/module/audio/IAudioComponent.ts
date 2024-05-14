@@ -1,7 +1,7 @@
-import { AudioConfig } from "./AudioConfig";
+import { AudioVolume } from "./AudioVolume";
 
 export interface IAudioComponent {
-    audioConfig: AudioConfig;
+    audioVolume: AudioVolume;
     refreshMusicVolume(dur?: number);
     refreshEffectVolume();
 }

@@ -1,6 +1,6 @@
 import { AudioClip, AudioSource, Component, Tween, _decorator, tween } from 'cc';
 import { AssetComponent } from '../asset/AssetComponent';
-import { AudioConfig } from './AudioConfig';
+import { AudioVolume } from './AudioVolume';
 import { AudioMgr } from './AudioMgr';
 import { AudioState } from './AudioState';
 import { IAudioComponent } from './IAudioComponent';
@@ -21,11 +21,12 @@ export class AudioComponent extends Component implements IAudioComponent {
     private _asset: AssetComponent;
 
     /** 音乐音量 */
-    private get mVolume() { return AudioMgr.GlobalCfg.mVolume.value * this.audioConfig.mVolume.value; }
+    private get mVolume() { return AudioMgr.globalVolume.mVolume.value * this.audioVolume.mVolume.value; }
     /** 音效音量 */
-    private get eVolume() { return AudioMgr.GlobalCfg.eVolume.value * this.audioConfig.eVolume.value; }
+    private get eVolume() { return AudioMgr.globalVolume.eVolume.value * this.audioVolume.eVolume.value; }
 
-    public audioConfig: AudioConfig;
+    /** 音量 */
+    public audioVolume: AudioVolume;
 
     /** 当前音乐是否暂停 */
     private _pause = false;
@@ -54,7 +55,7 @@ export class AudioComponent extends Component implements IAudioComponent {
     public setKey(key: string) {
         if (!key) return;
         this.m_key = key;
-        this.audioConfig = new AudioConfig(key, this.refreshMusicVolume.bind(this), this.refreshEffectVolume.bind(this));
+        this.audioVolume = new AudioVolume(key, this.refreshMusicVolume.bind(this), this.refreshEffectVolume.bind(this));
         this._effectOneShot.volume = this.eVolume;
         AudioMgr.add(this.m_key, this);
     }

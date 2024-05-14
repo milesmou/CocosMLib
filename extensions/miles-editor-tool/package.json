@@ -95,12 +95,6 @@
         "menu": [
             {
                 "path": "MTools",
-                "label": "格式化目录结构",
-                "icon": "./static/icon.png",
-                "message": "formatProject"
-            },
-            {
-                "path": "MTools",
                 "label": "导表",
                 "icon": "./static/icon.png",
                 "message": "loadExcel"

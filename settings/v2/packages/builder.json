@@ -1,3 +1,22 @@
 {
-  "__version__": "1.3.7"
+  "__version__": "1.3.7",
+  "textureCompressConfig": {
+    "userPreset": {
+      "6dYYWebyBAMY/C4OJWoKTs": {
+        "name": "ETC",
+        "options": {
+          "web": {
+            "etc1_rgb_a": {
+              "quality": "fast"
+            }
+          },
+          "android": {
+            "pvrtc_4bits_rgb_a": {
+              "quality": "normal"
+            }
+          }
+        }
+      }
+    }
+  }
 }

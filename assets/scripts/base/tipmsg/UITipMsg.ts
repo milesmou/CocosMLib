@@ -1,7 +1,6 @@
 import { Label, Node, Tween, UIOpacity, _decorator, instantiate, misc, tween, v3 } from 'cc';
 import { ObjectPool } from '../../../mlib/module/pool/ObjectPool';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
-import { Utils } from '../../../mlib/utils/Utils';
 import { ConfirmArgs } from './ConfirmArgs';
 const { ccclass, property } = _decorator;
 

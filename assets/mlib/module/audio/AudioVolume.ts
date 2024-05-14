@@ -1,6 +1,6 @@
 import { StroageValue } from "../stroage/StroageValue";
 
-export class AudioConfig {
+export class AudioVolume {
 
     /** 音乐音量 [0,1] */
     public mVolume: StroageValue<number>;

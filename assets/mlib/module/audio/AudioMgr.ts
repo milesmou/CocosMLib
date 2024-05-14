@@ -1,10 +1,10 @@
-import { AudioConfig } from "./AudioConfig";
+import { AudioVolume } from "./AudioVolume";
 import { IAudioComponent } from "./IAudioComponent";
 /** 管理音频播放组建 */
 export class AudioMgr {
 
-    /** 全局的音量配置 */
-    public static GlobalCfg = new AudioConfig(null, this.onGlobalMusicVolumeChange.bind(this), this.onGlobalEffectVolumeChange.bind(this));
+    /** 全局音量 */
+    public static globalVolume = new AudioVolume(null, this.onGlobalMusicVolumeChange.bind(this), this.onGlobalEffectVolumeChange.bind(this));
     /** 保存所有音频播放组件的Map */
     private static audioCompMap: Map<string, IAudioComponent> = new Map();
 
