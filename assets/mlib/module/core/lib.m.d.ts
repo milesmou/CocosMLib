@@ -13,8 +13,6 @@ declare module "cc" {
     }
 }
 
-
-
 declare global {
     /** 将属性注册到全局 */
     let registerToGlobal: (key: string, value: any) => void;
@@ -37,5 +35,16 @@ declare global {
          * 数组随机打乱
          */
         disarrange();
+    }
+
+    interface String {
+        /**
+         * 首字母大写
+         */
+        upperFirst(): string;
+        /**
+         * 首字母小写 
+         */
+        lowerFirst(): string;
     }
 }

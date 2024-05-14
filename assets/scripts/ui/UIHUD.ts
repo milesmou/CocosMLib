@@ -13,6 +13,8 @@ export class UIHUD extends UIBase {
     
 
     protected start(): void {
+
+
         let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
         let buffer: Uint8Array = pbroot.PlayerInfo.encode(jsonObj).finish();
         console.log(pbroot.PlayerInfo.getTypeUrl());
@@ -22,6 +24,10 @@ export class UIHUD extends UIBase {
         console.log(buff);
         let decodeObj = pbroot.PlayerInfo.decode(buffer);
         console.log(decodeObj);
+        let a :string = "ss";
+       
+        console.log( a.upperFirst());
+        
 
 
         HttpRequest.requestBuffer("http://127.0.1:7098/test/pb", { method: "POST", data: buff }).then(bb => {

@@ -9,7 +9,7 @@ function registerToGlobal(key: string, value: any) {
 registerToGlobal("registerToGlobal", registerToGlobal);
 registerToGlobal("logger", MLogger);
 
-//从父节点获取组件
+
 Component.prototype.getComponentInParent = function <T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef = true) {
     let self: Component = this;
     let node = includeSlef ? self.node : self.node.parent;
@@ -21,7 +21,6 @@ Component.prototype.getComponentInParent = function <T extends Component>(classC
     return app.getComponent(classConstructor);
 }
 
-//数组删除元素方法
 Array.prototype.delete = function <T>(itemOrPredicate: T | ((value: T, index: number, obj: T[]) => unknown)) {
     let self: T[] = this;
     let index = -1;
@@ -36,7 +35,7 @@ Array.prototype.delete = function <T>(itemOrPredicate: T | ((value: T, index: nu
     }
     return false;
 }
-//数组随机打乱
+
 Array.prototype.disarrange = function <T>() {
     let self: T[] = this;
     for (let i = 0; i < self.length; i++) {
@@ -46,3 +45,19 @@ Array.prototype.disarrange = function <T>() {
         self[index] = tmp;
     }
 }
+
+String.prototype.upperFirst = function () {
+    let self = this;
+    if (!self) return self;
+    if (self.length < 2) return self.toUpperCase();
+    return self[0].toUpperCase() + self.substring(1);
+}
+
+String.prototype.lowerFirst = function () {
+    let self = this;
+    if (!self) return self;
+    if (self.length < 2) return self.toLowerCase();
+    return self[0].toLowerCase() + self.substring(1);
+}
+
+

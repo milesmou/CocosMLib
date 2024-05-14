@@ -141,7 +141,7 @@ export class UITipMsg extends UIComponent {
                         .to(0.2, { opacity: 0 })
                         .call(() => {
                             this._toastPool.put(toast);
-                            Utils.delItemFromArray(this._toasts, toast);
+                            this._toasts.delete(toast);
                         })
                         .start();
                 }
