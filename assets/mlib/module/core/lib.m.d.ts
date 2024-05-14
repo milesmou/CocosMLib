@@ -14,7 +14,7 @@ declare module "cc" {
 
     export namespace sp {
         interface Skeleton {
-            
+            setGTimeScale(value: number): void;
         }
     }
 }
