@@ -1,16 +1,16 @@
 
 import { _decorator } from 'cc';
 import { HttpRequest } from '../../mlib/module/network/HttpRequest';
+import { BufferTool } from '../../mlib/module/network/buffer/BufferTool';
+import { MByteBuffer } from '../../mlib/module/network/buffer/MByteBuffer';
 import { UIBase } from '../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../gen/UIConstant';
-import { MByteBuffer } from '../../mlib/module/network/buffer/MByteBuffer';
-import { BufferTool } from '../../mlib/module/network/buffer/BufferTool';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHUD')
 export class UIHUD extends UIBase {
-    
+
 
     protected start(): void {
 
@@ -24,10 +24,10 @@ export class UIHUD extends UIBase {
         console.log(buff);
         let decodeObj = pbroot.PlayerInfo.decode(buffer);
         console.log(decodeObj);
-        let a :string = "ss";
-       
-        console.log( a.upperFirst());
-        
+        let a: string = "ss";
+
+        console.log(a.upperFirst());
+
         Node
 
 
@@ -66,6 +66,9 @@ export class UIHUD extends UIBase {
                 break;
             case "Guide":
                 app.ui.show(UIConstant.UIGuideTest1);
+                break;
+            case "Timer":
+                app.ui.show(UIConstant.UITimerTest);
                 break;
             case "UIExtend":
                 app.ui.show(UIConstant.UIExtend);

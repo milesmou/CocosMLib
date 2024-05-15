@@ -22,11 +22,11 @@ declare module "cc" {
 declare global {
 
     /** 将属性注册到全局 */
-    let registerToGlobal: (key: string, value: any) => void;
+    const registerToGlobal: (key: string, value: any) => void;
     /** 应用程序管理单例 */
-    let app: App;
+    const app: App;
     /** 日志打印类 */
-    let logger: typeof MLogger;
+    const logger: typeof MLogger;
 
     interface Array<T> {
         /**
