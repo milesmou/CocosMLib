@@ -5,6 +5,7 @@ import { BufferTool } from '../../mlib/module/network/buffer/BufferTool';
 import { MByteBuffer } from '../../mlib/module/network/buffer/MByteBuffer';
 import { UIBase } from '../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../gen/UIConstant';
+import { tween } from 'cc';
 
 const { ccclass, property } = _decorator;
 
@@ -14,44 +15,47 @@ export class UIHUD extends UIBase {
 
     protected start(): void {
 
-
-        let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
-        let buffer: Uint8Array = pbroot.PlayerInfo.encode(jsonObj).finish();
-        console.log(pbroot.PlayerInfo.getTypeUrl());
-
-
-        let buff = buffer.slice().buffer;
-        console.log(buff);
-        let decodeObj = pbroot.PlayerInfo.decode(buffer);
-        console.log(decodeObj);
-        let a: string = "ss";
-
-        console.log(a.upperFirst());
-
-        Node
+        let arr = [1,3,45,6,78,8,8,222];
+        console.log(arr.first);
+        console.log(arr.last);
+        
 
 
-        HttpRequest.requestBuffer("http://127.0.1:7098/test/pb", { method: "POST", data: buff }).then(bb => {
-
-            // console.log(bb);
-            // let decodeObj1 = pbroot.PlayerInfo.decode(bb);
-            // console.log(decodeObj1);
-
-            // let mbb = new MByteBuffer(bb);
-
-            // console.log(mbb.readUInt32());
-            // console.log(mbb.readUInt32());
-            // console.log(mbb.u8Array.length);
-            let num = 0b110000000;
-            let buf = BufferTool.encodeNumber(num)
-            console.log(num);
-            console.log(buf);
-            let mbb2 = new MByteBuffer(buf)
-            console.log(mbb2.u8Array);
-            console.log(mbb2.readUInt32());
+        // let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
+        // let buffer: Uint8Array = pbroot.PlayerInfo.encode(jsonObj).finish();
+        // console.log(pbroot.PlayerInfo.getTypeUrl());
 
 
-        });
+        // let buff = buffer.slice().buffer;
+        // console.log(buff);
+        // let decodeObj = pbroot.PlayerInfo.decode(buffer);
+        // console.log(decodeObj);
+        // let a: string = "ss";
+
+        // console.log(a.upperFirst());
+
+
+        // HttpRequest.requestBuffer("http://127.0.1:7098/test/pb", { method: "POST", data: buff }).then(bb => {
+
+        //     // console.log(bb);
+        //     // let decodeObj1 = pbroot.PlayerInfo.decode(bb);
+        //     // console.log(decodeObj1);
+
+        //     // let mbb = new MByteBuffer(bb);
+
+        //     // console.log(mbb.readUInt32());
+        //     // console.log(mbb.readUInt32());
+        //     // console.log(mbb.u8Array.length);
+        //     let num = 0b110000000;
+        //     let buf = BufferTool.encodeNumber(num)
+        //     console.log(num);
+        //     console.log(buf);
+        //     let mbb2 = new MByteBuffer(buf)
+        //     console.log(mbb2.u8Array);
+        //     console.log(mbb2.readUInt32());
+
+
+        // });
 
 
     }

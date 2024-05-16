@@ -1,6 +1,6 @@
 //在引擎初始化后注册一些类的扩展方法
 
-import { Component } from "cc";
+import { AnimationState, Component, sp } from "cc";
 import { MLogger } from "../logger/MLogger";
 
 function registerToGlobal(key: string, value: any) {
@@ -36,17 +36,21 @@ Array.prototype.delete = function <T>(itemOrPredicate: T | ((value: T, index: nu
     return false;
 }
 
-Array.prototype.first = function <T>() {
-    let self: T[] = this;
-    if (self.length == 0) return undefined;
-    return self[0];
-}
+Object.defineProperty(Array.prototype, "first", {
+    get: function () {
+        let self: any[] = this;
+        if (self.length == 0) return undefined;
+        return self[0];
+    }
+})
 
-Array.prototype.last = function <T>() {
-    let self: T[] = this;
-    if (self.length == 0) return undefined;
-    return self[self.length - 1];
-}
+Object.defineProperty(Array.prototype, "last", {
+    get: function () {
+        let self: any[] = this;
+        if (self.length == 0) return undefined;
+        return self[self.length - 1];
+    }
+})
 
 Array.prototype.disarrange = function <T>() {
     let self: T[] = this;

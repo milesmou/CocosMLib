@@ -2,7 +2,8 @@
   "__version__": "1.0.1",
   "preview": {
     "current": {
-      "platform": "browser"
-    }
+      "platform": "simulator"
+    },
+    "simulator_orientation": "portrait"
   }
 }

@@ -2,7 +2,7 @@ import { _decorator, Component, js } from "cc";
 import { AssetComponent } from "../asset/AssetComponent";
 import { AudioComponent } from "../audio/AudioComponent";
 import { ReferenceCollector } from "./ReferenceCollector";
-import { TimerComponent } from "./TimerComponent";
+import { TimerComponent } from "../timer/TimerComponent";
 
 const { ccclass, property, requireComponent } = _decorator;
 

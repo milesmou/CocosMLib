@@ -8,7 +8,7 @@ import { GameSetting } from './GameSetting';
 import { AssetComponent } from './module/asset/AssetComponent';
 import { AudioComponent } from "./module/audio/AudioComponent";
 import { AudioMgr } from './module/audio/AudioMgr';
-import { TimerComponent } from './module/core/TimerComponent';
+import { TimerComponent } from './module/timer/TimerComponent';
 import { EventMgr } from "./module/event/EventMgr";
 import { L10nMgr } from './module/l10n/L10nMgr';
 import { PoolMgr } from "./module/pool/PoolMgr";

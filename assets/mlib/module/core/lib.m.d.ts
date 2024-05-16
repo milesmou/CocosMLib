@@ -14,8 +14,14 @@ declare module "cc" {
 
     export namespace sp {
         interface Skeleton {
+            /** 设置组timescale(统一控制多个spine的播放速度) */
             setGTimeScale(value: number): void;
         }
+    }
+
+    interface AnimationState {
+        /** 设置组timescale(统一控制多个animation的播放速度) */
+        setGTimeScale(value: number): void;
     }
 }
 
@@ -28,6 +34,7 @@ declare global {
     /** 日志打印类 */
     const logger: typeof MLogger;
 
+
     interface Array<T> {
         /**
          * 从数组中删除一个元素
@@ -38,13 +45,13 @@ declare global {
          */
         delete<T>(predicate: (value: T, index: number, obj: T[]) => boolean): boolean;
         /**
-         * 获取第一个元素
+         * 第一个元素
          */
-        first(): T;
+        get first(): T;
         /** 
-         * 获取最后一个元素
+         * 最后一个元素
          */
-        last(): T;
+        get last(): T;
         /**
          * 数组随机打乱
          */
