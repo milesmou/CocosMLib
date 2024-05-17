@@ -2,8 +2,6 @@ export abstract class TimerObject {
     protected selfTimeScale: number;
     protected groupTimeScale: number;
 
-    public onEnded: () => void;
-
     public abstract isValid(): boolean;
 
     public setSelfTimeScale(value: number, arg?: any) {

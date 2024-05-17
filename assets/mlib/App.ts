@@ -40,7 +40,7 @@ export class App extends Component {
         registerToGlobal("app", this);
         director.addPersistRootNode(this.node);
         this.setCanvasResolution();
-
+        //@ts-ignore
         this.timer = this.addComponent(TimerComponent);
         this.asset = this.addComponent(AssetComponent);
         this.audio = this.addComponent(AudioComponent);

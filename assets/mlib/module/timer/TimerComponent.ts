@@ -18,12 +18,17 @@ interface ScheduleValue {
  * tween animation spine：通过使用TimerObject进行包装来控制速度
  */
 @ccclass
+//@ts-ignore
 export class TimerComponent extends Component {
     private _timeScale: number = 1;
     private _pause: boolean = false;
 
     private _schedules: Set<ScheduleValue> = new Set();
     private _timerObjs: Set<TimerObject> = new Set();
+
+    protected start(): void {
+        this.schedule(this.checkValid, 3);
+    }
 
     public setTimeScale(timeScale: number) {
         this._timeScale = timeScale;
@@ -44,14 +49,12 @@ export class TimerComponent extends Component {
         this.refresh();
     }
 
+
     /** 
      * 添加对象 管理动作播放速度
      * tween在添加时会自动开始
      */
     public add(obj: TimerObject) {
-        obj.onEnded = () => {
-            this.delete(obj);
-        }
         this._timerObjs.add(obj);
         this.changeTimerObjectSpeed(obj, true);
     }
@@ -78,6 +81,22 @@ export class TimerComponent extends Component {
         obj.setGroupTimeScale(speed);
     }
 
+    private schedule(callback: any, interval?: number, repeat?: number, delay?: number): void {
+        super.schedule(callback, interval, repeat, delay);
+    }
+
+    private scheduleOnce(callback: any, delay?: number): void {
+        super.scheduleOnce(callback, delay);
+    }
+
+    private unschedule(callback_fn: any): void {
+        super.unschedule(callback_fn);
+    }
+
+    private unscheduleAllCallbacks(): void {
+        super.unscheduleAllCallbacks();
+    }
+
     public scheduleM(callback: (dt: number) => void, thisObj: object, interval = 0, repeat = macro.REPEAT_FOREVER, execImmediate = true) {
         let value: ScheduleValue = { callback: callback, thisObj: thisObj, interval: interval, repeat: repeat, delay: execImmediate ? 0 : interval, totalDt: 0 };
         this._schedules.add(value);
@@ -89,13 +108,16 @@ export class TimerComponent extends Component {
 
     public unScheduleM(callback: (dt: number) => void, thisObj: object) {
         let iter = this._schedules.values();
-        for (let i = iter.next(); !i.done; i = iter.next()) {
-            const v = i.value as ScheduleValue;
+        for (const v of iter) {
             if (v.callback == callback && v.thisObj == thisObj) {
                 this._schedules.delete(v);
                 break;
             }
         }
+    }
+
+    public unscheduleAllCallbacksM() {
+        this._schedules.clear();
     }
 
     public dealy(delay?: number) {
@@ -105,6 +127,15 @@ export class TimerComponent extends Component {
             }, this, delay || 0);
         });
         return p;
+    }
+
+    /** 检测并移除无效的TimerObject */
+    private checkValid() {
+        this._timerObjs.forEach(v => {
+            if (!v.isValid) {
+                this._timerObjs.delete(v);
+            }
+        });
     }
 
     public update(dt: number): void {

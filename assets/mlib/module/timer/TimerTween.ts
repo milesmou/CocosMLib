@@ -7,12 +7,14 @@ export class TimerTween<T = any> extends TimerObject {
 
     private _finalAction: TweenAction;
 
+    private _isValid = true;
+
+
     public constructor(tween: Tween<T>) {
         super();
         this._tween = tween;
         this._tween.call(() => {
-            this._tween = undefined;
-            this.onEnded && this.onEnded();
+            this._isValid = false;
         }).start();
         this._finalAction = this._tween['_finalAction'];
         this.selfTimeScale = this._finalAction.getSpeed();
@@ -20,7 +22,7 @@ export class TimerTween<T = any> extends TimerObject {
     }
 
     public isValid(): boolean {
-        return Boolean(this._tween);
+        return this._isValid;
     }
 
     protected updateTimeScale(): void {
