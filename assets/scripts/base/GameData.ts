@@ -11,7 +11,7 @@ export class GameData extends GameSave {
     /** 游戏数据单例 */
     public static get Inst(): GameData {
         if (!this._inst) this._inst = this.deserialize(new GameData(() => {
-            this._inst = null;
+            this._inst = null;//替换存档时 置空单例
         }));
         return this._inst;
     }
