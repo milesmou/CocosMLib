@@ -1,4 +1,4 @@
-import { _decorator, Component, director, Enum, game } from 'cc';
+import { _decorator, Component, director, Enum, Event, game, Node } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
@@ -87,6 +87,14 @@ export class GameSetting extends Component {
     @integer
     private m_FrameRate = 0;
 
+    @property private _nodeEvent = false;
+    @property({
+        displayName: "节点事件",
+        tooltip: "打印节点触发的事件，方便调试",
+    })
+    public get nodeEvent() { return this._nodeEvent; }
+    private set nodeEvent(val: boolean) { this._nodeEvent = val; }
+
     @property({
         type: LogLevel,
         displayName: "日志级别"
@@ -121,6 +129,7 @@ export class GameSetting extends Component {
                 game.frameRate = this.m_FrameRate;
             }
             logger.setLevel(this.m_LogLevel);
+            this.enableNodeEvent();
         }
 
     }
@@ -132,6 +141,16 @@ export class GameSetting extends Component {
             return versionArr.slice(0, 3).join(".");
         }
         return this._version;
+    }
+
+    private enableNodeEvent() {
+        if (this._nodeEvent) {
+            Node.prototype.dispatchEvent = function (event: Event) {
+                let self: Node = this;
+                console.log("[NodeEvent]", event.type, self.name);
+                this._eventProcessor.dispatchEvent(event);
+            }
+        }
     }
 
     private saveGameSetting() {
