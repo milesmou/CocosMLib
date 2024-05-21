@@ -1,14 +1,36 @@
 //在引擎初始化后注册一些类的扩展方法
 
-import { AnimationState, Component, sp } from "cc";
+import { Component } from "cc";
 import { MLogger } from "../logger/MLogger";
+//@ts-ignore
+import { Node } from "cc";
 
 function registerToGlobal(key: string, value: any) {
     (globalThis as any)[key] = value;
 }
+
 registerToGlobal("registerToGlobal", registerToGlobal);
 registerToGlobal("logger", MLogger);
 
+Object.defineProperty(Node.prototype, "zIndex", {
+    get() {
+        return this._zIndex || 0;
+    },
+    set(val: number) {
+        let zIndex = this._zIndex || 0;
+        if (val == zIndex) return;
+        this._zIndex = val;
+        (this as Node).parent.childrenSiblingIndexDirty = true;
+    }
+})
+
+Node.prototype.regularSiblingIndex = function () {
+    let self: Node = this;
+    if (!self.childrenSiblingIndexDirty) return;
+    (this._children as Node[]).sort((a, b) => a.zIndex - b.zIndex);
+    this._updateSiblingIndex();
+    self.childrenSiblingIndexDirty = false;
+}
 
 Component.prototype.getComponentInParent = function <T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef = true) {
     let self: Component = this;

@@ -12,16 +12,13 @@ declare module "cc" {
         getComponentInParent<T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef?: boolean);
     }
 
-    export namespace sp {
-        interface Skeleton {
-            /** 设置组timescale(统一控制多个spine的播放速度) */
-            setGTimeScale(value: number): void;
-        }
-    }
-
-    interface AnimationState {
-        /** 设置组timescale(统一控制多个animation的播放速度) */
-        setGTimeScale(value: number): void;
+    interface Node {
+        /** 根据zIndex的值更新子节点的SiblingIndex */
+        regularSiblingIndex(): void;
+        /** 模拟2.x中zIndex,刷新层级需要调用父节点的regularSiblingIndex方法 */
+        zIndex: number;
+        /** 在子节点zIndex值改变时修改父节点此属性为true，表示需要更新子节点的SiblingIndex */
+        childrenSiblingIndexDirty: boolean;
     }
 }
 
@@ -33,7 +30,6 @@ declare global {
     const app: App;
     /** 日志打印类 */
     const logger: typeof MLogger;
-
 
     interface Array<T> {
         /**
