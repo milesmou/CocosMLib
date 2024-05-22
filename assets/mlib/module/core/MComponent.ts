@@ -19,6 +19,7 @@ export class MComponent extends Component {
     protected get rc() { return this._rc; }
 
     protected __preload(): void {
+        //@ts-ignore
         this._timer = this.getComponentInParent(TimerComponent);
         this._asset = this.getComponentInParent(AssetComponent);
         this._audio = this.getComponentInParent(AudioComponent);
