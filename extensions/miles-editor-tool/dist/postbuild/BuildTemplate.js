@@ -19,7 +19,7 @@ class BuildTemplate {
             MLogger_1.MLogger.info("未启用构建模板");
             return; //未启用构建模板
         }
-        let templatePath = Utils_1.Utils.ProjectPath + "/" + Constant_1.Constant.BuildTemplateDirName + "/" + options.platform;
+        let templatePath = Utils_1.Utils.ProjectPath + "/" + Constant_1.Constant.BuildTemplateDirName + "/" + options.outputName;
         fs_extra_1.default.ensureDirSync(templatePath);
         //拷贝模板目录资源
         let insertPrefix = "insert_"; //以这个前缀开头的文件 会将构建模版中的内容插入到构建后的文件指定行

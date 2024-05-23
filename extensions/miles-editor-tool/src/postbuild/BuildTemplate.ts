@@ -15,7 +15,7 @@ export class BuildTemplate {
             MLogger.info("未启用构建模板");
             return;//未启用构建模板
         }
-        let templatePath = Utils.ProjectPath + "/" + Constant.BuildTemplateDirName + "/" + options.platform;
+        let templatePath = Utils.ProjectPath + "/" + Constant.BuildTemplateDirName + "/" + options.outputName;
         fs.ensureDirSync(templatePath);
         //拷贝模板目录资源
         let insertPrefix = "insert_";//以这个前缀开头的文件 会将构建模版中的内容插入到构建后的文件指定行
