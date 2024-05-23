@@ -20,7 +20,10 @@ Object.defineProperty(Node.prototype, "zIndex", {
         let zIndex = this._zIndex || 0;
         if (val == zIndex) return;
         this._zIndex = val;
-        (this as Node).parent.childrenSiblingIndexDirty = true;
+        let self: Node = this;
+        if(self.parent?.isValid){
+            self.parent.childrenSiblingIndexDirty = true;
+        }
     }
 })
 

@@ -19,6 +19,7 @@ export class UIHUD extends UIBase {
         console.log(arr.first);
         console.log(arr.last);
         
+        
 
 
         // let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
