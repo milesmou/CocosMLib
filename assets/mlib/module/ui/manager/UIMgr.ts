@@ -1,4 +1,4 @@
-import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, UITransform, _decorator, instantiate, view } from 'cc';
+import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, _decorator, instantiate } from 'cc';
 
 const { ccclass, property } = _decorator;
 
@@ -57,8 +57,6 @@ export class UIMgr extends Component {
         if (value <= 0) this._blockTime = 0.1;
     }
 
-    /** 记录上一次请求打开UI的时间 抛出短时间内(0.1s)连续打开同一UI的警告 */
-    private _openUITime: Map<string, number> = new Map();
     /** 当前在显示等待界面的UI */
     private _showWaitUI: Map<string, number> = new Map();
 
@@ -102,23 +100,24 @@ export class UIMgr extends Component {
         playAnim = playAnim === undefined ? true : playAnim;
         visible = visible === undefined ? true : visible;
         bottom = bottom === undefined ? false : bottom;
+        this._uiArgs[uiName] = args;
         if (!parent) {//主UI
+            if (this._uiNameStack.includes(uiName)) return;
             this._uiNameStack.add(uiName, !visible || bottom)
         } else {//子UI
+            if (this._subUINameStack.includes(uiName)) return;
             this._subUINameStack.add(uiName, !visible || bottom)
         }
-        this.checkShowUI(uiName);
         if (visible) this.checkShowWait(uiName);
         this.blockTime = blockTime;
         EventMgr.emit(EventKey.OnUIInitBegin, uiName);
-        this._uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this._normal, visible, bottom);
         if (!parent) {//主UI
             this._uiStack.add(ui, !visible || bottom)
         } else {//子UI
             this._subUIStack.add(ui, !visible || bottom)
         }
-        ui.setArgs(args);
+        ui.setArgs(this._uiArgs[uiName]);
         if (visible) {
             this.checkHideWait(uiName);
             let belowUI = this._uiStack[this._uiStack.length - 2];
@@ -138,7 +137,7 @@ export class UIMgr extends Component {
 
     public async hide(uiName: string, blockTime = 0.2, fastHide = false): Promise<void> {
         this.blockTime = blockTime;
-        this._uiNameStack.delete(uiName);
+        this._uiNameStack.remove(uiName);
         this._subUINameStack.remove(uiName);
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) return;
@@ -364,20 +363,6 @@ export class UIMgr extends Component {
         } else {
             logger.error(`${UIConstant[uiName]}上未找到指定方法 ${methodName}`);
         }
-    }
-
-    /** 检测是否在短时间内(0.1s)连续打开同一UI 抛出警告 */
-    private checkShowUI(uiName: string) {
-        let now = Date.now();
-        if (this._openUITime.has(uiName)) {
-            let lastTime = this._openUITime[uiName];
-            if (now - lastTime < 100) {
-                logger.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
-                this._openUITime.delete(uiName);
-            }
-            this._openUITime[uiName] = now;
-        }
-        else this._openUITime.set(uiName, now);
     }
 
     protected update(dt: number) {
