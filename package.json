@@ -2,7 +2,7 @@
   "name": "cocosmlib",
   "uuid": "c30b28da-749e-479b-bcb6-cecd8d7be9e3",
   "creator": {
-    "version": "3.8.2"
+    "version": "3.8.3"
   },
   "devDependencies": {
     "minigame-api-typings": "^3.8.4"

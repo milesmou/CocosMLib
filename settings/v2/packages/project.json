@@ -3,7 +3,11 @@
   "script": {
     "useDefineForClassFields": false,
     "allowDeclareFields": false,
-    "preserveSymlinks": true
+    "preserveSymlinks": true,
+    "sortingPlugin": [
+      "bc333dfa-5dbd-462b-b91d-aa25f4bbeb2b",
+      "1b1827c1-5366-4f02-bb6e-1fe7c39b0794"
+    ]
   },
   "general": {
     "designResolution": {
