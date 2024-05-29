@@ -22,7 +22,18 @@ export class SafeWidget extends Component {
 
     static safeAreaGap: SafeAreaGap;
 
-    onLoad() {
+    protected onLoad() {
+        this.checkSafeArea();
+        let safeAreaGap = SafeWidget.safeAreaGap;
+        let widget = this.getComponent(Widget);
+        if (!widget) return;
+        if (widget.isAlignTop) widget.top += safeAreaGap.top;
+        if (widget.isAlignBottom) widget.bottom += safeAreaGap.bottom;
+        if (widget.isAlignLeft) widget.left += safeAreaGap.left;
+        if (widget.isAlignRight) widget.right += safeAreaGap.right;
+    }
+
+    private checkSafeArea() {
         if (!SafeWidget.safeAreaGap) {
             let size = view.getVisibleSize();
             let rect = sys.getSafeAreaRect();
@@ -46,14 +57,6 @@ export class SafeWidget extends Component {
             }
             SafeWidget.safeAreaGap = safeAreaGap;
         }
-
-        let safeAreaGap = SafeWidget.safeAreaGap;
-        let widget = this.getComponent(Widget);
-        if (!widget) return;
-        if (widget.isAlignTop) widget.top += safeAreaGap.top;
-        if (widget.isAlignBottom) widget.bottom += safeAreaGap.bottom;
-        if (widget.isAlignLeft) widget.left += safeAreaGap.left;
-        if (widget.isAlignRight) widget.right += safeAreaGap.right;
     }
 
 }
