@@ -13,6 +13,9 @@ const { ccclass, property } = _decorator;
 export class UIHUD extends UIBase {
 
 
+    
+    
+
     protected start(): void {
 
         let arr = [1,3,45,6,78,8,8,222];
