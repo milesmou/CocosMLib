@@ -196,8 +196,15 @@ export class CCUtils {
         widget.right = 0;
     }
 
+    /** 记录每次加载列表的开始时间，便于重复加载时停止上一次操作 */
+    private static loadListTimeMS: Map<string, number> = new Map();
+
     public static loadList<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
         args?: { item?: Node | Prefab, frameTimeMS?: number, comp?: Component }) {
+
+        let timeMS = Date.now();
+
+        this.loadListTimeMS.set(content.uuid, timeMS);
 
         return new Promise<void>((resolve, reject) => {
             let { item, frameTimeMS, comp } = args || {};
@@ -220,7 +227,7 @@ export class CCUtils {
                 }
             }
 
-            comp = comp || this.getComponentInParent(content, Component);
+            comp = content.getComponent(Component);
 
             let gen = this.listGenerator(content, listData, action, item);
 
@@ -230,8 +237,10 @@ export class CCUtils {
                 for (let iter = gen.next(); ; iter = gen.next()) {
 
                     if (!comp?.isValid) break;//组件销毁后停止加载
+                    if (timeMS != this.loadListTimeMS.get(content.uuid)) break;//本次操作需要终止
 
                     if (iter == null || iter.done) {
+                        this.loadListTimeMS.delete(content.uuid);
                         resolve();
                         return;
                     } else {
