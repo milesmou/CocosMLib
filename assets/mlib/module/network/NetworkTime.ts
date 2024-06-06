@@ -1,4 +1,4 @@
-import { _decorator, Component, Director, director, macro, Node, sys } from "cc";
+import { _decorator, Component, Director, director, game, Game, Node, sys } from "cc";
 import { EDITOR } from "cc/env";
 
 const { ccclass, property } = _decorator;
@@ -22,27 +22,23 @@ export class NetworkTime extends Component {
         }
     }
 
-    ///网络时间获取
-    //获取网络时间的URL,获取响应头的date属性(H5平台不可用 会有跨域问题)
-    private urls = ["https://www.baidu.com", "https://www.bing.com", "https://www.google.com"];
-    private urlIndex = 0;
     //网络获取的时间戳(毫秒)
-    private networkTimeMS = 0;
+    private _networkTimeMS = 0;
     //同步网络时间后过了多久(秒)
-    private totalDeltaTimeS = 0;
+    private _totalDeltaTimeS = 0;
 
-    //获取当前时间戳
+    //当前时间戳
     public get now() {
-        if (this.networkTimeMS > 0) return this.networkTimeMS + Math.floor(this.totalDeltaTimeS * 1000);
+        if (this._networkTimeMS > 0) return this._networkTimeMS + Math.floor(this._totalDeltaTimeS * 1000);
         else return Date.now();
     }
 
-    //获取当前时间对象
+    //当前时间对象
     public get date() {
-        return new Date(this.now);;
+        return new Date(this.now);
     }
 
-    /** 获取当前日期(格式:20220101) */
+    /** 当前日期(格式:20220101) */
     public get today() {
         let lt10 = (v: number) => {
             return v < 10 ? "0" + v : "" + v;
@@ -52,35 +48,71 @@ export class NetworkTime extends Component {
         return parseInt(str);
     }
 
-    onLoad() {
+
+    protected onLoad() {
         NetworkTime.Inst = this;
-        if (sys.isNative) {
-            this.syncTime();
-            this.schedule(this.syncTime, 10, macro.REPEAT_FOREVER);
-        }
+        this.syncTime();
+        game.on(Game.EVENT_SHOW, this.syncTime, this);
     }
 
-    update(dt: number) {
-        this.totalDeltaTimeS += dt;
+    protected update(dt: number) {
+        this._totalDeltaTimeS += dt;
     }
 
     private async syncTime() {
-        this.urlIndex %= this.urls.length;
-        let url = this.urls[this.urlIndex];
-        let xhr = await this.requestXHR(url);
-        if (xhr == null) {
-            this.urlIndex++;
-            this.syncTime();
-        } else {
-            let date = xhr.getResponseHeader("date");
-            if (date) {
-                this.networkTimeMS = new Date(date).getTime();
-                this.totalDeltaTimeS = 0;
-            } else {
-                this.urlIndex++;
-                this.syncTime();
+        if (sys.isNative) {
+            if (await this.syncTime1()) return;
+        }
+        if (await this.syncTime2()) return;
+    }
+
+    private setNetworkTimeMS(timeMS: number) {
+        this._networkTimeMS = timeMS;
+        this._totalDeltaTimeS = 0;
+        logger.debug("网络时间同步成功", this._networkTimeMS);
+    }
+
+    /** 无法跨域 仅原生平台生效 */
+    private async syncTime1() {
+        let urls = ["https://www.baidu.com", "https://www.bing.com", "https://www.google.com"];
+        for (const url of urls) {
+            let xhr = await this.requestXHR(url);
+            if (xhr) {
+                let date = xhr.getResponseHeader("date");
+                if (date) {
+                    this.setNetworkTimeMS(new Date(date).getTime());
+                    return true;
+                }
             }
         }
+        return false;
+    }
+
+    /** 可跨域 H5和原生平台均可使用 */
+    private async syncTime2() {
+        let url = "https://worldtimeapi.org/api/ip";
+        let xhr = await this.requestXHR(url);
+        try {
+            let obj = JSON.parse(xhr.responseText);
+            this.setNetworkTimeMS(new Date(obj.datetime).getTime());
+            return true;
+        } catch (error) {
+
+        }
+        return false;
+    }
+
+    /** 获取客户端的ip */
+    public async getIP() {
+        let url = "https://worldtimeapi.org/api/ip";
+        let xhr = await this.requestXHR(url);
+        try {
+            let obj = JSON.parse(xhr.responseText);
+            return obj.client_ip;
+        } catch (error) {
+
+        }
+        return "";
     }
 
     private async requestXHR(url: string) {
