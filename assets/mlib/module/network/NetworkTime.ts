@@ -26,6 +26,8 @@ export class NetworkTime extends Component {
     private _networkTimeMS = 0;
     //同步网络时间后过了多久(秒)
     private _totalDeltaTimeS = 0;
+    //客户端ip地址
+    private _ip = "";
 
     //当前时间戳
     public get now() {
@@ -60,10 +62,11 @@ export class NetworkTime extends Component {
     }
 
     private async syncTime() {
+        if (await this.syncTime2()) return;
         if (sys.isNative) {
             if (await this.syncTime1()) return;
+            if (await this.syncTime3()) return;
         }
-        if (await this.syncTime2()) return;
     }
 
     private setNetworkTimeMS(timeMS: number) {
@@ -71,6 +74,12 @@ export class NetworkTime extends Component {
         this._totalDeltaTimeS = 0;
         logger.debug("网络时间同步成功", this._networkTimeMS);
     }
+
+    private setIP(ip: string) {
+        this._ip = ip;
+        logger.debug("IP地址获取成功", this._ip);
+    }
+
 
     /** 无法跨域 仅原生平台生效 */
     private async syncTime1() {
@@ -95,6 +104,22 @@ export class NetworkTime extends Component {
         try {
             let obj = JSON.parse(xhr.responseText);
             this.setNetworkTimeMS(new Date(obj.datetime).getTime());
+            this.setIP(obj.client_ip);
+            return true;
+        } catch (error) {
+
+        }
+        return false;
+    }
+
+    /** 无法跨域 仅原生平台生效 */
+    private async syncTime3() {
+        let timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        let url = "https://www.timeapi.io/api/Time/current/zone?timeZone=" + timeZone;
+        let xhr = await this.requestXHR(url);
+        try {
+            let obj = JSON.parse(xhr.responseText);
+            this.setNetworkTimeMS(new Date(obj.datetime).getTime());
             return true;
         } catch (error) {
 
@@ -104,15 +129,17 @@ export class NetworkTime extends Component {
 
     /** 获取客户端的ip */
     public async getIP() {
-        let url = "https://worldtimeapi.org/api/ip";
-        let xhr = await this.requestXHR(url);
-        try {
-            let obj = JSON.parse(xhr.responseText);
-            return obj.client_ip;
-        } catch (error) {
+        if (!this._ip) {
+            let url = "https://worldtimeapi.org/api/ip";
+            let xhr = await this.requestXHR(url);
+            try {
+                let obj = JSON.parse(xhr.responseText);
+                this.setIP(obj.client_ip);
+            } catch (error) {
 
+            }
         }
-        return "";
+        return this._ip;
     }
 
     private async requestXHR(url: string) {
