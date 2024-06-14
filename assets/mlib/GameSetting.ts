@@ -147,8 +147,10 @@ export class GameSetting extends Component {
         if (this._nodeEvent) {
             Node.prototype.dispatchEvent = function (event: Event) {
                 let self: Node = this;
-                console.log("[NodeEvent]", event.type, self.name);
-                this._eventProcessor.dispatchEvent(event);
+                if (!event.type.startsWith("mouse-")) {//忽略鼠标事件
+                    console.log("[NodeEvent]", event.type, self.name);
+                    this._eventProcessor.dispatchEvent(event);
+                }
             }
         }
     }
@@ -164,7 +166,7 @@ export class GameSetting extends Component {
             hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg`,
             minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg/`,
         };
-        Editor.Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
+        (globalThis.Editor as any).Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
     }
 }
 
