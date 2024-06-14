@@ -1,4 +1,4 @@
-import { _decorator, Asset, CCObject, Component, error, js, Node } from "cc";
+import { _decorator, CCObject, Component, error, js, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
@@ -9,14 +9,6 @@ class CollectorNodeData {
     public key = "";
     @property({ type: Node, readonly: true })
     public node: Node = null;
-}
-
-@ccclass("CollectorAssetData")
-class CollectorAssetData {
-    @property
-    public key = "";
-    @property({ type: Asset })
-    public asset: Asset = null;
 }
 
 @ccclass("ReferenceCollector")
@@ -43,21 +35,13 @@ export class ReferenceCollector extends Component {
     private get nodes() { return this._nodes; }
     private set nodes(val: CollectorNodeData[]) { this._nodes = val; }
 
-    @property({ type: CollectorAssetData })
-    private _assets: CollectorAssetData[] = [];
-    @property({ type: CollectorAssetData, tooltip: "手动引用资源" })
-    private get assets() { return this._assets; }
-    private set assets(val: CollectorAssetData[]) { this._assets = val; }
-
     private _nodeMap: Map<string, Node> = new Map();
-    private _assetMap: Map<string, Asset> = new Map();
 
     protected onLoad(): void {
         if (EDITOR_NOT_IN_PREVIEW) {//处理编辑器逻辑
             this.initNodeList();
         } else {//处理运行时逻辑
             this.initNodeMap();
-            this.initAssetMap();
         }
     }
 
@@ -73,34 +57,17 @@ export class ReferenceCollector extends Component {
         }
     }
 
-    private initAssetMap() {
-        this._assetMap.clear();
-        for (const collectorAssetData of this.assets) {
-            let key = collectorAssetData.key.trim();
-            if (!this._assetMap.has(key)) {
-                this._assetMap.set(key, collectorAssetData.asset);
-            } else {
-                error("[MLogger Error]", this.node.name, "引用的资源名字重复 Key=" + key);
-            }
-        }
-    }
-
     public getNode(key: string) {
         return this._nodeMap.get(key);
     }
 
     public get<T extends CCObject>(key: string, type: new (...args: any[]) => T): T {
-        if (js.isChildClassOf(type, Component)) {
-            let node = this._nodeMap.get(key);
-            if (node) return node.getComponent(type);
-        } else if (js.isChildClassOf(type, Node)) {
-            return this._nodeMap.get(key) as any;
-        } else if (js.isChildClassOf(type, Asset)) {
-            return this._assetMap.get(key) as any;
+        let node = this._nodeMap.get(key);
+        if (node && js.isChildClassOf(type, Component)) {
+            return node.getComponent(type);
         }
-        return null;
+        return node as any;
     }
-
 
     //#region 编辑器逻辑
 
