@@ -4,7 +4,7 @@ import { MLogger } from "../logger/MLogger";
 
 //扩展CC中的一些类
 declare module "cc" {
-    interface Component extends CCObject {
+    interface Component {
         /** 
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
@@ -13,6 +13,8 @@ declare module "cc" {
     }
 
     interface Node {
+        /** 获取节点在场景树的路径 */
+        getPath(): void;
         /** 根据zIndex的值更新子节点的SiblingIndex */
         regularSiblingIndex(): void;
         /** 模拟2.x中zIndex,刷新层级需要调用父节点的regularSiblingIndex方法 */
@@ -30,6 +32,16 @@ declare global {
     const app: App;
     /** 日志打印类 */
     const logger: typeof MLogger;
+
+    /**
+     * @deprecated TMD这是DOM的Node,不要使用它
+     */
+    interface Node { }
+
+    /**
+     * @deprecated TMD这是DOM的Animation,不要使用它
+     */
+    interface Animation { }
 
     interface Array<T> {
         /**
