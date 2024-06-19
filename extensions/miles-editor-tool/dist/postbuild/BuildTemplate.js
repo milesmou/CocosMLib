@@ -39,12 +39,12 @@ class BuildTemplate {
                         f = f.replace(str + "_", "");
                     }
                 }
-                let newFile = buildDest + "/" + f;
+                let newFile = Utils_1.Utils.resolveFilePath(buildDest + "/" + f);
                 LogToFile_1.LogToFile.log("insert code ", f);
                 this.insertCode(file, newFile, lineNum);
             }
             else {
-                let newFile = buildDest + "/" + f;
+                let newFile = Utils_1.Utils.resolveFilePath(buildDest + "/" + f);
                 LogToFile_1.LogToFile.log("copy file", f);
                 fs_extra_1.default.ensureDirSync(path_1.default.dirname(newFile));
                 fs_extra_1.default.copyFileSync(file, newFile);

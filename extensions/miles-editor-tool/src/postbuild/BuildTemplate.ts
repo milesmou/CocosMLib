@@ -35,11 +35,11 @@ export class BuildTemplate {
                         f = f.replace(str + "_", "");
                     }
                 }
-                let newFile = buildDest + "/" + f;
+                let newFile = Utils.resolveFilePath(buildDest + "/" + f);
                 LogToFile.log("insert code ", f);
                 this.insertCode(file, newFile, lineNum);
             } else {
-                let newFile = buildDest + "/" + f;
+                let newFile = Utils.resolveFilePath(buildDest + "/" + f);
                 LogToFile.log("copy file", f);
                 fs.ensureDirSync(path.dirname(newFile));
                 fs.copyFileSync(file, newFile);

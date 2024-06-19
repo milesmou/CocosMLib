@@ -14,10 +14,10 @@ function resolveFilePath(filePath) {
         let p = path.join(dir, dirent.name);
         if (dirent.isFile()) {
             if (dirent.name == basename) {
-                return filePath;
+                return filePath.replace(/\\/g, "/");
             } else {
                 if (reg.test(dirent.name)) {
-                    return p;
+                    return p.replace(/\\/g, "/");
                 }
             }
         }
@@ -27,5 +27,7 @@ function resolveFilePath(filePath) {
 
 
 let f = resolveFilePath("E:/Workspace/RebornMan/program/trunk/RebornMan/build/kuaishou/application.js");
+let f2 = resolveFilePath("E:/Workspace/RebornMan/program/trunk/RebornMan/build/zuiyou/index.html");
 
 console.log(f);
+console.log(f2);

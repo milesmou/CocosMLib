@@ -103,11 +103,11 @@ class Utils {
             let p = path_1.default.join(dir, dirent.name);
             if (dirent.isFile()) {
                 if (dirent.name == basename) {
-                    return filePath;
+                    return filePath.replace(/\\/g, "/");
                 }
                 else {
                     if (reg.test(dirent.name)) {
-                        return p;
+                        return p.replace(/\\/g, "/");
                     }
                 }
             }

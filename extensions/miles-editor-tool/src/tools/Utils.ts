@@ -86,7 +86,7 @@ export class Utils {
     }
 
     /** 根据文件路径找到追加了md5值的实际文件路径 */
-    static resolveFilePath(filePath) {
+    static resolveFilePath(filePath: string) {
         let dir = path.dirname(filePath);
         let basename = path.basename(filePath);
         let ext = path.extname(filePath);
@@ -97,10 +97,10 @@ export class Utils {
             let p = path.join(dir, dirent.name);
             if (dirent.isFile()) {
                 if (dirent.name == basename) {
-                    return filePath;
+                    return filePath.replace(/\\/g, "/");
                 } else {
                     if (reg.test(dirent.name)) {
-                        return p;
+                        return p.replace(/\\/g, "/");
                     }
                 }
             }
