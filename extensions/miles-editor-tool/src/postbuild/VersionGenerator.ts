@@ -50,7 +50,7 @@ export class VersionGenerator {
     }
 
     private static renameSrcFiles(dir: string) {
-        let files = Utils.getAllFiles(dir, [], true);
+        let files = Utils.getAllFiles(dir, null, true);
         files.forEach(file => {
             let fileName = path.basename(file);
             let ext = path.extname(file);

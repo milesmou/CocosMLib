@@ -42,7 +42,7 @@ class VersionGenerator {
         fs_extra_1.default.writeJSONSync(destVersion, manifest);
     }
     static renameSrcFiles(dir) {
-        let files = Utils_1.Utils.getAllFiles(dir, [], true);
+        let files = Utils_1.Utils.getAllFiles(dir, null, true);
         files.forEach(file => {
             let fileName = path_1.default.basename(file);
             let ext = path_1.default.extname(file);

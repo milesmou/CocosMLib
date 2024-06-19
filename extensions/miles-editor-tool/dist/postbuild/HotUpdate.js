@@ -27,7 +27,7 @@ class HotUpdate {
             if (!fs_extra_1.default.existsSync(srcDir)) {
                 srcDir = path_1.default.join(result.dest, 'assets', 'src');
             }
-            let files = Utils_1.Utils.getAllFiles(srcDir, [], true);
+            let files = Utils_1.Utils.getAllFiles(srcDir, null, true);
             //修改src目录下文件的文件名 去除md5
             let fileNameMap = new Map();
             files.forEach(file => {
@@ -45,7 +45,7 @@ class HotUpdate {
                 fs_extra_1.default.renameSync(file, file.replace(fileName, newFileName));
             });
             //修改src目录下文件
-            files = Utils_1.Utils.getAllFiles(srcDir, [], true);
+            files = Utils_1.Utils.getAllFiles(srcDir, null, true);
             files.forEach(file => {
                 let content = fs_extra_1.default.readFileSync(file, { encoding: "utf8" });
                 fileNameMap.forEach((v, k) => {

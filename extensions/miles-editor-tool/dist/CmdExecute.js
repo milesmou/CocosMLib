@@ -59,11 +59,11 @@ class CmdExecute {
             logger.debug(msg);
         }).then(code => {
             if (!code) {
-                let files = Utils_1.Utils.getAllFiles(jsonDir, [".json"]);
+                let files = Utils_1.Utils.getAllFiles(jsonDir, file => file.endsWith(".json"));
                 files.forEach(v => {
                     Utils_1.Utils.refreshAsset(v);
                 });
-                let tsFiles = Utils_1.Utils.getAllFiles(tsDir, [".ts"]);
+                let tsFiles = Utils_1.Utils.getAllFiles(tsDir, file => file.endsWith(".ts"));
                 tsFiles.forEach(v => {
                     Utils_1.Utils.refreshAsset(v);
                 });
@@ -102,7 +102,8 @@ class CmdExecute {
             let ext = ".prefab";
             let path1 = Utils_1.Utils.ProjectPath + "/assets/bundles";
             let path2 = Utils_1.Utils.ProjectPath + "/assets/resources";
-            let files = Utils_1.Utils.getAllFiles(path1, [ext]).concat(Utils_1.Utils.getAllFiles(path2, [ext]));
+            let filter = (file) => file.endsWith(ext);
+            let files = Utils_1.Utils.getAllFiles(path1, filter).concat(Utils_1.Utils.getAllFiles(path2, filter));
             files.forEach(v => {
                 let basename = path_1.default.basename(v);
                 if (v.indexOf("/uiPrefab/") > 0) {
@@ -131,7 +132,12 @@ class CmdExecute {
         }
     }
     static closeTexCompress() {
-        let allFiles = Utils_1.Utils.getAllFiles(Utils_1.Utils.ProjectPath + "/assets", [".jpg", ".png", ".jpeg", ".pac"]);
+        let exts = [".jpg", ".png", ".jpeg", ".pac"];
+        let filter = (file) => {
+            let ext = path_1.default.extname(file);
+            return exts.includes(ext);
+        };
+        let allFiles = Utils_1.Utils.getAllFiles(Utils_1.Utils.ProjectPath + "/assets", filter);
         for (const file of allFiles) {
             if (path_1.default.basename(file).startsWith("__"))
                 continue;
@@ -153,7 +159,12 @@ class CmdExecute {
         }
         else {
             MLogger_1.MLogger.info("纹理压缩方案UUID:", presetId);
-            let allFiles = Utils_1.Utils.getAllFiles(Utils_1.Utils.ProjectPath + "/assets", [".jpg", ".png", ".jpeg", ".pac"]);
+            let exts = [".jpg", ".png", ".jpeg", ".pac"];
+            let filter = (file) => {
+                let ext = path_1.default.extname(file);
+                return exts.includes(ext);
+            };
+            let allFiles = Utils_1.Utils.getAllFiles(Utils_1.Utils.ProjectPath + "/assets", filter);
             for (const file of allFiles) {
                 if (path_1.default.basename(file).startsWith("__"))
                     continue;
@@ -185,8 +196,8 @@ class CmdExecute {
         let propertysDir = Utils_1.Utils.ProjectPath + "/assets/scripts/gen/property";
         let scriptsDir = Utils_1.Utils.ProjectPath + "/assets/scripts";
         let ext = ".ts";
-        let files = Utils_1.Utils.getAllFiles(propertysDir, [ext]);
-        let allScripts = Utils_1.Utils.getAllFiles(scriptsDir, [ext]);
+        let files = Utils_1.Utils.getAllFiles(propertysDir, file => file.endsWith(ext));
+        let allScripts = Utils_1.Utils.getAllFiles(scriptsDir, file => file.endsWith(ext));
         files.forEach(file => {
             let fileName = path_1.default.basename(file);
             let comp = fileName.replace("Property", "");

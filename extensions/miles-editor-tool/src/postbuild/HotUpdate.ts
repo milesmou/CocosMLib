@@ -27,7 +27,7 @@ export class HotUpdate {
                 srcDir = path.join(result.dest, 'assets', 'src');
             }
 
-            let files = Utils.getAllFiles(srcDir, [], true);
+            let files = Utils.getAllFiles(srcDir, null, true);
             //修改src目录下文件的文件名 去除md5
             let fileNameMap: Map<string, string> = new Map();
             files.forEach(file => {
@@ -45,7 +45,7 @@ export class HotUpdate {
             });
 
             //修改src目录下文件
-            files = Utils.getAllFiles(srcDir, [], true);
+            files = Utils.getAllFiles(srcDir, null, true);
             files.forEach(file => {
                 let content = fs.readFileSync(file, { encoding: "utf8" });
                 fileNameMap.forEach((v, k) => {

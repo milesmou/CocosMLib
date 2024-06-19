@@ -60,11 +60,11 @@ export class CmdExecute {
             }
         ).then(code => {
             if (!code) {
-                let files = Utils.getAllFiles(jsonDir, [".json"]);
+                let files = Utils.getAllFiles(jsonDir, file => file.endsWith(".json"));
                 files.forEach(v => {
                     Utils.refreshAsset(v);
                 });
-                let tsFiles = Utils.getAllFiles(tsDir, [".ts"]);
+                let tsFiles = Utils.getAllFiles(tsDir, file => file.endsWith(".ts"));
                 tsFiles.forEach(v => {
                     Utils.refreshAsset(v);
                 });
@@ -108,7 +108,8 @@ export class CmdExecute {
 
             let path1 = Utils.ProjectPath + "/assets/bundles";
             let path2 = Utils.ProjectPath + "/assets/resources";
-            let files = Utils.getAllFiles(path1, [ext]).concat(Utils.getAllFiles(path2, [ext]));
+            let filter = (file: string) => file.endsWith(ext);
+            let files = Utils.getAllFiles(path1, filter).concat(Utils.getAllFiles(path2, filter));
             files.forEach(v => {
                 let basename = path.basename(v);
                 if (v.indexOf("/uiPrefab/") > 0) {
@@ -142,7 +143,12 @@ export class CmdExecute {
 
 
     static closeTexCompress() {
-        let allFiles = Utils.getAllFiles(Utils.ProjectPath + "/assets", [".jpg", ".png", ".jpeg", ".pac"]);
+        let exts = [".jpg", ".png", ".jpeg", ".pac"];
+        let filter = (file: string) => {
+            let ext = path.extname(file);
+            return exts.includes(ext);
+        }
+        let allFiles = Utils.getAllFiles(Utils.ProjectPath + "/assets", filter);
         for (const file of allFiles) {
             if (path.basename(file).startsWith("__")) continue;
             let metaFile = file + ".meta";
@@ -163,7 +169,12 @@ export class CmdExecute {
             MLogger.warn("请先拷贝一个纹理压缩配置的22位UUID到剪切板(项目设置-压缩纹理-配置压缩预设集)")
         } else {
             MLogger.info("纹理压缩方案UUID:", presetId);
-            let allFiles = Utils.getAllFiles(Utils.ProjectPath + "/assets", [".jpg", ".png", ".jpeg", ".pac"]);
+            let exts = [".jpg", ".png", ".jpeg", ".pac"];
+            let filter = (file: string) => {
+                let ext = path.extname(file);
+                return exts.includes(ext);
+            }
+            let allFiles = Utils.getAllFiles(Utils.ProjectPath + "/assets", filter);
             for (const file of allFiles) {
                 if (path.basename(file).startsWith("__")) continue;
                 let metaFile = file + ".meta";
@@ -198,8 +209,8 @@ export class CmdExecute {
         let propertysDir = Utils.ProjectPath + "/assets/scripts/gen/property"
         let scriptsDir = Utils.ProjectPath + "/assets/scripts";
         let ext = ".ts";
-        let files = Utils.getAllFiles(propertysDir, [ext]);
-        let allScripts = Utils.getAllFiles(scriptsDir, [ext]);
+        let files = Utils.getAllFiles(propertysDir, file => file.endsWith(ext));
+        let allScripts = Utils.getAllFiles(scriptsDir, file => file.endsWith(ext));
         files.forEach(file => {
             let fileName = path.basename(file);
             let comp = fileName.replace("Property", "");

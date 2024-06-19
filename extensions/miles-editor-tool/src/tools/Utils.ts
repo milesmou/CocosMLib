@@ -59,9 +59,8 @@ export class Utils {
         return p;
     }
 
-    static getAllFiles(dir: string, suffix?: string[], topDirOnly = false) {
+    static getAllFiles(dir: string, filter?: (dir: string) => boolean, topDirOnly = false) {
         dir = this.toAbsolutePath(dir);
-        suffix = suffix || [];
         let files: string[] = [];
         if (!fs.existsSync(dir)) return files;
         let walkSync = (currentDir: string, callback: (filePath: string) => void) => {
@@ -78,11 +77,33 @@ export class Utils {
         };
         walkSync(dir, file => {
             if (file.endsWith(".meta")) return;
-            if (suffix.length == 0) files.push(this.toUniSeparator(file));
-            let s = suffix.find(v => file.endsWith(v));
-            if (s) files.push(this.toUniSeparator(file));
+            if (!filter || filter(file)) {
+                files.push(this.toUniSeparator(file));
+            }
         });
         return files;
+    }
+
+    static getAllDirs(dir: string, filter?: (dir: string) => boolean, topDirOnly = false) {
+        dir = this.toAbsolutePath(dir);
+        let dirs: string[] = [];
+        if (!fs.existsSync(dir)) return dirs;
+        let walkSync = (currentDir: string, callback: (filePath: string) => void) => {
+            fs.readdirSync(currentDir, { withFileTypes: true }).forEach(dirent => {
+                let p = path.join(currentDir, dirent.name);
+                if (dirent.isDirectory()) {
+                    callback(p);
+                    if (topDirOnly) return;
+                    walkSync(p, callback);
+                }
+            });
+        };
+        walkSync(dir, subDir => {
+            if (!filter || filter(subDir)) {
+                dirs.push(this.toUniSeparator(subDir));
+            }
+        });
+        return dirs;
     }
 
     /** 根据文件路径找到追加了md5值的实际文件路径 */

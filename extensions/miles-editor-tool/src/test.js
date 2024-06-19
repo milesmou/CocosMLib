@@ -2,32 +2,26 @@ const fs = require("fs-extra");
 const path = require("path");
 
 
-/** 根据文件路径找到追加了md5值的实际文件路径 */
-function resolveFilePath(filePath) {
-    let dir = path.dirname(filePath);
-    let basename = path.basename(filePath);
-    let ext = path.extname(filePath);
-    let name = basename.replace(ext, ".");
-    let reg = new RegExp(`${name}[A-Za-z0-9]{5}${ext}`);
-    let dirents = fs.readdirSync(dir, { withFileTypes: true });
-    for (const dirent of dirents) {
-        let p = path.join(dir, dirent.name);
-        if (dirent.isFile()) {
-            if (dirent.name == basename) {
-                return filePath.replace(/\\/g, "/");
-            } else {
-                if (reg.test(dirent.name)) {
-                    return p.replace(/\\/g, "/");
-                }
+function getAllDirs(dir, filter, topDirOnly = false) {
+    let dirs = [];
+    if (!fs.existsSync(dir)) return dirs;
+    let walkSync = (currentDir, callback) => {
+        fs.readdirSync(currentDir, { withFileTypes: true }).forEach(dirent => {
+            let p = path.join(currentDir, dirent.name);
+            if (dirent.isDirectory()) {
+                callback(p);
+                if (topDirOnly) return;
+                walkSync(p, callback);
             }
+        });
+    };
+    walkSync(dir, subDir => {
+        if (!filter || filter(subDir)) {
+            dirs.push(subDir.replace(/\//g,""));
         }
-    }
-    return null;
+    });
+    return dirs;
 }
 
-
-let f = resolveFilePath("E:/Workspace/RebornMan/program/trunk/RebornMan/build/kuaishou/application.js");
-let f2 = resolveFilePath("E:/Workspace/RebornMan/program/trunk/RebornMan/build/zuiyou/index.html");
-
-console.log(f);
-console.log(f2);
+let dtrs = getAllDirs("E:/Workspace/RebornMan/program/trunk/RebornMan/assets",undefined,true);
+console.log(dtrs);
