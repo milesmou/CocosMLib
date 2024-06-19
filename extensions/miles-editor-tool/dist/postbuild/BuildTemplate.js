@@ -63,7 +63,7 @@ class BuildTemplate {
         if (destArr.length < 2) {
             destArr = destContent.split("\n");
         }
-        destArr.splice(lineNum, 0, ...codeArr);
+        destArr.splice(lineNum - 1, 0, ...codeArr);
         fs_extra_1.default.writeFileSync(dest, destArr.join("\n"));
     }
     static resolveBuildDest(buildDest, platform) {
