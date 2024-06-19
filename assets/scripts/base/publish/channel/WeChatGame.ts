@@ -1,7 +1,7 @@
 /** 微信小游戏平台相关方法的实现 */
 import { Camera, Game, _decorator, game } from "cc";
-import { Channel } from "../../../mlib/sdk/Channel";
-import { EIAPResult, ELoginResult, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../mlib/sdk/MSDKWrapper";
+import { Channel } from "../../../../mlib/sdk/Channel";
+import { EIAPResult, ELoginResult, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../../mlib/sdk/MSDKWrapper";
 
 const { ccclass } = _decorator;
 

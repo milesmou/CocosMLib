@@ -10,7 +10,9 @@
     "buildPath": "project://build",
     "outputName": "android-001",
     "mainBundleCompressionType": "merge_dep",
-    "platform": "android"
+    "platform": "android",
+    "md5Cache": true,
+    "useSplashScreen": false
   },
   "BuildTaskManager": {
     "taskMap": {
@@ -21,6 +23,7 @@
         "state": "success",
         "stage": "build",
         "message": "2024-5-14 11:47:13 build success in 1 min 6 s!",
+        "detailMessage": "",
         "options": {
           "name": "NewProject3",
           "server": "",
@@ -75,14 +78,15 @@
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-5-14 15:43:17 build success in 17 s!",
+        "message": "2024-6-19 21:52:24 build success in 11 s!",
+        "detailMessage": "[2024/6/19下午9:52:24] 若使用热更请先保存热更配置 \r\r\r",
         "options": {
           "name": "NewProject3",
           "server": "",
           "platform": "android",
           "buildPath": "project://build",
           "debug": false,
-          "md5Cache": false,
+          "md5Cache": true,
           "skipCompressTexture": false,
           "sourceMaps": false,
           "polyfills": {
@@ -94,7 +98,7 @@
           "useBuiltinServer": false,
           "mainBundleIsRemote": false,
           "mainBundleCompressionType": "merge_dep",
-          "useSplashScreen": true,
+          "useSplashScreen": false,
           "bundleCommonChunk": false,
           "packAutoAtlas": true,
           "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
@@ -113,14 +117,17 @@
           "overwriteProjectSettings": {
             "includeModules": {
               "physics": "inherit-project-setting",
-              "physics-2d": "inherit-project-setting"
+              "physics-2d": "inherit-project-setting",
+              "gfx-webgl2": "off"
             },
             "macroConfig": {
               "cleanupImageCache": "inherit-project-setting"
             }
-          }
+          },
+          "nativeCodeBundleMode": "wasm",
+          "wasmCompressionMode": false
         },
-        "time": "2024-5-14 15:43:00",
+        "time": "2024-6-19 21:52:13",
         "dirty": false
       }
     }

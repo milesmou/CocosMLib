@@ -5,7 +5,9 @@
       "buildPath": "project://build",
       "outputName": "android-001",
       "mainBundleCompressionType": "merge_dep",
-      "platform": "android"
+      "platform": "android",
+      "md5Cache": true,
+      "useSplashScreen": false
     },
     "options": {
       "android": {
@@ -81,6 +83,6 @@
         "__version__": "1.0.1"
       }
     },
-    "__version__": "1.3.7"
+    "__version__": "1.3.8"
   }
 }

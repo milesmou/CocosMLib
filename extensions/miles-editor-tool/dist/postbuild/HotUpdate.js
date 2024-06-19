@@ -23,30 +23,26 @@ class HotUpdate {
             // }
             let buildPath = Utils_1.Utils.toUniSeparator(result.dest);
             Config_1.Config.set("hotupdate.src", buildPath);
-            let srcDir = path_1.default.join(result.dest, 'data', 'src');
-            if (!fs_extra_1.default.existsSync(srcDir)) {
-                srcDir = path_1.default.join(result.dest, 'assets', 'src');
+            let rootDir = path_1.default.join(result.dest, 'data');
+            if (!fs_extra_1.default.existsSync(rootDir)) {
+                rootDir = path_1.default.join(result.dest, 'assets');
             }
+            let srcDir = path_1.default.join(rootDir, 'src');
             let files = Utils_1.Utils.getAllFiles(srcDir, null, true);
+            files = files.concat(Utils_1.Utils.getAllFiles(rootDir, null, true));
+            let newFiles = [];
             //修改src目录下文件的文件名 去除md5
             let fileNameMap = new Map();
             files.forEach(file => {
+                let newFile = Utils_1.Utils.restoreFilePath(file);
                 let fileName = path_1.default.basename(file);
-                let ext = path_1.default.extname(file);
-                let newFileName = fileName.replace(ext, "");
-                if (fileName == "system.bundle")
-                    return;
-                let lastIndex = newFileName.lastIndexOf(".");
-                if (lastIndex > -1) {
-                    newFileName = newFileName.substring(0, lastIndex);
-                }
-                newFileName += ext;
+                let newFileName = path_1.default.basename(newFile);
                 fileNameMap.set(fileName, newFileName);
-                fs_extra_1.default.renameSync(file, file.replace(fileName, newFileName));
+                fs_extra_1.default.renameSync(file, newFile);
+                newFiles.push(newFile);
             });
-            //修改src目录下文件
-            files = Utils_1.Utils.getAllFiles(srcDir, null, true);
-            files.forEach(file => {
+            //修改src目录下文件 修改文件中带md5的引用
+            newFiles.forEach(file => {
                 let content = fs_extra_1.default.readFileSync(file, { encoding: "utf8" });
                 fileNameMap.forEach((v, k) => {
                     let regex = new RegExp(k, "g");
@@ -54,19 +50,12 @@ class HotUpdate {
                 });
                 fs_extra_1.default.writeFileSync(file, content, { encoding: "utf8" });
             });
-            //修改main.js
-            let mainjs = path_1.default.join(result.dest, 'data', 'main.js');
-            if (!fs_extra_1.default.existsSync(mainjs)) {
-                mainjs = path_1.default.join(result.dest, 'assets', 'main.js');
-            }
+            //修改main.js 中的搜索路径
+            let mainjs = path_1.default.join(rootDir, 'main.js');
             if (fs_extra_1.default.existsSync(mainjs)) {
                 let version = Config_1.Config.get("gameSetting.mainVersion", "");
                 if (version) {
                     let content = fs_extra_1.default.readFileSync(mainjs, { encoding: "utf8" });
-                    fileNameMap.forEach((v, k) => {
-                        let regex = new RegExp(k, "g");
-                        content = content.replace(regex, v);
-                    });
                     content = MainJsCode_1.MainJsCode.code.replace("<%version%>", version) + "\n" + content;
                     fs_extra_1.default.writeFileSync(mainjs, content, { encoding: "utf8" });
                     LogToFile_1.LogToFile.log("修改热更搜索路径完成", version);
