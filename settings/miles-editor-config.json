@@ -3,6 +3,12 @@
         "src": "D:/Workspace/CocosMLib/build/android-001"
     },
     "gameSetting": {
-        "mainVersion": ""
+        "gameName": "OutTest",
+        "channel": "Dev",
+        "version": "1.0.0",
+        "cdnUrl": "http:///",
+        "mainVersion": "1.0.0",
+        "hotupdateServer": "http:////OutTest/Channel/Dev/1.0.0/ResPkg",
+        "minigameServer": "http:////OutTest/Channel/Dev/1.0.0/ResPkg/"
     }
 }

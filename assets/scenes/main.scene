@@ -122,7 +122,7 @@
     "_gameName": "OutTest",
     "_channelId": 0,
     "_version": "1.0.0",
-    "_cdnUrl": "",
+    "_cdnUrl": "http:///",
     "_languageId": 1,
     "_gameConfigType": 0,
     "_hotupdate": true,
