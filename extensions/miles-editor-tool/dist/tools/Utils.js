@@ -134,6 +134,19 @@ class Utils {
         }
         return null;
     }
+    /** 将追加了md5的文件路径还原为正常的文件路径 */
+    static restoreFilePath(filePath) {
+        let ext = path_1.default.extname(filePath);
+        let p = filePath.replace(ext, "");
+        let reg = new RegExp(/.+\.[A-Za-z0-9]{5}/);
+        if (reg.test(p)) {
+            let index = p.lastIndexOf(".");
+            return p.substring(0, index) + ext;
+        }
+        else {
+            return filePath;
+        }
+    }
     static refreshAsset(path) {
         if (fs_1.default.statSync(path).isDirectory()) {
             let files = Utils.getAllFiles(path, null, true);
