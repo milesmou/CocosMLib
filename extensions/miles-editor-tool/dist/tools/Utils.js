@@ -135,7 +135,15 @@ class Utils {
         return null;
     }
     static refreshAsset(path) {
-        Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
+        if (fs_1.default.statSync(path).isDirectory()) {
+            let files = Utils.getAllFiles(path, null, true);
+            for (const file of files) {
+                Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(file));
+            }
+        }
+        else {
+            Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
+        }
     }
     static deleteAsset(path) {
         Editor.Message.send("asset-db", "delete-asset", this.toAssetDBUrl(path));

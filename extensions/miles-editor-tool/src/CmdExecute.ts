@@ -4,8 +4,24 @@ import { Config } from "./tools/Config";
 import { Constant } from "./tools/Constant";
 import { MLogger } from "./tools/MLogger";
 import { Utils } from "./tools/Utils";
+import { dir } from "console";
 
 export class CmdExecute {
+
+    static test() {
+        console.log("测试");
+
+        // let bundles = Utils.ProjectPath + "/assets/bundles";
+        // let dirs = Utils.getAllDirs(bundles, null, true);
+        // for (const dir of dirs) {
+        //     let tableDir = dir + "/table";
+        //     if (fs.existsSync(tableDir)) {
+        //         Utils.refreshAsset(tableDir);
+        //     }
+
+        // }
+    }
+
 
     /** 保存游戏配置到本地 */
     static saveGameSetting(jsonStr: string) {
@@ -16,32 +32,32 @@ export class CmdExecute {
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/sc");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/tc");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/en");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/anim");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/font");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/uiSprite");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/audio");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/table");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/sprite");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/prefab");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/uiPrefab");//资源包目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts");//脚本目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/base");//脚本目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/gen");//脚本目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/ui");//脚本目录
-        fs.ensureDirSync(Utils.ProjectPath + "/assets/scenes");//场景目录
-        Utils.refreshAsset(Utils.ProjectPath + "/assets/build-template");
-        Utils.refreshAsset(Utils.ProjectPath + "/assets/bundles");
-        Utils.refreshAsset(Utils.ProjectPath + "/assets/scripts");
-        Utils.refreshAsset(Utils.ProjectPath + "/assets/scenes");
-        //拷贝资源
+        // // fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/sc");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/tc");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/en");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/anim");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/font");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/uiSprite");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/audio");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/table");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/sprite");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/prefab");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/uiPrefab");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts");//脚本目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/base");//脚本目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/gen");//脚本目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/ui");//脚本目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scenes");//场景目录
+        // Utils.refreshAsset(Utils.ProjectPath + "/assets/build-template");
+        // Utils.refreshAsset(Utils.ProjectPath + "/assets/bundles");
+        // Utils.refreshAsset(Utils.ProjectPath + "/assets/scripts");
+        // Utils.refreshAsset(Utils.ProjectPath + "/assets/scenes");
+        // //拷贝资源
     }
 
     /** 导表 */
@@ -49,9 +65,7 @@ export class CmdExecute {
         let logger = new MLogger("LoadExcel");
         let workDir = Utils.ProjectPath + "/excel";
         let batPath = "gen_code_json.bat";
-        let jsonDir = Utils.ProjectPath + "/assets/bundles/dynamic/table";
         let tsDir = Utils.ProjectPath + "/assets/scripts/gen/table";
-        fs.ensureDirSync(jsonDir);
         fs.ensureDirSync(tsDir);
         logger.debug(workDir)
         Utils.exeCMD(workDir, batPath,
@@ -60,14 +74,16 @@ export class CmdExecute {
             }
         ).then(code => {
             if (!code) {
-                let files = Utils.getAllFiles(jsonDir, file => file.endsWith(".json"));
-                files.forEach(v => {
-                    Utils.refreshAsset(v);
-                });
-                let tsFiles = Utils.getAllFiles(tsDir, file => file.endsWith(".ts"));
-                tsFiles.forEach(v => {
-                    Utils.refreshAsset(v);
-                });
+                let bundles = Utils.ProjectPath + "/assets/bundles";
+                let dirs = Utils.getAllDirs(bundles, null, true);
+                dirs.push(Utils.ProjectPath + "/assets/resources");
+                for (const dir of dirs) {
+                    let tableDir = dir + "/table";
+                    if (fs.existsSync(tableDir)) {
+                        Utils.refreshAsset(tableDir);
+                    }
+                }
+                Utils.refreshAsset(tsDir);
             } else {
                 logger.error("导表失败");
             }

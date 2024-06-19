@@ -130,7 +130,14 @@ export class Utils {
     }
 
     static refreshAsset(path: string) {
-        Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
+        if (fs.statSync(path).isDirectory()) {
+            let files = Utils.getAllFiles(path, null, true);
+            for (const file of files) {
+                Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(file));
+            }
+        } else {
+            Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
+        }
     }
 
     static deleteAsset(path: string) {

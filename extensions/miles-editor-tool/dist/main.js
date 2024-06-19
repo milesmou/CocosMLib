@@ -22,6 +22,8 @@ exports.methods = {
     //场景操作命令
     autoGenProperty: SceneCmdExecute_1.SceneCmdExecute.autoGenProperty,
     replaceComponent: SceneCmdExecute_1.SceneCmdExecute.replaceComponent,
+    //测试
+    test: CmdExecute_1.CmdExecute.test,
 };
 /**
  * @en Hooks triggered after extension loading is complete

@@ -21,6 +21,8 @@ export const methods: { [key: string]: (...any: any) => any } = {
     //场景操作命令
     autoGenProperty: SceneCmdExecute.autoGenProperty,
     replaceComponent: SceneCmdExecute.replaceComponent,
+    //测试
+    test: CmdExecute.test,
 };
 
 /**

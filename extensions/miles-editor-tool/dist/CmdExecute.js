@@ -11,6 +11,17 @@ const Constant_1 = require("./tools/Constant");
 const MLogger_1 = require("./tools/MLogger");
 const Utils_1 = require("./tools/Utils");
 class CmdExecute {
+    static test() {
+        console.log("测试");
+        // let bundles = Utils.ProjectPath + "/assets/bundles";
+        // let dirs = Utils.getAllDirs(bundles, null, true);
+        // for (const dir of dirs) {
+        //     let tableDir = dir + "/table";
+        //     if (fs.existsSync(tableDir)) {
+        //         Utils.refreshAsset(tableDir);
+        //     }
+        // }
+    }
     /** 保存游戏配置到本地 */
     static saveGameSetting(jsonStr) {
         Config_1.Config.set("gameSetting", JSON.parse(jsonStr));
@@ -18,55 +29,55 @@ class CmdExecute {
     /** 格式化目录结构 */
     static formatProject() {
         //创建目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/localization"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/localization/sc"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/localization/tc"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/localization/en"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/static"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/static/anim"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/static/font"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/static/uiSprite"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/dynamic"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/dynamic/audio"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/dynamic/table"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/dynamic/sprite"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/dynamic/prefab"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/bundles/dynamic/uiPrefab"); //资源包目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/scripts"); //脚本目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/scripts/base"); //脚本目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/scripts/gen"); //脚本目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/scripts/ui"); //脚本目录
-        fs_extra_1.default.ensureDirSync(Utils_1.Utils.ProjectPath + "/assets/scenes"); //场景目录
-        Utils_1.Utils.refreshAsset(Utils_1.Utils.ProjectPath + "/assets/build-template");
-        Utils_1.Utils.refreshAsset(Utils_1.Utils.ProjectPath + "/assets/bundles");
-        Utils_1.Utils.refreshAsset(Utils_1.Utils.ProjectPath + "/assets/scripts");
-        Utils_1.Utils.refreshAsset(Utils_1.Utils.ProjectPath + "/assets/scenes");
-        //拷贝资源
+        // // fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/sc");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/tc");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/en");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/anim");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/font");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/uiSprite");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/audio");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/table");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/sprite");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/prefab");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/uiPrefab");//资源包目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts");//脚本目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/base");//脚本目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/gen");//脚本目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/ui");//脚本目录
+        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scenes");//场景目录
+        // Utils.refreshAsset(Utils.ProjectPath + "/assets/build-template");
+        // Utils.refreshAsset(Utils.ProjectPath + "/assets/bundles");
+        // Utils.refreshAsset(Utils.ProjectPath + "/assets/scripts");
+        // Utils.refreshAsset(Utils.ProjectPath + "/assets/scenes");
+        // //拷贝资源
     }
     /** 导表 */
     static loadExcel() {
         let logger = new MLogger_1.MLogger("LoadExcel");
         let workDir = Utils_1.Utils.ProjectPath + "/excel";
         let batPath = "gen_code_json.bat";
-        let jsonDir = Utils_1.Utils.ProjectPath + "/assets/bundles/dynamic/table";
         let tsDir = Utils_1.Utils.ProjectPath + "/assets/scripts/gen/table";
-        fs_extra_1.default.ensureDirSync(jsonDir);
         fs_extra_1.default.ensureDirSync(tsDir);
         logger.debug(workDir);
         Utils_1.Utils.exeCMD(workDir, batPath, msg => {
             logger.debug(msg);
         }).then(code => {
             if (!code) {
-                let files = Utils_1.Utils.getAllFiles(jsonDir, file => file.endsWith(".json"));
-                files.forEach(v => {
-                    Utils_1.Utils.refreshAsset(v);
-                });
-                let tsFiles = Utils_1.Utils.getAllFiles(tsDir, file => file.endsWith(".ts"));
-                tsFiles.forEach(v => {
-                    Utils_1.Utils.refreshAsset(v);
-                });
+                let bundles = Utils_1.Utils.ProjectPath + "/assets/bundles";
+                let dirs = Utils_1.Utils.getAllDirs(bundles, null, true);
+                dirs.push(Utils_1.Utils.ProjectPath + "/assets/resources");
+                for (const dir of dirs) {
+                    let tableDir = dir + "/table";
+                    if (fs_extra_1.default.existsSync(tableDir)) {
+                        Utils_1.Utils.refreshAsset(tableDir);
+                    }
+                }
+                Utils_1.Utils.refreshAsset(tsDir);
             }
             else {
                 logger.error("导表失败");

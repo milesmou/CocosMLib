@@ -90,6 +90,12 @@
                 "methods": [
                     "genHotUpdateRes"
                 ]
+            },
+            "test": {
+                "public": false,
+                "methods": [
+                    "test"
+                ]
             }
         },
         "menu": [
@@ -140,6 +146,12 @@
                 "label": "生成热更资源",
                 "icon": "./static/icon.png",
                 "message": "genHotUpdateRes"
+            },
+            {
+                "path": "MTools",
+                "label": "测试",
+                "icon": "./static/icon.png",
+                "message": "test"
             }
         ],
         "shortcuts": [
