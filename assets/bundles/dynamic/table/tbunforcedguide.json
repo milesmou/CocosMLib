@@ -1,10 +1,10 @@
 [
   {
     "ID": 1,
-    "GuideID": 201,
-    "StepIndex": 0,
+    "GuideID": 1001,
+    "StepKey": 0,
     "UIName": "UIHUD",
-    "NodePath": "home/downHome/down/left/$MainTaskBtn",
+    "NodePath": "home/Bottom/BtnLeaveHome",
     "FingerOffset": {
       "x": 0,
       "y": 0
@@ -12,10 +12,109 @@
   },
   {
     "ID": 2,
-    "GuideID": 201,
-    "StepIndex": 1,
-    "UIName": "MainTasksWin",
-    "NodePath": "home/btnGet",
+    "GuideID": 1001,
+    "StepKey": 1,
+    "UIName": "UICountryTown",
+    "NodePath": "home/btn/btnShop",
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "ID": 3,
+    "GuideID": 1001,
+    "StepKey": 2,
+    "UIName": "UIShop",
+    "NodePath": "",
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "ID": 4,
+    "GuideID": 1001,
+    "StepKey": 3,
+    "UIName": "UIPopShopBuy",
+    "NodePath": "home/BtnBuy",
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "ID": 5,
+    "GuideID": 1001,
+    "StepKey": 4,
+    "UIName": "UIShop",
+    "NodePath": "home/Top/BtnClose",
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "ID": 6,
+    "GuideID": 1001,
+    "StepKey": 5,
+    "UIName": "UICountryTown",
+    "NodePath": "home/Bottom/BtnBackHome",
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "ID": 7,
+    "GuideID": 1001,
+    "StepKey": 6,
+    "UIName": "UIHUD",
+    "NodePath": "home/Person/Daughter/$Bubble",
+    "FingerOffset": {
+      "x": 0,
+      "y": 90
+    }
+  },
+  {
+    "ID": 8,
+    "GuideID": 1002,
+    "StepKey": 0,
+    "UIName": "UIHUD",
+    "NodePath": "home/Bottom/BtnLeaveHome",
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "ID": 9,
+    "GuideID": 1002,
+    "StepKey": 1,
+    "UIName": "UICountryTown",
+    "NodePath": "home/Top/BtnPort",
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "ID": 10,
+    "GuideID": 1002,
+    "StepKey": 2,
+    "UIName": "UIPort",
+    "NodePath": "home/Merchant/1",
+    "FingerOffset": {
+      "x": 0,
+      "y": 300
+    }
+  },
+  {
+    "ID": 11,
+    "GuideID": 1003,
+    "StepKey": 0,
+    "UIName": "UIHUD",
+    "NodePath": "home/Bottom/BtnLeaveHome",
     "FingerOffset": {
       "x": 0,
       "y": 0

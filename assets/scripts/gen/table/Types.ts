@@ -278,8 +278,8 @@ export class TGuide {
         this.ID = _json_.ID
         if (_json_.GuideID === undefined) { throw new Error() }
         this.GuideID = _json_.GuideID
-        if (_json_.StepIndex === undefined) { throw new Error() }
-        this.StepIndex = _json_.StepIndex
+        if (_json_.StepKey === undefined) { throw new Error() }
+        this.StepKey = _json_.StepKey
         if (_json_.UIName === undefined) { throw new Error() }
         this.UIName = _json_.UIName
         if (_json_.NodePath === undefined) { throw new Error() }
@@ -321,9 +321,9 @@ export class TGuide {
      */
     readonly GuideID: number
     /**
-     * 步骤索引
+     * 步骤Key
      */
-    readonly StepIndex: number
+    readonly StepKey: number
     /**
      * 节点所在UI名字
      */
@@ -430,8 +430,8 @@ export class TUnforcedGuide {
         this.ID = _json_.ID
         if (_json_.GuideID === undefined) { throw new Error() }
         this.GuideID = _json_.GuideID
-        if (_json_.StepIndex === undefined) { throw new Error() }
-        this.StepIndex = _json_.StepIndex
+        if (_json_.StepKey === undefined) { throw new Error() }
+        this.StepKey = _json_.StepKey
         if (_json_.UIName === undefined) { throw new Error() }
         this.UIName = _json_.UIName
         if (_json_.NodePath === undefined) { throw new Error() }
@@ -449,9 +449,9 @@ export class TUnforcedGuide {
      */
     readonly GuideID: number
     /**
-     * 步骤索引
+     * 步骤Key
      */
-    readonly StepIndex: number
+    readonly StepKey: number
     /**
      * 节点所在UI名字
      */

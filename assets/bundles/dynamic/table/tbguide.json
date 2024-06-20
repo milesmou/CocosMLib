@@ -1,10 +1,10 @@
 [
   {
     "ID": 1,
-    "GuideID": 1,
-    "StepIndex": 0,
-    "UIName": "UIGuideTest1",
-    "NodePath": "step1",
+    "GuideID": 102,
+    "StepKey": 1,
+    "UIName": "UICountryTown",
+    "NodePath": "home/btn/btnGuWan",
     "NodeSize": {
       "x": 0,
       "y": 0
@@ -33,15 +33,15 @@
   },
   {
     "ID": 2,
-    "GuideID": 1,
-    "StepIndex": 1,
-    "UIName": "UIGuideTest1",
-    "NodePath": "step2",
+    "GuideID": 102,
+    "StepKey": 2,
+    "UIName": "UITuiBi",
+    "NodePath": "home/$Content/$CubesParent/CubesEntity",
     "NodeSize": {
       "x": 0,
       "y": 0
     },
-    "DelayCheckUI": 0,
+    "DelayCheckUI": 0.25,
     "ClickScreen": false,
     "Opacity": 0,
     "HollowType": 0,
@@ -56,24 +56,24 @@
       "x": 0,
       "y": 0
     },
-    "TipText": "",
+    "TipText": "点击选择",
     "TipPos": {
-      "x": 0,
-      "y": 0
+      "x": -200,
+      "y": -180
     },
     "Prefab": ""
   },
   {
     "ID": 3,
-    "GuideID": 1,
-    "StepIndex": 2,
-    "UIName": "UIGuideTest1",
-    "NodePath": "step3",
+    "GuideID": 102,
+    "StepKey": 3,
+    "UIName": "UITuiBi",
+    "NodePath": "",
     "NodeSize": {
       "x": 0,
       "y": 0
     },
-    "DelayCheckUI": 0,
+    "DelayCheckUI": 0.25,
     "ClickScreen": false,
     "Opacity": 0,
     "HollowType": 0,
@@ -88,24 +88,120 @@
       "x": 0,
       "y": 0
     },
-    "TipText": "",
+    "TipText": "相同硬币放在一起",
     "TipPos": {
-      "x": 0,
-      "y": 0
+      "x": 60,
+      "y": -180
     },
     "Prefab": ""
   },
   {
     "ID": 4,
-    "GuideID": 1,
-    "StepIndex": 3,
-    "UIName": "UIGuideTest1",
-    "NodePath": "step4",
+    "GuideID": 102,
+    "StepKey": 4,
+    "UIName": "UITuiBi",
+    "NodePath": "home/Bottom/$BtnMerge",
     "NodeSize": {
       "x": 0,
       "y": 0
     },
-    "DelayCheckUI": 0,
+    "DelayCheckUI": 0.25,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 0,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "10个相同的硬币可以兑换成下一等级",
+    "TipPos": {
+      "x": 140,
+      "y": -420
+    },
+    "Prefab": ""
+  },
+  {
+    "ID": 5,
+    "GuideID": 102,
+    "StepKey": 5,
+    "UIName": "UITuiBi",
+    "NodePath": "home/Bottom/BtnAdd",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0.25,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 0,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "获得更多硬币",
+    "TipPos": {
+      "x": -140,
+      "y": -420
+    },
+    "Prefab": ""
+  },
+  {
+    "ID": 6,
+    "GuideID": 102,
+    "StepKey": 6,
+    "UIName": "UITuiBi",
+    "NodePath": "home/$Content/$CubesParent/CubesEntity",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0.25,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 0,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "继续合成",
+    "TipPos": {
+      "x": -200,
+      "y": -180
+    },
+    "Prefab": ""
+  },
+  {
+    "ID": 7,
+    "GuideID": 102,
+    "StepKey": 7,
+    "UIName": "UITuiBi",
+    "NodePath": "",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0.25,
     "ClickScreen": false,
     "Opacity": 0,
     "HollowType": 0,
@@ -128,16 +224,16 @@
     "Prefab": ""
   },
   {
-    "ID": 5,
-    "GuideID": 1,
-    "StepIndex": 4,
-    "UIName": "UIGuideTest2",
-    "NodePath": "step5",
+    "ID": 8,
+    "GuideID": 102,
+    "StepKey": 8,
+    "UIName": "UITuiBi",
+    "NodePath": "home/Bottom/$BtnMerge",
     "NodeSize": {
       "x": 0,
       "y": 0
     },
-    "DelayCheckUI": 0,
+    "DelayCheckUI": 0.25,
     "ClickScreen": false,
     "Opacity": 0,
     "HollowType": 0,
@@ -156,6 +252,38 @@
     "TipPos": {
       "x": 0,
       "y": 0
+    },
+    "Prefab": ""
+  },
+  {
+    "ID": 9,
+    "GuideID": 102,
+    "StepKey": 9,
+    "UIName": "UITuiBi",
+    "NodePath": "home/$Content/Guide102_9",
+    "NodeSize": {
+      "x": 0,
+      "y": 0
+    },
+    "DelayCheckUI": 0.25,
+    "ClickScreen": false,
+    "Opacity": 0,
+    "HollowType": 1,
+    "HollowScale": 0,
+    "RingScale": 0,
+    "RingOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "FingerDir": 1,
+    "FingerOffset": {
+      "x": 0,
+      "y": 0
+    },
+    "TipText": "兑换的收益会随着关卡提高",
+    "TipPos": {
+      "x": 0,
+      "y": 400
     },
     "Prefab": ""
   }
