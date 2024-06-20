@@ -27,6 +27,7 @@ export class SpecialNode extends Component {
     }
 
     private initVisible() {
+        if (!this.isValid) return;
         let active = SpecialNodeMgr.Inst.getActive(this.type);
         this.node.active = this.reverse ? !active : active;
         let uiOpacity = this.getComponent(UIOpacity) || this.addComponent(UIOpacity);
