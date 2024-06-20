@@ -1,0 +1,187 @@
+{
+    "package_version": 2,
+    "version": "1.0.0",
+    "name": "amun-editor-tool",
+    "description": "amun的一些编辑器扩展",
+    "author": "Amun",
+    "editor": ">=3.6.3",
+    "main": "./dist/main.js",
+    "contributions": {
+        "builder": "./dist/builder.js",
+        "inspector": {
+            "section": {
+                "node": {
+                    "MToggle": "./dist_origin/inspector/mtoggle.js"
+                }
+            }
+        },
+        "assets": {
+            "menu": {
+                "methods": "./dist/AssetMenu.js",
+                "createMenu": "onCreateMenu",
+                "assetMenu": "onAssetMenu",
+                "dbMenu": "onDBMenu",
+                "panelMenu": "onPanelMenu"
+            }
+        },
+        "messages": {
+            "saveGameSetting": {
+                "public": true,
+                "methods": [
+                    "saveGameSetting"
+                ]
+            },
+            "formatProject": {
+                "public": false,
+                "methods": [
+                    "formatProject"
+                ]
+            },
+            "loadExcel": {
+                "public": false,
+                "methods": [
+                    "loadExcel"
+                ]
+            },
+            "genConst": {
+                "public": false,
+                "methods": [
+                    "genConst"
+                ]
+            },
+            "delInvalidProperty": {
+                "public": false,
+                "methods": [
+                    "delInvalidProperty"
+                ]
+            },
+            "replaceComponent": {
+                "public": false,
+                "methods": [
+                    "replaceComponent"
+                ]
+            },
+            "closeTexCompress": {
+                "public": false,
+                "methods": [
+                    "closeTexCompress"
+                ]
+            },
+            "setTexCompress": {
+                "public": false,
+                "methods": [
+                    "setTexCompress"
+                ]
+            },
+            "openBuildTemplate": {
+                "public": false,
+                "methods": [
+                    "openBuildTemplate"
+                ]
+            },
+            "closeBuildTemplate": {
+                "public": false,
+                "methods": [
+                    "closeBuildTemplate"
+                ]
+            },
+            "genHotUpdateRes": {
+                "public": false,
+                "methods": [
+                    "genHotUpdateRes"
+                ]
+            },
+            "test": {
+                "public": false,
+                "methods": [
+                    "test"
+                ]
+            }
+        },
+        "menu": [
+            {
+                "path": "MTools",
+                "label": "导表",
+                "icon": "./static/icon.png",
+                "message": "loadExcel"
+            },
+            {
+                "path": "MTools",
+                "label": "生成常量",
+                "icon": "./static/icon.png",
+                "message": "genConst"
+            },
+            {
+                "path": "MTools/场景操作",
+                "label": "替换组件",
+                "icon": "./static/icon.png",
+                "message": "replaceComponent"
+            },
+            {
+                "path": "MTools/纹理压缩",
+                "label": "关闭纹理压缩",
+                "icon": "./static/icon.png",
+                "message": "closeTexCompress"
+            },
+            {
+                "path": "MTools/纹理压缩",
+                "label": "设置纹理压缩方案",
+                "icon": "./static/icon.png",
+                "message": "setTexCompress"
+            },
+            {
+                "path": "MTools/构建模板",
+                "label": "启用",
+                "icon": "./static/icon.png",
+                "message": "openBuildTemplate"
+            },
+            {
+                "path": "MTools/构建模板",
+                "label": "禁用",
+                "icon": "./static/icon.png",
+                "message": "closeBuildTemplate"
+            },
+            {
+                "path": "MTools/热更",
+                "label": "生成热更资源",
+                "icon": "./static/icon.png",
+                "message": "genHotUpdateRes"
+            },
+            {
+                "path": "MTools",
+                "label": "测试",
+                "icon": "./static/icon.png",
+                "message": "test"
+            }
+        ],
+        "shortcuts": [
+            {
+                "message": "loadExcel",
+                "win": "ctrl+shift+l",
+                "mac": "ctrl+shift+l"
+            },
+            {
+                "message": "genConst",
+                "win": "ctrl+shift+g",
+                "mac": "ctrl+shift+g"
+            },
+            {
+                "message": "autoGenProperty",
+                "win": "shift+b",
+                "mac": "shift+b"
+            }
+        ]
+    },
+    "devDependencies": {
+        "@types/node": "^16.0.1",
+        "typescript": "^4.3.4",
+        "@types/fs-extra": "^11.0.4"
+    },
+    "dependencies": {
+        "fs-extra": "^11.2.0"
+    },
+    "scripts": {
+        "build": "tsc -b",
+        "watch": "tsc -w"
+    }
+}

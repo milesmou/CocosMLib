@@ -78,8 +78,8 @@
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-6-19 21:52:24 build success in 11 s!",
-        "detailMessage": "[2024/6/19下午9:52:24] 若使用热更请先保存热更配置 \r\r\r",
+        "message": "2024-6-20 10:10:22 build success in 14 s!",
+        "detailMessage": "// ---- build task adsense-h5g-plugin：onAfterBuild ----\r",
         "options": {
           "name": "NewProject3",
           "server": "",
@@ -127,7 +127,7 @@
           "nativeCodeBundleMode": "wasm",
           "wasmCompressionMode": false
         },
-        "time": "2024-6-19 21:52:13",
+        "time": "2024-6-20 10:10:08",
         "dirty": false
       }
     }

@@ -1,0 +1,14 @@
+{
+    "gameSetting": {
+        "gameName": "OutTest",
+        "channel": "Dev",
+        "version": "1.0.0",
+        "cdnUrl": "https://",
+        "mainVersion": "1.0.0",
+        "hotupdateServer": "https:///OutTest/Channel/Dev/1.0.0/ResPkg",
+        "minigameServer": "https:///OutTest/Channel/Dev/1.0.0/ResPkg/"
+    },
+    "hotupdate": {
+        "src": "D:/Workspace/CocosMLib/build/android-001"
+    }
+}

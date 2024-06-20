@@ -166,7 +166,7 @@ export class GameSetting extends Component {
             hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg`,
             minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg/`,
         };
-        (globalThis.Editor as any).Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
+        Editor.Message.send("amun-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
     }
 }
 
