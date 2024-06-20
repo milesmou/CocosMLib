@@ -113,26 +113,30 @@ class Utils {
     }
     /** 根据文件路径找到追加了md5值的实际文件路径 */
     static resolveFilePath(filePath) {
+        let result = filePath;
         let dir = path_1.default.dirname(filePath);
-        let basename = path_1.default.basename(filePath);
-        let ext = path_1.default.extname(filePath);
-        let name = basename.replace(ext, ".");
-        let reg = new RegExp(`${name}[A-Za-z0-9]{5}${ext}`);
-        let dirents = fs_1.default.readdirSync(dir, { withFileTypes: true });
-        for (const dirent of dirents) {
-            let p = path_1.default.join(dir, dirent.name);
-            if (dirent.isFile()) {
-                if (dirent.name == basename) {
-                    return filePath.replace(/\\/g, "/");
-                }
-                else {
-                    if (reg.test(dirent.name)) {
-                        return p.replace(/\\/g, "/");
+        if (fs_1.default.existsSync(dir)) {
+            let basename = path_1.default.basename(filePath);
+            let ext = path_1.default.extname(filePath);
+            let name = basename.replace(ext, ".");
+            let reg = new RegExp(`${name}[A-Za-z0-9]{5}${ext}`);
+            let dirents = fs_1.default.readdirSync(dir, { withFileTypes: true });
+            for (const dirent of dirents) {
+                let p = path_1.default.join(dir, dirent.name);
+                if (dirent.isFile()) {
+                    if (dirent.name == basename) {
+                        break;
+                    }
+                    else {
+                        if (reg.test(dirent.name)) {
+                            result = p;
+                            break;
+                        }
                     }
                 }
             }
         }
-        return null;
+        return result.replace(/\\/g, "/");
     }
     /** 将追加了md5的文件路径还原为正常的文件路径 */
     static restoreFilePath(filePath) {

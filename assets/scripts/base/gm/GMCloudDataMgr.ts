@@ -78,6 +78,7 @@ export class GMCloudDataMgr extends UIComponent {
             if (v && v["code"] == 100) {
                 console.log("获取所有存档成功");
                 let list = v["data"] as any[];
+                list = list.reverse();
                 CCUtils.loadList(this._scrollView.content, list, (data, item) => {
                     let desc: string = data.commit;
                     let date: string = data.key;
