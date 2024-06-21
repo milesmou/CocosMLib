@@ -6,6 +6,10 @@ export class MLogger {
     private static globalTag = "MLogger";
     private static globalLevel: ELoggerLevel;
 
+    public static new(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
+        return new MLogger(tag, level);
+    }
+
     public static setLevel(level: ELoggerLevel) {
         this.info = level > ELoggerLevel.Info ? this.none : console.log.bind(console, `[${this.globalTag} Info]`);
         this.debug = level > ELoggerLevel.Debug ? this.none : console.log.bind(console, `[${this.globalTag} Debug]`);
@@ -31,7 +35,7 @@ export class MLogger {
     private static none(...data) { }
 
     //日志打印对象
-    constructor(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
+    private constructor(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
         this.info = logger.globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ? logger.none :
             console.log.bind(console, `[${logger.globalTag} ${tag} Info]`);
         this.debug = logger.globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ? logger.none :

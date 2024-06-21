@@ -40,7 +40,7 @@ export class GameGuide {
     /** 获取当前引导的步骤索引 */
     public getGuideStepIndex() {
         if (UIGuide.Inst.isGuide) {
-            return UIGuide.Inst.stepIndex;
+            return UIGuide.Inst.stepKey;
         }
         return -1;
     }

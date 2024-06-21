@@ -4,7 +4,6 @@
 //3.通常使用3位版本号(x.x.x)作为存储搜索路径的key
 
 import { Asset, native, sys } from "cc";
-import { MLogger } from "../module/logger/MLogger";
 
 export enum EHotUpdateState {
     CheckUpdate,//检查更新
@@ -24,7 +23,7 @@ export class HotUpdate {
     private constructor() { }
     private static inst: HotUpdate;
     public static get Inst() { return this.inst || (this.inst = new HotUpdate()) }
-    private _logger = new MLogger("HotUpdate")
+    private _logger = logger.new("HotUpdate")
     private _manifest: Asset = null;//本地project.manifest文件
     private _version: string;//游戏主版本号 只有三位
     private _assetsMgr: native.AssetsManager;//native资源管理器
@@ -63,8 +62,17 @@ export class HotUpdate {
         return 0;
     }
 
+    // Setup the verification callback, but we don't have md5 check function yet, so only print some message
+    // Return true if the verification passed, otherwise return false
     private verifyHandle(path: string, asset: native.ManifestAsset) {
-        let { compressed } = asset;
+        // When asset is compressed, we don't need to check its md5, because zip file have been deleted.
+        let compressed = asset.compressed;
+        // Retrieve the correct md5 value.
+        let expectedMD5 = asset.md5;
+        // asset.path is relative path and path is absolute.
+        let relativePath = asset.path;
+        // The size of asset file, but this value could be absent.
+        let size = asset.size;
         if (compressed) {
             return true;
         } else {
@@ -175,26 +183,21 @@ export class HotUpdate {
         }
     }
 
-    private onUpdateComplete(code: EHotUpdateResult) {
+    private onUpdateComplete(code: EHotUpdateResult.UpToDate | EHotUpdateResult.Success | EHotUpdateResult.ManifestError) {
         this._onStateChange(EHotUpdateState.Finished);
         if (code == EHotUpdateResult.Success) {
-            try {
-                //重命名main.js依赖的相关文件,去掉文件名中的MD5后缀,不然main.js中无法加载相关资源
-                this.renameSrcFiles();
-                //追加脚本搜索路径
-                let searchPaths = native.fileUtils.getSearchPaths();
-                let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
-                Array.prototype.unshift.apply(searchPaths, newPaths);
-                this._logger.debug(`新增搜索路径 ${JSON.stringify(newPaths)}`);
-                this._logger.debug(`搜索路径 Key=${this._version}`);
-                this._logger.debug(`搜索路径 Value=${JSON.stringify(searchPaths)}`);
-                // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
-                sys.localStorage.setItem(this._version, JSON.stringify(searchPaths));
-                native.fileUtils.setSearchPaths(searchPaths);
-            } catch (e) {
-                code = EHotUpdateResult.Fail;
-                this._logger.error(e);
-            }
+            //重命名main.js依赖的相关文件,去掉文件名中的MD5后缀,不然main.js中无法加载相关资源
+            this.renameSrcFiles();
+            //追加脚本搜索路径
+            let searchPaths = native.fileUtils.getSearchPaths();
+            let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
+            Array.prototype.unshift.apply(searchPaths, newPaths);
+            this._logger.debug(`新增搜索路径 ${JSON.stringify(newPaths)}`);
+            this._logger.debug(`搜索路径 Key=${this._version}`);
+            this._logger.debug(`搜索路径 Value=${JSON.stringify(searchPaths)}`);
+            // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
+            sys.localStorage.setItem(this._version, JSON.stringify(searchPaths));
+            native.fileUtils.setSearchPaths(searchPaths);
         }
         this._assetsMgr.setEventCallback(null);
         this._onComplete(code);
@@ -205,28 +208,23 @@ export class HotUpdate {
         this._onComplete(EHotUpdateResult.Fail);
     }
 
-    /** 将src目录下的文件重命名,去除md5后缀 */
     private renameSrcFiles() {
         let files = native.fileUtils.listFiles(this.storagePath + "/src");
         files.forEach(v => {
             if (!native.fileUtils.isDirectoryExist(v)) {//文件
-                let newFile = this.restoreFilePath(v);
+                let fileName = v.replace(native.fileUtils.getFileDir(v) + "/", "");
+                let ext = native.fileUtils.getFileExtension(v);
+                let newFileName = fileName.replace(ext, "");
+                if (fileName == "system.bundle") return;
+                let lastIndex = newFileName.lastIndexOf(".");
+                if (lastIndex > -1) {
+                    newFileName = newFileName.substring(0, lastIndex);
+                }
+                newFileName += ext;
+                let newFile = v.replace(fileName, newFileName);
                 native.fileUtils.renameFile(v, newFile);
                 this._logger.debug("rename", v, "-->", newFile)
             }
         });
-    }
-
-    /** 将追加了md5的文件路径还原为正常的文件路径 */
-    private restoreFilePath(filePath: string) {
-        let ext = filePath.substring(filePath.lastIndexOf("."));
-        let p = filePath.replace(ext, "");
-        let reg = new RegExp(/.+\.[A-Za-z0-9]{5}/);
-        if (reg.test(p)) {
-            let index = p.lastIndexOf(".")
-            return p.substring(0, index) + ext;
-        } else {
-            return filePath;
-        }
     }
 }
