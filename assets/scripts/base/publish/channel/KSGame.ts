@@ -1,4 +1,4 @@
-/** 微信小游戏平台相关方法的实现 */
+/** 快手小游戏平台相关方法的实现 */
 import { Camera, Game, _decorator, game } from "cc";
 import { MLogger } from "../../../../mlib/module/logger/MLogger";
 import { Channel } from "../../../../mlib/sdk/Channel";
@@ -6,10 +6,10 @@ import { EIAPResult, ELoginResult, EReawrdedAdResult, LoginArgs, MSDKWrapper, Re
 
 const { ccclass } = _decorator;
 
-const skipAdAndIap = true;//用于测试 跳过广告和内购
+const skipAdAndIap = false;//用于测试 跳过广告和内购
 
-@ccclass("WeChatGame")
-export class WeChatGame extends Channel {
+@ccclass("KSGame")
+export class KSGame extends Channel {
 
     systemInfo: WechatMinigame.SystemInfo = null;//系统信息
     launchInfo: WechatMinigame.LaunchOptionsGame = null;//启动游戏信息
@@ -20,8 +20,6 @@ export class WeChatGame extends Channel {
         super();
         this.systemInfo = wx.getSystemInfoSync();
         this.launchInfo = wx.getLaunchOptionsSync();
-        this.showShareMenu({});
-        this.checkUpdate();
         game.on(Game.EVENT_HIDE, this.shareResult, this);
     }
 
@@ -281,12 +279,9 @@ export class WeChatGame extends Channel {
         //}
     }
 
-
-
-
     private _isLoadingRewardedAd = false;
-    private _onRewardedAdClose: (res) => void;
-    private _onRewardedAdError: (error) => void;
+    private _onRewardedAdClose: (res: any) => void;
+    private _onRewardedAdError: (error: any) => void;
 
     /** 展示激励视频广告 */
     showRewardedAd(args: ShowRewardedAdArgs) {
@@ -302,7 +297,7 @@ export class WeChatGame extends Channel {
         }
 
         if (!this._onRewardedAdClose) {
-            this._onRewardedAdClose = (res) => {
+            this._onRewardedAdClose = res => {
                 this._isLoadingRewardedAd = false;
                 if (res.isEnded) {
                     MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Success.toString());
@@ -310,23 +305,22 @@ export class WeChatGame extends Channel {
                     MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Fail.toString());
                 }
             }
-            this._onRewardedAdError = (err) => {
+            this._onRewardedAdError = err => {
                 this._isLoadingRewardedAd = false;
                 MLogger.error(err);
             }
         }
 
         let video = wx.createRewardedVideoAd({
-            adUnitId: "adunit-d2249df174d486a8"
+            adUnitId: "2300006831_01"
         });
         video.offClose(this._onRewardedAdClose);
         video.offError(this._onRewardedAdError);
         video.onClose(this._onRewardedAdClose);
         video.onError(this._onRewardedAdError);
         video.load().then(() => {
-            video.show().then(() => {
-                MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Show.toString());
-            });
+            video.show();
+            MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Show.toString());
         });
     }
 
@@ -411,24 +405,5 @@ export class WeChatGame extends Channel {
         }
         return true;
     }
-    /**
-     * 开启版本更新检测
-     */
-    private checkUpdate() {
-        let updateManager = wx.getUpdateManager();
-        updateManager.onUpdateReady(() => {
-            wx.showModal({
-                title: "更新提示",
-                content: "新版本已准备好，是否重启应用？",
-                success: res => {
-                    if (res.confirm) {
-                        updateManager.applyUpdate();
-                    }
-                }
-            })
-        })
-    }
-
-
 
 }
