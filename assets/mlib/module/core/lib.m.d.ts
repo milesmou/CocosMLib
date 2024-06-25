@@ -45,6 +45,14 @@ declare global {
 
     interface Array<T> {
         /**
+        * 第一个元素
+        */
+        get first(): T | undefined;
+        /** 
+         * 最后一个元素
+         */
+        get last(): T | undefined;
+        /**
          * 从数组中删除一个元素
          */
         delete<T>(item: T): boolean;
@@ -53,13 +61,9 @@ declare global {
          */
         delete<T>(predicate: (value: T, index: number, obj: T[]) => boolean): boolean;
         /**
-         * 第一个元素
-         */
-        get first(): T;
-        /** 
-         * 最后一个元素
-         */
-        get last(): T;
+        * 从数组中随机返回一个值，并将它从数组中移除
+        */
+        random(): T | undefined;
         /**
          * 数组随机打乱
          */

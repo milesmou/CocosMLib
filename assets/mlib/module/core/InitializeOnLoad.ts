@@ -14,6 +14,8 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
 
     registerToGlobal("registerToGlobal", registerToGlobal);
     registerToGlobal("logger", MLogger);
+    registerToGlobal("CCNode", Node);
+
 
     Object.defineProperty(Node.prototype, "zIndex", {
         get() {
@@ -29,6 +31,17 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             }
         }
     })
+
+    Node.prototype.getPath = function () {
+        let arr: string[] = [];
+        let n: Node = this;
+        while (n) {
+            arr.push(n.name);
+            n = n.parent;
+        }
+        return arr.reverse().join("/");
+    }
+
 
     Node.prototype.regularSiblingIndex = function () {
         let self: Node = this;
@@ -49,21 +62,6 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return app.getComponent(classConstructor);
     }
 
-    Array.prototype.delete = function <T>(itemOrPredicate: T | ((value: T, index: number, obj: T[]) => unknown)) {
-        let self: T[] = this;
-        let index = -1;
-        if (typeof itemOrPredicate === "function") {
-            index = self.findIndex(itemOrPredicate as any);
-        } else {
-            index = self.indexOf(itemOrPredicate);
-        }
-        if (index > -1) {
-            self.splice(index, 1);
-            return true;
-        }
-        return false;
-    }
-
     Object.defineProperty(Array.prototype, "first", {
         get: function () {
             let self: any[] = this;
@@ -79,6 +77,31 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             return self[self.length - 1];
         }
     })
+
+    Array.prototype.delete = function <T>(itemOrPredicate: T | ((value: T, index: number, obj: T[]) => unknown)) {
+        let self: T[] = this;
+        let index = -1;
+        if (typeof itemOrPredicate === "function") {
+            index = self.findIndex(itemOrPredicate as any);
+        } else {
+            index = self.indexOf(itemOrPredicate);
+        }
+        if (index > -1) {
+            self.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
+
+    Array.prototype.random = function <T>() {
+        let self: T[] = this;
+        if (self.length == 0) return undefined;
+        let index = Math.floor(Math.random() * self.length);
+        let value: T = self[index];
+        self.splice(index, 1);
+        return value;
+    }
+
 
     Array.prototype.disarrange = function <T>() {
         let self: T[] = this;
