@@ -161,7 +161,7 @@ export class Utils {
         return result;
     }
 
-    /** 分割字符串 */
+    /** 分割字符串为number数组 默认分隔符(,) */
     public static splitString(str: string, sep = ","): number[] {
         let arr: number[] = [];
         let sArr = str.trim().split(sep);
@@ -172,7 +172,7 @@ export class Utils {
         return arr;
     }
 
-    /** 分割字符串为二维数组 */
+    /** 分割字符串为二维number数组 默认分隔符1(;) 默认分隔符2(,) */
     public static splitStrings(strs: string, sep1 = ";", sep2 = ","): number[][] {
         let arr: number[][] = [];
         let sArr = strs.trim().split(sep1);
@@ -200,7 +200,7 @@ export class Utils {
     }
 
     /**
-    * 获取一些随机整数数，区间[min,max]
+    * 获取一些随机整数，区间[min,max]
     * @param min 最小值
     * @param max 最大值
     * @param num 数量
@@ -352,5 +352,36 @@ export class Utils {
             let v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
+    }
+
+
+    // ==============================================================================================================================
+
+
+    /** 从数组删除元素 */
+    static delItemFromArray<T>(arr: T[], ...item: T[]) {
+        if (arr.length > 0 && item.length > 0) {
+            item.forEach(v => {
+                let index = arr.indexOf(v);
+                if (index > -1) {
+                    arr.splice(index, 1);
+                }
+            })
+        }
+    }
+
+    /** 当日24时的时间戳：单位秒 */
+    static getDay24TimeMS() {
+        return Math.round(+new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) / 1000);
+    }
+
+    /**获得秒差，需要传入一个时间戳，和现在作对比,返回的单位是秒 */
+    static getDurationSecond(time: number) {
+        return this.getNowTime() - time;
+    }
+
+    /**获取当前的时间戳：单位秒 */
+    static getNowTime() {
+        return Math.round(new Date().getTime() / 1000);
     }
 }
