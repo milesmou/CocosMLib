@@ -63,3 +63,5 @@ export class MLogger {
 }
 
 MLogger.setLevel(ELoggerLevel.Info);
+//@ts-ignore
+globalThis["logger"] = MLogger;

@@ -26,8 +26,6 @@ declare module "cc" {
 
 declare global {
 
-    /** 将属性注册到全局 */
-    const registerToGlobal: (key: string, value: any) => void;
     /** 应用程序管理单例 */
     const app: App;
     /** 日志打印类 */

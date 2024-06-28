@@ -1,21 +1,11 @@
 //在引擎初始化后注册一些类的扩展方法
 
 import { Component } from "cc";
-import { MLogger } from "../logger/MLogger";
 //@ts-ignore
 import { Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
-
-    function registerToGlobal(key: string, value: any) {
-        (globalThis as any)[key] = value;
-    }
-
-    registerToGlobal("registerToGlobal", registerToGlobal);
-    registerToGlobal("logger", MLogger);
-    registerToGlobal("CCNode", Node);
-
 
     Object.defineProperty(Node.prototype, "zIndex", {
         get() {

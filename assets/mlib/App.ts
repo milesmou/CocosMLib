@@ -8,11 +8,11 @@ import { GameSetting } from './GameSetting';
 import { AssetComponent } from './module/asset/AssetComponent';
 import { AudioComponent } from "./module/audio/AudioComponent";
 import { AudioMgr } from './module/audio/AudioMgr';
-import { TimerComponent } from './module/timer/TimerComponent';
 import { EventMgr } from "./module/event/EventMgr";
 import { L10nMgr } from './module/l10n/L10nMgr';
 import { PoolMgr } from "./module/pool/PoolMgr";
 import { LocalStorage } from './module/stroage/LocalStorage';
+import { TimerComponent } from './module/timer/TimerComponent';
 import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 import { SingletonFactory } from './utils/SingletonFactory';
@@ -37,7 +37,8 @@ export class App extends Component {
 
 
     protected onLoad() {
-        registerToGlobal("app", this);
+        //@ts-ignore
+        globalThis["app"] = this;
         director.addPersistRootNode(this.node);
         this.setCanvasResolution();
         //@ts-ignore
