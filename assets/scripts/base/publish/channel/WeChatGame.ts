@@ -1,26 +1,44 @@
 /** 微信小游戏平台相关方法的实现 */
-import { Camera, Game, _decorator, game } from "cc";
+import { Game, _decorator, game } from "cc";
 import { MLogger } from "../../../../mlib/module/logger/MLogger";
 import { Channel } from "../../../../mlib/sdk/Channel";
 import { EIAPResult, ELoginResult, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../../mlib/sdk/MSDKWrapper";
 
 const { ccclass } = _decorator;
 
-const skipAdAndIap = true;//用于测试 跳过广告和内购
+const skipAdAndIap = false;//用于测试 跳过广告和内购
+
+interface SharePlan {
+    title: string;
+    imageUrl: string;
+    imageUrlId: string;
+}
 
 @ccclass("WeChatGame")
 export class WeChatGame extends Channel {
 
-    systemInfo: WechatMinigame.SystemInfo = null;//系统信息
-    launchInfo: WechatMinigame.LaunchOptionsGame = null;//启动游戏信息
-    shareTitle = "男子重生竟变成亿万富翁？";//默认分享标题
-    shareImageUrl = "默认分享图片地址";//默认分享图片
+    private _systemInfo: WechatMinigame.SystemInfo = null;//系统信息
+    private _launchInfo: WechatMinigame.LaunchOptionsGame = null;//启动游戏信息
 
-    constructor() {
+    /** 分享方案 */
+    private _sharePlans: SharePlan[] = [
+        {
+            title: "男子重生竟变成亿万富翁？",
+            imageUrl: "https://mmocgame.qpic.cn/wechatgame/hnpuxW0mukibfPmiag3gkbsumB6M4nQKeIWorArbcsGtndJIh4ib40LbpCDEIcibjpcl/0",
+            imageUrlId: "LmIF4BagREaxP3QarGoAgg=="
+        },
+        {
+            title: "男子重生竟变成亿万富翁？",
+            imageUrl: "https://mmocgame.qpic.cn/wechatgame/y91iaUGFWqjjdmdy3ib8Cv5Y3zXgCN2mIGBsiaSUCM8cOCG8HgTYcDQsibzJQ03mEXQe/0",
+            imageUrlId: "mtPPJ/+6RMmeo/Ki9UH6Ew=="
+        }
+    ];
+
+    public constructor() {
         super();
-        this.systemInfo = wx.getSystemInfoSync();
-        this.launchInfo = wx.getLaunchOptionsSync();
-        this.showShareMenu({});
+        this._systemInfo = wx.getSystemInfoSync();
+        this._launchInfo = wx.getLaunchOptionsSync();
+        this.showShareMenu();
         this.checkUpdate();
         game.on(Game.EVENT_HIDE, this.shareResult, this);
     }
@@ -107,118 +125,55 @@ export class WeChatGame extends Channel {
         // });
     }
     // 分享相关
-    shareTime: number = 0;
-    shareSuccess: Function = null;
-    shareFail: Function = null;
-    shareComplete: Function = null;
+    private _shareTime: number = 0;
+    private _shareSuccess: Function = null;
+    private _shareFail: Function = null;
+    private _shareComplete: Function = null;
     /**
      * 主动拉起转发，给好友分享信息
      */
-    async shareAppMessage(obj?: { title?: string, imageUrl?: string, query?: string, camera?: Camera, suss?: Function, fail?: Function, complete?: Function }) {
-        //this.shareTime = Date.now();
-        //this.shareSuccess = obj?.success;
-        //this.shareFail = obj?.fail;
-        //this.shareComplete = obj?.complete;
-        //obj.title = obj?.title || this?.shareTitle;
-        //判断分享方式
-        //if (obj?.camera) {//分享传入的camera渲染的内容//普通分享
-        //obj.imageUrl = this.getImageUrlByCamera(obj.camera);
-
-        //} else if (obj?.imageUrl) {//分享屏幕正中间
-        //obj.imageUrl = obj.imageUrl;
-        //} else {
-        //obj.imageUrl = this.getImageUrlFromCanvasCenter();
-        //}
-        wx.shareAppMessage({
-            title: obj.title,
-            imageUrl: obj.imageUrl,
-            query: obj.query
-        });
+    shareAppMessage(obj?: { title?: string, imageUrl?: string, query?: string, suss?: Function, fail?: Function, complete?: Function }) {
+        // this._shareTime = Date.now();
+        // this._shareSuccess = obj?.success;
+        // this._shareFail = obj?.fail;
+        // this._shareComplete = obj?.complete;
+        // obj.title = obj?.title || this?.shareTitle;
+        // obj.imageUrl = obj.imageUrl;
+        // wx.shareAppMessage({
+        //     title: obj.title,
+        //     imageUrl: obj.imageUrl,
+        //     query: obj.query
+        // });
     }
     /**
      * 分享结果判断
      */
     shareResult() {
         let now = Date.now();
-        if (now - this.shareTime > 3500) {//3.5s伪分享检测
-            this.shareSuccess && this.shareSuccess();
+        if (now - this._shareTime > 3500) {//3.5s伪分享检测
+            this._shareSuccess && this._shareSuccess();
         } else {
-            this.shareFail && this.shareFail();
+            this._shareFail && this._shareFail();
         }
-        this.shareComplete && this.shareComplete();
-        this.shareTime = 0;
-        this.shareSuccess = null;
-        this.shareFail = null;
-        this.shareComplete = null;
+        this._shareComplete && this._shareComplete();
+        this._shareTime = 0;
+        this._shareSuccess = null;
+        this._shareFail = null;
+        this._shareComplete = null;
     }
-    /**
-     * 获取屏幕正中间截屏图片URL 取屏幕正中间5:4区域,横屏适应屏幕高度,竖屏适应屏幕宽度
-     */
-    getImageUrlFromCanvasCenter() {
-        //let context: any = cc.game.canvas.getContext("2d") || cc.game.canvas.getContext("webgl", { preserveDrawingBuffer: true });
-        //let x, y, wid, hgt;
-        //if (cc.winSize.width > cc.winSize.height) {//横屏
-        //hgt = context.drawingBufferHeight;
-        //wid = hgt / 4 * 5;
-        //} else {//竖屏
-        //wid = context.drawingBufferWidth;
-        //hgt = wid / 5 * 4;
-        //}
-        //x = (context.drawingBufferWidth - wid) / 2;
-        //y = (context.drawingBufferHeight - hgt) / 2;
-        //return context.canvas.toTempFilePathSync({
-        //x: x,
-        //y: y,
-        //width: wid,
-        //height: hgt,
-        //destWidth: 500,
-        //destHeight: 400
-        //});
-    }
-    /**
-     * 通过摄像机获取截屏图片的URl
-     * @param camera 
-     */
-    getImageUrlByCamera(camera: Camera) {
-        //let texture = new cc.RenderTexture();
-        //let gl = cc.game['_renderContext'];
-        //texture.initWithSize(500, 400, gl.STENCIL_INDEX8);
-        //camera.targetTexture = texture;
-        //camera.render(null);
-        //let data = texture.readPixels();
 
-        //let canvas: any = document.createElement('canvas');
-        //let ctx = canvas.getContext('2d');
-
-        //let width = canvas.width = texture.width;
-        //let height = canvas.height = texture.height;
-        //canvas.width = texture.width;
-        //canvas.height = texture.height;
-
-        //let rowBytes = width * 4;
-        //for (let row = 0; row < height; row++) {
-        //let srow = height - 1 - row;
-        //let imageData = ctx.createImageData(width, 1);
-        //let start = srow * width * 4;
-        //for (let i = 0; i < rowBytes; i++) {
-        //imageData.data[i] = data[start + i];
-        //}
-        //ctx.putImageData(imageData, 0, row);
-        //}
-        //return canvas.toTempFilePathSync();
-    }
 
     /**
      * 显示右上角菜单里的转发按钮
      */
-    showShareMenu(obj?: { title?: string, imageUrl?: string }) {
-        obj.title = obj?.title || this.shareTitle;
-        obj.imageUrl = obj?.imageUrl || this.shareImageUrl;
+    showShareMenu(sharePlan?: SharePlan) {
         let option: WechatMinigame.ShowShareMenuOption = {};
         wx.showShareMenu(option);
         wx.onShareAppMessage(() => {
-            let imgUrl = `https://zhiqu.zqygame.com/res/zhiqu/RebornMan/Resources/share/${Math.random() < 0.5 ? 1 : 2}.png`;
-            return { title: obj.title, imageUrl: imgUrl };
+            if (!sharePlan) {
+                sharePlan = this._sharePlans[Math.floor(Math.random() * this._sharePlans.length)];
+            }
+            return sharePlan;
         });
     }
 
@@ -317,7 +272,7 @@ export class WeChatGame extends Channel {
         }
 
         let video = wx.createRewardedVideoAd({
-            adUnitId: "adunit-d2249df174d486a8"
+            adUnitId: "adunit-f8a7c86612727889"
         });
         video.offClose(this._onRewardedAdClose);
         video.offError(this._onRewardedAdError);
@@ -375,7 +330,6 @@ export class WeChatGame extends Channel {
         if (args) {
             eventName = eventName + "_" + Object.values(args).join("_");
         }
-        GameSdk.BI.evtCustomizeDataReport(eventName);
     }
 
     public vibrate(...args: any[]): void {
@@ -392,7 +346,7 @@ export class WeChatGame extends Channel {
      * @ver 最低SDK版本要求 格式：1.0.0
      */
     private compareVersion(ver: string): boolean {
-        let sdkVer = this.systemInfo!.SDKVersion;
+        let sdkVer = this._systemInfo!.SDKVersion;
         let pat = /\d+.\d+.\d+/;
         if (!pat.test(ver) || !pat.test(sdkVer)) {
             MLogger.warn("SDKVersion取值异常");
