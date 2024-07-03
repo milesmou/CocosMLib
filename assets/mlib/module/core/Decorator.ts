@@ -1,5 +1,4 @@
-import { Node } from "cc";
-import { Component, director, Director, js } from "cc";
+import { Component, director, Director, js, Node } from "cc";
 import { EDITOR } from "cc/env";
 
 /** 将组件添加到常驻节点上 */
