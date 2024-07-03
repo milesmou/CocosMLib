@@ -15,7 +15,7 @@ export class TimerAnimation extends TimerObject {
     }
 
     public isValid(): boolean {
-        return this._anim?.isValid;
+        return this.valid && this._anim?.isValid;
     }
 
     private initSelfTimeScale() {
