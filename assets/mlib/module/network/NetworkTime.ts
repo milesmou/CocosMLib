@@ -11,6 +11,8 @@ export class NetworkTime extends Component {
 
     public static Inst: NetworkTime;
 
+    private _logger = logger.new("NetworkTime", logger.ELevel.Error);
+
     //网络获取的时间戳(毫秒)
     private _networkTimeMS = 0;
     //同步网络时间后过了多久(秒)
@@ -61,12 +63,12 @@ export class NetworkTime extends Component {
     private setNetworkTimeMS(timeMS: number) {
         this._networkTimeMS = timeMS;
         this._totalDeltaTimeS = 0;
-        logger.debug("网络时间同步成功", this._networkTimeMS);
+        this._logger.debug("网络时间同步成功", this._networkTimeMS);
     }
 
     private setIP(ip: string) {
         this._ip = ip;
-        logger.debug("IP地址获取成功", this._ip);
+        this._logger.debug("IP地址获取成功", this._ip);
     }
 
 

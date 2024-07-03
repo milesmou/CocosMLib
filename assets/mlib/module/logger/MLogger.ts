@@ -1,6 +1,11 @@
-import { ELoggerLevel } from "./ELoggerLevel";
+
+enum ELoggerLevel {
+    Info, Debug, Warn, Error
+}
 
 export class MLogger {
+
+    public static readonly ELevel = ELoggerLevel;
 
     //默认日志打印
     private static globalTag = "MLogger";
