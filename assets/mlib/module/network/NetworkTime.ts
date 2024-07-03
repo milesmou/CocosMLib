@@ -1,26 +1,15 @@
-import { _decorator, Component, Director, director, game, Game, Node, sys } from "cc";
-import { EDITOR } from "cc/env";
+import { _decorator, Component, game, Game, sys } from "cc";
+import { persistNode } from "../core/Decorator";
 
 const { ccclass, property } = _decorator;
 
-@ccclass
+
+
+@persistNode
+@ccclass("NetworkTime")
 export class NetworkTime extends Component {
 
     public static Inst: NetworkTime;
-
-    public static addToScene() {
-        if (EDITOR) return;
-        let nodeName = "[NetworkTime]";
-        let scene = director.getScene();
-        if (!scene) return;
-        let node = scene.getChildByName(nodeName);
-        if (!node) {
-            node = new Node(nodeName);
-            scene.addChild(node);
-            node.addComponent(NetworkTime);
-            director.addPersistRootNode(node);
-        }
-    }
 
     //网络获取的时间戳(毫秒)
     private _networkTimeMS = 0;
@@ -29,13 +18,13 @@ export class NetworkTime extends Component {
     //客户端ip地址
     private _ip = "";
 
-    //当前时间戳
+    /** 当前时间戳 */
     public get now() {
         if (this._networkTimeMS > 0) return this._networkTimeMS + Math.floor(this._totalDeltaTimeS * 1000);
         else return Date.now();
     }
 
-    //当前时间对象
+    /** 当前时间对象 */
     public get date() {
         return new Date(this.now);
     }
@@ -171,4 +160,3 @@ export class NetworkTime extends Component {
     }
 
 }
-director.on(Director.EVENT_AFTER_SCENE_LAUNCH, NetworkTime.addToScene);
