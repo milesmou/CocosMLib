@@ -4,7 +4,7 @@ import { EDITOR } from "cc/env";
 
 /** 将组件添加到常驻节点上 */
 export function persistNode<T extends Component>(target: { Inst: T, new(): T }) {
-    director.once(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
+    director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
         if (EDITOR) return;
         let nodeName = `[${js.getClassName(target)}]`;
         let scene = director.getScene();
