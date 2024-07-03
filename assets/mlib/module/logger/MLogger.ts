@@ -1,10 +1,9 @@
+import { ELoggerLevel } from "./ELoggerLevel";
 
-enum ELoggerLevel {
-    Info, Debug, Warn, Error
-}
 
 export class MLogger {
 
+    /** 日子打印级别枚举 */
     public static readonly ELevel = ELoggerLevel;
 
     //默认日志打印
