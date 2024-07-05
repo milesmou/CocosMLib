@@ -1,5 +1,4 @@
-import { Asset } from "cc";
-import { _decorator, CCObject, Component, error, js, Node } from "cc";
+import { _decorator, Asset, CCObject, Component, error, js, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
@@ -16,8 +15,14 @@ class CollectorNodeData {
 class CollectorAssetData {
     @property
     public key = "";
+
+    @property private _asset: Asset = null;
     @property({ type: Asset })
-    public asset: Asset = null;
+    public get asset() { return this._asset; }
+    private set asset(val: Asset) {
+        this._asset = val;
+        if (val) this.key = val.name;
+    }
 }
 
 @ccclass("ReferenceCollector")
