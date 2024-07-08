@@ -68,7 +68,7 @@ export class BundleMgr {
 
     }
 
-    /** 加载Bundle  */
+    /** 加载Bundle(实际是加载Bundle的清单文件)  */
     public loadBundle(bundleName: string) {
         let p = new Promise<AssetManager.Bundle>((resolve, reject) => {
             assetManager.loadBundle(bundleName,
