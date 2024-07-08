@@ -12,9 +12,9 @@ export default class GameTable {
     public Table: Tables = null;
     public static Table: Tables = null;
 
-    public static async initData() {
+    public static async initData(onProgress?: (finished: number, total: number) => void) {
         let dir = "table";
-        let assets = await AssetMgr.loadDirAsset(dir, JsonAsset);
+        let assets = await AssetMgr.loadDirAsset(dir, JsonAsset, onProgress);
         let datas: Map<string, JsonAsset> = new Map();
         for (let asset of assets) {
             datas.set(asset.name, asset);

@@ -11,6 +11,7 @@ export const UIConstant = {
     "UIPopUp": "uiPrefab/uiMgrTest/UIPopUp",
     "UIUIMgr": "uiPrefab/uiMgrTest/UIUIMgr",
     "UIScrollviewEnhance": "uiPrefab/UIScrollviewEnhance",
+    "UITest": "uiPrefab/UITest",
     "UITestLocalization": "uiPrefab/UITestLocalization",
     "UITimerTest": "uiPrefab/UITimerTest",
     "Loading": "uiPrefab/Loading",

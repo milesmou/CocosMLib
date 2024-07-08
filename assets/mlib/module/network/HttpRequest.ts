@@ -44,7 +44,7 @@ export class HttpRequest {
                 else data = data.toString();
                 xhr.setRequestHeader("Content-Type", "application/json");
             }
-            xhr.send(data);
+            xhr.send(data as any);
         });
         return p;
     }

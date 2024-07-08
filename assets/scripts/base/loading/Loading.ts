@@ -25,6 +25,10 @@ export class Loading extends UIComponent {
     private _lblProgress: Label = null;
     private _lblVersion: Label = null;
 
+    /** 当前进度条有多少个加载项(每个加载项有自己的加载进度,所以要自己计算综合进度) */
+    private _loadItemNum: number = 1;
+    /** 每个加载项的加载进度 */
+    private _loadProgress: Map<string, number> = new Map();
 
     protected onLoad(): void {
         this._progressBar = this.rc.get("progressBar", ProgressBar);
@@ -37,7 +41,7 @@ export class Loading extends UIComponent {
         await GameInit.initBeforeLoadConfig();
         app.chan.reportEvent("开始加载配置");
         app.chan.reportEventDaily("每日开始加载配置");
-        this.loadCfg(true);
+        this.loadCfg();
         //版本号
         this._lblVersion.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
     }
@@ -47,16 +51,16 @@ export class Loading extends UIComponent {
     }
 
     /** 加载游戏配置 */
-    async loadCfg(first = false) {
-        first && this.setTips(LoadingText.Config);
-
+    private async loadCfg() {
+        this.setTips(LoadingText.Config);
+        this.startFakeProgress(2);
         if (GameSetting.Inst.gameConfigType == EGameConfigType.Local) {//使用本地配置
             let textAsset = await AssetMgr.loadAsset("GameConfig", TextAsset);
             GameConfig.deserialize(textAsset.text);
             AssetMgr.decRef("GameConfig");
             this.checkVersion();
         } else {
-            let strRes = await HttpRequest.requestRepeat(GameSetting.Inst.gameConfigUrl + "?" + Date.now(), v => v, 3, 1, { method: "GET" });
+            let strRes = await HttpRequest.requestText(GameSetting.Inst.gameConfigUrl + "?" + Date.now(), { method: "GET" });
             if (strRes) {
                 app.chan.reportEvent("加载配置成功");
                 app.chan.reportEventDaily("每日加载配置成功");
@@ -66,14 +70,17 @@ export class Loading extends UIComponent {
                 app.chan.reportEvent("加载配置失败");
                 app.chan.reportEventDaily("每日加载配置失败");
                 logger.error(`加载配置失败 Url=${GameSetting.Inst.gameConfigUrl}`);
-                app.tipMsg.showToast(this.getText(LoadingText.ConfigFail));
-                this.loadCfg();
+                app.tipMsg.showConfirm(this.getText(LoadingText.ConfigFail), {
+                    type: 1, cbOk: () => {
+                        this.loadCfg();
+                    }
+                });
             }
         }
     }
 
     /** 版本更新检测 */
-    async checkVersion() {
+    private async checkVersion() {
         if (!PREVIEW) {
             if (GameSetting.Inst.hotupdate && GameConfig.rg && sys.isNative) {
                 let manifest = await AssetMgr.loadAsset("project", Asset);
@@ -95,7 +102,7 @@ export class Loading extends UIComponent {
     }
 
     /** 登录 */
-    login() {
+    private login() {
         console.log("开始登录");
 
         app.chan.login({
@@ -111,7 +118,7 @@ export class Loading extends UIComponent {
     }
 
     /** 同步玩家数据 */
-    syncGameData() {
+    private syncGameData() {
         this.loadRes();
         return;
         app.chan.getGameData({
@@ -139,17 +146,16 @@ export class Loading extends UIComponent {
     }
 
     /** 加载游戏资源 */
-    async loadRes() {
+    private async loadRes() {
         //加载游戏数据
-        this.setTips(LoadingText.LoadGameRes, 3, true);
+        this.setTips(LoadingText.LoadGameRes, 2);
 
         //加载资源包
-        await AssetMgr.loadAllBundle(null, this.onProgress.bind(this));
+        await AssetMgr.loadBundles(null, this.getOnProgress("AllBundle"));
 
         //加载数据表
-        await GameTable.initData();
+        await GameTable.initData(this.getOnProgress("Table"));
 
-        this.onProgress(1, 1);
 
         await app.timer.dealy();
 
@@ -164,11 +170,10 @@ export class Loading extends UIComponent {
         //初始化游戏内容
         await GameInit.initBeforeEnterHUD();
 
-        await app.ui.showHigher(UIConstant.UIWait, null, false);
+        await app.ui.showHigher(UIConstant.UIWait, { visible: false, onProgress: this.getOnProgress("UIWait") });
 
-        await app.ui.show(UIConstant.UIHUD, { bottom: true });
+        await app.ui.show(UIConstant.UIHUD, { bottom: true, onProgress: this.getOnProgress("UIHUD") });
 
-        this.onProgress(1, 1);
 
         await app.timer.dealy(0.15);
 
@@ -176,24 +181,30 @@ export class Loading extends UIComponent {
 
     }
 
-    async restart() {
+    private async restart() {
 
     }
 
-    /** 设置加载界面提示文字 */
-    setTips(obj: ILanguage, fakeProgressDur: number = 1, repeatefakeProgress = false) {
+    /** 
+     * 设置加载界面提示文字
+     * @loadItemNum 加载项数量
+     */
+    private setTips(obj: ILanguage, loadItemNum = 1) {
+        this._loadItemNum = loadItemNum;
+        this._loadProgress.clear();
         let content = this.getText(obj);
+        console.log("setTips", content);
         if (this._lblDesc) {
             this._lblDesc.string = content || "";
         }
         if (this._progressBar) {
             this._progressBar.progress = 0;
         }
-        this.startFakeProgress(fakeProgressDur, repeatefakeProgress);
+        this.startFakeProgress(0);
     }
 
     /** 更新进度 */
-    onProgress(loaded: number, total: number) {
+    private onProgress(loaded: number, total: number) {
         if (this._progressBar) {
             let progress = loaded / total;
             progress = isNaN(progress) ? 0 : progress;
@@ -205,28 +216,37 @@ export class Loading extends UIComponent {
         }
     }
 
-    /** 开始一个假的进度条 */
-    startFakeProgress(dur: number, repeate: boolean) {
+    /** 获取一个加载项的进度回调方法 */
+    private getOnProgress(key: string) {
+        return (loaded: number, total: number) => {
+            this._loadProgress.set(key, loaded / total);
+            let totalProgress = 0;
+            for (const v of this._loadProgress.values()) {
+                totalProgress += (v || 0);
+            }
+            this.onProgress(totalProgress, this._loadItemNum);
+        }
+    }
+
+    /** 
+     * 开始一个假的进度条
+     * @param dur 进度条时长 <0表示停止进度条
+     */
+    private startFakeProgress(dur: number) {
         let tag = 10101;
-        let fakeProgressObj = { value: 0 };
         Tween.stopAllByTag(tag);
-        tween(fakeProgressObj).tag(tag).to(dur, { value: 1 }, {
+        if (dur <= 0) return;
+        let fakeProgressObj = { value: 0 };
+        tween(fakeProgressObj).tag(tag).to(dur, { value: 0.99 }, {
             onUpdate: (target, ratio) => {
                 this.onProgress(fakeProgressObj.value, 1);
             },
-        }).call(() => {
-            if (repeate) {
-                if (this._progressBar) {
-                    this._progressBar.progress = 0;
-                }
-                this.startFakeProgress(dur, repeate);
-            }
         }).start();
     }
 
 
     /** 热更状态变化 */
-    onUpdateStateChange(code: EHotUpdateState) {
+    private onUpdateStateChange(code: EHotUpdateState) {
         switch (code) {
             case EHotUpdateState.CheckUpdate:
                 this.setTips(LoadingText.CheckUpdate, 0.15);
@@ -242,14 +262,14 @@ export class Loading extends UIComponent {
     }
 
     /** 热更资源下载进度 */
-    onUpdateDownloadProgress(loaded: number, total: number) {
+    private onUpdateDownloadProgress(loaded: number, total: number) {
         this.onProgress(loaded, total);
     }
 
     /**
      * 热更新结果
      */
-    onUpdateComplete(code: EHotUpdateResult) {
+    private onUpdateComplete(code: EHotUpdateResult) {
         logger.print("HotUpdate ResultCode = ", EHotUpdateResult[code]);
         if (code == EHotUpdateResult.Success) {
             game.restart();
@@ -268,7 +288,7 @@ export class Loading extends UIComponent {
 
 
     /** 从LoadingText获取多语言文本 */
-    getText(obj: ILanguage) {
+    private getText(obj: ILanguage) {
         if (!obj) return "";
         return obj[app.l10n.lang];
     }

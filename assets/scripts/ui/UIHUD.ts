@@ -1,11 +1,7 @@
 
 import { _decorator } from 'cc';
-import { HttpRequest } from '../../mlib/module/network/HttpRequest';
-import { BufferTool } from '../../mlib/module/network/buffer/BufferTool';
-import { MByteBuffer } from '../../mlib/module/network/buffer/MByteBuffer';
 import { UIBase } from '../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../gen/UIConstant';
-import { tween } from 'cc';
 
 const { ccclass, property } = _decorator;
 
@@ -13,16 +9,16 @@ const { ccclass, property } = _decorator;
 export class UIHUD extends UIBase {
 
 
-    
-    
+
+
 
     protected start(): void {
 
-        let arr = [1,3,45,6,78,8,8,222];
+        let arr = [1, 3, 45, 6, 78, 8, 8, 222];
         console.log(arr.first);
         console.log(arr.last);
-        
-        
+
+
 
 
         // let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
@@ -83,6 +79,9 @@ export class UIHUD extends UIBase {
                 break;
             case "ScrollviewEnhance":
                 app.ui.show(UIConstant.UIScrollviewEnhance);
+                break;
+            case "Test":
+                app.ui.show(UIConstant.UITest);
                 break;
             case "HH":
                 app.tipMsg.showToast("HH");

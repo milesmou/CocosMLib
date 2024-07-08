@@ -14,11 +14,11 @@ export class AssetMgr {
         return AssetCache.Inst.cache;
     }
 
-    public static async loadAllBundle(bundleNames?: string[], onFileProgress?: (loaded: number, total: number) => void) {
+    public static async loadBundles(bundleNames?: string[], onProgress?: (loaded: number, total: number) => void) {
         if (!bundleNames) {
             bundleNames = BundleConstant;
         }
-        await BundleMgr.Inst.loadAllBundle(bundleNames, onFileProgress);
+        await BundleMgr.Inst.loadBundles(bundleNames, onProgress);
     }
 
     public static isAssetExists(location: string) {
@@ -46,7 +46,7 @@ export class AssetMgr {
     }
 
     /** 加载资源 */
-    public static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+    public static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: (finished: number, total: number) => void) {
         location = this.parseLocation(location, type);
         let p = new Promise<T>((resolve, reject) => {
             let casset = this.cache.get(location) as T;
@@ -56,7 +56,7 @@ export class AssetMgr {
                 return;
             }
             let bundle = BundleMgr.Inst.getBundle(location);
-            bundle.load(this.unparseLocation(location, type), type, (err, asset) => {
+            bundle.load(this.unparseLocation(location, type), type, onProgress, (err, asset) => {
                 if (err) {
                     logger.error(err);
                     resolve(null);
@@ -72,16 +72,29 @@ export class AssetMgr {
     }
 
     /** 加载目录中的所有资源 */
-    public static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+    public static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: (finished: number, total: number) => void) {
         let list = BundleMgr.Inst.getDirectoryAddress(location);
         if (!list || list.length == 0) {
             logger.error("目录中无资源");
             return;
         }
 
+        let progress: number[] = [];
+        let onProgress2 = function (index: number) {
+            return function (finished: number, total: number) {
+                progress[index] = finished / total;
+                let totalProgress = 0;
+                for (const v of progress) {
+                    totalProgress += (v || 0);
+                }
+                onProgress && onProgress(totalProgress, list.length);
+            }
+        }
+
         let result: T[] = [];
-        for (const address of list) {
-            let asset = await this.loadAsset(address, type);
+        for (let i = 0; i < list.length; i++) {
+            const address = list[i];
+            let asset = await this.loadAsset(address, type, onProgress2(i));
             result.push(asset);
         }
         return result;
@@ -119,7 +132,6 @@ export class AssetMgr {
         }
         let img = await this.loadRemoteAsset<ImageAsset>(url);
         if (img) {
-
             let spFrame = SpriteFrame.createWithImage(img);
             spFrame.addRef();
             this.cache.set(url, spFrame);
@@ -168,6 +180,41 @@ export class AssetMgr {
         return p;
     }
 
+
+    /** 预加载资源 (只会下载资源到本地 不会加载到内存中) */
+    public static preloadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: ((finished: number, total: number, item: AssetManager.RequestItem) => void)) {
+        location = this.parseLocation(location, type);
+        let p = new Promise<AssetManager.RequestItem[]>((resolve, reject) => {
+            let bundle = BundleMgr.Inst.getBundle(location);
+            bundle.preload(this.unparseLocation(location, type), type, onProgress, (err, items) => {
+                if (err) {
+                    logger.error(err);
+                    resolve(null);
+                }
+                else {
+                    resolve(items);
+                }
+            });
+        })
+        return p;
+    }
+
+    /** 预加载场景 (只会下载场景资源到本地 不会加载到内存中) */
+    public preloadScene(location: string, onProgress?: (finished: number, total: number, item: AssetManager.RequestItem) => void) {
+        let p = new Promise<void>((resolve, reject) => {
+            let bundle = BundleMgr.Inst.getSceneBundle(location);
+            let sceneName = location.substring(location.indexOf("/") + 1);
+            bundle.preloadScene(sceneName, onProgress, err => {
+                if (err) {
+                    logger.error(err);
+                    resolve();
+                } else {
+                    resolve();
+                }
+            });
+        })
+        return p;
+    }
 
     /**
      * 原生平台下载文件到本地
