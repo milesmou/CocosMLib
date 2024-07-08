@@ -244,12 +244,11 @@ export class Loading extends UIComponent {
         }).start();
     }
 
-
     /** 热更状态变化 */
     private onUpdateStateChange(code: EHotUpdateState) {
         switch (code) {
             case EHotUpdateState.CheckUpdate:
-                this.setTips(LoadingText.CheckUpdate, 0.15);
+                this.setTips(LoadingText.CheckUpdate);
                 break;
             case EHotUpdateState.DownloadFiles:
                 this.setTips(LoadingText.DownloadUpdate);

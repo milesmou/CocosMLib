@@ -4,7 +4,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIWait')
 export class UIWait extends UIBase {
-
+    
     
 
     
