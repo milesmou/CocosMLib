@@ -141,7 +141,7 @@ export class UIMgr extends Component {
 
     public async hide(uiName: string, blockTime = 0.2, fastHide = false): Promise<void> {
         this.blockTime = blockTime;
-        this._uiNameStack.delete(uiName);
+        this._uiNameStack.remove(uiName);
         this._subUINameStack.remove(uiName);
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) return;

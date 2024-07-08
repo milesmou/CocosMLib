@@ -27,7 +27,7 @@ export class BundleMgr {
     private parseBundle(bundle: AssetManager.Bundle) {
 
         if (this._bundles.has(bundle.name)) {
-            logger.warn("重复的Bundle名字", bundle.name);
+            console.warn("重复的Bundle名字", bundle.name);
             return;
         }
 
@@ -50,7 +50,7 @@ export class BundleMgr {
                     this._address.set(path, bundle.name);
                 }
                 else {
-                    logger.error(`资源地址不能重复  ${bundle.name} ${this._address.get(path)} ${v1.path}`);
+                    console.error(`资源地址不能重复  ${bundle.name} ${this._address.get(path)} ${v1.path}`);
                 }
             });
         });
@@ -60,7 +60,7 @@ export class BundleMgr {
             let sceneName = path.substring(path.lastIndexOf("/") + 1);
             let location = bundle.name + "/" + sceneName;
             if (this._scenes.has(location)) {
-                logger.error(`场景名字不能重复  ${location}`);
+                console.error(`场景名字不能重复  ${location}`);
             } else {
                 this._scenes.set(location, bundle.name);
             }
@@ -75,7 +75,7 @@ export class BundleMgr {
                 {},
                 (err, bundle) => {
                     if (err) {
-                        logger.error(err);
+                        console.error(err);
                         reject(err);
                     } else {
                         this.parseBundle(bundle);

@@ -58,7 +58,7 @@ export class AssetMgr {
             let bundle = BundleMgr.Inst.getBundle(location);
             bundle.load(this.unparseLocation(location, type), type, onProgress, (err, asset) => {
                 if (err) {
-                    logger.error(err);
+                    console.error(err);
                     resolve(null);
                 }
                 else {
@@ -75,7 +75,7 @@ export class AssetMgr {
     public static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: (finished: number, total: number) => void) {
         let list = BundleMgr.Inst.getDirectoryAddress(location);
         if (!list || list.length == 0) {
-            logger.error("目录中无资源");
+            console.error("目录中无资源");
             return;
         }
 
@@ -111,7 +111,7 @@ export class AssetMgr {
             }
             assetManager.loadRemote<T>(url, { ext: url.substring(url.lastIndexOf(".")) }, (err, asset) => {
                 if (err) {
-                    logger.error(err);
+                    console.error(err);
                     resolve(null);
                 }
                 else {
@@ -147,7 +147,7 @@ export class AssetMgr {
     */
     public static async loadSprite(sprite: Sprite, location: string) {
         if (!sprite?.isValid) {
-            logger.error("Sprite无效 " + location);
+            console.error("Sprite无效 " + location);
             return;
         }
         if (location.startsWith("http") || location.startsWith("/")) {
@@ -170,7 +170,7 @@ export class AssetMgr {
             let sceneName = location.substring(location.indexOf("/") + 1);
             bundle.loadScene(sceneName, onProgress, err => {
                 if (err) {
-                    logger.error(err);
+                    console.error(err);
                     resolve();
                 } else {
                     resolve();
@@ -188,7 +188,7 @@ export class AssetMgr {
             let bundle = BundleMgr.Inst.getBundle(location);
             bundle.preload(this.unparseLocation(location, type), type, onProgress, (err, items) => {
                 if (err) {
-                    logger.error(err);
+                    console.error(err);
                     resolve(null);
                 }
                 else {
@@ -206,7 +206,7 @@ export class AssetMgr {
             let sceneName = location.substring(location.indexOf("/") + 1);
             bundle.preloadScene(sceneName, onProgress, err => {
                 if (err) {
-                    logger.error(err);
+                    console.error(err);
                     resolve();
                 } else {
                     resolve();
@@ -235,7 +235,7 @@ export class AssetMgr {
                 },
                 (err, res) => {
                     if (err) {
-                        logger.error(url, "download fail", err?.message);
+                        console.error(url, "download fail", err?.message);
                         reject(null);
                     } else {
                         resolve(res);
@@ -254,7 +254,7 @@ export class AssetMgr {
                 asset.addRef();
             }
         } else {
-            logger.warn(`[addRef] 资源已销毁 ${location}`);
+            console.warn(`[addRef] 资源已销毁 ${location}`);
         }
     }
 
@@ -270,7 +270,7 @@ export class AssetMgr {
                 }
             }
         } else {
-            logger.warn(`[decRef] 资源已销毁 ${location}`);
+            console.warn(`[decRef] 资源已销毁 ${location}`);
         }
     }
 
@@ -278,7 +278,7 @@ export class AssetMgr {
     public static decDirRef(location: string, decCount = 1) {
         let list = BundleMgr.Inst.getDirectoryAddress(location);
         if (!list || list.length == 0) {
-            logger.warn(`[decDirRef] 目录中无资源 ${location}`);
+            console.warn(`[decDirRef] 目录中无资源 ${location}`);
             return;
         }
         for (const v of list) {
