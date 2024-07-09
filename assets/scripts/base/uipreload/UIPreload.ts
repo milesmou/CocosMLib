@@ -28,13 +28,14 @@ export class UIPreload extends Component {
         if (!this._waitList?.length) return;
         if (this._isLoading) return;
         if (AssetMgr.loadingCount > 0) {//空闲时才进行预加载
-            this.scheduleOnce(this.preload, 0.5);
+            this.scheduleOnce(() => {
+                this.scheduleOnce(this.preload, 0.5);
+            });
             return;
         }
         this._isLoading = true;
         let uiName = this._waitList.shift();
         AssetMgr.preloadAsset(uiName, Prefab).then(() => {
-            console.log("预加载完成", uiName);
             this._loadedList.push(uiName);
             this._isLoading = false;
             this.preload();
