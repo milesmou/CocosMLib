@@ -144,11 +144,11 @@ export class Loading extends UIComponent {
     /** 加载游戏资源 */
     private async loadRes() {
 
-        let unionProgress: UnionProgress;
+        let unionProgress = new UnionProgress();
 
         //加载游戏数据
         this.setTips(LoadingText.LoadGameRes);
-        unionProgress = new UnionProgress(this.onProgress.bind(this), 2);
+        unionProgress.init(this.onProgress.bind(this), 2);
 
         //加载资源包
         await AssetMgr.loadBundles(null, unionProgress.getOnProgress("AllBundle"));
@@ -161,7 +161,7 @@ export class Loading extends UIComponent {
 
         //加载场景
         this.setTips(LoadingText.LoadScene);
-        unionProgress = new UnionProgress(this.onProgress.bind(this), 2);
+        unionProgress.init(this.onProgress.bind(this), 2);
 
         app.chan.reportEvent("解析配置完成");
         app.chan.reportEventDaily("每日解析配置完成");
@@ -187,8 +187,7 @@ export class Loading extends UIComponent {
     }
 
     /** 
-     * 设置加载界面提示文字
-     * @loadItemNum 加载项数量
+     * 设置加载界面提示文字并重置进度条
      */
     private setTips(obj: ILanguage) {
         let content = this.getText(obj);

@@ -15,9 +15,10 @@ export class UnionProgress {
      * @param onProgress 总进度回调方法
      * @param loadItemNum 加载项数量
      */
-    public constructor(onProgress: (loaded: number, total: number) => void, loadItemNum = 1) {
+    public init(onProgress: (loaded: number, total: number) => void, loadItemNum = 1) {
         this._onProgress = onProgress;
         this._loadItemNum = loadItemNum;
+        this._loadProgress.clear()
     }
 
     /** 获取一个加载项的进度回调方法 */
