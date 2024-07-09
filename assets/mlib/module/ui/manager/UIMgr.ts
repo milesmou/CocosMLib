@@ -3,7 +3,7 @@ import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, _decora
 const { ccclass, property } = _decorator;
 
 import { EventKey } from '../../../../scripts/base/GameEnum';
-import { EWaitShowType, UIWaitCfg } from '../../../../scripts/base/uiwait/UIWaitCfg';
+import { EWaitShowType, UIWaitCfg } from '../../../../scripts/base/uiWait/UIWaitCfg';
 import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { AssetMgr } from '../../asset/AssetMgr';

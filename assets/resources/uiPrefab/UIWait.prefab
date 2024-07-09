@@ -82,8 +82,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1080,
-      "height": 2280
+      "width": 750,
+      "height": 1334
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -173,7 +173,7 @@
     "fileId": "c7geHSwI9CK5fKGKJX/Pkb"
   },
   {
-    "__type__": "f32devdq0lHcYzla00pCXbZ",
+    "__type__": "d5a8bQTRJxHrpbBPQecjRb6",
     "_name": "",
     "_objFlags": 0,
     "__editorExtras__": {},
@@ -195,7 +195,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "c46EitfVtEqZV5ljPYuIJe"
+    "fileId": "71+S9SqjBKDK/e2wSVpH6R"
   },
   {
     "__type__": "cc.PrefabInfo",

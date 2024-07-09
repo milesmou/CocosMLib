@@ -7,6 +7,7 @@ import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { MCloudData } from '../../../mlib/sdk/MCloudData';
 import { MResponse } from '../../../mlib/sdk/MResponse';
+import { UnionProgress } from '../../../mlib/utils/UnionProgress';
 import { UIConstant } from '../../gen/UIConstant';
 import { GameConfig } from '../GameConfig';
 import { GameData } from '../GameData';
@@ -24,11 +25,6 @@ export class Loading extends UIComponent {
     private _lblDesc: Label = null;
     private _lblProgress: Label = null;
     private _lblVersion: Label = null;
-
-    /** 当前进度条有多少个加载项(每个加载项有自己的加载进度,所以要自己计算综合进度) */
-    private _loadItemNum: number = 1;
-    /** 每个加载项的加载进度 */
-    private _loadProgress: Map<string, number> = new Map();
 
     protected onLoad(): void {
         this._progressBar = this.rc.get("progressBar", ProgressBar);
@@ -147,20 +143,25 @@ export class Loading extends UIComponent {
 
     /** 加载游戏资源 */
     private async loadRes() {
+
+        let unionProgress: UnionProgress;
+
         //加载游戏数据
-        this.setTips(LoadingText.LoadGameRes, 2);
+        this.setTips(LoadingText.LoadGameRes);
+        unionProgress = new UnionProgress(this.onProgress.bind(this), 2);
 
         //加载资源包
-        await AssetMgr.loadBundles(null, this.getOnProgress("AllBundle"));
+        await AssetMgr.loadBundles(null, unionProgress.getOnProgress("AllBundle"));
 
         //加载数据表
-        await GameTable.initData(this.getOnProgress("Table"));
+        await GameTable.initData(unionProgress.getOnProgress("Table"));
 
 
         await app.timer.dealy();
 
         //加载场景
-        this.setTips(LoadingText.LoadScene, 2);
+        this.setTips(LoadingText.LoadScene);
+        unionProgress = new UnionProgress(this.onProgress.bind(this), 2);
 
         app.chan.reportEvent("解析配置完成");
         app.chan.reportEventDaily("每日解析配置完成");
@@ -170,9 +171,9 @@ export class Loading extends UIComponent {
         //初始化游戏内容
         await GameInit.initBeforeEnterHUD();
 
-        await app.ui.showHigher(UIConstant.UIWait, { visible: false, onProgress: this.getOnProgress("UIWait") });
+        await app.ui.showHigher(UIConstant.UIWait, { visible: false, onProgress: unionProgress.getOnProgress("UIWait") });
 
-        await app.ui.show(UIConstant.UIHUD, { bottom: true, onProgress: this.getOnProgress("UIHUD") });
+        await app.ui.show(UIConstant.UIHUD, { bottom: true, onProgress: unionProgress.getOnProgress("UIHUD") });
 
 
         await app.timer.dealy(0.15);
@@ -189,11 +190,8 @@ export class Loading extends UIComponent {
      * 设置加载界面提示文字
      * @loadItemNum 加载项数量
      */
-    private setTips(obj: ILanguage, loadItemNum = 1) {
-        this._loadItemNum = loadItemNum;
-        this._loadProgress.clear();
+    private setTips(obj: ILanguage) {
         let content = this.getText(obj);
-        console.log("setTips", content);
         if (this._lblDesc) {
             this._lblDesc.string = content || "";
         }
@@ -213,18 +211,6 @@ export class Loading extends UIComponent {
             if (this._lblProgress) {
                 this._lblProgress.string = Math.round(progress * 100) + "%";
             }
-        }
-    }
-
-    /** 获取一个加载项的进度回调方法 */
-    private getOnProgress(key: string) {
-        return (loaded: number, total: number) => {
-            this._loadProgress.set(key, loaded / total);
-            let totalProgress = 0;
-            for (const v of this._loadProgress.values()) {
-                totalProgress += (v || 0);
-            }
-            this.onProgress(totalProgress, this._loadItemNum);
         }
     }
 
