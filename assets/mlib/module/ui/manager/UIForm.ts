@@ -8,7 +8,7 @@ import { UIComponent } from "./UIComponent";
 const { property, ccclass, requireComponent } = _decorator;
 
 @ccclass("UIForm")
-@requireComponent([Widget, UIOpacity])
+@requireComponent([UIOpacity])
 export abstract class UIForm extends UIComponent {
     @property({
         displayName: "销毁",

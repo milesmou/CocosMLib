@@ -25,6 +25,7 @@ export class UIBase extends UIForm {
     protected __preload(): void {
         this.addComponent(AssetComponent);
         super.__preload();
+        CCUtils.uiNodeMatchParent(this.node, true);
     }
 
     /** 初始化UI，只会执行一次，在子类重写该方法时，必须调用super.init() */

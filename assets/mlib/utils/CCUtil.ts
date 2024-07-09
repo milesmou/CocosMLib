@@ -181,7 +181,7 @@ export class CCUtils {
         return arr.reverse().join("/");
     }
 
-    public static uiNodeMatchParent(node: Node) {
+    public static uiNodeMatchParent(node: Node, immediately = false) {
         let widget = node.getComponent(Widget);
         if (!widget) {
             widget = node.addComponent(Widget);
@@ -194,6 +194,7 @@ export class CCUtils {
         widget.left = 0;
         widget.isAlignRight = true;
         widget.right = 0;
+        if (immediately) widget.updateAlignment();
     }
 
     /** 记录每次加载列表的开始时间，便于重复加载时停止上一次操作 */
