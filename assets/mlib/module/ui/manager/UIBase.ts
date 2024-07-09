@@ -44,6 +44,9 @@ export class UIBase extends UIForm {
     private initShade() {
         if (this.node.children[0].name == "shade") {
             this._shadeNode = this.node.children[0];
+            if (!this._shadeNode.getComponent(UIOpacity)) {
+                this._shadeNode.addComponent(UIOpacity);
+            }
         } else {
             this._shadeNode = CCUtils.createUINode("shade");
             this._shadeNode.parent = this.node;
