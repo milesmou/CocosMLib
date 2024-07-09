@@ -17,7 +17,7 @@ export class AssetMgr {
         return AssetCache.Inst.cache;
     }
 
-    /** 当前正在加载的资源数量 */
+    /** 当前正在加载的资源数量(非预加载) */
     public static get loadingCount() {
         return this.loadingAsset ? this.loadingAsset.size : 0;
     }
@@ -67,12 +67,12 @@ export class AssetMgr {
             let bundle = BundleMgr.Inst.getBundle(location);
             this.loadingAsset.add(location);
             bundle.load(this.unparseLocation(location, type), type, onProgress, (err, asset) => {
+                this.loadingAsset.delete(location);
                 if (err) {
                     console.error(err);
                     resolve(null);
                 }
                 else {
-                    this.loadingAsset.delete(location);
                     asset.addRef();
                     this.cache.set(location, asset);
                     resolve(asset);
@@ -120,7 +120,9 @@ export class AssetMgr {
                 resolve(casset);
                 return;
             }
+            this.loadingAsset.add(url);
             assetManager.loadRemote<T>(url, { ext: url.substring(url.lastIndexOf(".")) }, (err, asset) => {
+                this.loadingAsset.delete(url);
                 if (err) {
                     console.error(err);
                     resolve(null);
@@ -179,7 +181,9 @@ export class AssetMgr {
         let p = new Promise<void>((resolve, reject) => {
             let bundle = BundleMgr.Inst.getSceneBundle(location);
             let sceneName = location.substring(location.indexOf("/") + 1);
+            this.loadingAsset.add(location);
             bundle.loadScene(sceneName, onProgress, err => {
+                this.loadingAsset.delete(location);
                 if (err) {
                     console.error(err);
                     resolve();
