@@ -105,28 +105,29 @@ export class ScrollviewEnhance extends Component {
     private updateItemsVisible() {
 
         this._view.getComponent(UITransform).getComputeAABB(this._viewAABB);
-        
+
         this._onceUpdateitemVisible.clear();
         this._siblingIndexLeft = -1;
         this._siblingIndexRight = -1;
         //根据当前滚动范围选择顺序或者倒序遍历
         let maxOffset = this._scrollview.getMaxScrollOffset();
         let offset = this._scrollview.getScrollOffset();
-        if (maxOffset.x > 0 && offset.x < maxOffset.x / 2 || maxOffset.y > 0 && offset.y < maxOffset.y / 2) {//顺序
-            for (let i = 0, len = this.m_content.children.length; i < len; i++) {
-                this.setItemVisible(i);
-                if (i > 0 && this._siblingIndexRight < 0) {
-                    if (!this._onceUpdateitemVisible.get(i) && this._onceUpdateitemVisible.get(i - 1)) {
-                        this._siblingIndexRight = i;
-                    }
-                }
-            }
-        } else {//倒序
+
+        if (maxOffset.x > 0 && offset.x > maxOffset.x / 2 || maxOffset.y > 0 && offset.y > maxOffset.y / 2) {//倒序
             for (let i = this.m_content.children.length - 1; i >= 0; i--) {
                 this.setItemVisible(i);
                 if (i < this.m_content.children.length - 1 && this._siblingIndexLeft < 0) {
                     if (!this._onceUpdateitemVisible.get(i) && this._onceUpdateitemVisible.get(i + 1)) {
                         this._siblingIndexLeft = i;
+                    }
+                }
+            }
+        } else {//顺序
+            for (let i = 0, len = this.m_content.children.length; i < len; i++) {
+                this.setItemVisible(i);
+                if (i > 0 && this._siblingIndexRight < 0) {
+                    if (!this._onceUpdateitemVisible.get(i) && this._onceUpdateitemVisible.get(i - 1)) {
+                        this._siblingIndexRight = i;
                     }
                 }
             }
@@ -147,7 +148,7 @@ export class ScrollviewEnhance extends Component {
             item.getComponent(UITransform).getComputeAABB(this._childAABB);
             visible = geometry.intersect.aabbWithAABB(this._viewAABB, this._childAABB);
         }
-        
+
         uiOpacity.opacity = visible ? 255 : 0;
         this._onceUpdateitemVisible.set(index, visible);
     }
