@@ -19,10 +19,12 @@ export class UIPreload extends Component {
     private checkPreload() {
         let topUI = app.ui.topUI;
         if (!topUI) return;
-        this._waitList = UIPreloadCfg[topUI.uiName]?.filter(v => !this._loadedList.includes(v));
-        this.preload();
+        let list = UIPreloadCfg[topUI.uiName]?.filter(v => !this._loadedList.includes(v));
+        if (list?.length > 0) {
+            this._waitList = list;
+            this.preload();
+        }
     }
-
 
     private preload() {
         if (!this._waitList?.length) return;
