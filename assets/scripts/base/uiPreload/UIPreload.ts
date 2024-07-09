@@ -22,6 +22,7 @@ export class UIPreload extends Component {
         let list = UIPreloadCfg[topUI.uiName]?.filter(v => !this._loadedList.includes(v));
         if (list?.length > 0) {
             this._waitList = list;
+            this.unscheduleAllCallbacks();
             this.preload();
         }
     }
