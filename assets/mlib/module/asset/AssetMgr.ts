@@ -10,14 +10,23 @@ import { BundleMgr } from "./BundleMgr";
  */
 export class AssetMgr {
 
+    /** 正在加载的资源(非预加载) */
+    private static loadingAsset: Set<string> = new Set();
+
     private static get cache() {
         return AssetCache.Inst.cache;
+    }
+
+    /** 当前正在加载的资源数量 */
+    public static get loadingCount() {
+        return this.loadingAsset ? this.loadingAsset.size : 0;
     }
 
     public static async loadBundles(bundleNames?: string[], onProgress?: (loaded: number, total: number) => void) {
         if (!bundleNames) {
             bundleNames = BundleConstant;
         }
+        this.loadingAsset.clear();
         await BundleMgr.Inst.loadBundles(bundleNames, onProgress);
     }
 
@@ -56,12 +65,14 @@ export class AssetMgr {
                 return;
             }
             let bundle = BundleMgr.Inst.getBundle(location);
+            this.loadingAsset.add(location);
             bundle.load(this.unparseLocation(location, type), type, onProgress, (err, asset) => {
                 if (err) {
                     console.error(err);
                     resolve(null);
                 }
                 else {
+                    this.loadingAsset.delete(location);
                     asset.addRef();
                     this.cache.set(location, asset);
                     resolve(asset);
