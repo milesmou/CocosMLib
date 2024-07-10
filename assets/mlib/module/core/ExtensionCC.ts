@@ -1,6 +1,7 @@
 //扩展Cocos中的一些类 添加新的方法
 
 import { Component } from "cc";
+import { UITransform } from "cc";
 import { Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
@@ -34,6 +35,10 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
 
     Node.prototype.matchParent = function (immediately?: boolean) {
         let self: Node = this;
+        if (!self.getComponent(UITransform)) {
+            console.warn("仅2D节点可以使用此方法");
+            return;
+        }
         let widget = self.ensureComponent(Widget);
         widget.isAlignTop = true;
         widget.top = 0;
