@@ -170,32 +170,6 @@ export class CCUtils {
         scrollView.scrollToOffset(v2(-x, currentOffset.y), dur);
     }
 
-    public static getNodePath(node: Node) {
-        let arr: string[] = [];
-        let n = node;
-        while (n) {
-            if (n instanceof Scene) break;
-            arr.push(n.name);
-            n = n.parent;
-        }
-        return arr.reverse().join("/");
-    }
-
-    public static uiNodeMatchParent(node: Node, immediately = false) {
-        let widget = node.getComponent(Widget);
-        if (!widget) {
-            widget = node.addComponent(Widget);
-        }
-        widget.isAlignTop = true;
-        widget.top = 0;
-        widget.isAlignBottom = true;
-        widget.bottom = 0;
-        widget.isAlignLeft = true;
-        widget.left = 0;
-        widget.isAlignRight = true;
-        widget.right = 0;
-        if (immediately) widget.updateAlignment();
-    }
 
     /** 记录每次加载列表的开始时间，便于重复加载时停止上一次操作 */
     private static loadListTimeMS: Map<string, number> = new Map();

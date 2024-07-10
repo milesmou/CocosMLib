@@ -2,7 +2,6 @@ import { Enum, Label, Node, RichText, Sprite, _decorator } from "cc";
 
 const { ccclass, property, menu } = _decorator;
 
-import { CCUtils } from "../../utils/CCUtil";
 import { UIComponent } from "../ui/manager/UIComponent";
 import { IL10n } from "./IL10n";
 import { L10nMgr } from "./L10nMgr";
@@ -110,7 +109,7 @@ export class L10n extends UIComponent implements IL10n {
                 }
             }
         } else {
-            logger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${CCUtils.getNodePath(this.node)}`);
+            logger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${this.node.getPath()}`);
         }
     }
 

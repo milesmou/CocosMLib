@@ -1,0 +1,16 @@
+{
+    "name": "af",
+    "version": "2.0.0",
+    "author": "向前",
+    "editor": ">=3.8.0",
+    "license": "MIT",
+    "description": "i18n:app.description",
+    "contributions": {
+        "asset-db": {
+            "mount": {
+                "path": "./assets",
+                "readonly": true
+            }
+        }
+     }
+}

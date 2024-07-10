@@ -23,9 +23,10 @@ export class UIBase extends UIForm {
     public get isAnimEnd() { return this._isAnimEnd; }
 
     protected __preload(): void {
+        this.node.matchParent(true);
         this.addComponent(AssetComponent);
+        this.ensureComponent(UIOpacity);
         super.__preload();
-        CCUtils.uiNodeMatchParent(this.node, true);
     }
 
     /** 初始化UI，只会执行一次，在子类重写该方法时，必须调用super.init() */
@@ -44,22 +45,20 @@ export class UIBase extends UIForm {
     private initShade() {
         if (this.node.children[0].name == "shade") {
             this._shadeNode = this.node.children[0];
-            if (!this._shadeNode.getComponent(UIOpacity)) {
-                this._shadeNode.addComponent(UIOpacity);
-            }
+            this._shadeNode.ensureComponent(UIOpacity);
         } else {
             this._shadeNode = CCUtils.createUINode("shade");
             this._shadeNode.parent = this.node;
             this._shadeNode.addComponent(UIOpacity);
             this._shadeNode.setSiblingIndex(0);
-            CCUtils.uiNodeMatchParent(this._shadeNode);
+            this._shadeNode.matchParent();
             let imgNode = CCUtils.createUINode("img");
             imgNode.parent = this._shadeNode;
             let sp = imgNode.addComponent(Sprite);
             sp.sizeMode = Sprite.SizeMode.CUSTOM;
             sp.spriteFrame = UIMgr.Inst.defaultSprite;
             sp.color = color(0, 0, 0, 150);
-            CCUtils.uiNodeMatchParent(imgNode);
+            imgNode.matchParent();
         }
     }
 

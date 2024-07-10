@@ -74,18 +74,18 @@ export class UIMgr extends Component {
         //创建3个UI层级
         this._normal = CCUtils.createUINode("Normal");
         this._normal.parent = this.node;
-        CCUtils.uiNodeMatchParent(this._normal);
+        this._normal.matchParent();
         this._higher = CCUtils.createUINode("Higher");
         this._higher.parent = this.node;
-        CCUtils.uiNodeMatchParent(this._higher);
+        this._higher.matchParent();
         this._resident = CCUtils.createUINode("Resident");
         this._resident.parent = this.node;
-        CCUtils.uiNodeMatchParent(this._resident);
+        this._resident.matchParent();
         //创建拦截所有触摸事件的节点
         this._blockInput = CCUtils.createUINode("BlockInput");
         this._blockInput.addComponent(BlockInputEvents);
         this._blockInput.parent = this.node;
-        CCUtils.uiNodeMatchParent(this._blockInput);
+        this._blockInput.matchParent();
         //加载默认的单色精灵帧
         AssetMgr.loadAsset("DefaultSprite", SpriteFrame).then(sp => {
             this._defaultSprite = sp;

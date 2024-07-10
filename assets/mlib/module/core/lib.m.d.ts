@@ -10,9 +10,19 @@ declare module "cc" {
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
         getComponentInParent<T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef?: boolean);
+
+        /** 确保组件存在 不存在则添加 */
+        ensureComponent<T extends Component>(classConstructor: new (...args: any[]) => T): T;
     }
 
     interface Node {
+        /** 确保组件存在 不存在则添加 */
+        ensureComponent<T extends Component>(classConstructor: new (...args: any[]) => T): T;
+        /** 
+         * 节点尺寸匹配父节点大小(通过widget组件来完成)
+         * @param immediately 是否立即生效，只有当你需要在当前帧结束前生效才传true，默认为false
+         */
+        matchParent(immediately?: boolean): void;
         /** 获取节点在场景树的路径 */
         getPath(): void;
         /** 根据zIndex的值更新子节点的SiblingIndex */

@@ -6,15 +6,16 @@
     "compilerOptions": {
         "strict": false,
         "target": "ES2017",
-        "lib": [
-            "ES2017",
-            "DOM"
-        ],
         "types": [
             "minigame-api-typings"
         ]
     },
     "exclude": [
+        "node_modules",
+        "library",
+        "local",
+        "build",
+        "settings",
         "extensions"
     ]
 }
