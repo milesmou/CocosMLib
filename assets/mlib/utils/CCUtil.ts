@@ -1,5 +1,6 @@
-import { Button, Camera, Component, EventHandler, Layers, Node, Prefab, Scene, ScrollView, Slider, Toggle, ToggleContainer, UITransform, Vec3, Widget, instantiate, misc, sp, v2 } from "cc";
-import { Utils } from "./Utils";
+import { TweenEasing } from "cc";
+import { tween } from "cc";
+import { Button, Camera, Component, EventHandler, Layers, Node, Prefab, ScrollView, Slider, Toggle, ToggleContainer, UITransform, Vec3, instantiate, misc, sp, v2 } from "cc";
 
 export class CCUtils {
 
@@ -22,73 +23,6 @@ export class CCUtils {
             if (comp) return comp;
         }
         return null;
-    }
-
-    /*
-     * 从父节点获取指定组件 
-     * @param [includeCurNode=false] 是否包含当前节点上的组件
-     */
-    public static getComponentInParent<T extends Component>(node: Node, type: new (...args: any[]) => T, includeCurNode = false): T {
-        let n = node;
-        if (!n.parent) {
-            throw new Error("父节点不存在");
-        }
-        if (!includeCurNode) n = n.parent;
-        while (n) {
-            if (n instanceof Scene) break;
-            let comp = n.getComponent(type);
-            if (comp) return comp;
-            n = n.parent;
-        }
-        return null;
-    }
-
-    /*
-    * 从父节点获取指定组件 
-    * @param [includeCurNode=false] 是否包含当前节点上的组件
-    */
-    public static getComponentsInParent<T extends Component>(node: Node, type: new (...args: any[]) => T, includeCurNode = false): T[] {
-        let arr: T[] = [];
-        let n = node;
-        if (!n.parent) {
-            throw new Error("父节点不存在");
-        }
-        if (!includeCurNode) n = n.parent;
-        while (n) {
-            if (n instanceof Scene) break;
-            let comp = n.getComponent(type);
-            if (comp) arr.push(comp);
-            n = n.parent;
-        }
-        return arr;
-    }
-
-    /** 通过路径获取指定组件(路径不包含根节点) */
-    public static getComponentAtPath<T extends Component>(node: Node, path: string, type: new (...args: any[]) => T): T {
-        path = Utils.trim(path.trim(), "/");
-        let arr = path.split("/");
-        let n = node;
-        if (arr.length > 0) {
-            for (const name of arr) {
-                n = n.getChildByName(name);
-                if (!n?.isValid) return null;
-            }
-        }
-        return n.getComponent(type);
-    }
-
-    /** 通过路径获取指定节点(路径不包含根节点) */
-    public static getNodeAtPath(node: Node, path: string) {
-        path = Utils.trim(path.trim(), "/");
-        let arr = path.split("/");
-        let n = node;
-        if (arr.length > 0) {
-            for (const name of arr) {
-                n = n.getChildByName(name);
-                if (!n?.isValid) return null;
-            }
-        }
-        return n;
     }
 
     /** 将node1当前的位置转化为node2本地坐标下的位置(UI节点) */
@@ -272,14 +206,14 @@ export class CCUtils {
     }
 
     /** 缓动一个number */
-    public static tweenNumber(start: number, end: number, duration: number, onUpdate: (v: number) => void, easing?: string) {
-        // let o = { v: start };
-        // tween(o).to(duration, { v: end }, {
-        //     progress: function (s, e, t, c) {
-        //         onUpdate && onUpdate(c);
-        //     },
-        //     easing: easing
-        // }).start();
+    public static tweenNumber(start: number, end: number, duration: number, onUpdate: (v: number) => void, easing?: TweenEasing) {
+        let o = { v: start };
+        tween(o).to(duration, { v: end }, {
+            onUpdate: (target?: object, ratio?: number) => {
+                onUpdate && onUpdate(o.v);
+            },
+            easing: easing
+        }).start();
     }
 
     /** 设置spine各动画之间的融合时间 */

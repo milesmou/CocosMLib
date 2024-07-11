@@ -1,5 +1,4 @@
 import { _decorator } from "cc";
-import { CCUtils } from "../../../utils/CCUtil";
 import { MComponent } from "../../core/MComponent";
 import { ReferenceCollector } from "../../core/ReferenceCollector";
 import { MButton } from "../extend/MButton";
@@ -13,7 +12,7 @@ export class UIComponent extends MComponent {
     protected __preload(): void {
         super.__preload();
         this.getComponentsInChildren(MButton).forEach(v => {
-            let root = CCUtils.getComponentInParent(v.node, UIComponent, true);
+            let root = v.getComponentInParent(UIComponent, true);
             if (root != this) return;//忽略其它UI组件所在节点下的按钮
             v.onClick.addListener(() => {
                 this.onClickButton(v.node.name, v);
