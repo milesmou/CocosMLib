@@ -148,7 +148,7 @@ export class GameSetting extends Component {
             Node.prototype.dispatchEvent = function (event: Event) {
                 let self: Node = this;
                 if (!event.type.startsWith("mouse-")) {//忽略鼠标事件
-                    console.log("[NodeEvent]", event.type, self.name);
+                    console.log("[NodeEvent]", event.type, self.getPath());
                     this._eventProcessor.dispatchEvent(event);
                 }
             }
