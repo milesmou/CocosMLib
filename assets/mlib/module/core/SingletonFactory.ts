@@ -25,8 +25,6 @@ function createSingleton<T>(clazz: { new(): T }): T {
 
 //游戏重启时清除单例
 game.on(Game.EVENT_RESTART, () => {
-    console.log("哈哈重启");
-
     singletonSet.forEach(clazz => {
         clazz[instFieldName] = undefined;
     });

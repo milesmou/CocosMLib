@@ -1,3 +1,4 @@
+import { game, Game } from "cc";
 import { MEvent } from "./MEvent";
 
 /** 全局事件管理工具 */
@@ -47,3 +48,8 @@ export class EventMgr {
         }
     }
 }
+
+//游戏重启时清除所有事件
+game.on(Game.EVENT_RESTART, () => {
+    EventMgr.clear();
+});

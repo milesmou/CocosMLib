@@ -22,11 +22,17 @@ interface IApp {
     audio: AudioComponent;
     asset: AssetComponent;
     stroage: typeof LocalStorage;
+    /** 事件 */
     event: typeof EventMgr;
+    /** 对象池 */
     pool: typeof PoolMgr;
+    /** UI管理 */
     ui: UIMgr;
+    /** 多语言 */
     l10n: typeof L10nMgr;
+    /** 音频播放组件管理 */
     audioMgr: typeof AudioMgr;
+    /** 提示信息 */
     tipMsg: typeof TipMsg;
 
     getComponent<T extends Component>(classConstructor: new (...args: any[]) => T);
@@ -72,7 +78,6 @@ class App extends Component implements IApp {
     }
 
     protected onDestroy(): void {
-        EventMgr.clear();
         PoolMgr.clear();
     }
 
