@@ -5,7 +5,9 @@ const { ccclass, property } = _decorator;
 /** 为节点添加标记 方便获取节点 */
 @ccclass
 export default class NodeTag extends Component {
-    @property
+    @property({
+        displayName:"Tag"
+    })
     private m_Tag = "";
 
     protected onLoad(): void {
