@@ -5,7 +5,6 @@ import { ELanguage } from './module/l10n/ELanguage';
 import { ELoggerLevel } from './module/logger/ELoggerLevel';
 const { ccclass, property, integer, executeInEditMode } = _decorator;
 
-
 export const EGameConfigType = Enum({
     Local: 0,
     Remote: 1

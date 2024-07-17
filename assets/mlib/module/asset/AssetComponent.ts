@@ -25,7 +25,7 @@ export class AssetComponent extends Component {
     public async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T): Promise<T> {
         let asset = this._cache.get(location);
         if (asset?.isValid) return asset as T;
-        asset = await AssetMgr.loadAsset<T>(location, type);
+        asset = await AssetMgr.loadAsset(location, type);
         if (asset?.isValid) this._cache.set(location, asset);
         if (!this.isValid) {
             this.decRef(location);
@@ -37,7 +37,7 @@ export class AssetComponent extends Component {
     public async loadRemoteAsset<T extends Asset>(url: string): Promise<T> {
         let asset = this._cache.get(url);
         if (asset?.isValid) return asset as T;
-        asset = await AssetMgr.loadRemoteAsset<T>(url);
+        asset = await AssetMgr.loadRemoteAsset(url);
         if (asset?.isValid) this._cache.set(url, asset);
         if (!this.isValid) {
             this.decRef(url);
@@ -68,7 +68,7 @@ export class AssetComponent extends Component {
         if (location.startsWith("http") || location.startsWith("/")) {
             spFrame = await this.loadRemoteSpriteFrame(location);
         } else {
-            spFrame = await this.loadAsset<SpriteFrame>(location, SpriteFrame);
+            spFrame = await this.loadAsset(location, SpriteFrame);
         }
         if (!this.isValid) return;
         sprite.spriteFrame = spFrame;

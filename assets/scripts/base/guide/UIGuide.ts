@@ -338,7 +338,7 @@ export class UIGuide extends UIComponent {
             }
         }
         else {
-            btnNode = CCUtils.getNodeAtPath(ui.node, guide.NodePath);
+            btnNode = ui.node.getChildByPath(guide.NodePath);
         }
         if (btnNode) {
             let result: { hollowTarget: Node, eventTarget: Node } = { hollowTarget: btnNode, eventTarget: btnNode };
