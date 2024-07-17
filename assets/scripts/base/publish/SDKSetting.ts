@@ -5,9 +5,7 @@ const { ccclass, property } = _decorator;
 
 /** SDK参数配置 */
 @ccclass("SDKSetting")
-export default class SDKSetting extends Component {
-
-    public static Inst: SDKSetting;
+class SDKSetting extends Component {
 
     @property private _tdId = "";
     @property({
@@ -29,11 +27,17 @@ export default class SDKSetting extends Component {
     private set tdLog(value: boolean) { this._tdLog = value; }
 
     protected onLoad(): void {
-        SDKSetting.Inst = this;
+        //@ts-ignore
+        globalThis["sdkSetting"] = this;
     }
 
     public getPrintInfo() {
         return "SDKSetting";
     }
 
+}
+
+declare global {
+    /** SDK的一些配置 */
+    const sdkSetting: SDKSetting;
 }

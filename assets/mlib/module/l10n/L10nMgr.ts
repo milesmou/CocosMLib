@@ -1,6 +1,5 @@
 import { Font, Label, RichText, Sprite, TTFFont, sys } from "cc";
 import GameTable from "../../../scripts/base/GameTable";
-import { GameSetting } from "../../GameSetting";
 import { Utils } from "../../utils/Utils";
 import { AssetComponent } from "../asset/AssetComponent";
 import { AssetMgr } from "../asset/AssetMgr";
@@ -41,7 +40,7 @@ export class L10nMgr {
 
     /** 获取语言环境 */
     private static getLanguage(): ELanguageCode {
-        let languageId = GameSetting.Inst.languageId;
+        let languageId = gameSetting.languageId;
         let v: ELanguageCode = ELanguageCode.ChineseSimplified;
         if (languageId == ELanguage.Auto) {
             let code = this.languageCode.value;

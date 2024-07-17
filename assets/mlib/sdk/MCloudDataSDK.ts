@@ -1,7 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
 import { MResponse } from "./MResponse";
-import { GameSetting } from "../GameSetting";
 
 export class MCloudDataSDK {
 
@@ -57,7 +56,7 @@ export class MCloudDataSDK {
     public static reportEvent(eventName: string, num: number, paramStr = "") {
         eventName = PREVIEW ? "00_" + eventName : eventName;
         let body = {
-            gameCode: GameSetting.Inst.gameCode,
+            gameCode: gameSetting.gameCode,
             eventName: eventName,
             param: paramStr,
             sum: num

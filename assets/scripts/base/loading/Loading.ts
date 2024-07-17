@@ -1,6 +1,5 @@
 import { Asset, Label, ProgressBar, TextAsset, Tween, _decorator, game, sys, tween } from 'cc';
 import { PREVIEW } from 'cc/env';
-import { EGameConfigType, GameSetting } from '../../../mlib/GameSetting';
 import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
@@ -39,7 +38,7 @@ export class Loading extends UIComponent {
         app.chan.reportEventDaily("每日开始加载配置");
         this.loadCfg();
         //版本号
-        this._lblVersion.string = GameSetting.Inst.channel + "_" + GameSetting.Inst.version;
+        this._lblVersion.string = gameSetting.channel + "_" + gameSetting.version;
     }
 
     protected onDestroy(): void {
@@ -50,13 +49,13 @@ export class Loading extends UIComponent {
     private async loadCfg() {
         this.setTips(LoadingText.Config);
         this.startFakeProgress(2);
-        if (GameSetting.Inst.gameConfigType == EGameConfigType.Local) {//使用本地配置
+        if (gameSetting.gameConfigType == gameSetting.ConfigType.Local) {//使用本地配置
             let textAsset = await AssetMgr.loadAsset("GameConfig", TextAsset);
             GameConfig.deserialize(textAsset.text);
             AssetMgr.decRef("GameConfig");
             this.checkVersion();
         } else {
-            let strRes = await HttpRequest.requestText(GameSetting.Inst.gameConfigUrl + "?" + Date.now(), { method: "GET" });
+            let strRes = await HttpRequest.requestText(gameSetting.gameConfigUrl + "?" + Date.now(), { method: "GET" });
             if (strRes) {
                 app.chan.reportEvent("加载配置成功");
                 app.chan.reportEventDaily("每日加载配置成功");
@@ -65,7 +64,7 @@ export class Loading extends UIComponent {
             } else {
                 app.chan.reportEvent("加载配置失败");
                 app.chan.reportEventDaily("每日加载配置失败");
-                logger.error(`加载配置失败 Url=${GameSetting.Inst.gameConfigUrl}`);
+                logger.error(`加载配置失败 Url=${gameSetting.gameConfigUrl}`);
                 app.tipMsg.showConfirm(this.getText(LoadingText.ConfigFail), {
                     type: 1, cbOk: () => {
                         this.loadCfg();
@@ -78,12 +77,12 @@ export class Loading extends UIComponent {
     /** 版本更新检测 */
     private async checkVersion() {
         if (!PREVIEW) {
-            if (GameSetting.Inst.hotupdate && GameConfig.rg && sys.isNative) {
+            if (gameSetting.hotupdate && GameConfig.rg && sys.isNative) {
                 let manifest = await AssetMgr.loadAsset("project", Asset);
                 if (manifest) {
                     HotUpdate.Inst.start(
                         manifest,
-                        GameSetting.Inst.mainVersion,
+                        gameSetting.mainVersion,
                         this.onUpdateStateChange.bind(this),
                         this.onUpdateDownloadProgress.bind(this),
                         this.onUpdateComplete.bind(this)

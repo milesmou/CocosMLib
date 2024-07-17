@@ -2,9 +2,7 @@ import { Component, ResolutionPolicy, _decorator, director, js, view } from 'cc'
 const { ccclass, property } = _decorator;
 
 import { Publish } from '../scripts/base/publish/Publish';
-import SDKSetting from '../scripts/base/publish/SDKSetting';
 import { TipMsg } from '../scripts/base/uiTipMsg/TipMsg';
-import { GameSetting } from './GameSetting';
 import { AssetComponent } from './module/asset/AssetComponent';
 import { AudioComponent } from "./module/audio/AudioComponent";
 import { AudioMgr } from './module/audio/AudioMgr';
@@ -70,8 +68,8 @@ class App extends Component implements IApp {
 
         this.chan = Publish.getChannelInstance();
 
-        logger.print(`GameSetting Channel=${GameSetting.Inst.channel}|${js.getClassName(this.chan)} Version=${GameSetting.Inst.version} Language=${L10nMgr.lang}`);
-        logger.print(`SDKSetting ${SDKSetting.Inst.getPrintInfo()}`);
+        logger.print(`GameSetting Channel=${gameSetting.channel}|${js.getClassName(this.chan)} Version=${gameSetting.version} Language=${L10nMgr.lang}`);
+        logger.print(`SDKSetting ${sdkSetting.getPrintInfo()}`);
     }
 
     protected start() {
@@ -104,7 +102,6 @@ class App extends Component implements IApp {
 }
 
 declare global {
-
     /** 应用程序管理单例 */
     const app: IApp;
 }

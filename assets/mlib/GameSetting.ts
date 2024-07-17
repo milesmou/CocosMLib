@@ -5,7 +5,7 @@ import { ELanguage } from './module/l10n/ELanguage';
 import { ELoggerLevel } from './module/logger/ELoggerLevel';
 const { ccclass, property, integer, executeInEditMode } = _decorator;
 
-export const EGameConfigType = Enum({
+const EGameConfigType = Enum({
     Local: 0,
     Remote: 1
 })
@@ -15,7 +15,8 @@ const LogLevel = Enum(ELoggerLevel);
 @ccclass('GameSetting')
 @executeInEditMode
 export class GameSetting extends Component {
-    public static Inst: GameSetting;
+    /** 配置文件类型 */
+    public readonly ConfigType = EGameConfigType;
 
     @property private _gameName: string = "";
     @property({
@@ -117,7 +118,8 @@ export class GameSetting extends Component {
 
 
     protected onLoad(): void {
-        GameSetting.Inst = this;
+        //@ts-ignore
+        globalThis["gameSetting"] = this;
         this._mainVersion = this.getMainVersion();
         this._gameCode = this._gameName + "_" + this.channel
         this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
@@ -170,3 +172,7 @@ export class GameSetting extends Component {
 }
 
 
+declare global {
+    /** 游戏的配置 */
+    const gameSetting: GameSetting;
+}

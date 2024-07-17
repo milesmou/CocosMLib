@@ -72,7 +72,6 @@ MLogger.setLevel(ELoggerLevel.Info);
 globalThis["logger"] = MLogger;
 
 declare global {
-
     /** 日志打印类 */
     const logger: typeof MLogger;
 }
