@@ -1,7 +1,7 @@
 import { ELoggerLevel } from "./ELoggerLevel";
 
 
-export class MLogger {
+class MLogger {
 
     /** 日子打印级别枚举 */
     public static readonly ELevel = ELoggerLevel;

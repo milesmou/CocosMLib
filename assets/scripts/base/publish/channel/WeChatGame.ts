@@ -1,6 +1,5 @@
 /** 微信小游戏平台相关方法的实现 */
 import { Game, _decorator, game } from "cc";
-import { MLogger } from "../../../../mlib/module/logger/MLogger";
 import { Channel } from "../../../../mlib/sdk/Channel";
 import { EIAPResult, ELoginResult, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../../mlib/sdk/MSDKWrapper";
 
@@ -267,7 +266,7 @@ export class WeChatGame extends Channel {
             }
             this._onRewardedAdError = (err) => {
                 this._isLoadingRewardedAd = false;
-                MLogger.error(err);
+                logger.error(err);
             }
         }
 
@@ -299,7 +298,7 @@ export class WeChatGame extends Channel {
                     this.interstitial.show();
                 })
                 .catch(err => {
-                    MLogger.error(err);
+                    logger.error(err);
                 });
         }
     }
@@ -349,7 +348,7 @@ export class WeChatGame extends Channel {
         let sdkVer = this._systemInfo!.SDKVersion;
         let pat = /\d+.\d+.\d+/;
         if (!pat.test(ver) || !pat.test(sdkVer)) {
-            MLogger.warn("SDKVersion取值异常");
+            logger.warn("SDKVersion取值异常");
             return false;
         }
         let arr1 = sdkVer.split(".");

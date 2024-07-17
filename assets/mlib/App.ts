@@ -16,7 +16,7 @@ import { TimerComponent } from './module/timer/TimerComponent';
 import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 
-export interface IApp {
+interface IApp {
     chan: Channel;
     timer: TimerComponent;
     audio: AudioComponent;
@@ -35,7 +35,7 @@ export interface IApp {
 
 /** 应用程序启动入口 */
 @ccclass('App')
-export class App extends Component implements IApp {
+class App extends Component implements IApp {
 
     public chan: Channel;
 
