@@ -14,7 +14,7 @@ const LogLevel = Enum(ELoggerLevel);
 
 @ccclass('GameSetting')
 @executeInEditMode
-export class GameSetting extends Component {
+class GameSetting extends Component {
     /** 配置文件类型 */
     public readonly ConfigType = EGameConfigType;
 
