@@ -69,3 +69,58 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
     }
 }
 
+declare global {
+    /**
+     * @deprecated TMD这是DOM的Node,不要使用它
+     */
+    interface Node { }
+
+    /**
+     * @deprecated TMD这是DOM的Animation,不要使用它
+     */
+    interface Animation { }
+
+    interface Array<T> {
+        /**
+        * 第一个元素
+        */
+        get first(): T | undefined;
+
+        /** 
+         * 最后一个元素
+         */
+        get last(): T | undefined;
+
+        /**
+         * 从数组中删除一个元素
+         */
+        delete<T>(item: T): boolean;
+
+        /**
+         * 从数组中删除一个元素
+         */
+        delete<T>(predicate: (value: T, index: number, obj: T[]) => boolean): boolean;
+
+        /**
+        * 从数组中随机返回一个值，并将它从数组中移除
+        */
+        random(): T | undefined;
+
+        /**
+         * 数组随机打乱
+         */
+        disarrange();
+    }
+
+    interface String {
+        /**
+         * 首字母大写
+         */
+        upperFirst(): string;
+
+        /**
+         * 首字母小写 
+         */
+        lowerFirst(): string;
+    }
+}

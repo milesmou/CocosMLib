@@ -67,5 +67,12 @@ export class MLogger {
 }
 
 MLogger.setLevel(ELoggerLevel.Info);
+
 //@ts-ignore
 globalThis["logger"] = MLogger;
+
+declare global {
+
+    /** 日志打印类 */
+    const logger: typeof MLogger;
+}

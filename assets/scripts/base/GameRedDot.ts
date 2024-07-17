@@ -4,7 +4,7 @@ import { RedDotMgr } from '../../mlib/module/ui/reddot/RedDotMgr';
  * 红点管理类
  */
 export class GameRedDot {
-    public static get Inst() { return app.getSingleInst(GameRedDot); }
+    public static get Inst() { return createSingleton(GameRedDot); }
 
     init() {
         //这里只初始化所有固定红点(动态加载列表中Item数量不固定,则手动处理Item中的红点,)

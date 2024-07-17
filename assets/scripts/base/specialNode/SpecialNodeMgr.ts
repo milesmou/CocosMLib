@@ -1,13 +1,9 @@
 import { sys } from "cc";
-import { SingletonFactory } from "../../../mlib/utils/SingletonFactory";
 import { GameConfig } from "../GameConfig";
-import { GameData } from "../GameData";
 import { ESpecialNodeType } from "./ESpecialNodeType";
-import { GameSetting } from "../../../mlib/GameSetting";
-import { EChannel } from "../publish/EChannel";
 
 export class SpecialNodeMgr {
-    public static get Inst() { return SingletonFactory.getInstance(SpecialNodeMgr); }
+    public static get Inst() { return createSingleton(SpecialNodeMgr); }
     protected onInst() {
 
     }

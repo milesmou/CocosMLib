@@ -8,7 +8,7 @@ import { EventKey, ItemId } from "./GameEnum";
 
 export class PlayerData extends PlayerInventory {
 
-    public static get Inst() { return app.getSingleInst(PlayerData); }
+    public static get Inst() { return createSingleton(PlayerData); }
 
     private onInst() {
         this.init(GameData.Inst, () => {

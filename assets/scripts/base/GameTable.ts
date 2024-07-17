@@ -1,13 +1,12 @@
 import { JsonAsset } from 'cc';
 import { AssetMgr } from '../../mlib/module/asset/AssetMgr';
-import { SingletonFactory } from '../../mlib/utils/SingletonFactory';
-import { TGuide, TUnforcedGuide, Tables } from '../gen/table/Types';
+import { Tables, TGuide, TUnforcedGuide } from '../gen/table/Types';
 
 /**
 * 数据表管理类
 */
 export default class GameTable {
-    public static get Inst() { return SingletonFactory.getInstance<GameTable>(GameTable); }
+    public static get Inst() { return createSingleton(GameTable); }
 
     public Table: Tables = null;
     public static Table: Tables = null;

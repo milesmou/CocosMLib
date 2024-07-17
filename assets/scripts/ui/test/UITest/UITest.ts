@@ -1,6 +1,7 @@
 import { _decorator, AssetManager, resources } from 'cc';
 import { MButton } from '../../../../mlib/module/ui/extend/MButton';
 import { UIBase } from '../../../../mlib/module/ui/manager/UIBase';
+import { game } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('UITest')
@@ -25,7 +26,8 @@ export class UITest extends UIBase {
 
                 })
                 break;
-            default:
+            case "Restart":
+                game.restart();
                 break;
         }
     }

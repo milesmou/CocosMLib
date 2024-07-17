@@ -2,7 +2,9 @@ import { GameData } from "./GameData";
 
 /** 对本地存档的初始化和后处理 */
 export class GameDataPost {
-    public static get Inst() { return app.getSingleInst(GameDataPost); }
+
+    public static get Inst() { return createSingleton(GameDataPost); }
+    protected onInst() { }
 
     /** 初始化本地存档 */
     initGameData() {
@@ -11,7 +13,7 @@ export class GameDataPost {
 
     /** 本地存档反序列化成功 */
     private onInitGameData() {
-
+        
     }
 
     /** 新用户 */

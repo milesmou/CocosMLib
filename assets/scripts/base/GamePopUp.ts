@@ -4,7 +4,8 @@ import { GameGuide } from "./GameGuide";
 /** 管理进入主界面的自动弹窗 */
 export class GamePopUp {
 
-    public static get Inst() { return app.getSingleInst(GamePopUp); }
+    public static get Inst() { return createSingleton(GamePopUp); }
+    protected onInst() { }
 
     private _checkList: (() => boolean)[];
 

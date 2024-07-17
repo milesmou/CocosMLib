@@ -1,9 +1,8 @@
 import { AssetManager, assetManager, js } from "cc";
-import { SingletonFactory } from "../../utils/SingletonFactory";
 
 export class BundleMgr {
 
-    public static get Inst() { return SingletonFactory.getInstance<BundleMgr>(BundleMgr); }
+    public static get Inst() { return createSingleton(BundleMgr); }
 
     //bundle名字:Bundle
     private _bundles: Map<string, AssetManager.Bundle> = new Map();

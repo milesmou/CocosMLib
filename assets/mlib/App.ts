@@ -15,12 +15,27 @@ import { LocalStorage } from './module/stroage/LocalStorage';
 import { TimerComponent } from './module/timer/TimerComponent';
 import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
-import { SingletonFactory } from './utils/SingletonFactory';
+
+export interface IApp {
+    chan: Channel;
+    timer: TimerComponent;
+    audio: AudioComponent;
+    asset: AssetComponent;
+    stroage: typeof LocalStorage;
+    event: typeof EventMgr;
+    pool: typeof PoolMgr;
+    ui: UIMgr;
+    l10n: typeof L10nMgr;
+    audioMgr: typeof AudioMgr;
+    tipMsg: typeof TipMsg;
+
+    getComponent<T extends Component>(classConstructor: new (...args: any[]) => T);
+}
 
 
 /** 应用程序启动入口 */
 @ccclass('App')
-export class App extends Component {
+export class App extends Component implements IApp {
 
     public chan: Channel;
 
@@ -34,7 +49,6 @@ export class App extends Component {
     public l10n = L10nMgr;
     public audioMgr = AudioMgr;
     public tipMsg = TipMsg;
-
 
     protected onLoad() {
         //@ts-ignore
@@ -58,7 +72,6 @@ export class App extends Component {
     }
 
     protected onDestroy(): void {
-        SingletonFactory.clear();
         EventMgr.clear();
         PoolMgr.clear();
     }
@@ -82,8 +95,10 @@ export class App extends Component {
             }
         }
     }
+}
 
-    public getSingleInst<T>(clazz: { new(): T }) {
-        return SingletonFactory.getInstance(clazz);
-    }
+declare global {
+
+    /** 应用程序管理单例 */
+    const app: IApp;
 }

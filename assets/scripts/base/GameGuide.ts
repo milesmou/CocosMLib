@@ -11,8 +11,9 @@ import { UIGuide } from "./guide/UIGuide";
 */
 export class GameGuide {
 
-    public static get Inst() { return app.getSingleInst(GameGuide); }
-    private onInst() {
+    public static get Inst() { return createSingleton(GameGuide); }
+
+    protected onInst() {
         this._readyToGuide = false;
         app.event.on(EventKey.OnGuideStart, () => {
             this._readyToGuide = false;
@@ -109,9 +110,9 @@ export class GameGuide {
     public async getUnforcedGuideStepNode(guideData: TUnforcedGuide): Promise<Node> {
         let uiNode = app.ui.getUI(UIConstant[guideData.UIName]).node;
         if (guideData.GuideID == EUnforcedGuideType.RequireEvent1) {
-            if (guideData.StepIndex == 2) {
+            if (guideData.StepKey == 2) {
                 return find("home/Bottom/$Content", uiNode).children[0];
-            } else if (guideData.StepIndex == 7) {
+            } else if (guideData.StepKey == 7) {
                 return find("home/$ScrollView/view/content", uiNode).children[0];
             }
         }
@@ -119,7 +120,7 @@ export class GameGuide {
     }
 
     private checkGuide1001(guideData: TUnforcedGuide): boolean {
-        if (guideData.StepIndex < 4) {//
+        if (guideData.StepKey < 4) {//
             return PlayerData.Inst.getItemAmount(1, 1011) == 0;//背包没有肉夹馍
         } else {//供销社按钮
             return PlayerData.Inst.getItemAmount(1, 1011) > 0;//背包有肉夹馍
