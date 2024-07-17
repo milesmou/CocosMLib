@@ -21,6 +21,7 @@ interface IApp {
     timer: TimerComponent;
     audio: AudioComponent;
     asset: AssetComponent;
+    /** 本地存储 */
     stroage: typeof LocalStorage;
     /** 事件 */
     event: typeof EventMgr;
