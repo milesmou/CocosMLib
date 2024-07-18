@@ -17,7 +17,6 @@ export function persistNode<T extends Component>(target: { Inst?: T, new(): T })
             director.addPersistRootNode(node);
         }
     });
-    game.restart()
 }
 
 export function view(name: string) {
