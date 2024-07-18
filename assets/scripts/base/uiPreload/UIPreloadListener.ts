@@ -1,11 +1,13 @@
-import { Component, Prefab } from "cc";
+import { _decorator, Component, Prefab } from "cc";
 import { AssetMgr } from "../../../mlib/module/asset/AssetMgr";
 import { persistNode } from "../../../mlib/module/core/Decorator";
 import { EventKey } from "../GameEnum";
 import { UIPreloadCfg } from "./UIPreloadCfg";
+const { ccclass, property } = _decorator;
 
 @persistNode
-export class UIPreload extends Component {
+@ccclass("UIPreloadListener")
+export class UIPreloadListener extends Component {
 
     private _loadedList: string[] = [];//已经预加载完成的UI
     private _waitList: string[];//等待预加载的UI
@@ -46,3 +48,5 @@ export class UIPreload extends Component {
 
     }
 }
+
+console.log("加载脚本了");
