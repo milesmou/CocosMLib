@@ -48,5 +48,3 @@ export class UIPreloadListener extends Component {
 
     }
 }
-
-console.log("加载脚本了");
