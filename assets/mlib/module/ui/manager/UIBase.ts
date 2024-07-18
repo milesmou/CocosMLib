@@ -23,7 +23,6 @@ export class UIBase extends UIForm {
     public get isAnimEnd() { return this._isAnimEnd; }
 
     protected __preload(): void {
-        this.node.matchParent(true);
         this.addComponent(AssetComponent);
         this.ensureComponent(UIOpacity);
         super.__preload();

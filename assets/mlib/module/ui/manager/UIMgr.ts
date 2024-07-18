@@ -245,6 +245,7 @@ export class UIMgr extends Component {
         let prefab = await AssetMgr.loadAsset(uiName, Prefab, onProgress);
         let uiObj = instantiate(prefab);
         uiObj.parent = parent;
+        uiObj.matchParent(true);
         return uiObj;
     }
 
