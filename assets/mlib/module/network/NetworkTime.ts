@@ -3,8 +3,6 @@ import { persistNode } from "../core/Decorator";
 
 const { ccclass, property } = _decorator;
 
-
-
 @persistNode
 @ccclass("NetworkTime")
 export class NetworkTime extends Component {
