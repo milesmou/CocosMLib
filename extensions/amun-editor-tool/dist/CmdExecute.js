@@ -15,6 +15,8 @@ class CmdExecute {
         console.log("测试");
         let dir = path_1.default.dirname(Constant_1.Constant.LogFilePath);
         let basename = path_1.default.basename(Constant_1.Constant.LogFilePath);
+        Logger_1.Logger.debug(dir);
+        Logger_1.Logger.debug(basename);
         Utils_1.Utils.exeCMD(dir, basename);
     }
     /** 保存游戏配置到本地 */
@@ -197,22 +199,15 @@ class CmdExecute {
         Config_1.Config.set(Constant_1.Constant.BuildTemplateSaveKey, false);
         Logger_1.Logger.info("自定义构面模板已禁用");
     }
-    static delInvalidProperty() {
-        let propertysDir = Utils_1.Utils.ProjectPath + "/assets/scripts/gen/property";
-        let scriptsDir = Utils_1.Utils.ProjectPath + "/assets/scripts";
-        let ext = ".ts";
-        let files = Utils_1.Utils.getAllFiles(propertysDir, file => file.endsWith(ext));
-        let allScripts = Utils_1.Utils.getAllFiles(scriptsDir, file => file.endsWith(ext));
-        files.forEach(file => {
-            let fileName = path_1.default.basename(file);
-            let comp = fileName.replace("Property", "");
-            let sc = allScripts.find(v => v.endsWith(comp));
-            if (!sc) { //无效的Property脚本
-                Utils_1.Utils.deleteAsset(file);
-                Logger_1.Logger.info("删除脚本", fileName);
-            }
-        });
-        Logger_1.Logger.info("删除无效的属性脚本完成");
+    static openLogFile() {
+        if (fs_extra_1.default.existsSync(Constant_1.Constant.LogFilePath)) {
+            let dir = path_1.default.dirname(Constant_1.Constant.LogFilePath);
+            let basename = path_1.default.basename(Constant_1.Constant.LogFilePath);
+            Utils_1.Utils.exeCMD(dir, basename);
+        }
+        else {
+            console.log("暂无日志");
+        }
     }
 }
 exports.CmdExecute = CmdExecute;

@@ -17,10 +17,11 @@ export const methods: { [key: string]: (...any: any) => any } = {
     openBuildTemplate: CmdExecute.openBuildTemplate.bind(CmdExecute),
     closeBuildTemplate: CmdExecute.closeBuildTemplate.bind(CmdExecute),
     genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
-    delInvalidProperty: CmdExecute.delInvalidProperty.bind(CmdExecute),
+    openLogFile: CmdExecute.openLogFile.bind(CmdExecute),
     //场景操作命令
     autoGenProperty: SceneCmdExecute.autoGenProperty.bind(SceneCmdExecute),
     replaceComponent: SceneCmdExecute.replaceComponent.bind(SceneCmdExecute),
+    
     //测试
     test: CmdExecute.test.bind(CmdExecute),
 };

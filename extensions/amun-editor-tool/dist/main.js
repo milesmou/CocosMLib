@@ -18,7 +18,7 @@ exports.methods = {
     openBuildTemplate: CmdExecute_1.CmdExecute.openBuildTemplate.bind(CmdExecute_1.CmdExecute),
     closeBuildTemplate: CmdExecute_1.CmdExecute.closeBuildTemplate.bind(CmdExecute_1.CmdExecute),
     genHotUpdateRes: HotUpdate_1.HotUpdate.genHotUpdateRes.bind(HotUpdate_1.HotUpdate),
-    delInvalidProperty: CmdExecute_1.CmdExecute.delInvalidProperty.bind(CmdExecute_1.CmdExecute),
+    openLogFile: CmdExecute_1.CmdExecute.openLogFile.bind(CmdExecute_1.CmdExecute),
     //场景操作命令
     autoGenProperty: SceneCmdExecute_1.SceneCmdExecute.autoGenProperty.bind(SceneCmdExecute_1.SceneCmdExecute),
     replaceComponent: SceneCmdExecute_1.SceneCmdExecute.replaceComponent.bind(SceneCmdExecute_1.SceneCmdExecute),

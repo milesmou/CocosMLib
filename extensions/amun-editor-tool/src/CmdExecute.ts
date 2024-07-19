@@ -11,6 +11,8 @@ export class CmdExecute {
         console.log("测试");
         let dir = path.dirname(Constant.LogFilePath);
         let basename = path.basename(Constant.LogFilePath);
+        Logger.debug(dir)
+        Logger.debug(basename)
         Utils.exeCMD(dir, basename);
     }
 
@@ -212,21 +214,17 @@ export class CmdExecute {
         Logger.info("自定义构面模板已禁用");
     }
 
-    static delInvalidProperty() {
-        let propertysDir = Utils.ProjectPath + "/assets/scripts/gen/property"
-        let scriptsDir = Utils.ProjectPath + "/assets/scripts";
-        let ext = ".ts";
-        let files = Utils.getAllFiles(propertysDir, file => file.endsWith(ext));
-        let allScripts = Utils.getAllFiles(scriptsDir, file => file.endsWith(ext));
-        files.forEach(file => {
-            let fileName = path.basename(file);
-            let comp = fileName.replace("Property", "");
-            let sc = allScripts.find(v => v.endsWith(comp));
-            if (!sc) {//无效的Property脚本
-                Utils.deleteAsset(file);
-                Logger.info("删除脚本", fileName);
-            }
-        });
-        Logger.info("删除无效的属性脚本完成");
+    static openLogFile() {
+        if (fs.existsSync(Constant.LogFilePath)) {
+            let dir = path.dirname(Constant.LogFilePath);
+            let basename = path.basename(Constant.LogFilePath);
+            Utils.exeCMD(dir, basename);
+        } else {
+            console.log("暂无日志");
+        }
     }
+
+
+
+
 }

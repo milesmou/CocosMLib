@@ -49,12 +49,6 @@
                     "genConst"
                 ]
             },
-            "delInvalidProperty": {
-                "public": false,
-                "methods": [
-                    "delInvalidProperty"
-                ]
-            },
             "replaceComponent": {
                 "public": false,
                 "methods": [
@@ -89,6 +83,12 @@
                 "public": false,
                 "methods": [
                     "genHotUpdateRes"
+                ]
+            },
+            "openLogFile": {
+                "public": false,
+                "methods": [
+                    "openLogFile"
                 ]
             },
             "test": {
@@ -146,6 +146,12 @@
                 "label": "生成热更资源",
                 "icon": "./static/icon.png",
                 "message": "genHotUpdateRes"
+            },
+            {
+                "path": "MTools",
+                "label": "打开日志",
+                "icon": "./static/icon.png",
+                "message": "openLogFile"
             },
             {
                 "path": "MTools",
