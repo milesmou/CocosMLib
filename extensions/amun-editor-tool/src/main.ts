@@ -22,7 +22,7 @@ export const methods: { [key: string]: (...any: any) => any } = {
     autoGenProperty: SceneCmdExecute.autoGenProperty.bind(SceneCmdExecute),
     replaceComponent: SceneCmdExecute.replaceComponent.bind(SceneCmdExecute),
     //测试
-    test: HotUpdate.replaceManifest.bind(HotUpdate),
+    test: CmdExecute.test.bind(CmdExecute),
 };
 
 /**

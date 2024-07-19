@@ -35,7 +35,7 @@ export class Utils {
         return false;
     }
 
-    static exeCMD(workDir: string, cmd, onMsg: (msg: string) => void) {
+    static exeCMD(workDir: string, cmd: string, onMsg?: (msg: string) => void) {
         let p = new Promise((resolve, reject) => {
             let result = child_process.exec(cmd, { cwd: workDir });
             result.stdout.on("data", (data) => {

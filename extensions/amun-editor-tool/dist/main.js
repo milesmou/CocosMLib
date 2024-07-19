@@ -23,7 +23,7 @@ exports.methods = {
     autoGenProperty: SceneCmdExecute_1.SceneCmdExecute.autoGenProperty.bind(SceneCmdExecute_1.SceneCmdExecute),
     replaceComponent: SceneCmdExecute_1.SceneCmdExecute.replaceComponent.bind(SceneCmdExecute_1.SceneCmdExecute),
     //测试
-    test: HotUpdate_1.HotUpdate.replaceManifest.bind(HotUpdate_1.HotUpdate),
+    test: CmdExecute_1.CmdExecute.test.bind(CmdExecute_1.CmdExecute),
 };
 /**
  * @en Hooks triggered after extension loading is complete

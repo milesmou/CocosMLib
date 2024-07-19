@@ -9,16 +9,9 @@ export class CmdExecute {
 
     static test() {
         console.log("测试");
-
-        // let bundles = Utils.ProjectPath + "/assets/bundles";
-        // let dirs = Utils.getAllDirs(bundles, null, true);
-        // for (const dir of dirs) {
-        //     let tableDir = dir + "/table";
-        //     if (fs.existsSync(tableDir)) {
-        //         Utils.refreshAsset(tableDir);
-        //     }
-
-        // }
+        let dir = path.dirname(Constant.LogFilePath);
+        let basename = path.basename(Constant.LogFilePath);
+        Utils.exeCMD(dir, basename);
     }
 
 

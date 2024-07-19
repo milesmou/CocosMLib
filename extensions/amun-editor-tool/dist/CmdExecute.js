@@ -13,14 +13,9 @@ const Logger_1 = require("./tools/Logger");
 class CmdExecute {
     static test() {
         console.log("测试");
-        // let bundles = Utils.ProjectPath + "/assets/bundles";
-        // let dirs = Utils.getAllDirs(bundles, null, true);
-        // for (const dir of dirs) {
-        //     let tableDir = dir + "/table";
-        //     if (fs.existsSync(tableDir)) {
-        //         Utils.refreshAsset(tableDir);
-        //     }
-        // }
+        let dir = path_1.default.dirname(Constant_1.Constant.LogFilePath);
+        let basename = path_1.default.basename(Constant_1.Constant.LogFilePath);
+        Utils_1.Utils.exeCMD(dir, basename);
     }
     /** 保存游戏配置到本地 */
     static saveGameSetting(jsonStr) {
