@@ -5,6 +5,7 @@ const BuildTemplate_1 = require("./postbuild/BuildTemplate");
 const HotUpdate_1 = require("./postbuild/HotUpdate");
 const Minigame_1 = require("./postbuild/Minigame");
 const LogToFile_1 = require("./tools/LogToFile");
+const Utils_1 = require("./tools/Utils");
 const onBeforeBuild = async function (options, result) {
     // Todo some thing
     LogToFile_1.LogToFile.log("onBeforeBuild");
@@ -23,7 +24,10 @@ exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = async function (options, result) {
     LogToFile_1.LogToFile.log("onAfterBuild");
     BuildTemplate_1.BuildTemplate.copy(options, result);
-    HotUpdate_1.HotUpdate.modifyJsFile(options, result);
+    if (Utils_1.Utils.isNative(options.platform)) {
+        HotUpdate_1.HotUpdate.modifyJsFile(options, result);
+        HotUpdate_1.HotUpdate.replaceManifest(options, result);
+    }
     Minigame_1.Minigame.modifyServer(options, result);
 };
 exports.onAfterBuild = onAfterBuild;

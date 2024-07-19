@@ -25,8 +25,11 @@ export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     LogToFile.log("onAfterBuild");
     BuildTemplate.copy(options, result);
-    HotUpdate.modifyJsFile(options, result);
-    Minigame.modifyServer(options,result);
+    if (Utils.isNative(options.platform)) {
+        HotUpdate.modifyJsFile(options, result);
+        HotUpdate.replaceManifest(options, result);
+    }
+    Minigame.modifyServer(options, result);
 };
 
 export const onError: BuildHook.onError = async function (options, result) {

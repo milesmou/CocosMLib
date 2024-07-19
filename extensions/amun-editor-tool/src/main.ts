@@ -8,21 +8,21 @@ import { SceneCmdExecute } from "./scene/SceneCmdExecute";
  * @zh 为扩展的主进程的注册方法
  */
 export const methods: { [key: string]: (...any: any) => any } = {
-    saveGameSetting: CmdExecute.saveGameSetting,
-    loadExcel: CmdExecute.loadExcel,
-    genConst: CmdExecute.genConst,
-    formatProject: CmdExecute.formatProject,
-    closeTexCompress: CmdExecute.closeTexCompress,
-    setTexCompress: CmdExecute.setTexCompress,
-    openBuildTemplate: CmdExecute.openBuildTemplate,
-    closeBuildTemplate: CmdExecute.closeBuildTemplate,
+    saveGameSetting: CmdExecute.saveGameSetting.bind(CmdExecute),
+    loadExcel: CmdExecute.loadExcel.bind(CmdExecute),
+    genConst: CmdExecute.genConst.bind(CmdExecute),
+    formatProject: CmdExecute.formatProject.bind(CmdExecute),
+    closeTexCompress: CmdExecute.closeTexCompress.bind(CmdExecute),
+    setTexCompress: CmdExecute.setTexCompress.bind(CmdExecute),
+    openBuildTemplate: CmdExecute.openBuildTemplate.bind(CmdExecute),
+    closeBuildTemplate: CmdExecute.closeBuildTemplate.bind(CmdExecute),
     genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
-    delInvalidProperty: CmdExecute.delInvalidProperty,
+    delInvalidProperty: CmdExecute.delInvalidProperty.bind(CmdExecute),
     //场景操作命令
-    autoGenProperty: SceneCmdExecute.autoGenProperty,
-    replaceComponent: SceneCmdExecute.replaceComponent,
+    autoGenProperty: SceneCmdExecute.autoGenProperty.bind(SceneCmdExecute),
+    replaceComponent: SceneCmdExecute.replaceComponent.bind(SceneCmdExecute),
     //测试
-    test: CmdExecute.test,
+    test: HotUpdate.replaceManifest.bind(HotUpdate),
 };
 
 /**

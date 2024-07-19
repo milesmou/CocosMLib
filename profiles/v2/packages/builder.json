@@ -78,8 +78,8 @@
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-6-20 10:10:22 build success in 14 s!",
-        "detailMessage": "// ---- build task adsense-h5g-plugin：onAfterBuild ----\r",
+        "message": "2024-7-19 15:51:57 build success in 47 s!",
+        "detailMessage": "// ---- build task cocos-service：onAfterCompressSettings ----\r",
         "options": {
           "name": "NewProject3",
           "server": "",
@@ -127,7 +127,7 @@
           "nativeCodeBundleMode": "wasm",
           "wasmCompressionMode": false
         },
-        "time": "2024-6-20 10:10:08",
+        "time": "2024-7-19 15:51:09",
         "dirty": false
       }
     }

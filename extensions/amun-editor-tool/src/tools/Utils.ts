@@ -59,7 +59,7 @@ export class Utils {
         return p;
     }
 
-    static getAllFiles(dir: string, filter?: (dir: string) => boolean, topDirOnly = false) {
+    static getAllFiles(dir: string, filter?: (file: string) => boolean, topDirOnly = false) {
         dir = this.toAbsolutePath(dir);
         let files: string[] = [];
         if (!fs.existsSync(dir)) return files;
