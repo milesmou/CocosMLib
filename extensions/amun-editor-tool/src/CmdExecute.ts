@@ -2,9 +2,8 @@ import fs from "fs-extra";
 import path from "path";
 import { Config } from "./tools/Config";
 import { Constant } from "./tools/Constant";
-import { MLogger } from "./tools/MLogger";
 import { Utils } from "./tools/Utils";
-import { dir } from "console";
+import { Logger } from "./tools/Logger";
 
 export class CmdExecute {
 
@@ -62,15 +61,14 @@ export class CmdExecute {
 
     /** 导表 */
     static loadExcel() {
-        let logger = new MLogger("LoadExcel");
         let workDir = Utils.ProjectPath + "/excel";
         let batPath = "gen_code_json.bat";
         let tsDir = Utils.ProjectPath + "/assets/scripts/gen/table";
         fs.ensureDirSync(tsDir);
-        logger.debug(workDir)
+        Logger.debug(workDir)
         Utils.exeCMD(workDir, batPath,
             msg => {
-                logger.debug(msg);
+                Logger.debug(msg);
             }
         ).then(code => {
             if (!code) {
@@ -85,7 +83,7 @@ export class CmdExecute {
                 }
                 Utils.refreshAsset(tsDir);
             } else {
-                logger.error("导表失败");
+                Logger.error("导表失败");
             }
         });
     }
@@ -113,7 +111,7 @@ export class CmdExecute {
             let content = `export const BundleConstant = ${JSON.stringify(result)};`
             fs.writeFileSync(outFile, content);
             Utils.refreshAsset(outFile);
-            MLogger.print("生成BundleConstant.ts成功");
+            Logger.info("生成BundleConstant.ts成功");
         }
 
         //生成UIConstant
@@ -151,7 +149,7 @@ export class CmdExecute {
             fs.ensureDirSync(path.dirname(outFile));
             fs.writeFileSync(outFile, content);
             Utils.refreshAsset(outFile);
-            MLogger.print("生成UIConstant成功");
+            Logger.info("生成UIConstant成功");
         }
 
     }
@@ -174,7 +172,7 @@ export class CmdExecute {
                 compressSettings.useCompressTexture = false;
                 fs.writeJSONSync(metaFile, obj, { spaces: 2 });
                 Utils.refreshAsset(file);
-                MLogger.info("关闭纹理压缩", file);
+                Logger.info("关闭纹理压缩", file);
             }
         }
     }
@@ -182,9 +180,9 @@ export class CmdExecute {
     static setTexCompress() {
         let presetId: string = Editor.Clipboard.read("text");
         if (presetId.length != 22) {
-            MLogger.warn("请先拷贝一个纹理压缩配置的22位UUID到剪切板(项目设置-压缩纹理-配置压缩预设集)")
+            Logger.warn("请先拷贝一个纹理压缩配置的22位UUID到剪切板(项目设置-压缩纹理-配置压缩预设集)")
         } else {
-            MLogger.info("纹理压缩方案UUID:", presetId);
+            Logger.info("纹理压缩方案UUID:", presetId);
             let exts = [".jpg", ".png", ".jpeg", ".pac"];
             let filter = (file: string) => {
                 let ext = path.extname(file);
@@ -205,7 +203,7 @@ export class CmdExecute {
                     obj.userData.compressSettings = newCompressSettings;
                     fs.writeJSONSync(metaFile, obj, { spaces: 2 });
                     Utils.refreshAsset(file);
-                    MLogger.info(`纹理压缩设置  ${file}`);
+                    Logger.info(`纹理压缩设置  ${file}`);
                 }
             }
         }
@@ -213,12 +211,12 @@ export class CmdExecute {
 
     static openBuildTemplate() {
         Config.set(Constant.BuildTemplateSaveKey, true);
-        MLogger.info("自定义构面模板已启用");
+        Logger.info("自定义构面模板已启用");
     }
 
     static closeBuildTemplate() {
         Config.set(Constant.BuildTemplateSaveKey, false);
-        MLogger.info("自定义构面模板已禁用");
+        Logger.info("自定义构面模板已禁用");
     }
 
     static delInvalidProperty() {
@@ -233,9 +231,9 @@ export class CmdExecute {
             let sc = allScripts.find(v => v.endsWith(comp));
             if (!sc) {//无效的Property脚本
                 Utils.deleteAsset(file);
-                MLogger.info("删除脚本", fileName);
+                Logger.info("删除脚本", fileName);
             }
         });
-        MLogger.info("删除无效的属性脚本完成");
+        Logger.info("删除无效的属性脚本完成");
     }
 }

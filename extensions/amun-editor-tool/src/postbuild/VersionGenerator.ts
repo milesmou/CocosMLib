@@ -2,7 +2,6 @@ import crypto from "crypto";
 import fs from "fs-extra";
 import path from "path";
 import { Utils } from "../tools/Utils";
-import { MLogger } from "../tools/MLogger";
 
 class Manifest {
     packageUrl = 'http://localhost/tutorial-hot-update/remote-assets/';

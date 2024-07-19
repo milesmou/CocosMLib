@@ -3,16 +3,14 @@ import path from "path";
 import { IBuildResult, IBuildTaskOption } from "../../@types";
 import { Config } from "../tools/Config";
 import { Constant } from "../tools/Constant";
-import { LogToFile } from "../tools/LogToFile";
-import { MLogger } from "../tools/MLogger";
 import { Utils } from "../tools/Utils";
+import { Logger } from "../tools/Logger";
 
 /** 拷贝自定义构建模板资源 */
 export class BuildTemplate {
     public static copy(options: IBuildTaskOption, result: IBuildResult) {
         if (!Config.get(Constant.BuildTemplateSaveKey, true)) {
-            LogToFile.log("未启用构建模板");
-            MLogger.info("未启用构建模板");
+            Logger.info("未启用构建模板");
             return;//未启用构建模板
         }
         let templatePath = Utils.ProjectPath + "/" + Constant.BuildTemplateDirName + "/" + options.outputName;
@@ -36,11 +34,11 @@ export class BuildTemplate {
                     }
                 }
                 let newFile = Utils.resolveFilePath(buildDest + "/" + f);
-                LogToFile.log("insert code ", f);
+                Logger.info("insert code ", f);
                 this.insertCode(file, newFile, lineNum);
             } else {
                 let newFile = Utils.resolveFilePath(buildDest + "/" + f);
-                LogToFile.log("copy file", f);
+                Logger.info("copy file", f);
                 fs.ensureDirSync(path.dirname(newFile));
                 fs.copyFileSync(file, newFile);
             }

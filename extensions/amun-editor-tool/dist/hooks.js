@@ -4,25 +4,25 @@ exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.onAfterBu
 const BuildTemplate_1 = require("./postbuild/BuildTemplate");
 const HotUpdate_1 = require("./postbuild/HotUpdate");
 const Minigame_1 = require("./postbuild/Minigame");
-const LogToFile_1 = require("./tools/LogToFile");
+const Logger_1 = require("./tools/Logger");
 const Utils_1 = require("./tools/Utils");
 const onBeforeBuild = async function (options, result) {
     // Todo some thing
-    LogToFile_1.LogToFile.log("onBeforeBuild");
+    Logger_1.Logger.info("onBeforeBuild");
 };
 exports.onBeforeBuild = onBeforeBuild;
 const onBeforeCompressSettings = async function (options, result) {
     // Todo some thing
-    LogToFile_1.LogToFile.log('onBeforeCompressSettings');
+    Logger_1.Logger.info('onBeforeCompressSettings');
 };
 exports.onBeforeCompressSettings = onBeforeCompressSettings;
 const onAfterCompressSettings = async function (options, result) {
     // Todo some thing
-    LogToFile_1.LogToFile.log('onAfterCompressSettings');
+    Logger_1.Logger.info('onAfterCompressSettings');
 };
 exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = async function (options, result) {
-    LogToFile_1.LogToFile.log("onAfterBuild");
+    Logger_1.Logger.info("onAfterBuild");
     BuildTemplate_1.BuildTemplate.copy(options, result);
     if (Utils_1.Utils.isNative(options.platform)) {
         HotUpdate_1.HotUpdate.modifyJsFile(options, result);
@@ -33,14 +33,14 @@ const onAfterBuild = async function (options, result) {
 exports.onAfterBuild = onAfterBuild;
 const onError = async function (options, result) {
     // Todo some thing
-    LogToFile_1.LogToFile.log("run onError");
+    Logger_1.Logger.info("run onError");
 };
 exports.onError = onError;
 const onBeforeMake = async function (root, options) {
-    LogToFile_1.LogToFile.log(`onBeforeMake: root: ${root}, options: ${options}`);
+    Logger_1.Logger.info(`onBeforeMake: root: ${root}, options: ${options}`);
 };
 exports.onBeforeMake = onBeforeMake;
 const onAfterMake = async function (root, options) {
-    LogToFile_1.LogToFile.log(`onAfterMake: root: ${root}, options: ${options}`);
+    Logger_1.Logger.info(`onAfterMake: root: ${root}, options: ${options}`);
 };
 exports.onAfterMake = onAfterMake;

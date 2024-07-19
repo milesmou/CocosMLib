@@ -1,5 +1,5 @@
 import { ExecuteSceneScriptMethodOptions } from "../../@types/packages/scene/@types/public";
-import { MLogger } from "../tools/MLogger";
+import { Logger } from "../tools/Logger";
 
 export class SceneCmdExecute {
     static async autoGenProperty() {
@@ -15,7 +15,7 @@ export class SceneCmdExecute {
             args: [nodeUuid],
         };
 
-        MLogger.info("SelectNodeUUID", nodeUuid);
+        Logger.info("SelectNodeUUID", nodeUuid);
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
 

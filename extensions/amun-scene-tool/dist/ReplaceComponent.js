@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReplaceComponent = void 0;
 const cc_1 = require("cc");
-const MLogger_1 = require("./tools/MLogger");
+const Logger_1 = require("./tools/Logger");
 class ReplaceComponent {
     static replace() {
         this.replaceButton();
@@ -36,7 +36,7 @@ class ReplaceComponent {
             mBtn.disabledSprite = v.disabledSprite;
             v.destroy();
         });
-        MLogger_1.MLogger.info(`替换Button为MButton完成,共计${btnCnt}个`);
+        Logger_1.Logger.info(`替换Button为MButton完成,共计${btnCnt}个`);
     }
     static replaceToggle() {
         let toggles = cc_1.director.getScene().getComponentsInChildren(cc_1.Toggle);
@@ -69,7 +69,7 @@ class ReplaceComponent {
             mTog.playEffect();
             tog.destroy();
         });
-        MLogger_1.MLogger.info(`替换Toggle为MToggle完成,共计${btnCnt}个`);
+        Logger_1.Logger.info(`替换Toggle为MToggle完成,共计${btnCnt}个`);
     }
     static replaceSlider() {
         let sliders = cc_1.director.getScene().getComponentsInChildren(cc_1.Slider);
@@ -88,7 +88,7 @@ class ReplaceComponent {
             mSlider.slideEvents = sld.slideEvents;
             sld.destroy();
         });
-        MLogger_1.MLogger.info(`替换Slider为MSlider完成,共计${cnt}个`);
+        Logger_1.Logger.info(`替换Slider为MSlider完成,共计${cnt}个`);
     }
 }
 exports.ReplaceComponent = ReplaceComponent;

@@ -8,8 +8,8 @@ const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const Config_1 = require("./tools/Config");
 const Constant_1 = require("./tools/Constant");
-const MLogger_1 = require("./tools/MLogger");
 const Utils_1 = require("./tools/Utils");
+const Logger_1 = require("./tools/Logger");
 class CmdExecute {
     static test() {
         console.log("测试");
@@ -58,14 +58,13 @@ class CmdExecute {
     }
     /** 导表 */
     static loadExcel() {
-        let logger = new MLogger_1.MLogger("LoadExcel");
         let workDir = Utils_1.Utils.ProjectPath + "/excel";
         let batPath = "gen_code_json.bat";
         let tsDir = Utils_1.Utils.ProjectPath + "/assets/scripts/gen/table";
         fs_extra_1.default.ensureDirSync(tsDir);
-        logger.debug(workDir);
+        Logger_1.Logger.debug(workDir);
         Utils_1.Utils.exeCMD(workDir, batPath, msg => {
-            logger.debug(msg);
+            Logger_1.Logger.debug(msg);
         }).then(code => {
             if (!code) {
                 let bundles = Utils_1.Utils.ProjectPath + "/assets/bundles";
@@ -80,7 +79,7 @@ class CmdExecute {
                 Utils_1.Utils.refreshAsset(tsDir);
             }
             else {
-                logger.error("导表失败");
+                Logger_1.Logger.error("导表失败");
             }
         });
     }
@@ -104,7 +103,7 @@ class CmdExecute {
             let content = `export const BundleConstant = ${JSON.stringify(result)};`;
             fs_extra_1.default.writeFileSync(outFile, content);
             Utils_1.Utils.refreshAsset(outFile);
-            MLogger_1.MLogger.print("生成BundleConstant.ts成功");
+            Logger_1.Logger.info("生成BundleConstant.ts成功");
         }
         //生成UIConstant
         {
@@ -139,7 +138,7 @@ class CmdExecute {
             fs_extra_1.default.ensureDirSync(path_1.default.dirname(outFile));
             fs_extra_1.default.writeFileSync(outFile, content);
             Utils_1.Utils.refreshAsset(outFile);
-            MLogger_1.MLogger.print("生成UIConstant成功");
+            Logger_1.Logger.info("生成UIConstant成功");
         }
     }
     static closeTexCompress() {
@@ -159,17 +158,17 @@ class CmdExecute {
                 compressSettings.useCompressTexture = false;
                 fs_extra_1.default.writeJSONSync(metaFile, obj, { spaces: 2 });
                 Utils_1.Utils.refreshAsset(file);
-                MLogger_1.MLogger.info("关闭纹理压缩", file);
+                Logger_1.Logger.info("关闭纹理压缩", file);
             }
         }
     }
     static setTexCompress() {
         let presetId = Editor.Clipboard.read("text");
         if (presetId.length != 22) {
-            MLogger_1.MLogger.warn("请先拷贝一个纹理压缩配置的22位UUID到剪切板(项目设置-压缩纹理-配置压缩预设集)");
+            Logger_1.Logger.warn("请先拷贝一个纹理压缩配置的22位UUID到剪切板(项目设置-压缩纹理-配置压缩预设集)");
         }
         else {
-            MLogger_1.MLogger.info("纹理压缩方案UUID:", presetId);
+            Logger_1.Logger.info("纹理压缩方案UUID:", presetId);
             let exts = [".jpg", ".png", ".jpeg", ".pac"];
             let filter = (file) => {
                 let ext = path_1.default.extname(file);
@@ -190,18 +189,18 @@ class CmdExecute {
                     obj.userData.compressSettings = newCompressSettings;
                     fs_extra_1.default.writeJSONSync(metaFile, obj, { spaces: 2 });
                     Utils_1.Utils.refreshAsset(file);
-                    MLogger_1.MLogger.info(`纹理压缩设置  ${file}`);
+                    Logger_1.Logger.info(`纹理压缩设置  ${file}`);
                 }
             }
         }
     }
     static openBuildTemplate() {
         Config_1.Config.set(Constant_1.Constant.BuildTemplateSaveKey, true);
-        MLogger_1.MLogger.info("自定义构面模板已启用");
+        Logger_1.Logger.info("自定义构面模板已启用");
     }
     static closeBuildTemplate() {
         Config_1.Config.set(Constant_1.Constant.BuildTemplateSaveKey, false);
-        MLogger_1.MLogger.info("自定义构面模板已禁用");
+        Logger_1.Logger.info("自定义构面模板已禁用");
     }
     static delInvalidProperty() {
         let propertysDir = Utils_1.Utils.ProjectPath + "/assets/scripts/gen/property";
@@ -215,10 +214,10 @@ class CmdExecute {
             let sc = allScripts.find(v => v.endsWith(comp));
             if (!sc) { //无效的Property脚本
                 Utils_1.Utils.deleteAsset(file);
-                MLogger_1.MLogger.info("删除脚本", fileName);
+                Logger_1.Logger.info("删除脚本", fileName);
             }
         });
-        MLogger_1.MLogger.info("删除无效的属性脚本完成");
+        Logger_1.Logger.info("删除无效的属性脚本完成");
     }
 }
 exports.CmdExecute = CmdExecute;

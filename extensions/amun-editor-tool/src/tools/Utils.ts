@@ -2,7 +2,7 @@ import child_process from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { MLogger } from "./MLogger";
+import { Logger } from "./Logger";
 export class Utils {
 
     private static projectPath: string;
@@ -47,9 +47,9 @@ export class Utils {
             });
             result.stderr.on("data", (data) => {
                 if (globalThis['Editor']) {
-                    MLogger.error(data.toString());
+                    Logger.error(data.toString());
                 } else {
-                    MLogger.error(data.toString());
+                    Logger.error(data.toString());
                 }
             });
             result.on("close", (code) => {

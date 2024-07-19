@@ -8,7 +8,7 @@ const child_process_1 = __importDefault(require("child_process"));
 const fs_1 = __importDefault(require("fs"));
 const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
-const MLogger_1 = require("./MLogger");
+const Logger_1 = require("./Logger");
 class Utils {
     static get ProjectPath() {
         if (!this.projectPath)
@@ -27,10 +27,10 @@ class Utils {
             });
             result.stderr.on("data", (data) => {
                 if (globalThis['Editor']) {
-                    MLogger_1.MLogger.error(data.toString());
+                    Logger_1.Logger.error(data.toString());
                 }
                 else {
-                    MLogger_1.MLogger.error(data.toString());
+                    Logger_1.Logger.error(data.toString());
                 }
             });
             result.on("close", (code) => {

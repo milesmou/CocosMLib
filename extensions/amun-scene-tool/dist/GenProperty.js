@@ -7,7 +7,7 @@ exports.GenProperty = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const cc_1 = require("cc");
 const CCUtil_1 = require("./tools/CCUtil");
-const MLogger_1 = require("./tools/MLogger");
+const Logger_1 = require("./tools/Logger");
 const SceneTool_1 = require("./tools/SceneTool");
 const Utils_1 = require("./tools/Utils");
 class IPropertyInfo {
@@ -47,11 +47,11 @@ class GenProperty {
                 this.genPropertyTSFile(comp);
             }
             else {
-                MLogger_1.MLogger.warn("节点上未找到继承GenProperty组件的脚本");
+                Logger_1.Logger.warn("节点上未找到继承GenProperty组件的脚本");
             }
         }
         else {
-            MLogger_1.MLogger.warn("节点未找到");
+            Logger_1.Logger.warn("节点未找到");
         }
     }
     static genPropertyTSFile(comp) {
@@ -78,7 +78,7 @@ class GenProperty {
         content += `}`;
         fs_extra_1.default.writeFileSync(outFile, content);
         Utils_1.Utils.refreshAsset(outFile);
-        MLogger_1.MLogger.info(`生成${className}成功`);
+        Logger_1.Logger.info(`生成${className}成功`);
     }
     static getNodePath(n) {
         let arr = [];

@@ -2,8 +2,8 @@ import fs from "fs-extra";
 import path from "path";
 import { IBuildResult, IBuildTaskOption } from "../../@types";
 import { Config } from "../tools/Config";
-import { LogToFile } from "../tools/LogToFile";
 import { Utils } from "../tools/Utils";
+import { Logger } from "../tools/Logger";
 
 export class Minigame {
     /** 修改小游戏的服务器地址 */
@@ -16,7 +16,7 @@ export class Minigame {
                 let settings = fs.readJsonSync(file, { encoding: "utf8" });
                 settings.assets.server = server;
                 fs.writeJSONSync(file, settings);
-                LogToFile.log("修改小游戏服务器地址为:" + server);
+                Logger.info("修改小游戏服务器地址为:" + server);
             }
         }
     }

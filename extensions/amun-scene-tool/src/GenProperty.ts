@@ -2,7 +2,7 @@ import fs from "fs-extra";
 
 import { Component, Node, js } from "cc";
 import { CCUtils } from "./tools/CCUtil";
-import { MLogger } from "./tools/MLogger";
+import { Logger } from "./tools/Logger";
 import { SceneTool } from "./tools/SceneTool";
 import { Utils } from "./tools/Utils";
 
@@ -64,10 +64,10 @@ export class GenProperty {
             if (comp) {
                 this.genPropertyTSFile(comp);
             } else {
-                MLogger.warn("节点上未找到继承GenProperty组件的脚本");
+                Logger.warn("节点上未找到继承GenProperty组件的脚本");
             }
         } else {
-            MLogger.warn("节点未找到");
+            Logger.warn("节点未找到");
         }
     }
 
@@ -97,7 +97,7 @@ export class GenProperty {
         content += `}`;
         fs.writeFileSync(outFile, content);
         Utils.refreshAsset(outFile);
-        MLogger.info(`生成${className}成功`);
+        Logger.info(`生成${className}成功`);
     }
 
 

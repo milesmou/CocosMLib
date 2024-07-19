@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HotUpdateConfig = void 0;
 const cc_1 = require("cc");
 const Config_1 = require("./tools/Config");
-const MLogger_1 = require("./tools/MLogger");
+const Logger_1 = require("./tools/Logger");
 class HotUpdateConfig {
     static save() {
         let setting = cc_1.director.getScene().getComponentInChildren("GameSetting");
@@ -15,10 +15,10 @@ class HotUpdateConfig {
             let url = `${cdnUrl.trim()}/${gameName}/Channel/${channelName}/${this.getMainVersion(version)}/ResPkg`;
             Config_1.Config.set("hotupdate.url", url);
             Config_1.Config.set("hotupdate.version", version);
-            MLogger_1.MLogger.info("更新热更配置成功", url, version);
+            Logger_1.Logger.info("更新热更配置成功", url, version);
             return;
         }
-        MLogger_1.MLogger.warn("场景中未找到GameSetting组件");
+        Logger_1.Logger.warn("场景中未找到GameSetting组件");
     }
     //主版本号 取前三位
     static getMainVersion(version) {

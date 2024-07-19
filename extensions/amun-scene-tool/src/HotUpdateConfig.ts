@@ -1,6 +1,6 @@
 import { director } from "cc";
 import { Config } from "./tools/Config";
-import { MLogger } from "./tools/MLogger";
+import { Logger } from "./tools/Logger";
 interface IApp {
     _gameName: string;
     _channel: string;
@@ -19,10 +19,10 @@ export class HotUpdateConfig {
             let url = `${cdnUrl.trim()}/${gameName}/Channel/${channelName}/${this.getMainVersion(version)}/ResPkg`;
             Config.set("hotupdate.url", url);
             Config.set("hotupdate.version", version);
-            MLogger.info("更新热更配置成功", url, version);
+            Logger.info("更新热更配置成功", url, version);
             return;
         }
-        MLogger.warn("场景中未找到GameSetting组件");
+        Logger.warn("场景中未找到GameSetting组件");
     }
 
     //主版本号 取前三位

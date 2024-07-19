@@ -3,11 +3,10 @@ import fs from "fs-extra";
 import path from "path";
 import { IBuildResult, IBuildTaskOption } from "../../@types";
 import { Config } from "../tools/Config";
-import { LogToFile } from "../tools/LogToFile";
-import { MLogger } from "../tools/MLogger";
 import { Utils } from "../tools/Utils";
 import { MainJsCode } from "./MainJsCode";
 import { VersionGenerator } from "./VersionGenerator";
+import { Logger } from "../tools/Logger";
 
 /** 原生平台检查构建配置和修改main.js */
 export class HotUpdate {
@@ -56,9 +55,9 @@ export class HotUpdate {
                 let content = fs.readFileSync(mainjs, { encoding: "utf8" });
                 content = MainJsCode.code.replace("<%version%>", version) + "\n" + content;
                 fs.writeFileSync(mainjs, content, { encoding: "utf8" });
-                LogToFile.log("修改热更搜索路径完成", version);
+                Logger.info("修改热更搜索路径完成", version);
             } else {
-                LogToFile.log("若使用热更请先保存热更配置");
+                Logger.info("若使用热更请先保存热更配置");
             }
         }
     }
@@ -67,12 +66,13 @@ export class HotUpdate {
     public static replaceManifest(options: IBuildTaskOption, result: IBuildResult) {
         let oldManifest = Utils.ProjectPath + "/assets/resources/project.manifest";
         if (!fs.existsSync(oldManifest)) {
-            MLogger.warn("assets/resources/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
+            Logger.warn("assets/resources/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
             return;
         }
         let fileUuid = fs.readJSONSync(oldManifest + ".meta")?.uuid;
         let src = Config.get("hotupdate.src", "");
-        let dest = Utils.ProjectPath + "/temp";
+        let dest = Utils.ProjectPath + "/temp/manifest";
+        fs.ensureDirSync(dest);
         if (this.genManifest(dest, false)) {
             let newManifest = dest + '/project.manifest';
             let dir = src + '/data/assets/resources';
@@ -82,12 +82,12 @@ export class HotUpdate {
             })[0];
             if (oldManifest) {
                 fs.copyFileSync(newManifest, oldManifest);
-                MLogger.info(`替换热更资源清单文件成功`);
+                Logger.info(`替换热更资源清单文件成功`);
             } else {
-                MLogger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
+                Logger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
             }
         } else {
-            MLogger.error(`替换热更资源清单文件失败`);
+            Logger.error(`替换热更资源清单文件失败`);
         }
     }
 
@@ -104,12 +104,12 @@ export class HotUpdate {
                 fs.copySync(src + '/jsb-adapter', dest + "/jsb-adapter");
                 fs.copySync(dest + '/project.manifest', Utils.ProjectPath + "/assets/resources/project.manifest");
                 Utils.refreshAsset(Utils.ProjectPath + "/assets/resources/project.manifest");
-                MLogger.info(`生成热更资源完成 ${dest}`);
+                Logger.info(`生成热更资源完成 ${dest}`);
             } else {
-                MLogger.error(`生成热更资源失败`);
+                Logger.error(`生成热更资源失败`);
             }
         } catch (e) {
-            MLogger.error(`生成热更资源失败 ${e}`);
+            Logger.error(`生成热更资源失败 ${e}`);
         }
 
     }
@@ -120,10 +120,10 @@ export class HotUpdate {
         let url = Config.get("gameSetting.hotupdateServer", "");
         let version = Config.get("gameSetting.version", "");
         if (!url || !version) {
-            MLogger.error(`热更配置不正确,请先检查热更配置`);
+            Logger.error(`热更配置不正确,请先检查热更配置`);
         }
         if (!src) {
-            MLogger.info(`请先构建一次Native工程 再生成热更资源`);
+            Logger.info(`请先构建一次Native工程 再生成热更资源`);
             return false;
         }
         let newSrc = path.join(src, 'data');
@@ -132,15 +132,15 @@ export class HotUpdate {
         }
         src = Utils.toUniSeparator(newSrc);
         if (printConfig) {
-            MLogger.info(`url=${url}`)
-            MLogger.info(`version=${version}`)
-            MLogger.info(`src=${src}`)
-            MLogger.info(`dest=${dest}`)
+            Logger.info(`url=${url}`)
+            Logger.info(`version=${version}`)
+            Logger.info(`src=${src}`)
+            Logger.info(`dest=${dest}`)
         }
         try {
             VersionGenerator.gen(url, version, src, dest);
         } catch (e) {
-            MLogger.error(e);
+            Logger.error(e);
             return false;
         }
         return true;

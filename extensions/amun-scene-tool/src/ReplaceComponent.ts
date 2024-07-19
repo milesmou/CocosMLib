@@ -1,5 +1,5 @@
 import { Button, Slider, Toggle, director, js } from "cc";
-import { MLogger } from "./tools/MLogger";
+import { Logger } from "./tools/Logger";
 
 export class ReplaceComponent {
 
@@ -34,7 +34,7 @@ export class ReplaceComponent {
             mBtn.disabledSprite = v.disabledSprite;
             v.destroy();
         });
-        MLogger.info(`替换Button为MButton完成,共计${btnCnt}个`);
+        Logger.info(`替换Button为MButton完成,共计${btnCnt}个`);
     }
 
     private static replaceToggle() {
@@ -66,7 +66,7 @@ export class ReplaceComponent {
             mTog.playEffect();
             tog.destroy();
         });
-        MLogger.info(`替换Toggle为MToggle完成,共计${btnCnt}个`);
+        Logger.info(`替换Toggle为MToggle完成,共计${btnCnt}个`);
     }
 
 
@@ -85,7 +85,7 @@ export class ReplaceComponent {
             mSlider.slideEvents = sld.slideEvents;
             sld.destroy();
         });
-        MLogger.info(`替换Slider为MSlider完成,共计${cnt}个`);
+        Logger.info(`替换Slider为MSlider完成,共计${cnt}个`);
     }
 
 

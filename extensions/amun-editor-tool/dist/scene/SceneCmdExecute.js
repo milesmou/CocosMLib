@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SceneCmdExecute = void 0;
-const MLogger_1 = require("../tools/MLogger");
+const Logger_1 = require("../tools/Logger");
 class SceneCmdExecute {
     static async autoGenProperty() {
         let nodeUuid = "";
@@ -14,7 +14,7 @@ class SceneCmdExecute {
             method: 'autoGenProperty',
             args: [nodeUuid],
         };
-        MLogger_1.MLogger.info("SelectNodeUUID", nodeUuid);
+        Logger_1.Logger.info("SelectNodeUUID", nodeUuid);
         Editor.Message.request('scene', 'execute-scene-script', options);
     }
     static async replaceComponent() {

@@ -7,11 +7,10 @@ exports.HotUpdate = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const Config_1 = require("../tools/Config");
-const LogToFile_1 = require("../tools/LogToFile");
-const MLogger_1 = require("../tools/MLogger");
 const Utils_1 = require("../tools/Utils");
 const MainJsCode_1 = require("./MainJsCode");
 const VersionGenerator_1 = require("./VersionGenerator");
+const Logger_1 = require("../tools/Logger");
 /** 原生平台检查构建配置和修改main.js */
 class HotUpdate {
     /** 修改main.js 和 src目录中的脚本 */
@@ -53,10 +52,10 @@ class HotUpdate {
                 let content = fs_extra_1.default.readFileSync(mainjs, { encoding: "utf8" });
                 content = MainJsCode_1.MainJsCode.code.replace("<%version%>", version) + "\n" + content;
                 fs_extra_1.default.writeFileSync(mainjs, content, { encoding: "utf8" });
-                LogToFile_1.LogToFile.log("修改热更搜索路径完成", version);
+                Logger_1.Logger.info("修改热更搜索路径完成", version);
             }
             else {
-                LogToFile_1.LogToFile.log("若使用热更请先保存热更配置");
+                Logger_1.Logger.info("若使用热更请先保存热更配置");
             }
         }
     }
@@ -65,12 +64,13 @@ class HotUpdate {
         var _a;
         let oldManifest = Utils_1.Utils.ProjectPath + "/assets/resources/project.manifest";
         if (!fs_extra_1.default.existsSync(oldManifest)) {
-            MLogger_1.MLogger.warn("assets/resources/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
+            Logger_1.Logger.warn("assets/resources/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
             return;
         }
         let fileUuid = (_a = fs_extra_1.default.readJSONSync(oldManifest + ".meta")) === null || _a === void 0 ? void 0 : _a.uuid;
         let src = Config_1.Config.get("hotupdate.src", "");
-        let dest = Utils_1.Utils.ProjectPath + "/temp";
+        let dest = Utils_1.Utils.ProjectPath + "/temp/manifest";
+        fs_extra_1.default.ensureDirSync(dest);
         if (this.genManifest(dest, false)) {
             let newManifest = dest + '/project.manifest';
             let dir = src + '/data/assets/resources';
@@ -80,14 +80,14 @@ class HotUpdate {
             })[0];
             if (oldManifest) {
                 fs_extra_1.default.copyFileSync(newManifest, oldManifest);
-                MLogger_1.MLogger.info(`替换热更资源清单文件成功`);
+                Logger_1.Logger.info(`替换热更资源清单文件成功`);
             }
             else {
-                MLogger_1.MLogger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
+                Logger_1.Logger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
             }
         }
         else {
-            MLogger_1.MLogger.error(`替换热更资源清单文件失败`);
+            Logger_1.Logger.error(`替换热更资源清单文件失败`);
         }
     }
     /** 生成热更资源 */
@@ -103,14 +103,14 @@ class HotUpdate {
                 fs_extra_1.default.copySync(src + '/jsb-adapter', dest + "/jsb-adapter");
                 fs_extra_1.default.copySync(dest + '/project.manifest', Utils_1.Utils.ProjectPath + "/assets/resources/project.manifest");
                 Utils_1.Utils.refreshAsset(Utils_1.Utils.ProjectPath + "/assets/resources/project.manifest");
-                MLogger_1.MLogger.info(`生成热更资源完成 ${dest}`);
+                Logger_1.Logger.info(`生成热更资源完成 ${dest}`);
             }
             else {
-                MLogger_1.MLogger.error(`生成热更资源失败`);
+                Logger_1.Logger.error(`生成热更资源失败`);
             }
         }
         catch (e) {
-            MLogger_1.MLogger.error(`生成热更资源失败 ${e}`);
+            Logger_1.Logger.error(`生成热更资源失败 ${e}`);
         }
     }
     /** 生成资源清单文件 */
@@ -119,10 +119,10 @@ class HotUpdate {
         let url = Config_1.Config.get("gameSetting.hotupdateServer", "");
         let version = Config_1.Config.get("gameSetting.version", "");
         if (!url || !version) {
-            MLogger_1.MLogger.error(`热更配置不正确,请先检查热更配置`);
+            Logger_1.Logger.error(`热更配置不正确,请先检查热更配置`);
         }
         if (!src) {
-            MLogger_1.MLogger.info(`请先构建一次Native工程 再生成热更资源`);
+            Logger_1.Logger.info(`请先构建一次Native工程 再生成热更资源`);
             return false;
         }
         let newSrc = path_1.default.join(src, 'data');
@@ -131,16 +131,16 @@ class HotUpdate {
         }
         src = Utils_1.Utils.toUniSeparator(newSrc);
         if (printConfig) {
-            MLogger_1.MLogger.info(`url=${url}`);
-            MLogger_1.MLogger.info(`version=${version}`);
-            MLogger_1.MLogger.info(`src=${src}`);
-            MLogger_1.MLogger.info(`dest=${dest}`);
+            Logger_1.Logger.info(`url=${url}`);
+            Logger_1.Logger.info(`version=${version}`);
+            Logger_1.Logger.info(`src=${src}`);
+            Logger_1.Logger.info(`dest=${dest}`);
         }
         try {
             VersionGenerator_1.VersionGenerator.gen(url, version, src, dest);
         }
         catch (e) {
-            MLogger_1.MLogger.error(e);
+            Logger_1.Logger.error(e);
             return false;
         }
         return true;
