@@ -7,10 +7,10 @@ exports.HotUpdate = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const Config_1 = require("../tools/Config");
+const Logger_1 = require("../tools/Logger");
 const Utils_1 = require("../tools/Utils");
 const MainJsCode_1 = require("./MainJsCode");
 const VersionGenerator_1 = require("./VersionGenerator");
-const Logger_1 = require("../tools/Logger");
 /** 原生平台检查构建配置和修改main.js */
 class HotUpdate {
     /** 修改main.js 和 src目录中的脚本 */
@@ -76,11 +76,11 @@ class HotUpdate {
             let dir = src + '/data/assets/resources';
             let oldManifest = Utils_1.Utils.getAllFiles(dir, file => {
                 let basename = path_1.default.basename(file);
-                return basename.startsWith(fileUuid);
+                return basename.startsWith(fileUuid) && basename.endsWith(".manifest");
             })[0];
             if (oldManifest) {
                 fs_extra_1.default.copyFileSync(newManifest, oldManifest);
-                Logger_1.Logger.info(`替换热更资源清单文件成功`);
+                Logger_1.Logger.info(`替换热更资源清单文件成功`, newManifest, oldManifest);
             }
             else {
                 Logger_1.Logger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);

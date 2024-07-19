@@ -3,10 +3,10 @@ import fs from "fs-extra";
 import path from "path";
 import { IBuildResult, IBuildTaskOption } from "../../@types";
 import { Config } from "../tools/Config";
+import { Logger } from "../tools/Logger";
 import { Utils } from "../tools/Utils";
 import { MainJsCode } from "./MainJsCode";
 import { VersionGenerator } from "./VersionGenerator";
-import { Logger } from "../tools/Logger";
 
 /** 原生平台检查构建配置和修改main.js */
 export class HotUpdate {
@@ -78,11 +78,11 @@ export class HotUpdate {
             let dir = src + '/data/assets/resources';
             let oldManifest = Utils.getAllFiles(dir, file => {
                 let basename = path.basename(file);
-                return basename.startsWith(fileUuid);
+                return basename.startsWith(fileUuid) && basename.endsWith(".manifest");
             })[0];
             if (oldManifest) {
                 fs.copyFileSync(newManifest, oldManifest);
-                Logger.info(`替换热更资源清单文件成功`);
+                Logger.info(`替换热更资源清单文件成功`, newManifest, oldManifest);
             } else {
                 Logger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
             }
