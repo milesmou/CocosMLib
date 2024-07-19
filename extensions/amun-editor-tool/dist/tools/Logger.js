@@ -9,25 +9,25 @@ const fs_extra_1 = __importDefault(require("fs-extra"));
 class Logger {
     static info(...data) {
         fs_extra_1.default.ensureFileSync(this.logFilePath);
-        let msg = `log [${new Date().toLocaleString()}] ${data.join(" ")} \n`;
+        let msg = `[${new Date().toLocaleString()}] [info] ${data.join(" ")} \n`;
         fs_extra_1.default.appendFileSync(this.logFilePath, msg);
         console.log(msg);
     }
     static debug(...data) {
         fs_extra_1.default.ensureFileSync(this.logFilePath);
-        let msg = `debug [${new Date().toLocaleString()}] ${data.join(" ")} \n`;
+        let msg = `[${new Date().toLocaleString()}] [debug] ${data.join(" ")} \n`;
         fs_extra_1.default.appendFileSync(this.logFilePath, msg);
         console.log(msg);
     }
     static warn(...data) {
         fs_extra_1.default.ensureFileSync(this.logFilePath);
-        let msg = `warn [${new Date().toLocaleString()}] ${data.join(" ")} \n`;
+        let msg = `[${new Date().toLocaleString()}] [warn] ${data.join(" ")} \n`;
         fs_extra_1.default.appendFileSync(this.logFilePath, msg);
         console.warn(msg);
     }
     static error(...data) {
         fs_extra_1.default.ensureFileSync(this.logFilePath);
-        let msg = `error [${new Date().toLocaleString()}] ${data.join(" ")} \n`;
+        let msg = `[${new Date().toLocaleString()}] [error] ${data.join(" ")} \n`;
         fs_extra_1.default.appendFileSync(this.logFilePath, msg);
         console.error(msg);
     }
