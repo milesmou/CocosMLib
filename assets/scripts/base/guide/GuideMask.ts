@@ -1,8 +1,7 @@
 import { Button, Component, EventTouch, Node, Rect, Sprite, Toggle, UITransform, _decorator, v2, v3 } from "cc";
 import { MEvent } from "../../../mlib/module/event/MEvent";
-import { HollowOut } from "./HollowOut";
 import { MButton } from "../../../mlib/module/ui/extend/MButton";
-import { MToggle } from "../../../mlib/module/ui/extend/MToggle";
+import { HollowOut } from "./HollowOut";
 
 
 const { ccclass, property, requireComponent } = _decorator;
@@ -117,6 +116,8 @@ export class GuideMask extends Component {
                 return;
             }
 
+            this._eventTarget.emit(Button.EventType.CLICK);
+
             let btn = this._eventTarget.getComponent(Button);
             if (btn) {
                 Component.EventHandler.emitEvents(btn.clickEvents, evt);
@@ -130,9 +131,8 @@ export class GuideMask extends Component {
                 tog.node.emit("click", tog);
                 return;
             }
-            logger.warn("节点上没有Button或Toggle", this._eventTarget);
+            
         }
-
     }
 
 }
