@@ -2,7 +2,7 @@
   {
     "ID": 1,
     "GuideID": 1001,
-    "StepKey": 0,
+    "StepId": 0,
     "UIName": "UIHUD",
     "NodePath": "home/Bottom/BtnLeaveHome",
     "FingerOffset": {
@@ -13,7 +13,7 @@
   {
     "ID": 2,
     "GuideID": 1001,
-    "StepKey": 1,
+    "StepId": 1,
     "UIName": "UICountryTown",
     "NodePath": "home/btn/btnShop",
     "FingerOffset": {
@@ -24,7 +24,7 @@
   {
     "ID": 3,
     "GuideID": 1001,
-    "StepKey": 2,
+    "StepId": 2,
     "UIName": "UIShop",
     "NodePath": "",
     "FingerOffset": {
@@ -35,7 +35,7 @@
   {
     "ID": 4,
     "GuideID": 1001,
-    "StepKey": 3,
+    "StepId": 3,
     "UIName": "UIPopShopBuy",
     "NodePath": "home/BtnBuy",
     "FingerOffset": {
@@ -46,7 +46,7 @@
   {
     "ID": 5,
     "GuideID": 1001,
-    "StepKey": 4,
+    "StepId": 4,
     "UIName": "UIShop",
     "NodePath": "home/Top/BtnClose",
     "FingerOffset": {
@@ -57,7 +57,7 @@
   {
     "ID": 6,
     "GuideID": 1001,
-    "StepKey": 5,
+    "StepId": 5,
     "UIName": "UICountryTown",
     "NodePath": "home/Bottom/BtnBackHome",
     "FingerOffset": {
@@ -68,7 +68,7 @@
   {
     "ID": 7,
     "GuideID": 1001,
-    "StepKey": 6,
+    "StepId": 6,
     "UIName": "UIHUD",
     "NodePath": "home/Person/Daughter/$Bubble",
     "FingerOffset": {
@@ -79,7 +79,7 @@
   {
     "ID": 8,
     "GuideID": 1002,
-    "StepKey": 0,
+    "StepId": 0,
     "UIName": "UIHUD",
     "NodePath": "home/Bottom/BtnLeaveHome",
     "FingerOffset": {
@@ -90,7 +90,7 @@
   {
     "ID": 9,
     "GuideID": 1002,
-    "StepKey": 1,
+    "StepId": 1,
     "UIName": "UICountryTown",
     "NodePath": "home/Top/BtnPort",
     "FingerOffset": {
@@ -101,7 +101,7 @@
   {
     "ID": 10,
     "GuideID": 1002,
-    "StepKey": 2,
+    "StepId": 2,
     "UIName": "UIPort",
     "NodePath": "home/Merchant/1",
     "FingerOffset": {
@@ -112,7 +112,7 @@
   {
     "ID": 11,
     "GuideID": 1003,
-    "StepKey": 0,
+    "StepId": 0,
     "UIName": "UIHUD",
     "NodePath": "home/Bottom/BtnLeaveHome",
     "FingerOffset": {

@@ -35,7 +35,7 @@ export class UIGuide extends UIComponent {
     public get stepKey() {
         if (this._guideData?.length > 0) {
             if (this._dataIndex > -1 && this._dataIndex < this._guideData.length) {
-                return this._guideData[this._dataIndex].StepKey;
+                return this._guideData[this._dataIndex].StepId;
             }
         }
         return -1;
