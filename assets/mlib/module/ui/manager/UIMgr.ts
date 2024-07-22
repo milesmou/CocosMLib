@@ -29,6 +29,8 @@ export class UIMgr extends Component {
     /** 拦截所有触摸事件的节点 */
     private _blockInput: Node
 
+    /** 正在加载过程中的UI */
+    private _loadingUI: Set<string> = new Set();
     /** UI的缓存Dict */
     private _uiDict: Map<string, UIForm> = new Map();
     /** 实时的UI栈(加载UI需要时间) */
@@ -229,16 +231,34 @@ export class UIMgr extends Component {
 
     private async initUI(uiName: string, parent: Node, visible = true, bottom = false, onProgress?: (loaded: number, total: number) => void): Promise<UIForm> {
         let ui = this._uiDict.get(uiName);
-        if (!ui?.isValid) {
+        if (this._loadingUI.has(uiName)) {
+            ui = await this.waitUILoad(uiName);
+        } else {
+            this._loadingUI.add(uiName);
             let node = await this.instNode(uiName, parent, onProgress);
             ui = node.getComponent(UIComponent) as UIForm;
             ui.init(uiName);
             this._uiDict.set(uiName, ui);
+            this._loadingUI.delete(uiName);
         }
         ui.node.active = true;
         ui.setVisible(visible);
         ui.node.setSiblingIndex(visible && !bottom ? 999999 : 0);
         return ui;
+    }
+
+    private async waitUILoad(uiName: string) {
+        while (!this._uiDict.get(uiName)) {
+            await this.nextFrame();
+        }
+        return this._uiDict.get(uiName);
+    }
+
+    private nextFrame() {
+        let p = new Promise((resolve) => {
+            this.scheduleOnce(resolve);
+        });
+        return p;
     }
 
     private async instNode(uiName: string, parent: Node, onProgress?: (loaded: number, total: number) => void): Promise<Node> {
