@@ -1,6 +1,7 @@
 import { Button, Component, EventTouch, Node, Rect, Sprite, Toggle, UITransform, _decorator, v2, v3 } from "cc";
 import { MEvent } from "../../../mlib/module/event/MEvent";
 import { MButton } from "../../../mlib/module/ui/extend/MButton";
+import { MToggle } from "../../../mlib/module/ui/extend/MToggle";
 import { HollowOut } from "./HollowOut";
 
 
@@ -116,18 +117,24 @@ export class GuideMask extends Component {
                 return;
             }
 
-            let btn = this._eventTarget.getComponent(Button);
-            if (btn) {
-                Component.EventHandler.emitEvents(btn.clickEvents, evt);
-                btn.node.emit("click", btn);
-                if (btn instanceof MButton) btn.onClick.dispatch();
-                return;
+            {
+                let btn = this._eventTarget.getComponent(Button);
+                if (btn) {
+                    Component.EventHandler.emitEvents(btn.clickEvents, evt);
+                    btn.node.emit("click", btn);
+                    if (btn instanceof MButton) btn.onClick.dispatch();
+                    return;
+                }
             }
-            let tog = this._eventTarget.getComponent(Toggle);
-            if (tog) {
-                Component.EventHandler.emitEvents(tog.clickEvents, evt);
-                tog.node.emit("click", tog);
-                return;
+
+            {
+                let tog = this._eventTarget.getComponent(Toggle);
+                if (tog) {
+                    Component.EventHandler.emitEvents(tog.clickEvents, evt);
+                    tog.node.emit("click", tog);
+                    if (tog instanceof MToggle) tog.onValueChange.dispatch();
+                    return;
+                }
             }
 
             this._eventTarget.emit(Button.EventType.CLICK);
