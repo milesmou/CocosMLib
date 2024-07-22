@@ -32,7 +32,7 @@ export class UIGuide extends UIComponent {
 
     public get isGuide() { return this._guideId > 0; }
     public get nowGuide() { return this._guideId; }
-    public get stepKey() {
+    public get stepId() {
         if (this._guideData?.length > 0) {
             if (this._dataIndex > -1 && this._dataIndex < this._guideData.length) {
                 return this._guideData[this._dataIndex].StepId;
@@ -44,9 +44,9 @@ export class UIGuide extends UIComponent {
     private _guideId: number = 0;
     private _guideData: TGuide[] = [];
     private _dataIndex: number;// 数据索引 从_guideData中取值使用
-    private _onStep?: (stepKey: number) => void;
-    private _onStepNode?: (stepKey: number, ui: UIForm) => Promise<Node>;
-    private _onManualStep?: (stepKey: number) => void;
+    private _onStep?: (stepId: number) => void;
+    private _onStepNode?: (stepId: number, ui: UIForm) => Promise<Node>;
+    private _onManualStep?: (stepId: number) => void;
     private _onEnded: () => void;
 
     private _skipGuide = false;//关闭所有引导
@@ -92,7 +92,7 @@ export class UIGuide extends UIComponent {
     }
 
     private checkOver() {
-        this._logger.debug("---------结束引导步骤", this._guideId, this.stepKey);
+        this._logger.debug("---------结束引导步骤", this._guideId, this.stepId);
         this._logger.debug();
         let data = this._guideData[this._dataIndex];
         app.chan.reportEvent("guide_step", { k: data.ID });
@@ -114,9 +114,9 @@ export class UIGuide extends UIComponent {
      * onManualStep:手动开始引导步骤回调
      */
     public startGuide(guideId: number, args?: {
-        onStep?: (stepKey: number) => void,
-        onStepNode?: (stepKey: number, ui: UIBase) => Promise<Node>,
-        onManualStep?: (stepKey: number) => void
+        onStep?: (stepId: number) => void,
+        onStepNode?: (stepId: number, ui: UIBase) => Promise<Node>,
+        onManualStep?: (stepId: number) => void
         onEnded?: () => void,
     }) {
         if (this._skipGuide) return;
@@ -144,19 +144,19 @@ export class UIGuide extends UIComponent {
     }
 
     /** 手动开始引导步骤 */
-    public startGuideStep(guideId: number, stepKey: number, screenPos?: Vec3, eventTarget?: Node, hollowDuration = 0.25) {
+    public startGuideStep(guideId: number, stepId: number, screenPos?: Vec3, eventTarget?: Node, hollowDuration = 0.25) {
         if (this._guideId != guideId) {
             this._logger.error("引导id不一致", this._guideId, guideId);
             return;
         }
-        if (this.stepKey != stepKey) {
-            this._logger.error("引导step不一致", this.stepKey, stepKey);
+        if (this.stepId != stepId) {
+            this._logger.error("引导stepId不一致", this.stepId, stepId);
             return;
         }
 
         let guide = this._guideData[this._dataIndex];
 
-        this._logger.debug(`手动开始引导 GuideId=${guideId} StepIndex=${stepKey}`);
+        this._logger.debug(`手动开始引导 GuideId=${guideId} StepId=${stepId}`);
 
         if (guide.ClickScreen) {//点击屏幕
             this.showBtnScreen();
@@ -180,13 +180,13 @@ export class UIGuide extends UIComponent {
     }
 
     /** 手动结束引导步骤 */
-    public endGuideStep(guideId: number, stepKey: number) {
+    public endGuideStep(guideId: number, stepId: number) {
         if (this._guideId != guideId) {
             this._logger.error("引导id不一致", this._guideId, guideId);
             return;
         }
-        if (this.stepKey != stepKey) {
-            this._logger.error("引导step不一致", this.stepKey, stepKey);
+        if (this.stepId != stepId) {
+            this._logger.error("引导stepId不一致", this.stepId, stepId);
             return;
         }
         this.checkOver();
@@ -198,7 +198,7 @@ export class UIGuide extends UIComponent {
             return;
         }
         this._logger.debug();
-        this._logger.debug("---------开始引导步骤", this._guideId, this.stepKey);
+        this._logger.debug("---------开始引导步骤", this._guideId, this.stepId);
 
         app.ui.blockTime = 99999;
         this.setMaskVisible(true)
@@ -212,7 +212,7 @@ export class UIGuide extends UIComponent {
         this.setShadeOpacity(guide.Opacity || 185)
         if (!guide.TipText) this._tip.active = false;
 
-        this._onStep && this._onStep(this.stepKey);
+        this._onStep && this._onStep(this.stepId);
 
         if (!guide.UIName.trim()) {//需要手动开始引导步骤
             this.waitManualStartStep();
@@ -276,8 +276,8 @@ export class UIGuide extends UIComponent {
 
     private async waitManualStartStep() {
         this._logger.debug("等待手动开始引导步骤");
-        this._onManualStep && this._onManualStep(this.stepKey);
-        app.event.emit(EventKey.ManualGuideStep, this._guideId, this.stepKey);
+        this._onManualStep && this._onManualStep(this.stepId);
+        app.event.emit(EventKey.ManualGuideStep, this._guideId, this.stepId);
     }
 
 
@@ -311,7 +311,7 @@ export class UIGuide extends UIComponent {
         let comp = prefabNode.getComponent(GuidePrefab);
         if (comp) {
             comp.onClose.addListener(this.checkOver, this, true);
-            comp.init(this._guideId, this.stepKey);
+            comp.init(this._guideId, this.stepId);
         }
         app.ui.blockTime = -1;
     }
@@ -331,9 +331,9 @@ export class UIGuide extends UIComponent {
         let guide = this._guideData[this._dataIndex];
         let btnNode: Node;
         if (!guide.NodePath.trim()) {
-            btnNode = await this._onStepNode(this.stepKey, ui);
+            btnNode = await this._onStepNode(this.stepId, ui);
             if (!btnNode?.isValid) {
-                this._logger.error(`引导${this._guideId} 第${this.stepKey}步 目标节点未找到`);
+                this._logger.error(`引导${this._guideId} stepId=${this.stepId} 目标节点未找到`);
                 return;
             }
         }
@@ -350,7 +350,7 @@ export class UIGuide extends UIComponent {
             return result;
         }
         else {
-            this._logger.error(`引导${this._guideId} 第${this.stepKey}步 未找到指定Node`);
+            this._logger.error(`引导${this._guideId} stepId=${this.stepId} 未找到指定Node`);
             this.guideOver();
             return null;
         }
