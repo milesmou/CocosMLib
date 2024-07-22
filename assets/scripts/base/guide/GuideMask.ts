@@ -116,8 +116,6 @@ export class GuideMask extends Component {
                 return;
             }
 
-            this._eventTarget.emit(Button.EventType.CLICK);
-
             let btn = this._eventTarget.getComponent(Button);
             if (btn) {
                 Component.EventHandler.emitEvents(btn.clickEvents, evt);
@@ -131,7 +129,8 @@ export class GuideMask extends Component {
                 tog.node.emit("click", tog);
                 return;
             }
-            
+
+            this._eventTarget.emit(Button.EventType.CLICK);
         }
     }
 
