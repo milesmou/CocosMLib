@@ -350,14 +350,12 @@ export class UIMgr extends Component {
     private checkShowUI(uiName: string) {
         let now = Date.now();
         if (this._openUITime.has(uiName)) {
-            let lastTime = this._openUITime[uiName];
+            let lastTime = this._openUITime.get(uiName);
             if (now - lastTime < 100) {
                 logger.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
-                this._openUITime.delete(uiName);
             }
-            this._openUITime[uiName] = now;
         }
-        else this._openUITime.set(uiName, now);
+        this._openUITime.set(uiName, now);
     }
 
     protected update(dt: number) {
