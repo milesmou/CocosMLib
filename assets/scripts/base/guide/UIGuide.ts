@@ -122,7 +122,7 @@ export class UIGuide extends UIComponent {
         if (this._skipGuide) return;
         let { onStep, onStepNode, onManualStep, onEnded } = args || {};
         if (this._guideId != 0) {
-            this._logger.trace("正在进引导: " + this._guideId + " 想要开始引导: " + guideId);
+            this._logger.warn("正在进引导: " + this._guideId + " 想要开始引导: " + guideId);
             return;
         }
         this._guideId = guideId;
