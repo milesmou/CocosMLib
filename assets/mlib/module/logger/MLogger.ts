@@ -1,27 +1,27 @@
 import { ELoggerLevel } from "./ELoggerLevel";
 
+const globalTag = "MLogger";
+//全局日志打印级别
+let globalLevel: ELoggerLevel;
 
 class MLogger {
 
     /** 日子打印级别枚举 */
-    public static readonly ELevel = ELoggerLevel;
-
-    //默认日志打印
-    private static globalTag = "MLogger";
-    private static globalLevel: ELoggerLevel;
+    public static readonly ELogLevel = ELoggerLevel;
 
     public static new(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
         return new MLogger(tag, level);
     }
 
     public static setLevel(level: ELoggerLevel) {
-        this.info = level > ELoggerLevel.Info ? this.none : console.log.bind(console, `[${this.globalTag} Info]`);
-        this.debug = level > ELoggerLevel.Debug ? this.none : console.log.bind(console, `[${this.globalTag} Debug]`);
-        this.warn = level > ELoggerLevel.Warn ? this.none : console.warn.bind(console, `[${this.globalTag} Warn]`);
-        this.error = level > ELoggerLevel.Error ? this.none : console.error.bind(console, `[${this.globalTag} Error]`);
-        this.print = console.log.bind(console, `[${this.globalTag} Print]`);
-        this.trace = console.trace ? console.trace.bind(console, `[${this.globalTag} Trace]`) :
-            console.log.bind(console, `[${this.globalTag} Not Support Trace]`);
+        globalLevel = level;
+        this.info = level > ELoggerLevel.Info ? this.none : console.log.bind(console, `[${globalTag} Info]`);
+        this.debug = level > ELoggerLevel.Debug ? this.none : console.log.bind(console, `[${globalTag} Debug]`);
+        this.warn = level > ELoggerLevel.Warn ? this.none : console.warn.bind(console, `[${globalTag} Warn]`);
+        this.error = level > ELoggerLevel.Error ? this.none : console.error.bind(console, `[${globalTag} Error]`);
+        this.print = console.log.bind(console, `[${globalTag} Print]`);
+        this.trace = console.trace ? console.trace.bind(console, `[${globalTag} Trace]`) :
+            console.log.bind(console, `[${globalTag} Not Support Trace]`);
     }
 
     public static info: (...data) => void;
@@ -40,17 +40,17 @@ class MLogger {
 
     //日志打印对象
     private constructor(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
-        this.info = logger.globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ? logger.none :
-            console.log.bind(console, `[${logger.globalTag} ${tag} Info]`);
-        this.debug = logger.globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ? logger.none :
-            console.log.bind(console, `[${logger.globalTag} ${tag} Debug]`);
-        this.warn = logger.globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ? logger.none :
-            console.warn.bind(console, `[${logger.globalTag} ${tag} Warn]`);
-        this.error = logger.globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ? logger.none :
-            console.error.bind(console, `[${logger.globalTag} ${tag} Error]`);
-        this.print = console.log.bind(console, `[${logger.globalTag} ${tag} Print]`);
-        this.trace = console.trace ? console.trace.bind(console, `[${logger.globalTag} Trace]`) :
-            console.log.bind(console, `[${logger.globalTag} NoTrace]`);
+        this.info = globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ? logger.none :
+            console.log.bind(console, `[${globalTag} ${tag} Info]`);
+        this.debug = globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ? logger.none :
+            console.log.bind(console, `[${globalTag} ${tag} Debug]`);
+        this.warn = globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ? logger.none :
+            console.warn.bind(console, `[${globalTag} ${tag} Warn]`);
+        this.error = globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ? logger.none :
+            console.error.bind(console, `[${globalTag} ${tag} Error]`);
+        this.print = console.log.bind(console, `[${globalTag} ${tag} Print]`);
+        this.trace = console.trace ? console.trace.bind(console, `[${globalTag} Trace]`) :
+            console.log.bind(console, `[${globalTag} Not Support Trace]`);
     }
 
     public info: (...data) => void;
