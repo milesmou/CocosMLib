@@ -231,15 +231,17 @@ export class UIMgr extends Component {
 
     private async initUI(uiName: string, parent: Node, visible = true, bottom = false, onProgress?: (loaded: number, total: number) => void): Promise<UIForm> {
         let ui = this._uiDict.get(uiName);
-        if (this._loadingUI.has(uiName)) {
-            ui = await this.waitUILoad(uiName);
-        } else {
-            this._loadingUI.add(uiName);
-            let node = await this.instNode(uiName, parent, onProgress);
-            ui = node.getComponent(UIComponent) as UIForm;
-            ui.init(uiName);
-            this._uiDict.set(uiName, ui);
-            this._loadingUI.delete(uiName);
+        if (!ui?.isValid) {
+            if (this._loadingUI.has(uiName)) {
+                ui = await this.waitUILoad(uiName);
+            } else {
+                this._loadingUI.add(uiName);
+                let node = await this.instNode(uiName, parent, onProgress);
+                ui = node.getComponent(UIComponent) as UIForm;
+                ui.init(uiName);
+                this._uiDict.set(uiName, ui);
+                this._loadingUI.delete(uiName);
+            }
         }
         ui.node.active = true;
         ui.setVisible(visible);
