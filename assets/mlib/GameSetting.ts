@@ -11,7 +11,7 @@ const EGameConfigType = Enum({
 })
 
 const LogLevel = Enum({
-    Auto: -1,
+    Auto: 0,
     ...ELoggerLevel
 });
 
