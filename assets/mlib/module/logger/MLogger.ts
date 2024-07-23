@@ -1,8 +1,10 @@
 import { ELoggerLevel } from "./ELoggerLevel";
 
 const globalTag = "MLogger";
-//全局日志打印级别
+/** 全局日志打印级别 */
 let globalLevel: ELoggerLevel;
+/** 不打印任何信息的空方法 */
+function none(...data) { }
 
 class MLogger {
 
@@ -15,10 +17,10 @@ class MLogger {
 
     public static setLevel(level: ELoggerLevel) {
         globalLevel = level;
-        this.info = level > ELoggerLevel.Info ? this.none : console.log.bind(console, `[${globalTag} Info]`);
-        this.debug = level > ELoggerLevel.Debug ? this.none : console.log.bind(console, `[${globalTag} Debug]`);
-        this.warn = level > ELoggerLevel.Warn ? this.none : console.warn.bind(console, `[${globalTag} Warn]`);
-        this.error = level > ELoggerLevel.Error ? this.none : console.error.bind(console, `[${globalTag} Error]`);
+        this.info = level > ELoggerLevel.Info ? none : console.log.bind(console, `[${globalTag} Info]`);
+        this.debug = level > ELoggerLevel.Debug ? none : console.log.bind(console, `[${globalTag} Debug]`);
+        this.warn = level > ELoggerLevel.Warn ? none : console.warn.bind(console, `[${globalTag} Warn]`);
+        this.error = level > ELoggerLevel.Error ? none : console.error.bind(console, `[${globalTag} Error]`);
         this.print = console.log.bind(console, `[${globalTag} Print]`);
         this.trace = console.trace ? console.trace.bind(console, `[${globalTag} Trace]`) :
             console.log.bind(console, `[${globalTag} Not Support Trace]`);
@@ -36,18 +38,16 @@ class MLogger {
 
     public static trace: (...data) => void;
 
-    private static none(...data) { }
-
     //日志打印对象
     private constructor(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
-        this.info = globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ? logger.none :
-            console.log.bind(console, `[${globalTag} ${tag} Info]`);
-        this.debug = globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ? logger.none :
-            console.log.bind(console, `[${globalTag} ${tag} Debug]`);
-        this.warn = globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ? logger.none :
-            console.warn.bind(console, `[${globalTag} ${tag} Warn]`);
-        this.error = globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ? logger.none :
-            console.error.bind(console, `[${globalTag} ${tag} Error]`);
+        this.info = globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ?
+            none : console.log.bind(console, `[${globalTag} ${tag} Info]`);
+        this.debug = globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ?
+            none : console.log.bind(console, `[${globalTag} ${tag} Debug]`);
+        this.warn = globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ?
+            none : console.warn.bind(console, `[${globalTag} ${tag} Warn]`);
+        this.error = globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ?
+            none : console.error.bind(console, `[${globalTag} ${tag} Error]`);
         this.print = console.log.bind(console, `[${globalTag} ${tag} Print]`);
         this.trace = console.trace ? console.trace.bind(console, `[${globalTag} Trace]`) :
             console.log.bind(console, `[${globalTag} Not Support Trace]`);
