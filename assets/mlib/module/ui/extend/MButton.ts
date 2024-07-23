@@ -130,7 +130,9 @@ export class MButton extends Button {
     protected _onTouchEnded(event?: EventTouch): void {
         if (this._isCoolingDown) return;
 
-        if (this['_pressed'] && this.m_Cooldown > 0) {
+        let pressed = this['_pressed'];//只有当pressed为true时，才表示是一次完整的点击事件
+
+        if (pressed && this.m_Cooldown > 0) {
             this._isCoolingDown = true;
             this.scheduleOnce(() => {
                 this._isCoolingDown = false;
@@ -159,12 +161,13 @@ export class MButton extends Button {
                 //已触发长按事件 忽略点击事件
             }
             else {
-                if (this['_pressed'] && this.clickAudio) app.audio.playEffect(this.clickAudio, 1, { deRef: false });
-                this.onClick.dispatch();
+                if (pressed) {
+                    if (this.clickAudio) app.audio.playEffect(this.clickAudio, 1, { deRef: false });
+                    this.onClick.dispatch();
+                }
                 super._onTouchEnded(event);
             }
         }
-
 
     }
 
