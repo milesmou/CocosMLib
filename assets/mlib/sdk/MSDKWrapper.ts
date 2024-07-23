@@ -183,13 +183,18 @@ type StringCallback = (str?: string) => void;
 type NumberCallback = (num?: number) => void;
 type ObjectCallback = (obj?: object) => void;
 
-export class LoginArgs {
+/** 发起登录请求参数 */
+export interface LoginArgs {
+    /** 登录成功 */
     success?: StringCallback;
+    /** 登录失败 */
     fail?: StringCallback;
+    /** 扩展参数 */
     extParam?: string;
 }
 
-export class GameDataArgs {
+/** 上传或下载存档参数 */
+export interface GameDataArgs {
     /** 用户id */
     userId: string;
     /** 成功 */
@@ -198,25 +203,41 @@ export class GameDataArgs {
     fail?: NoneCallback;
     /** 存档数据 上传专用 */
     userGameData?: string;
+    /** 扩展参数 */
     extParam?: string;
 }
 
-export class ShowRewardedAdArgs {
+/** 发起激励视频请求参数 */
+export interface ShowRewardedAdArgs {
+    /** 观看视频完成 */
     success: StringCallback;
+    /** 未完整观看视频 */
     fail?: StringCallback;
+    /** 视频开始展示 */
     show?: StringCallback;
+    /** 视频关闭 */
     close?: StringCallback;
+    /** 点击视频 */
     click?: StringCallback;
+    /** 加载视频失败 */
     error?: StringCallback;
+    /** 扩展参数 */
     extParam?: string;
 }
 
-export class RequestIAPArgs {
+/** 发起内购请求参数 */
+export interface RequestIAPArgs {
+    /** 产品id */
     productId: string;
+    /** 价格 */
     price?: number;
+    /** 产品名字 */
     name?: string;
+    /** 产品描述 */
     desc?: string;
+    /** 是否订阅 */
     isSub?: boolean;
+    /** 扩展参数 */
     extParam?: string;
 }
 
