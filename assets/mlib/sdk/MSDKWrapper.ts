@@ -115,10 +115,8 @@ export class MSDKWrapper {
     /** 发送消息给原生层 key使用NativeKey中的值*/
     public static sendToNative(key: ECallNativeKey, arg?: string) {
         this.init();
-        // native.bridge.sendToNative(arg0, arg1);
-        arg = arg || ""
         if (JSB) {
-            native.bridge.sendToNative(ECallNativeKey[key], arg);
+            native.bridge.sendToNative(ECallNativeKey[key], arg || "");
         }
     }
 
