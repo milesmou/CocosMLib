@@ -146,7 +146,7 @@ export class CCUtils {
                 for (let iter = gen.next(); ; iter = gen.next()) {
 
                     if (!comp?.isValid) break;//组件销毁后停止加载
-                    if (timeMS != this.loadListTimeMS.get(content.uuid)) break;//本次操作需要终止
+                    if (timeMS != this.loadListTimeMS.get(content.uuid)) break;//已经再次加载 终止本次加载操作
 
                     if (iter == null || iter.done) {
                         this.loadListTimeMS.delete(content.uuid);
