@@ -29,12 +29,12 @@ export class RedDot extends Component {
     }
 
     onEnable() {
-        RedDotMgr.setRedDotListener(this.redDotName, this.onValueChange.bind(this));
+        RedDotMgr.addRedDotListener(this.redDotName, this.onValueChange, this);
         this.onValueChange();
     }
 
     onDisable() {
-        RedDotMgr.setRedDotListener(this.redDotName, null);
+        RedDotMgr.removeRedDotListener(this.redDotName, this.onValueChange, this);
     }
 
     private onValueChange() {

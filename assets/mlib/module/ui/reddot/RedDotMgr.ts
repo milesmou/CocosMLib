@@ -1,3 +1,4 @@
+import { MEvent } from "../../event/MEvent";
 
 class RedDotNode {
 
@@ -9,7 +10,7 @@ class RedDotNode {
     public name: string;
     public parent: RedDotNode;
     public child: RedDotNode[] = [];
-    public onValueChange: () => void;
+    public onValueChange = new MEvent();
 
     public get value() {
         if (this.child.length == 0) return this.nodeValue;
@@ -26,10 +27,10 @@ class RedDotNode {
             return;
         }
         this.nodeValue = val;
-        this.onValueChange && this.onValueChange();
+        this.onValueChange?.dispatch();
         let p = this.parent;
         while (p != null) {
-            p.onValueChange && p.onValueChange();
+            p.onValueChange?.dispatch();
             p = p.parent;
         }
     }
@@ -84,11 +85,22 @@ export class RedDotMgr {
         }
     }
 
-    /** 监听节点值的变化 */
-    public static setRedDotListener(name: string, onValueChange: () => void) {
+     /** 添加节点值变化的监听 */
+     public static addRedDotListener(name: string, onValueChange: () => void, thisObj?: object) {
         if (this.nodes[name]) {
             let node = this.nodes[name];
-            node.onValueChange = onValueChange;
+            node.onValueChange.addListener(onValueChange, thisObj);
+        }
+        else {
+            logger.error(`节点不存在 ${name}`);
+        }
+    }
+
+    /** 移除节点值变化的监听 */
+    public static removeRedDotListener(name: string, onValueChange: () => void, thisObj?: object) {
+        if (this.nodes[name]) {
+            let node = this.nodes[name];
+            node.onValueChange.removeListener(onValueChange, thisObj);
         }
         else {
             logger.error(`节点不存在 ${name}`);
