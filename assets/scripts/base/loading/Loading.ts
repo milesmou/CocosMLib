@@ -98,7 +98,7 @@ export class Loading extends UIComponent {
 
     /** 登录 */
     private login() {
-        console.log("开始登录");
+        logger.info("开始登录");
 
         app.chan.login({
             success: uid => {
@@ -195,6 +195,7 @@ export class Loading extends UIComponent {
         }
         if (this._progressBar) {
             this._progressBar.progress = 0;
+            this.onProgress(0, 1);
         }
         this.startFakeProgress(0);
     }
