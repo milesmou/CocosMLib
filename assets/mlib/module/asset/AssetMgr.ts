@@ -6,7 +6,7 @@ import { BundleMgr } from "./BundleMgr";
 /**
  * 资源加载管理类 
  * 每调用一次资源加载接口,资源引用次数+1
- * 若需要自动释放资源,请使用继承AssetHandler的组件来加载资源,组件所在节点销毁时,通过组件加载的资源引用计数-1
+ * 若需要自动释放资源,请使用AssetComponent来加载资源,组件所在节点销毁时,通过组件加载的资源引用计数-1
  */
 export class AssetMgr {
 
