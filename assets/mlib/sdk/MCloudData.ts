@@ -1,4 +1,4 @@
-export class MCloudData {
+export interface MCloudData {
     commit: string;
     data: string;
     key: string;

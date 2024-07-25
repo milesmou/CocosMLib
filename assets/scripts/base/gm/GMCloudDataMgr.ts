@@ -52,7 +52,7 @@ export class GMCloudDataMgr extends UIComponent {
 
         let data = GameData.Inst.getSerializeStr();
 
-        MCloudDataSDK.saveGameData(this._gmUid, Date.now().toString(), data, desc).then(v => {
+        MCloudDataSDK.saveGameData_Old(this._gmUid, Date.now().toString(), data, desc).then(v => {
             if (v && v["code"] == 100) {
                 app.tipMsg.showToast("存档保存成功");
             } else {
@@ -74,7 +74,7 @@ export class GMCloudDataMgr extends UIComponent {
 
     /**显示列表中的所有存档 */
     private renderScrollView() {
-        MCloudDataSDK.getGameDatas(this._gmUid).then(v => {
+        MCloudDataSDK.getGameDatas_Old(this._gmUid).then(v => {
             if (v && v["code"] == 100) {
                 console.log("获取所有存档成功");
                 let list = v["data"] as any[];
@@ -111,7 +111,7 @@ export class GMCloudDataMgr extends UIComponent {
             "删除存档不可逆，真的要删除么？!", {
             type: 2,
             cbOk: () => {
-                MCloudDataSDK.delGameData(uid, key).then(v => {
+                MCloudDataSDK.delGameData_Old(uid, key).then(v => {
                     if (v && v["code"] == 100) {
                         app.tipMsg.showToast("删除存档成功");
                         this.renderScrollView();

@@ -51,7 +51,7 @@ export class Channel {
     public getGameData(args: GameDataArgs) {
         logger.debug("getGameData", args.userId);
         SDKCallback.getGameData = args;
-        MCloudDataSDK.getGameData(args.userId, this.userDataCloudSaveKey).then(v => {
+        MCloudDataSDK.getGameData_Old(args.userId, this.userDataCloudSaveKey).then(v => {
             if (v) {
                 args.success && args.success(v);
             } else {
@@ -64,7 +64,7 @@ export class Channel {
     public uploadGameData(args: GameDataArgs) {
         logger.debug("uploadGameData", args.userId);
         SDKCallback.uploadGameData = args;
-        MCloudDataSDK.saveGameData(args.userId, this.userDataCloudSaveKey, args.userGameData).then(v => {
+        MCloudDataSDK.saveGameData_Old(args.userId, this.userDataCloudSaveKey, args.userGameData).then(v => {
             if (v) {
                 args.success && args.success(v);
             } else {
