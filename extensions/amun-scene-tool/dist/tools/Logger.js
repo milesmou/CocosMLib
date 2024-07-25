@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const Constant_1 = require("./Constant");
-/** 打印日志  同时打印日志到文件中 */
+/** 打印日志  同时保存日志到文件中 */
 class Logger {
     static info(...data) {
         fs_extra_1.default.ensureFileSync(Constant_1.Constant.LogFilePath);

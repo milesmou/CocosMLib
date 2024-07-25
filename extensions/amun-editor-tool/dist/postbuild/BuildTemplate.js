@@ -6,17 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BuildTemplate = void 0;
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
-const Config_1 = require("../tools/Config");
 const Constant_1 = require("../tools/Constant");
-const Utils_1 = require("../tools/Utils");
 const Logger_1 = require("../tools/Logger");
+const Utils_1 = require("../tools/Utils");
 /** 拷贝自定义构建模板资源 */
 class BuildTemplate {
     static copy(options, result) {
-        if (!Config_1.Config.get(Constant_1.Constant.BuildTemplateSaveKey, true)) {
-            Logger_1.Logger.info("未启用构建模板");
-            return; //未启用构建模板
-        }
         let templatePath = Utils_1.Utils.ProjectPath + "/" + Constant_1.Constant.BuildTemplateDirName + "/" + options.outputName;
         fs_extra_1.default.ensureDirSync(templatePath);
         //拷贝模板目录资源

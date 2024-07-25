@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Config = void 0;
 const path_1 = __importDefault(require("path"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
+/** 保存和读取本地配置 */
 class Config {
     static get data() {
         if (!fs_extra_1.default.existsSync(this.FilePath)) {

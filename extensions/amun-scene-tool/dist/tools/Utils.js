@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Utils = void 0;
 const child_process_1 = __importDefault(require("child_process"));
 const fs_1 = __importDefault(require("fs"));
-const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
 const Logger_1 = require("./Logger");
 class Utils {
@@ -15,6 +14,31 @@ class Utils {
             this.projectPath = this.toUniSeparator(Editor.Project.path);
         return this.projectPath;
     }
+    /** 是否原生平台 */
+    static isNative(platform) {
+        switch (platform) {
+            case "windows":
+            case "mac":
+            case "linux":
+            case "android":
+            case "ios":
+                return true;
+        }
+        return false;
+    }
+    /** 是否小游戏平台 */
+    static isMinigame(platform) {
+        switch (platform) {
+            case "wechatgame":
+            case "alipay-mini-game":
+            case "bytedance-mini-game":
+            case "baidu-mini-game":
+            case "taobao-creative-app":
+                return true;
+        }
+        return false;
+    }
+    /** 执行终端命令 */
     static exeCMD(workDir, cmd, onMsg) {
         let p = new Promise((resolve, reject) => {
             let result = child_process_1.default.exec(cmd, { cwd: workDir });
@@ -39,9 +63,9 @@ class Utils {
         });
         return p;
     }
-    static getAllFiles(dir, suffix) {
+    /** 获取指定目录下所有文件 */
+    static getAllFiles(dir, filter, topDirOnly = false) {
         dir = this.toAbsolutePath(dir);
-        suffix = suffix || [];
         let files = [];
         if (!fs_1.default.existsSync(dir))
             return files;
@@ -52,6 +76,8 @@ class Utils {
                     callback(p);
                 }
                 else if (dirent.isDirectory()) {
+                    if (topDirOnly)
+                        return;
                     walkSync(p, callback);
                 }
             });
@@ -59,67 +85,115 @@ class Utils {
         walkSync(dir, file => {
             if (file.endsWith(".meta"))
                 return;
-            if (suffix.length == 0)
+            if (!filter || filter(file)) {
                 files.push(this.toUniSeparator(file));
-            let s = suffix.find(v => file.endsWith(v));
-            if (s)
-                files.push(this.toUniSeparator(file));
+            }
         });
         return files;
     }
-    static fixupFilePath(filePath) {
-        if (filePath.endsWith(".tpl"))
-            filePath = filePath.replace(".tpl", "");
-        let result = "";
+    /** 获取指定目录下所有目录 */
+    static getAllDirs(dir, filter, topDirOnly = false) {
+        dir = this.toAbsolutePath(dir);
+        let dirs = [];
+        if (!fs_1.default.existsSync(dir))
+            return dirs;
+        let walkSync = (currentDir, callback) => {
+            fs_1.default.readdirSync(currentDir, { withFileTypes: true }).forEach(dirent => {
+                let p = path_1.default.join(currentDir, dirent.name);
+                if (dirent.isDirectory()) {
+                    callback(p);
+                    if (topDirOnly)
+                        return;
+                    walkSync(p, callback);
+                }
+            });
+        };
+        walkSync(dir, subDir => {
+            if (!filter || filter(subDir)) {
+                dirs.push(this.toUniSeparator(subDir));
+            }
+        });
+        return dirs;
+    }
+    /** 根据文件路径找到追加了md5值的实际文件路径 */
+    static resolveFilePath(filePath) {
+        let result = filePath;
         let dir = path_1.default.dirname(filePath);
-        let extname = path_1.default.extname(filePath);
-        let basename = path_1.default.basename(filePath, extname) + ".";
-        let arr = fs_1.default.readdirSync(dir, { withFileTypes: true });
-        for (const dirent of arr) {
-            if (dirent.isFile()) {
-                let name = dirent.name;
-                let p = path_1.default.join(dir, name);
-                if (name.startsWith(basename) && name.endsWith(extname)) {
-                    result = this.toUniSeparator(p);
-                    break;
+        if (fs_1.default.existsSync(dir)) {
+            let basename = path_1.default.basename(filePath);
+            let ext = path_1.default.extname(filePath);
+            let name = basename.replace(ext, ".");
+            let reg = new RegExp(`${name}[A-Za-z0-9]{5}${ext}`);
+            let dirents = fs_1.default.readdirSync(dir, { withFileTypes: true });
+            for (const dirent of dirents) {
+                let p = path_1.default.join(dir, dirent.name);
+                if (dirent.isFile()) {
+                    if (dirent.name == basename) {
+                        break;
+                    }
+                    else {
+                        if (reg.test(dirent.name)) {
+                            result = p;
+                            break;
+                        }
+                    }
                 }
             }
         }
-        if (!result)
-            result = filePath;
-        return result;
+        return result.replace(/\\/g, "/");
     }
+    /** 将追加了md5的文件路径还原为正常的文件路径 */
+    static restoreFilePath(filePath) {
+        let ext = path_1.default.extname(filePath);
+        let p = filePath.replace(ext, "");
+        let reg = new RegExp(/.+\.[A-Za-z0-9]{5}/);
+        if (reg.test(p)) {
+            let index = p.lastIndexOf(".");
+            return p.substring(0, index) + ext;
+        }
+        else {
+            return filePath;
+        }
+    }
+    /** 刷新编辑器内的资源 */
     static refreshAsset(path) {
-        let dbUrl = this.toAssetDBUrl(path);
-        Editor.Message.send("asset-db", "refresh-asset", dbUrl);
+        if (!path.startsWith("db:") && fs_1.default.statSync(path).isDirectory()) {
+            let files = Utils.getAllFiles(path, null, true);
+            for (const file of files) {
+                Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(file));
+            }
+        }
+        else {
+            Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
+        }
     }
+    /** 删除编辑器内的资源 */
+    static deleteAsset(path) {
+        Editor.Message.send("asset-db", "delete-asset", this.toAssetDBUrl(path));
+    }
+    /** 将本地文件路径转化为编辑器内资源路径 */
     static toAssetDBUrl(path) {
         if (path.startsWith("db://"))
             return path;
         else
             return path.replace(this.ProjectPath + "/", "db://");
     }
-    static toAbsolutePath(dbUrl) {
-        if (dbUrl.startsWith("db://"))
-            return dbUrl.replace("db://", this.ProjectPath + "/");
+    /** 将编辑器内资源路径转化为本地文件路径 */
+    static toAbsolutePath(dbUrlOrprojUrl) {
+        if (dbUrlOrprojUrl.startsWith("db://"))
+            return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
+        else if (dbUrlOrprojUrl.startsWith("project://"))
+            return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
         else
-            return dbUrl;
+            return dbUrlOrprojUrl;
     }
+    /** 统一路径分隔符为(/) */
     static toUniSeparator(path) {
         return path.replace(/\\/g, "/");
     }
-    static lowerFirst(source) {
-        if (!source)
-            return source;
-        if (source.length < 2)
-            return source.toLowerCase();
-        return source[0].toLowerCase() + source.substring(1);
-    }
-    static get returnSymbol() {
-        switch (os_1.default.platform()) {
-            case 'win32': return '\r\n'; // windows
-            default: return '\n';
-        }
+    /** 统一换行符为(\n) */
+    static toUniLineBrake(content) {
+        return content.replace(/\\r\\n/g, "\n");
     }
 }
 exports.Utils = Utils;

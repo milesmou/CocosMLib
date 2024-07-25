@@ -8,14 +8,12 @@ import { SceneCmdExecute } from "./scene/SceneCmdExecute";
  * @zh 为扩展的主进程的注册方法
  */
 export const methods: { [key: string]: (...any: any) => any } = {
+    /**  */
     saveGameSetting: CmdExecute.saveGameSetting.bind(CmdExecute),
     loadExcel: CmdExecute.loadExcel.bind(CmdExecute),
     genConst: CmdExecute.genConst.bind(CmdExecute),
-    formatProject: CmdExecute.formatProject.bind(CmdExecute),
     closeTexCompress: CmdExecute.closeTexCompress.bind(CmdExecute),
     setTexCompress: CmdExecute.setTexCompress.bind(CmdExecute),
-    openBuildTemplate: CmdExecute.openBuildTemplate.bind(CmdExecute),
-    closeBuildTemplate: CmdExecute.closeBuildTemplate.bind(CmdExecute),
     genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
     openLogFile: CmdExecute.openLogFile.bind(CmdExecute),
     //场景操作命令

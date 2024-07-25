@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.unload = exports.load = exports.methods = void 0;
 const path_1 = require("path");
-const GenProperty_1 = require("./GenProperty");
 module.paths.push((0, path_1.join)(Editor.App.path, 'node_modules'));
 const ReplaceComponent_1 = require("./ReplaceComponent");
 /**
@@ -10,7 +9,6 @@ const ReplaceComponent_1 = require("./ReplaceComponent");
  * @zh 为扩展的主进程的注册方法
  */
 exports.methods = {
-    autoGenProperty: GenProperty_1.GenProperty.gen.bind(GenProperty_1.GenProperty),
     replaceComponent: ReplaceComponent_1.ReplaceComponent.replace.bind(ReplaceComponent_1.ReplaceComponent),
 };
 /**

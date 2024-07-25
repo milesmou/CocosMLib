@@ -31,12 +31,6 @@
                     "saveGameSetting"
                 ]
             },
-            "formatProject": {
-                "public": false,
-                "methods": [
-                    "formatProject"
-                ]
-            },
             "loadExcel": {
                 "public": false,
                 "methods": [
@@ -65,18 +59,6 @@
                 "public": false,
                 "methods": [
                     "setTexCompress"
-                ]
-            },
-            "openBuildTemplate": {
-                "public": false,
-                "methods": [
-                    "openBuildTemplate"
-                ]
-            },
-            "closeBuildTemplate": {
-                "public": false,
-                "methods": [
-                    "closeBuildTemplate"
                 ]
             },
             "genHotUpdateRes": {
@@ -130,18 +112,6 @@
                 "message": "setTexCompress"
             },
             {
-                "path": "MTools/构建模板",
-                "label": "启用",
-                "icon": "./static/icon.png",
-                "message": "openBuildTemplate"
-            },
-            {
-                "path": "MTools/构建模板",
-                "label": "禁用",
-                "icon": "./static/icon.png",
-                "message": "closeBuildTemplate"
-            },
-            {
                 "path": "MTools/热更",
                 "label": "生成热更资源",
                 "icon": "./static/icon.png",
@@ -170,11 +140,6 @@
                 "message": "genConst",
                 "win": "ctrl+shift+g",
                 "mac": "ctrl+shift+g"
-            },
-            {
-                "message": "autoGenProperty",
-                "win": "shift+b",
-                "mac": "shift+b"
             }
         ]
     },

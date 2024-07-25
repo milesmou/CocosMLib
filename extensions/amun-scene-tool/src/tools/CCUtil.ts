@@ -1,5 +1,4 @@
-import { Node, Camera, Component, Prefab, Scene, ScrollView, Vec3, Widget, instantiate, misc, sp, tween, v2, v3, view, UITransform } from "cc";
-import { Utils } from "./Utils";
+import { Component, Node, Scene } from "cc";
 
 export class CCUtils {
 
@@ -42,8 +41,8 @@ export class CCUtils {
         return arr;
     }
 
-    
 
-    
+
+
 
 }

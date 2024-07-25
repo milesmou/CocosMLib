@@ -1,18 +1,13 @@
 import fs from "fs-extra";
 import path from "path";
 import { IBuildResult, IBuildTaskOption } from "../../@types";
-import { Config } from "../tools/Config";
 import { Constant } from "../tools/Constant";
-import { Utils } from "../tools/Utils";
 import { Logger } from "../tools/Logger";
+import { Utils } from "../tools/Utils";
 
 /** 拷贝自定义构建模板资源 */
 export class BuildTemplate {
     public static copy(options: IBuildTaskOption, result: IBuildResult) {
-        if (!Config.get(Constant.BuildTemplateSaveKey, true)) {
-            Logger.info("未启用构建模板");
-            return;//未启用构建模板
-        }
         let templatePath = Utils.ProjectPath + "/" + Constant.BuildTemplateDirName + "/" + options.outputName;
         fs.ensureDirSync(templatePath);
         //拷贝模板目录资源

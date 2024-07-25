@@ -8,9 +8,10 @@ const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const Config_1 = require("./tools/Config");
 const Constant_1 = require("./tools/Constant");
-const Utils_1 = require("./tools/Utils");
 const Logger_1 = require("./tools/Logger");
+const Utils_1 = require("./tools/Utils");
 class CmdExecute {
+    /** 功能测试 */
     static test() {
         console.log("测试");
         let dir = path_1.default.dirname(Constant_1.Constant.LogFilePath);
@@ -22,36 +23,6 @@ class CmdExecute {
     /** 保存游戏配置到本地 */
     static saveGameSetting(jsonStr) {
         Config_1.Config.set("gameSetting", JSON.parse(jsonStr));
-    }
-    /** 格式化目录结构 */
-    static formatProject() {
-        //创建目录
-        // // fs.ensureDirSync(Utils.ProjectPath + "/assets/build-template");//构建后处理资源目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/sc");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/tc");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/localization/en");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/anim");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/font");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/static/uiSprite");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/audio");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/table");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/sprite");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/prefab");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/bundles/dynamic/uiPrefab");//资源包目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts");//脚本目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/base");//脚本目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/gen");//脚本目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scripts/ui");//脚本目录
-        // fs.ensureDirSync(Utils.ProjectPath + "/assets/scenes");//场景目录
-        // Utils.refreshAsset(Utils.ProjectPath + "/assets/build-template");
-        // Utils.refreshAsset(Utils.ProjectPath + "/assets/bundles");
-        // Utils.refreshAsset(Utils.ProjectPath + "/assets/scripts");
-        // Utils.refreshAsset(Utils.ProjectPath + "/assets/scenes");
-        // //拷贝资源
     }
     /** 导表 */
     static loadExcel() {
@@ -190,14 +161,6 @@ class CmdExecute {
                 }
             }
         }
-    }
-    static openBuildTemplate() {
-        Config_1.Config.set(Constant_1.Constant.BuildTemplateSaveKey, true);
-        Logger_1.Logger.info("自定义构面模板已启用");
-    }
-    static closeBuildTemplate() {
-        Config_1.Config.set(Constant_1.Constant.BuildTemplateSaveKey, false);
-        Logger_1.Logger.info("自定义构面模板已禁用");
     }
     static openLogFile() {
         if (fs_extra_1.default.existsSync(Constant_1.Constant.LogFilePath)) {

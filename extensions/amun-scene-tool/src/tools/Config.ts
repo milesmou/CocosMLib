@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs-extra";
-
+/** 保存和读取本地配置 */
 export class Config {
     private static FilePath = path.join(Editor.Project.path, "/settings/amun-editor-config.json");
 

@@ -1,17 +1,17 @@
 import child_process from "child_process";
 import fs from "fs";
-import os from "os";
 import path from "path";
 import { Logger } from "./Logger";
 export class Utils {
 
     private static projectPath: string;
-    static get ProjectPath() {
+    public static get ProjectPath() {
         if (!this.projectPath) this.projectPath = this.toUniSeparator(Editor.Project.path);
         return this.projectPath;
     }
 
-    static isNative(platform: string) {
+    /** 是否原生平台 */
+    public static isNative(platform: string) {
         switch (platform) {
             case "windows":
             case "mac":
@@ -23,7 +23,8 @@ export class Utils {
         return false;
     }
 
-    static isMinigame(platform: string) {
+    /** 是否小游戏平台 */
+    public static isMinigame(platform: string) {
         switch (platform) {
             case "wechatgame":
             case "alipay-mini-game":
@@ -35,7 +36,8 @@ export class Utils {
         return false;
     }
 
-    static exeCMD(workDir: string, cmd: string, onMsg?: (msg: string) => void) {
+    /** 执行终端命令 */
+    public static exeCMD(workDir: string, cmd: string, onMsg?: (msg: string) => void) {
         let p = new Promise((resolve, reject) => {
             let result = child_process.exec(cmd, { cwd: workDir });
             result.stdout.on("data", (data) => {
@@ -59,7 +61,8 @@ export class Utils {
         return p;
     }
 
-    static getAllFiles(dir: string, filter?: (file: string) => boolean, topDirOnly = false) {
+    /** 获取指定目录下所有文件 */
+    public static getAllFiles(dir: string, filter?: (file: string) => boolean, topDirOnly = false) {
         dir = this.toAbsolutePath(dir);
         let files: string[] = [];
         if (!fs.existsSync(dir)) return files;
@@ -84,7 +87,8 @@ export class Utils {
         return files;
     }
 
-    static getAllDirs(dir: string, filter?: (dir: string) => boolean, topDirOnly = false) {
+    /** 获取指定目录下所有目录 */
+    public static getAllDirs(dir: string, filter?: (dir: string) => boolean, topDirOnly = false) {
         dir = this.toAbsolutePath(dir);
         let dirs: string[] = [];
         if (!fs.existsSync(dir)) return dirs;
@@ -107,7 +111,7 @@ export class Utils {
     }
 
     /** 根据文件路径找到追加了md5值的实际文件路径 */
-    static resolveFilePath(filePath: string) {
+    public static resolveFilePath(filePath: string) {
         let result = filePath;
         let dir = path.dirname(filePath);
         if (fs.existsSync(dir)) {
@@ -134,7 +138,7 @@ export class Utils {
     }
 
     /** 将追加了md5的文件路径还原为正常的文件路径 */
-    static restoreFilePath(filePath: string) {
+    public static restoreFilePath(filePath: string) {
         let ext = path.extname(filePath);
         let p = filePath.replace(ext, "");
         let reg = new RegExp(/.+\.[A-Za-z0-9]{5}/);
@@ -146,7 +150,8 @@ export class Utils {
         }
     }
 
-    static refreshAsset(path: string) {
+    /** 刷新编辑器内的资源 */
+    public static refreshAsset(path: string) {
         if (!path.startsWith("db:") && fs.statSync(path).isDirectory()) {
             let files = Utils.getAllFiles(path, null, true);
             for (const file of files) {
@@ -157,40 +162,31 @@ export class Utils {
         }
     }
 
-    static deleteAsset(path: string) {
+    /** 删除编辑器内的资源 */
+    public static deleteAsset(path: string) {
         Editor.Message.send("asset-db", "delete-asset", this.toAssetDBUrl(path));
     }
 
-    static toAssetDBUrl(path: string) {
+    /** 将本地文件路径转化为编辑器内资源路径 */
+    public static toAssetDBUrl(path: string) {
         if (path.startsWith("db://")) return path;
         else return path.replace(this.ProjectPath + "/", "db://");
     }
 
-    static toAbsolutePath(dbUrlOrprojUrl: string) {
+    /** 将编辑器内资源路径转化为本地文件路径 */
+    public static toAbsolutePath(dbUrlOrprojUrl: string) {
         if (dbUrlOrprojUrl.startsWith("db://")) return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
         else if (dbUrlOrprojUrl.startsWith("project://")) return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
         else return dbUrlOrprojUrl;
     }
 
-    static toUniSeparator(path: string) {
+    /** 统一路径分隔符为(/) */
+    public static toUniSeparator(path: string) {
         return path.replace(/\\/g, "/");
     }
 
-    static splitLines(content: string) {
-        let result: string[] = [];
-        let arr = content.split("\r\n");
-        for (const str of arr) {
-            let arr1 = str.split("\n");
-            result.push(...arr1);
-        }
-        return result;
+    /** 统一换行符为(\n) */
+    public static toUniLineBrake(content: string) {
+        return content.replace(/\\r\\n/g, "\n");
     }
-
-    static get returnSymbol() {
-        switch (os.platform()) {
-            case 'win32': return '\r\n' // windows
-            default: return '\n'
-        }
-    }
-
 }

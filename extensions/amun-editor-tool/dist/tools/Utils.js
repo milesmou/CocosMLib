@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Utils = void 0;
 const child_process_1 = __importDefault(require("child_process"));
 const fs_1 = __importDefault(require("fs"));
-const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
 const Logger_1 = require("./Logger");
 class Utils {
@@ -15,6 +14,7 @@ class Utils {
             this.projectPath = this.toUniSeparator(Editor.Project.path);
         return this.projectPath;
     }
+    /** 是否原生平台 */
     static isNative(platform) {
         switch (platform) {
             case "windows":
@@ -26,6 +26,7 @@ class Utils {
         }
         return false;
     }
+    /** 是否小游戏平台 */
     static isMinigame(platform) {
         switch (platform) {
             case "wechatgame":
@@ -37,6 +38,7 @@ class Utils {
         }
         return false;
     }
+    /** 执行终端命令 */
     static exeCMD(workDir, cmd, onMsg) {
         let p = new Promise((resolve, reject) => {
             let result = child_process_1.default.exec(cmd, { cwd: workDir });
@@ -61,6 +63,7 @@ class Utils {
         });
         return p;
     }
+    /** 获取指定目录下所有文件 */
     static getAllFiles(dir, filter, topDirOnly = false) {
         dir = this.toAbsolutePath(dir);
         let files = [];
@@ -88,6 +91,7 @@ class Utils {
         });
         return files;
     }
+    /** 获取指定目录下所有目录 */
     static getAllDirs(dir, filter, topDirOnly = false) {
         dir = this.toAbsolutePath(dir);
         let dirs = [];
@@ -151,6 +155,7 @@ class Utils {
             return filePath;
         }
     }
+    /** 刷新编辑器内的资源 */
     static refreshAsset(path) {
         if (!path.startsWith("db:") && fs_1.default.statSync(path).isDirectory()) {
             let files = Utils.getAllFiles(path, null, true);
@@ -162,15 +167,18 @@ class Utils {
             Editor.Message.send("asset-db", "refresh-asset", this.toAssetDBUrl(path));
         }
     }
+    /** 删除编辑器内的资源 */
     static deleteAsset(path) {
         Editor.Message.send("asset-db", "delete-asset", this.toAssetDBUrl(path));
     }
+    /** 将本地文件路径转化为编辑器内资源路径 */
     static toAssetDBUrl(path) {
         if (path.startsWith("db://"))
             return path;
         else
             return path.replace(this.ProjectPath + "/", "db://");
     }
+    /** 将编辑器内资源路径转化为本地文件路径 */
     static toAbsolutePath(dbUrlOrprojUrl) {
         if (dbUrlOrprojUrl.startsWith("db://"))
             return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
@@ -179,23 +187,13 @@ class Utils {
         else
             return dbUrlOrprojUrl;
     }
+    /** 统一路径分隔符为(/) */
     static toUniSeparator(path) {
         return path.replace(/\\/g, "/");
     }
-    static splitLines(content) {
-        let result = [];
-        let arr = content.split("\r\n");
-        for (const str of arr) {
-            let arr1 = str.split("\n");
-            result.push(...arr1);
-        }
-        return result;
-    }
-    static get returnSymbol() {
-        switch (os_1.default.platform()) {
-            case 'win32': return '\r\n'; // windows
-            default: return '\n';
-        }
+    /** 统一换行符为(\n) */
+    static toUniLineBrake(content) {
+        return content.replace(/\\r\\n/g, "\n");
     }
 }
 exports.Utils = Utils;

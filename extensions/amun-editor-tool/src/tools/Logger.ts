@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import { Constant } from "./Constant";
 
-/** 打印日志  同时打印日志到文件中 */
+/** 打印日志  同时保存日志到文件中 */
 export class Logger {
 
     public static info(...data: any[]) {

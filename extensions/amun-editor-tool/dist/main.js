@@ -9,14 +9,12 @@ const SceneCmdExecute_1 = require("./scene/SceneCmdExecute");
  * @zh 为扩展的主进程的注册方法
  */
 exports.methods = {
+    /**  */
     saveGameSetting: CmdExecute_1.CmdExecute.saveGameSetting.bind(CmdExecute_1.CmdExecute),
     loadExcel: CmdExecute_1.CmdExecute.loadExcel.bind(CmdExecute_1.CmdExecute),
     genConst: CmdExecute_1.CmdExecute.genConst.bind(CmdExecute_1.CmdExecute),
-    formatProject: CmdExecute_1.CmdExecute.formatProject.bind(CmdExecute_1.CmdExecute),
     closeTexCompress: CmdExecute_1.CmdExecute.closeTexCompress.bind(CmdExecute_1.CmdExecute),
     setTexCompress: CmdExecute_1.CmdExecute.setTexCompress.bind(CmdExecute_1.CmdExecute),
-    openBuildTemplate: CmdExecute_1.CmdExecute.openBuildTemplate.bind(CmdExecute_1.CmdExecute),
-    closeBuildTemplate: CmdExecute_1.CmdExecute.closeBuildTemplate.bind(CmdExecute_1.CmdExecute),
     genHotUpdateRes: HotUpdate_1.HotUpdate.genHotUpdateRes.bind(HotUpdate_1.HotUpdate),
     openLogFile: CmdExecute_1.CmdExecute.openLogFile.bind(CmdExecute_1.CmdExecute),
     //场景操作命令

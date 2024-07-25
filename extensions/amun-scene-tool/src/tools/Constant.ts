@@ -1,3 +1,4 @@
 export class Constant {
-    public static LogFilePath = Editor.Project.path + "/temp/logs/amun-editor.log";
+     /** 保存日志的文件路径 */
+     public static LogFilePath = Editor.Project.path + "/temp/logs/amun-editor.log";
 }
