@@ -26,11 +26,11 @@ export class AssetComponent extends Component {
         let asset = this._cache.get(location);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadAsset(location, type);
-        if (asset?.isValid) this._cache.set(location, asset);
         if (!this.isValid) {
             this.decRef(location);
             return null;
         }
+        if (asset?.isValid) this._cache.set(location, asset);
         return asset as T;
     }
 
@@ -38,11 +38,11 @@ export class AssetComponent extends Component {
         let asset = this._cache.get(url);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset(url);
-        if (asset?.isValid) this._cache.set(url, asset);
         if (!this.isValid) {
             this.decRef(url);
             return null;
         }
+        if (asset?.isValid) this._cache.set(url, asset);
         return asset as T;
     }
 
@@ -70,7 +70,7 @@ export class AssetComponent extends Component {
         } else {
             spFrame = await this.loadAsset(location, SpriteFrame);
         }
-        if (!this.isValid) return;
+        if (!spFrame) return;
         sprite.spriteFrame = spFrame;
     }
 
