@@ -1,6 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { MResponse } from "./MResponse";
+import { MResponse, ResponseGameData, ResponseGmData } from "./MResponse";
 
 export class MCloudDataSDK {
 
@@ -40,7 +40,7 @@ export class MCloudDataSDK {
             "uid": uid,
             "key": key
         }
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse<ResponseGameData>;
         return result;
     }
 
@@ -65,7 +65,7 @@ export class MCloudDataSDK {
     /** 获取所有的GM存档 */
     public static async getGmDatas() {
         let url = this.DataHost + `/${gameSetting.gameName}/get_gmdatas`;
-        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<ResponseGmData[]>;
         return result;
     }
 
