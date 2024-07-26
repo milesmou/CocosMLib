@@ -10,7 +10,6 @@ export interface ResponseGameData {
     uid: string;
     key: string;
     data: string;
-    commit: string;
     updateTime: number;
 }
 
