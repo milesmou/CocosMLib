@@ -54,9 +54,8 @@ export class MCloudDataSDK {
 
     /** 上传游戏数据 */
     public static async saveGameData(uid: string, data: string, key: string) {
-        let url = this.DataHost + "/save_gamedata";
+        let url = this.DataHost + `/${gameSetting.gameCode}/save_gamedata`;
         let body = {
-            gameCode: gameSetting.gameCode,
             "uid": uid,
             "key": key,
             "data": data,
@@ -67,9 +66,8 @@ export class MCloudDataSDK {
 
     /** 删除游戏数据 */
     public static async delGameData(uid: string, key: string) {
-        let url = this.DataHost + "/del_gamedata";
+        let url = this.DataHost + `/${gameSetting.gameCode}/del_gamedata`;
         let body = {
-            gameCode: gameSetting.gameCode,
             "uid": uid,
             "key": key
         }
@@ -79,9 +77,8 @@ export class MCloudDataSDK {
 
     /** 获取游戏数据 */
     public static async getGameData(uid: string, key: string) {
-        let url = this.DataHost + "/get_gamedata";
+        let url = this.DataHost + `/${gameSetting.gameCode}/get_gamedata`;
         let body = {
-            gameCode: gameSetting.gameCode,
             "uid": uid,
             "key": key
         }
@@ -91,9 +88,8 @@ export class MCloudDataSDK {
 
     /** 上传GM存档 */
     public static async saveGmData(data: string, commit: string) {
-        let url = this.DataHost + "/save_gmdata";
+        let url = this.DataHost + `/${gameSetting.gameCode}/save_gmdata`;
         let body = {
-            gameCode: gameSetting.gameName,
             "data": data,
             "commit": commit,
         }
@@ -101,13 +97,17 @@ export class MCloudDataSDK {
         return result;
     }
 
+    /** 删除GM存档 */
+    public static async delGmData(id: string) {
+        let url = this.DataHost + `/${gameSetting.gameCode}/del_gmdata/${id}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
+        return result;
+    }
+
     /** 获取所有的GM存档 */
     public static async getGmDatas() {
-        let url = this.DataHost + "/get_gmdatas";
-        let body = {
-            gameCode: gameSetting.gameName,
-        }
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse;
+        let url = this.DataHost + `/${gameSetting.gameCode}/get_gmdatas`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
         return result;
     }
 
