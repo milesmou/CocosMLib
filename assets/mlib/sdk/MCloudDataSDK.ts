@@ -7,53 +7,11 @@ export class MCloudDataSDK {
     private static readonly EventHost = "https://zq.zqygame.com/gevent/reportevt";
     private static readonly DataHost = "https://zq.zqygame.com/gdata/gamedata";
 
-    /** 上传存档数据 */
-    public static async saveGameData_Old(uid: string, key: string, data: string, commit = "") {
-        let url = this.DataHost + "/savedata";
-        let body = {
-            "uid": uid,
-            "key": key,
-            "data": data,
-            "commit": commit
-        }
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse;
-        return result;
-    }
-
-    /** 删除存档数据 */
-    public static async delGameData_Old(uid: string, key: string) {
-        let url = this.DataHost + "/deldata";
-        let body = {
-            "uid": uid,
-            "key": key
-        }
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse;
-        return result;
-    }
-
-    /** 获取单条存档数据 */
-    public static async getGameData_Old(uid: string, key: string) {
-        let url = this.DataHost + "/getdata";
-        let body = {
-            "uid": uid,
-            "key": key
-        }
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse;
-        return result;
-    }
-
-    /** 获取多条存档数据 */
-    public static async getGameDatas_Old(uid: string) {
-        let url = this.DataHost + "/getdatas";
-        let body = {
-            "uid": uid
-        }
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse;
-        return result;
-    }
+    /** 用户数据云存档保存Key */
+    private static userDataCloudSaveKey = "UserGameData";
 
     /** 上传游戏数据 */
-    public static async saveGameData(uid: string, data: string, key: string) {
+    public static async saveGameData(uid: string, data: string, key = this.userDataCloudSaveKey) {
         let url = this.DataHost + `/${gameSetting.gameCode}/save_gamedata`;
         let body = {
             "uid": uid,
@@ -65,7 +23,7 @@ export class MCloudDataSDK {
     }
 
     /** 删除游戏数据 */
-    public static async delGameData(uid: string, key: string) {
+    public static async delGameData(uid: string, key = this.userDataCloudSaveKey) {
         let url = this.DataHost + `/${gameSetting.gameCode}/del_gamedata`;
         let body = {
             "uid": uid,
@@ -76,7 +34,7 @@ export class MCloudDataSDK {
     }
 
     /** 获取游戏数据 */
-    public static async getGameData(uid: string, key: string) {
+    public static async getGameData(uid: string, key = this.userDataCloudSaveKey) {
         let url = this.DataHost + `/${gameSetting.gameCode}/get_gamedata`;
         let body = {
             "uid": uid,

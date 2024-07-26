@@ -1,6 +1,6 @@
 import { Button, Label, _decorator } from 'cc';
-import { MButton } from '../../../mlib/module/ui/extend/MButton';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
+import { ResponseGmData } from '../../../mlib/sdk/MResponse';
 import { Utils } from '../../../mlib/utils/Utils';
 const { ccclass, property } = _decorator;
 
@@ -18,11 +18,11 @@ export class GMCloudDataItem extends UIComponent {
         this._itemDate = this.rc.get("Date", Label);
     }
 
-    public initData(desc: string, date: string, onClickDelCb: () => void, onClickReadCb: () => void) {
+    public initData(data: ResponseGmData, onClickDelCb: () => void, onClickReadCb: () => void) {
         this._onClickDelCb = onClickDelCb;
         this._onClickReadCb = onClickReadCb;
-        this._itemName.string = desc;
-        this._itemDate.string = Utils.formatTime("YYYY年MM月DD日 hh:mm:ss", new Date(parseInt(date)));
+        this._itemName.string = data.commit;
+        this._itemDate.string = Utils.formatTime("YYYY年MM月DD日 hh:mm:ss", new Date(parseInt(data.commit)));
     }
 
 

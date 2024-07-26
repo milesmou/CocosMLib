@@ -15,9 +15,6 @@ export class Channel {
     /** 环境 开发版 体验版 正式版*/
     public env: 'develop' | 'trial' | 'release';
 
-    /** 用户数据云存档保存Key */
-    public userDataCloudSaveKey = "UserDataSaveKey";
-
     /** 设备震动开关 */
     public vibrateEnable = new StroageValue("VibrateEnable", true);
 
@@ -51,7 +48,7 @@ export class Channel {
     public getGameData(args: GameDataArgs) {
         logger.debug("getGameData", args.userId);
         SDKCallback.getGameData = args;
-        MCloudDataSDK.getGameData_Old(args.userId, this.userDataCloudSaveKey).then(v => {
+        MCloudDataSDK.getGameData(args.userId).then(v => {
             if (v) {
                 args.success && args.success(v);
             } else {
@@ -64,7 +61,7 @@ export class Channel {
     public uploadGameData(args: GameDataArgs) {
         logger.debug("uploadGameData", args.userId);
         SDKCallback.uploadGameData = args;
-        MCloudDataSDK.saveGameData_Old(args.userId, this.userDataCloudSaveKey, args.userGameData).then(v => {
+        MCloudDataSDK.saveGameData(args.userId, args.userGameData).then(v => {
             if (v) {
                 args.success && args.success(v);
             } else {

@@ -4,8 +4,7 @@ import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
-import { MCloudData } from '../../../mlib/sdk/MCloudData';
-import { MResponse } from '../../../mlib/sdk/MResponse';
+import { MResponse, ResponseGameData } from '../../../mlib/sdk/MResponse';
 import { UnionProgress } from '../../../mlib/utils/UnionProgress';
 import { UIConstant } from '../../gen/UIConstant';
 import { GameConfig } from '../GameConfig';
@@ -121,7 +120,7 @@ export class Loading extends UIComponent {
             success: (obj: MResponse) => {
                 logger.debug("获取数据成功", obj);
                 if (obj.code == 100 && obj.data) {
-                    let cData = obj.data as MCloudData;
+                    let cData = obj.data as ResponseGameData;
                     if (cData.updateTime * 1000 > GameData.Inst.time) {
                         logger.debug("使用云存档");
                         GameData.Inst.replaceGameData(cData.data);
