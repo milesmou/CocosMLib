@@ -8,7 +8,7 @@ export class MCloudDataSDK {
     private static readonly DataHost = "https://zq.zqygame.com/gdata/gamedata";
 
     /** 用户数据云存档保存Key */
-    private static userDataCloudSaveKey = "UserGameData";
+    private static readonly userDataCloudSaveKey = "UserGameData";
 
     /** 上传游戏数据 */
     public static async saveGameData(uid: string, data: string, key = this.userDataCloudSaveKey) {
@@ -46,7 +46,7 @@ export class MCloudDataSDK {
 
     /** 上传GM存档 */
     public static async saveGmData(data: string, commit: string) {
-        let url = this.DataHost + `/${gameSetting.gameCode}/save_gmdata`;
+        let url = this.DataHost + `/${gameSetting.gameName}/save_gmdata`;
         let body = {
             "data": data,
             "commit": commit,
@@ -57,14 +57,14 @@ export class MCloudDataSDK {
 
     /** 删除GM存档 */
     public static async delGmData(id: string) {
-        let url = this.DataHost + `/${gameSetting.gameCode}/del_gmdata/${id}`;
+        let url = this.DataHost + `/${gameSetting.gameName}/del_gmdata/${id}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
         return result;
     }
 
     /** 获取所有的GM存档 */
     public static async getGmDatas() {
-        let url = this.DataHost + `/${gameSetting.gameCode}/get_gmdatas`;
+        let url = this.DataHost + `/${gameSetting.gameName}/get_gmdatas`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
         return result;
     }
