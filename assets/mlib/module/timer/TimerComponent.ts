@@ -18,7 +18,6 @@ interface ScheduleValue {
  * tween animation spine：通过使用TimerObject进行包装来控制速度
  */
 @ccclass
-//@ts-ignore
 export class TimerComponent extends Component {
     private _timeScale: number = 1;
     private _pause: boolean = false;
@@ -79,22 +78,6 @@ export class TimerComponent extends Component {
         let speed = isAdd ? this._timeScale : 1;
         if (this._pause && isAdd) speed = 0;
         obj.setGroupTimeScale(speed);
-    }
-
-    private schedule(callback: any, interval?: number, repeat?: number, delay?: number): void {
-        super.schedule(callback, interval, repeat, delay);
-    }
-
-    private scheduleOnce(callback: any, delay?: number): void {
-        super.scheduleOnce(callback, delay);
-    }
-
-    private unschedule(callback_fn: any): void {
-        super.unschedule(callback_fn);
-    }
-
-    private unscheduleAllCallbacks(): void {
-        super.unscheduleAllCallbacks();
     }
 
     public scheduleM(callback: (dt: number) => void, thisObj: object, interval = 0, repeat = macro.REPEAT_FOREVER, execImmediate = true) {
