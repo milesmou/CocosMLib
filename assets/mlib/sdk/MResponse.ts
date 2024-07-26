@@ -1,7 +1,7 @@
 /** HTTP请求响应的数据格式 */
-export interface MResponse {
+export interface MResponse<T = any> {
     code: number;
-    data: any;
+    data: T;
     msg: string;
 }
 
