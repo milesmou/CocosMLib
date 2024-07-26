@@ -1,8 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Component } from "cc";
-import { UITransform } from "cc";
-import { Widget } from "cc";
+import { Component, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
@@ -23,6 +21,17 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             }
         }
     })
+
+    Node.prototype.getComponentInParent = function <T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef = true) {
+        let self: Node = this;
+        let node = includeSlef ? self : self.parent;
+        while (node?.isValid) {
+            let comp = node.getComponent(classConstructor);
+            if (comp) return comp;
+            node = node.parent;
+        }
+        return app.getComponent(classConstructor);
+    }
 
     Node.prototype.ensureComponent = function <T extends Component>(classConstructor: new (...args: any[]) => T): T {
         let self: Node = this;
@@ -102,6 +111,11 @@ declare module "cc" {
     }
 
     interface Node {
+        /** 
+         * 从任意父节点上获取组件
+         * @param includeSlef 是否包含自身所在节点 默认为true
+         */
+        getComponentInParent<T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef?: boolean);
 
         /** 确保组件存在 不存在则添加 */
         ensureComponent<T extends Component>(classConstructor: new (...args: any[]) => T): T;
