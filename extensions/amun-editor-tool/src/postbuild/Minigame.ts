@@ -7,7 +7,7 @@ import { Logger } from "../tools/Logger";
 
 export class Minigame {
     /** 修改小游戏的服务器地址 */
-    static modifyServer(options: IBuildTaskOption, result: IBuildResult) {
+    public static modifyServer(options: IBuildTaskOption, result: IBuildResult) {
         if (Utils.isMinigame(options.platform)) {//小游戏修改服务器地址
             let server = Config.get("gameSetting.minigameServer", "");
             let files = Utils.getAllFiles(result.dest + "/src", null, true);

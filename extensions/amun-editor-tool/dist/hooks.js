@@ -25,6 +25,7 @@ const onAfterBuild = async function (options, result) {
     Logger_1.Logger.info("onAfterBuild");
     BuildTemplate_1.BuildTemplate.copy(options, result);
     if (Utils_1.Utils.isNative(options.platform)) {
+        Logger_1.Logger.info('hotupdateEnable', HotUpdate_1.HotUpdate.hotupdateEnable);
         HotUpdate_1.HotUpdate.modifyJsFile(options, result);
         HotUpdate_1.HotUpdate.replaceManifest(options, result);
     }

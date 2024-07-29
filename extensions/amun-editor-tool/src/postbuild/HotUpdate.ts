@@ -11,9 +11,14 @@ import { VersionGenerator } from "./VersionGenerator";
 /** 原生平台检查构建配置和修改main.js */
 export class HotUpdate {
 
+    /** 是否启用热更 */
+    public static get hotupdateEnable() {
+        return Config.get("gameSetting.hotupdate", false);
+    }
+
     /** 修改main.js 和 src目录中的脚本 */
     public static modifyJsFile(options: IBuildTaskOption, result: IBuildResult) {
-
+        if (!this.hotupdateEnable) return;
         let buildPath = Utils.toUniSeparator(result.dest);
         Config.set("hotupdate.src", buildPath);
 
@@ -34,6 +39,7 @@ export class HotUpdate {
             let newFileName = path.basename(newFile);
             fileNameMap.set(fileName, newFileName);
             fs.renameSync(file, newFile);
+            Logger.info("去除文件名的MD5", file)
             newFiles.push(newFile);
         });
 
@@ -64,6 +70,7 @@ export class HotUpdate {
 
     /** 资源打包后使用最新的清单文件替换旧的清单文件 */
     public static replaceManifest(options: IBuildTaskOption, result: IBuildResult) {
+        if (!this.hotupdateEnable) return;
         let oldManifest = Utils.ProjectPath + "/assets/resources/project.manifest";
         if (!fs.existsSync(oldManifest)) {
             Logger.warn("assets/resources/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
@@ -82,7 +89,7 @@ export class HotUpdate {
             })[0];
             if (oldManifest) {
                 fs.copyFileSync(newManifest, oldManifest);
-                Logger.info(`替换热更资源清单文件成功`, newManifest, oldManifest);
+                Logger.info(`替换热更资源清单文件成功`, path.basename(oldManifest));
             } else {
                 Logger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
             }
@@ -120,7 +127,7 @@ export class HotUpdate {
         let url = Config.get("gameSetting.hotupdateServer", "");
         let version = Config.get("gameSetting.version", "");
         if (!url || !version) {
-            Logger.error(`热更配置不正确,请先检查热更配置`);
+            Logger.warn(`热更配置不正确,若需要使用热更,请先检查热更配置`);
         }
         if (!src) {
             Logger.info(`请先构建一次Native工程 再生成热更资源`);

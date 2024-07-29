@@ -8,7 +8,7 @@ import { Utils } from "./tools/Utils";
 export class CmdExecute {
 
     /** 功能测试 */
-    static test() {
+    public static test() {
         console.log("测试");
         let dir = path.dirname(Constant.LogFilePath);
         let basename = path.basename(Constant.LogFilePath);
@@ -19,12 +19,12 @@ export class CmdExecute {
 
 
     /** 保存游戏配置到本地 */
-    static saveGameSetting(jsonStr: string) {
+    public static saveGameSetting(jsonStr: string) {
         Config.set("gameSetting", JSON.parse(jsonStr));
     }
 
     /** 导表 */
-    static loadExcel() {
+    public static loadExcel() {
         let workDir = Utils.ProjectPath + "/excel";
         let batPath = "gen_code_json.bat";
         let tsDir = Utils.ProjectPath + "/assets/scripts/gen/table";
@@ -53,7 +53,7 @@ export class CmdExecute {
     }
 
     /** 生成一些常量 */
-    static genConst() {
+    public static genConst() {
         //生成Bundles.json
         {
             let bundlesDir = Utils.ProjectPath + "/assets/bundles";
@@ -118,9 +118,7 @@ export class CmdExecute {
 
     }
 
-
-
-    static closeTexCompress() {
+    public static closeTexCompress() {
         let exts = [".jpg", ".png", ".jpeg", ".pac"];
         let filter = (file: string) => {
             let ext = path.extname(file);
@@ -141,7 +139,7 @@ export class CmdExecute {
         }
     }
 
-    static setTexCompress() {
+    public static setTexCompress() {
         let presetId: string = Editor.Clipboard.read("text");
         if (presetId.length != 22) {
             Logger.warn("请先拷贝一个纹理压缩配置的22位UUID到剪切板(项目设置-压缩纹理-配置压缩预设集)")
@@ -173,7 +171,7 @@ export class CmdExecute {
         }
     }
 
-    static openLogFile() {
+    public static openLogFile() {
         if (fs.existsSync(Constant.LogFilePath)) {
             let dir = path.dirname(Constant.LogFilePath);
             let basename = path.basename(Constant.LogFilePath);

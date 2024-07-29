@@ -25,6 +25,7 @@ export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBu
     Logger.info("onAfterBuild");
     BuildTemplate.copy(options, result);
     if (Utils.isNative(options.platform)) {
+        Logger.info('hotupdateEnable', HotUpdate.hotupdateEnable);
         HotUpdate.modifyJsFile(options, result);
         HotUpdate.replaceManifest(options, result);
     }

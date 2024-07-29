@@ -13,8 +13,14 @@ const MainJsCode_1 = require("./MainJsCode");
 const VersionGenerator_1 = require("./VersionGenerator");
 /** 原生平台检查构建配置和修改main.js */
 class HotUpdate {
+    /** 是否启用热更 */
+    static get hotupdateEnable() {
+        return Config_1.Config.get("gameSetting.hotupdate", false);
+    }
     /** 修改main.js 和 src目录中的脚本 */
     static modifyJsFile(options, result) {
+        if (!this.hotupdateEnable)
+            return;
         let buildPath = Utils_1.Utils.toUniSeparator(result.dest);
         Config_1.Config.set("hotupdate.src", buildPath);
         let rootDir = path_1.default.join(result.dest, 'data');
@@ -33,6 +39,7 @@ class HotUpdate {
             let newFileName = path_1.default.basename(newFile);
             fileNameMap.set(fileName, newFileName);
             fs_extra_1.default.renameSync(file, newFile);
+            Logger_1.Logger.info("去除文件名的MD5", file);
             newFiles.push(newFile);
         });
         //修改src目录下文件 修改文件中带md5的引用
@@ -62,6 +69,8 @@ class HotUpdate {
     /** 资源打包后使用最新的清单文件替换旧的清单文件 */
     static replaceManifest(options, result) {
         var _a;
+        if (!this.hotupdateEnable)
+            return;
         let oldManifest = Utils_1.Utils.ProjectPath + "/assets/resources/project.manifest";
         if (!fs_extra_1.default.existsSync(oldManifest)) {
             Logger_1.Logger.warn("assets/resources/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
@@ -80,7 +89,7 @@ class HotUpdate {
             })[0];
             if (oldManifest) {
                 fs_extra_1.default.copyFileSync(newManifest, oldManifest);
-                Logger_1.Logger.info(`替换热更资源清单文件成功`, newManifest, oldManifest);
+                Logger_1.Logger.info(`替换热更资源清单文件成功`, path_1.default.basename(oldManifest));
             }
             else {
                 Logger_1.Logger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
@@ -119,7 +128,7 @@ class HotUpdate {
         let url = Config_1.Config.get("gameSetting.hotupdateServer", "");
         let version = Config_1.Config.get("gameSetting.version", "");
         if (!url || !version) {
-            Logger_1.Logger.error(`热更配置不正确,请先检查热更配置`);
+            Logger_1.Logger.warn(`热更配置不正确,若需要使用热更,请先检查热更配置`);
         }
         if (!src) {
             Logger_1.Logger.info(`请先构建一次Native工程 再生成热更资源`);
