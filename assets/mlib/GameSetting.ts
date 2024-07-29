@@ -1,5 +1,5 @@
 import { _decorator, Component, director, Enum, Event, game, Node } from 'cc';
-import { EDITOR_NOT_IN_PREVIEW, PREVIEW } from 'cc/env';
+import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
 import { ELoggerLevel } from './module/logger/ELoggerLevel';
@@ -10,10 +10,7 @@ const EGameConfigType = Enum({
     Remote: 1
 })
 
-const LogLevel = Enum({
-    Auto: 0,
-    ...ELoggerLevel
-});
+const LogLevel = Enum(ELoggerLevel);
 
 @ccclass('GameSetting')
 @executeInEditMode
@@ -53,8 +50,6 @@ class GameSetting extends Component {
     public get cdnUrl() { return this._cdnUrl; }
     private set cdnUrl(val: string) { this._cdnUrl = val; this.saveGameSetting(); }
 
-
-
     @property private _languageId = ELanguage.SimplifiedChinese;
     @property({
         displayName: "语言",
@@ -79,7 +74,7 @@ class GameSetting extends Component {
         tooltip: "开启热更需要再resources中放入本地project.manifest清单文件",
     })
     public get hotupdate() { return this._hotupdate; }
-    private set hotupdate(val: boolean) { this._hotupdate = val; }
+    private set hotupdate(val: boolean) { this._hotupdate = val; this.saveGameSetting(); }
 
     @property({
         displayName: "帧率",
@@ -100,8 +95,7 @@ class GameSetting extends Component {
 
     @property({
         type: LogLevel,
-        displayName: "日志级别",
-        tooltip: "默认为Auto,编辑器预览时日志级别为Info,发布后日志级别为Warn"
+        displayName: "日志级别"
     })
     private m_LogLevel = LogLevel.Info;
 
@@ -128,28 +122,15 @@ class GameSetting extends Component {
         this._gameCode = this._gameName + "_" + this.channel
         this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
         this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
-        if (EDITOR_NOT_IN_PREVIEW) return;
-        director.addPersistRootNode(this.node);
-        this.setFrameRate();
-        this.setLogLevel();
-    }
-
-    private setFrameRate() {
-        if (this.m_FrameRate > 0) {
-            game.frameRate = this.m_FrameRate;
-        }
-    }
-
-    private setLogLevel() {
-        if (this.m_LogLevel == LogLevel.Auto) {
-            if (!PREVIEW) {
-                logger.setLevel(LogLevel.Warn);
-            } else {
-                logger.setLevel(LogLevel.Info);
+        if (!EDITOR_NOT_IN_PREVIEW) {
+            director.addPersistRootNode(this.node);
+            if (this.m_FrameRate > 0) {
+                game.frameRate = this.m_FrameRate;
             }
-        } else {
             logger.setLevel(this.m_LogLevel);
+            this.enableNodeEvent();
         }
+
     }
 
     /** 主版本号 取前三位 */
@@ -161,6 +142,7 @@ class GameSetting extends Component {
         return this._version;
     }
 
+    /** 启用节点事件打印 */
     private enableNodeEvent() {
         if (this._nodeEvent) {
             Node.prototype.dispatchEvent = function (event: Event) {
@@ -173,15 +155,25 @@ class GameSetting extends Component {
         }
     }
 
+    /** 编辑器保存配置到本地 */
     private saveGameSetting() {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let gameSetting = {
+            /** 游戏名 */
             gameName: this._gameName,
+            /** 渠道名 */
             channel: this.channel,
+            /** 版本号(全) */
             version: this._version,
-            cdnUrl: this._cdnUrl,
+            /** 主版本号(只有3位 X.X.X) */
             mainVersion: this.mainVersion,
+            /** CDN地址 */
+            cdnUrl: this._cdnUrl,
+            /** 热更开关 */
+            hotupdate: this.hotupdate,
+            /** 热更资源地址 */
             hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg`,
+            /** 小游戏资源地址 */
             minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg/`,
         };
         Editor.Message.send("amun-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
