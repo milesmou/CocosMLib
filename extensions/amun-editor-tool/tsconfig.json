@@ -1,14 +1,12 @@
 {
+    "extends": "./base.tsconfig.json",
     "compilerOptions": {
-        "target": "ES2017",
-        "module": "CommonJS",
-        "outDir": "./dist",
-        "rootDir": "./src",
         "strict": false,
-        "moduleResolution": "node",
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "resolveJsonModule": true,
+        "outDir": "./dist",
+        "rootDir": "./source",
+        "types": [
+            "node",
+            "@cocos/creator-types/editor",
+        ]
     }
 }

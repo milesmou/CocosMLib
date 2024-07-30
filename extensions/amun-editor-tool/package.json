@@ -1,7 +1,8 @@
 {
+    "$schema": "./@types/schema/package/index.json",
     "package_version": 2,
-    "version": "1.0.0",
     "name": "amun-editor-tool",
+    "version": "1.0.0",
     "description": "amun的一些编辑器扩展",
     "author": "Amun",
     "editor": ">=3.6.3",
