@@ -22,7 +22,7 @@ export class GMCloudDataItem extends UIComponent {
         this._onClickDelCb = onClickDelCb;
         this._onClickReadCb = onClickReadCb;
         this._itemName.string = data.commit;
-        this._itemDate.string = Utils.formatTime("YYYY年MM月DD日 hh:mm:ss", new Date(parseInt(data.commit)));
+        this._itemDate.string = Utils.formatTime("YYYY年MM月DD日 hh:mm:ss", new Date(data.createTime));
     }
 
 
