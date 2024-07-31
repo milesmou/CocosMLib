@@ -41,13 +41,14 @@ export class MButton extends Button {
         this._multiClickButton = val;
         if (val) this.longPressButton = false;
     }
+    @property private _multiClickInterval = 0.2;
     @property({
         displayName: "多击每次最大间隔(秒)",
         range: [0.1, 2],
         visible() { return this._multiClickButton; }
     })
-    private m_MultiClickInterval = 0.2;
-
+    public get multiClickInterval() { return this._multiClickInterval; }
+    private set multiClickInterval(val: number) { this._multiClickInterval = val; }
 
     //长按按钮相关
     @property private _longPressButton = false;
@@ -190,7 +191,7 @@ export class MButton extends Button {
                 super._onTouchEnded(event);
                 if (this._multiClickButton) {//多击按钮检测
                     let now = Date.now();
-                    if (now - this._lastClickTimeMS < this.m_MultiClickInterval * 1000) {//追加多击次数
+                    if (now - this._lastClickTimeMS < this._multiClickInterval * 1000) {//追加多击次数
                         this._multiClickCnt += 1;
                         this.onMultiClick.dispatch(this._multiClickCnt);
                     } else {
