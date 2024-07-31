@@ -1,13 +1,15 @@
-import { _decorator, Button, EventHandler, EventTouch, Intersection2D, macro, PolygonCollider2D, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, Button, EventTouch, Intersection2D, macro, PolygonCollider2D, UITransform, Vec2, Vec3 } from 'cc';
 import { MEvent } from '../../event/MEvent';
 
 const { ccclass, property, disallowMultiple } = _decorator;
 
+
 @ccclass('MButton')
 @disallowMultiple
 export class MButton extends Button {
+    /** 全局默认点击音效 */
+    public static DefaultClickAudio = "";
 
-    public static DefaultClickAudio = "audio/test/click";
     @property({
         displayName: "默认音效"
     })
@@ -28,44 +30,66 @@ export class MButton extends Button {
         tooltip: "按钮是否是异形按钮,节点上必须有PolygonCollider2D组件"
     })
     private m_PolygonButton = false;
-    @property({
-        displayName: "长按按钮"
-    })
-    private m_LongPressButton = false;
 
+    //多次点击按钮相关
+    @property private _multiClickButton = false;
     @property({
-        type: EventHandler,
-        visible() { return this.m_LongPressButton; }
+        displayName: "多击按钮",
     })
-    longPressEvents: EventHandler[] = [];
+    public get multiClickButton() { return this._multiClickButton; }
+    private set multiClickButton(val: boolean) {
+        this._multiClickButton = val;
+        if (val) this.longPressButton = false;
+    }
+    @property({
+        displayName: "多击每次最大间隔(秒)",
+        range: [0.1, 2],
+        visible() { return this._multiClickButton; }
+    })
+    private m_MultiClickInterval = 0.2;
+
+
+    //长按按钮相关
+    @property private _longPressButton = false;
+    @property({
+        displayName: "长按按钮",
+    })
+    public get longPressButton() { return this._longPressButton; }
+    private set longPressButton(val: boolean) {
+        this._longPressButton = val;
+        if (val) this.multiClickButton = false;
+    }
     @property({
         displayName: "长按忽略点击事件",
         tooltip: "True:只会触发长按事件 False:触发长按事件或点击事件",
-        visible() { return this.m_LongPressButton; }
+        visible() { return this._longPressButton; }
     })
     private m_LongPressIgnoreClick = true;
-
     @property({
         displayName: "长按触发时长(秒)",
         range: [0.1, 5],
-        visible() { return this.m_LongPressButton; }
+        visible() { return this._longPressButton; }
     })
     private m_LongPressDuration = 1;
     @property({
         displayName: "长按连续触发事件",
-        visible() { return this.m_LongPressButton; }
+        visible() { return this._longPressButton; }
     })
     private m_LongPressRepeatInvoke = false;
     @property({
         displayName: "长按连续触发间隔(秒)",
         range: [0.05, 5],
-        visible() { return this.m_LongPressButton && this.m_LongPressRepeatInvoke; }
+        visible() { return this._longPressButton && this.m_LongPressRepeatInvoke; }
     })
     private m_LongPressRepeatInterval = 0.15;
 
     private _onClick = new MEvent();
     public get onClick() { return this._onClick; }
     public set onClick(value: MEvent) { this._onClick = value; }
+
+    private _onMultiClick = new MEvent<number>();
+    public get onMultiClick() { return this._onMultiClick; }
+    public set onMultiClick(value: MEvent<number>) { this._onMultiClick = value; }
 
     private _onLongPress = new MEvent();
     public get onLongPress() { return this._onLongPress; }
@@ -75,8 +99,14 @@ export class MButton extends Button {
     private _isCoolingDown = false;
     /** 多边形组件 */
     private _polygon: PolygonCollider2D;
-    /** 本次点击是否在多边形外 */
-    private _isOutOfPolygon = false;
+    /** 本次点击是否在多边形内 */
+    private _isInPolygon = false;
+
+    /** 上一次完成点击的时间 */
+    private _lastClickTimeMS = 0;
+    /** 多击累计点击次数 */
+    private _multiClickCnt = 0;
+
     /** 按钮按下的时间戳 */
     private _pressBeganTimeMS = 0;
     /** 长按事件触发次数 */
@@ -103,18 +133,16 @@ export class MButton extends Button {
         if (this.m_PolygonButton) {//异形按钮
             let screenPos = event.getUILocation();
             let pos = this.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(screenPos.x, screenPos.y));
-            this._isOutOfPolygon = !Intersection2D.pointInPolygon(new Vec2(pos.x, pos.y), this._polygon.points);
+            this._isInPolygon = Intersection2D.pointInPolygon(new Vec2(pos.x, pos.y), this._polygon.points);
 
-            if (this._isOutOfPolygon) {//继续向下冒泡事件
+            if (!this._isInPolygon) {//不在指定点击范围 继续向下冒泡事件
                 event.preventSwallow = true;
                 if (event) event.propagationStopped = false;
                 return;
             }
-
         }
-
         super._onTouchBegan(event);
-        if (this.m_LongPressButton) {
+        if (this._longPressButton) {
             this._pressBeganTimeMS = Date.now();
             this._longPressEvtCount = 0;
             this.schedule(this.updateLongPress, 0, macro.REPEAT_FOREVER);
@@ -130,9 +158,7 @@ export class MButton extends Button {
     protected _onTouchEnded(event?: EventTouch): void {
         if (this._isCoolingDown) return;
 
-        let pressed = this['_pressed'];//只有当pressed为true时，才表示是一次完整的点击事件
-
-        if (pressed && this.m_Cooldown > 0) {
+        if (this['_pressed'] && this.m_Cooldown > 0 && !this._multiClickButton) {//多击按钮不进入冷却
             this._isCoolingDown = true;
             this.scheduleOnce(() => {
                 this._isCoolingDown = false;
@@ -140,42 +166,46 @@ export class MButton extends Button {
         }
 
         if (this.m_PolygonButton) {//异形按钮
-            if (!this._isOutOfPolygon) {
+            if (this._isInPolygon) {//触摸结束时再次判断点击范围
                 let screenPos = event.getUILocation();
                 let pos = this.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(screenPos.x, screenPos.y));
-                this._isOutOfPolygon = !Intersection2D.pointInPolygon(new Vec2(pos.x, pos.y), this._polygon.points);
+                this._isInPolygon = Intersection2D.pointInPolygon(new Vec2(pos.x, pos.y), this._polygon.points);
             }
-            if (this._isOutOfPolygon) {//继续向下冒泡事件
+            if (!this._isInPolygon) {//不在指定点击范围 继续向下冒泡事件
                 event.preventSwallow = true;
                 if (event) event.propagationStopped = false;
                 return;
             }
         }
 
-        if (this.m_LongPressButton) this.unschedule(this.updateLongPress);
-        if (this.m_LongPressButton && this.m_LongPressIgnoreClick) {
-            //直接忽略点击事件
-        }
-        else {
-            if (this.m_LongPressButton && this._longPressEvtCount > 0) {
+        if (this._longPressButton) this.unschedule(this.updateLongPress);
+        if (this._longPressButton && this.m_LongPressIgnoreClick) {
+            //长按按钮且忽略点击事件
+        } else {
+            if (this._longPressButton && this._longPressEvtCount > 0) {
                 //已触发长按事件 忽略点击事件
-            }
-            else {
-                if (pressed) {
-                    if (this.clickAudio) app.audio.playEffect(this.clickAudio, 1, { deRef: false });
-                    this.onClick.dispatch();
-                }
+            } else {//正常触发点击事件
+                if (this['_pressed'] && this.clickAudio) app.audio.playEffect(this.clickAudio, 1, { deRef: false });
+                this.onClick.dispatch();
                 super._onTouchEnded(event);
+                if (this._multiClickButton) {//多击按钮检测
+                    let now = Date.now();
+                    if (now - this._lastClickTimeMS < this.m_MultiClickInterval * 1000) {//追加多击次数
+                        this._multiClickCnt += 1;
+                        this.onMultiClick.dispatch(this._multiClickCnt);
+                    } else {
+                        this._multiClickCnt = 1;
+                    }
+                    this._lastClickTimeMS = now;
+                }
             }
         }
-
     }
 
     private dispatchLongPress(first: boolean) {
         if (first && this.clickAudio) app.audio.playEffect(this.clickAudio, 1, { deRef: false });
         this._longPressEvtCount++;
         this.onLongPress.dispatch();
-        EventHandler.emitEvents(this.longPressEvents);
         if (!this.m_LongPressRepeatInvoke) this.unschedule(this.updateLongPress);
     }
 
