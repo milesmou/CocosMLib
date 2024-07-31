@@ -1,6 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { MResponse, ResponseGameData, ResponseGmData } from "./MResponse";
+import { MResponse, ResponseEmailData, ResponseGameData, ResponseGmData } from "./MResponse";
 
 export class MCloudDataSDK {
 
@@ -68,6 +68,24 @@ export class MCloudDataSDK {
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<ResponseGmData[]>;
         return result;
     }
+
+    /** 删除指定邮件 */
+    public static async delEmailData(id: string) {
+        let url = this.DataHost + `/${gameSetting.gameCode}/del_emaildata/${id}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
+        return result;
+    }
+
+    /** 获取所有的邮件数据 */
+    public static async getEmailDatas(uid: string) {
+        let url = this.DataHost + `/${gameSetting.gameCode}/get_emaildatas`;
+        let body = {
+            "uid": uid,
+        }
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse<ResponseEmailData[]>;
+        return result;
+    }
+
 
     /** 上报事件 */
     public static reportEvent(eventName: string, num: number, paramStr = "") {
