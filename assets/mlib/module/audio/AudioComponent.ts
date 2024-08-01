@@ -13,7 +13,8 @@ const { ccclass, property } = _decorator;
 export class AudioComponent extends Component {
 
     @property({
-        displayName: "Key"
+        displayName: "Key",
+        tooltip: "为每个音频播放组件指定一个Key,方便进行音量控制"
     })
     private m_key = "";
 
