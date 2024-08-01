@@ -1,5 +1,6 @@
 import { AudioClip, AudioSource, Component, Tween, _decorator, tween } from 'cc';
 import { AssetComponent } from '../asset/AssetComponent';
+import { AssetMgr } from '../asset/AssetMgr';
 import { AudioMgr } from './AudioMgr';
 import { AudioState } from './AudioState';
 import { AudioVolume } from './AudioVolume';
@@ -59,7 +60,12 @@ export class EffectComponent extends Component implements IAudioComponent {
      */
     public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (audio: AudioSource) => void, onFinished?: () => void } = {}) {
         let { loop, deRef, onStart, onFinished } = args;
-        let clip = await this.asset.loadAsset(location, AudioClip);
+        let clip: AudioClip;
+        if (deRef) {
+            clip = await AssetMgr.loadAsset(location, AudioClip);
+        } else {
+            clip = await this.asset.loadAsset(location, AudioClip);
+        }
         if (!this.isValid) return;
         if (loop) {
             let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
@@ -75,7 +81,7 @@ export class EffectComponent extends Component implements IAudioComponent {
             tween(clip)
                 .delay(clip.getDuration())
                 .call(() => {
-                    if (deRef) this.asset.decRef(location);
+                    if (deRef) AssetMgr.decRef(location);
                     onFinished && onFinished();
                 })
                 .start();
