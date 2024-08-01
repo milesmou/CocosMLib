@@ -57,7 +57,7 @@ export class EffectComponent extends Component implements IAudioComponent {
      * @param loop loop=true时不会触发onFinished
      * @param deRef 默认为false 是否在音效结束时释引用次数-1
      */
-    public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (clip: AudioSource) => void, onFinished?: () => void } = {}) {
+    public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (audio: AudioSource) => void, onFinished?: () => void } = {}) {
         let { loop, deRef, onStart, onFinished } = args;
         let clip = await this.asset.loadAsset(location, AudioClip);
         if (!this.isValid) return;
