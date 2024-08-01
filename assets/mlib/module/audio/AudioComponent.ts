@@ -1,15 +1,32 @@
-import { AudioClip, AudioSource, _decorator, tween } from 'cc';
+import { AudioClip, AudioSource, Component, Tween, _decorator, tween } from 'cc';
 import { AssetComponent } from '../asset/AssetComponent';
+import { AssetMgr } from '../asset/AssetMgr';
+import { AudioMgr } from './AudioMgr';
 import { AudioState } from './AudioState';
-import { EffectComponent } from './EffectComponent';
+import { AudioVolume } from './AudioVolume';
 import { SortedMap } from './SortedMap';
 
-const { ccclass, property, requireComponent } = _decorator;
+const { ccclass, property } = _decorator;
 
-/** 音频播放组件 (包含音乐和音效播放) */
+/** 音频播放组件 */
 @ccclass("AudioComponent")
-@requireComponent(AssetComponent)
-export class AudioComponent extends EffectComponent {
+export class AudioComponent extends Component {
+
+    @property({
+        displayName: "Key"
+    })
+    private m_key = "";
+
+    /** 资源加载组件 */
+    private _asset: AssetComponent;
+
+    /** 音乐音量 */
+    private get mVolume() { return AudioMgr.globalVolume.mVolume.value * this.audioVolume.mVolume.value; }
+    /** 音效音量 */
+    private get eVolume() { return AudioMgr.globalVolume.eVolume.value * this.audioVolume.eVolume.value; }
+
+    /** 音量 */
+    public audioVolume: AudioVolume;
 
     /** 当前音乐是否暂停 */
     private _pause = false;
@@ -19,7 +36,26 @@ export class AudioComponent extends EffectComponent {
     public stack: SortedMap<string> = new SortedMap<string>();
     /** 音乐播放状态 */
     public music: Map<string, AudioState> = new Map<string, AudioState>();
+    /** 单次播放音效的AudioSource */
+    private _effectOneShot: AudioSource;
+    /** 循环播放的音效 */
+    private _loopEffect: AudioState[] = [];
 
+    protected onLoad() {
+        this._asset = this.ensureComponent(AssetComponent);
+        this._effectOneShot = this.addComponent(AudioSource);
+        this.setKey(this.m_key);
+    }
+
+    /** 为音频播放组件设置一个Key */
+    public setKey(key: string) {
+        if (!key) return;
+        this.m_key = key;
+        this.audioVolume = AudioMgr.getAudioVolume(key);
+        this.audioVolume.setMusicVolumeListener(this.refreshMusicVolume.bind(this));
+        this.audioVolume.setEffectVolumeListener(this.refreshEffectVolume.bind(this));
+        this._effectOneShot.volume = this.eVolume;
+    }
 
     private musicGet(priority: number, audioName: string) {
         let value: AudioState = this.music.get(priority + "_" + audioName);
@@ -62,11 +98,11 @@ export class AudioComponent extends EffectComponent {
                 this.fadeInMusic(fadeIn, audioState);
             }
         } else { //播放音乐
-            let clip = await app.asset.loadAsset<AudioClip>(location, AudioClip);
+            let clip = await this._asset.loadAsset<AudioClip>(location, AudioClip);
             if (!this.isValid) return;
             if (!clip) return;
             if (!this.stack.has(priority, location)) {//未加载音乐完就已停止
-                app.asset.decRef(location);
+                this._asset.decRef(location);
                 return;
             }
             onLoaded && onLoaded(clip);
@@ -86,6 +122,41 @@ export class AudioComponent extends EffectComponent {
                     audioState.audio.play();
                 }
             }
+        }
+    }
+
+    /**
+     * 播放音效
+     * @param loop loop=true时不会触发onFinished
+     * @param deRef 默认为false 是否在音效结束时释引用次数-1
+     */
+    public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (audio: AudioSource) => void, onFinished?: () => void } = {}) {
+        let { loop, deRef, onStart, onFinished } = args;
+        let clip: AudioClip;
+        if (deRef) {
+            clip = await AssetMgr.loadAsset(location, AudioClip);
+        } else {
+            clip = await this._asset.loadAsset(location, AudioClip);
+        }
+        if (!this.isValid) return;
+        if (loop) {
+            let audioState = new AudioState(location, this.addComponent(AudioSource), volumeScale);
+            this._loopEffect.push(audioState);
+            audioState.audio.clip = clip;
+            audioState.audio.volume = this.eVolume * volumeScale;
+            audioState.audio.loop = true;
+            audioState.audio.play();
+            onStart && onStart(audioState.audio);
+        } else {
+            this._effectOneShot.playOneShot(clip, volumeScale);
+            Tween.stopAllByTarget(clip);
+            tween(clip)
+                .delay(clip.getDuration())
+                .call(() => {
+                    if (deRef) AssetMgr.decRef(location);
+                    onFinished && onFinished();
+                })
+                .start();
         }
     }
 
@@ -146,6 +217,33 @@ export class AudioComponent extends EffectComponent {
         }
     }
 
+    /** 停止播放指定的循环音效 */
+    public stopEffect(aduio: AudioSource) {
+        if (aduio) {
+            let index = this._loopEffect.findIndex(v => v.audio == aduio);
+            if (index > -1) {
+                let audioState = this._loopEffect[index];
+                this._loopEffect = this._loopEffect.splice(index, 1);
+                if (audioState.audio?.isValid) {
+                    audioState.audio.destroy();
+                    this._asset.decRef(audioState.location);
+                }
+            }
+        }
+    }
+
+    /** 停止播放所有音效 */
+    public stopAllEffect() {
+        this._loopEffect.forEach(v => {
+            if (v.audio?.isValid) {
+                this._asset.decRef(v.location);
+                v.audio.destroy();
+            }
+        });
+        this._loopEffect.length = 0;
+        this._effectOneShot.stop();
+    }
+
     /** 刷新正在播放的音乐的音量 */
     public refreshMusicVolume(dur?: number) {
         if (this.stack.size > 0) {
@@ -163,6 +261,14 @@ export class AudioComponent extends EffectComponent {
                 });
             }
         }
+    }
+
+    /** 刷新正在播放的音效的音量 */
+    public refreshEffectVolume() {
+        this._loopEffect.forEach(v => {
+            if (v.audio) v.audio.volume = v.volumeScale * this.eVolume;
+        });
+        this._effectOneShot.volume = this.eVolume;
     }
 
     private fadeInMusic(dur: number, audioState: AudioState) {
@@ -183,7 +289,7 @@ export class AudioComponent extends EffectComponent {
         let onEnd = () => {
             if (stop) {
                 audioSource?.isValid && audioSource.destroy();
-                app.asset.decRef(audioState.location);
+                this._asset.decRef(audioState.location);
             }
             else {
                 audioSource.pause();

@@ -7,12 +7,12 @@ export class StroageValue<T> {
 
     private _value: T;
 
-    private _onValueChange: () => void;
+    public onValueChange: () => void;
 
     public constructor(stroageKey: string, defaultV: T, onValueChange?: () => void) {
         this._key = stroageKey;
         this._value = LocalStorage.getValue(stroageKey, defaultV);
-        this._onValueChange = onValueChange;
+        this.onValueChange = onValueChange;
     }
 
     public get value() { return this._value; }
@@ -20,7 +20,7 @@ export class StroageValue<T> {
         if (this._value == v) return;
         this._value = v;
         LocalStorage.setValue(this._key, this._value);
-        this._onValueChange && this._onValueChange();
+        this.onValueChange && this.onValueChange();
     }
 
 }
