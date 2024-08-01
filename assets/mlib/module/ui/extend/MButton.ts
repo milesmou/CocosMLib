@@ -34,7 +34,7 @@ export class MButton extends Button {
     //多次点击按钮相关
     @property private _multiClickButton = false;
     @property({
-        displayName: "多击按钮",
+        displayName: "连击按钮",
     })
     public get multiClickButton() { return this._multiClickButton; }
     private set multiClickButton(val: boolean) {
@@ -43,7 +43,7 @@ export class MButton extends Button {
     }
     @property private _multiClickInterval = 0.2;
     @property({
-        displayName: "多击每次最大间隔(秒)",
+        displayName: "连击每次最大间隔(秒)",
         range: [0.1, 2],
         visible() { return this._multiClickButton; }
     })
