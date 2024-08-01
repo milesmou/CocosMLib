@@ -1,15 +1,16 @@
 import { AudioClip, AudioSource, Component, Tween, _decorator, tween } from 'cc';
 import { AssetComponent } from '../asset/AssetComponent';
-import { AudioVolume } from './AudioVolume';
 import { AudioMgr } from './AudioMgr';
 import { AudioState } from './AudioState';
+import { AudioVolume } from './AudioVolume';
 import { IAudioComponent } from './IAudioComponent';
 import { SortedMap } from './SortedMap';
 
-const { ccclass, property } = _decorator;
+const { ccclass, property, requireComponent } = _decorator;
 
 /** 音频播放组件 */
 @ccclass("AudioComponent")
+@requireComponent(AssetComponent)
 export class AudioComponent extends Component implements IAudioComponent {
 
     @property({
@@ -42,7 +43,7 @@ export class AudioComponent extends Component implements IAudioComponent {
     private _loopEffect: AudioState[] = [];
 
     protected onLoad() {
-        this._asset = this.getComponent(AssetComponent) || this.addComponent(AssetComponent);
+        this._asset = this.ensureComponent(AssetComponent);
         this._effectOneShot = this.addComponent(AudioSource);
         this.setKey(this.m_key);
     }
@@ -131,11 +132,10 @@ export class AudioComponent extends Component implements IAudioComponent {
     /**
      * 播放音效
      * @param loop loop=true时不会触发onFinished
-     * @param deRef 默认为true 是否在音效结束时释引用次数-1
+     * @param deRef 默认为false 是否在音效结束时释引用次数-1
      */
     public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (clip: AudioClip) => void, onFinished?: () => void } = {}) {
         let { loop, deRef, onStart, onFinished } = args;
-        deRef = deRef === undefined ? true : deRef;
         let clip = await this._asset.loadAsset(location, AudioClip);
         if (!this.isValid) return;
         if (loop) {
