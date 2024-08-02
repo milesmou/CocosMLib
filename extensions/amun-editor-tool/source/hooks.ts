@@ -2,6 +2,7 @@ import { BuildHook, IBuildResult, IBuildTaskOption } from "@cocos/creator-types/
 import { BuildTemplate } from './postbuild/BuildTemplate';
 import { HotUpdate } from './postbuild/HotUpdate';
 import { Minigame } from './postbuild/Minigame';
+import { Config } from "./tools/Config";
 import { Logger } from './tools/Logger';
 import { Utils } from './tools/Utils';
 
@@ -25,9 +26,13 @@ export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBu
     Logger.info("onAfterBuild");
     BuildTemplate.copy(options, result);
     if (Utils.isNative(options.platform)) {
-        Logger.info('hotupdateEnable', HotUpdate.hotupdateEnable);
-        HotUpdate.modifyJsFile(options, result);
-        HotUpdate.replaceManifest(options, result);
+        /** 是否启用热更 */
+        let hotupdateEnable = Config.get("gameSetting.hotupdate", false);
+        Logger.info('hotupdateEnable', hotupdateEnable);
+        if (hotupdateEnable) {
+            HotUpdate.modifyJsFile(options, result);
+            HotUpdate.replaceManifest(options, result);
+        }
     }
     Minigame.modifyServer(options, result);
 };

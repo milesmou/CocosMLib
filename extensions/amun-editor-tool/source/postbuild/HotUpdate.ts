@@ -1,7 +1,7 @@
 
+import { IBuildResult, IBuildTaskOption } from "@cocos/creator-types/editor/packages/builder/@types/public";
 import fs from "fs-extra";
 import path from "path";
-import { IBuildResult, IBuildTaskOption } from "@cocos/creator-types/editor/packages/builder/@types/public";
 import { Config } from "../tools/Config";
 import { Logger } from "../tools/Logger";
 import { Utils } from "../tools/Utils";
@@ -11,14 +11,8 @@ import { VersionGenerator } from "./VersionGenerator";
 /** 原生平台检查构建配置和修改main.js */
 export class HotUpdate {
 
-    /** 是否启用热更 */
-    public static get hotupdateEnable() {
-        return Config.get("gameSetting.hotupdate", false);
-    }
-
     /** 修改main.js 和 src目录中的脚本 */
     public static modifyJsFile(options: IBuildTaskOption, result: IBuildResult) {
-        if (!this.hotupdateEnable) return;
         let buildPath = Utils.toUniSeparator(result.dest);
         Config.set("hotupdate.src", buildPath);
 
@@ -28,30 +22,34 @@ export class HotUpdate {
         }
         let srcDir = path.join(rootDir, 'src');
 
-        let files = Utils.getAllFiles(srcDir, null, true);
-        files = files.concat(Utils.getAllFiles(rootDir, null, true));
-        let newFiles: string[] = [];
-        //修改src目录下文件的文件名 去除md5
-        let fileNameMap: Map<string, string> = new Map();
-        files.forEach(file => {
-            let newFile = Utils.restoreFilePath(file);
-            let fileName = path.basename(file);
-            let newFileName = path.basename(newFile);
-            fileNameMap.set(fileName, newFileName);
-            fs.renameSync(file, newFile);
-            Logger.info("去除文件名的MD5", file)
-            newFiles.push(newFile);
-        });
-
-        //修改src目录下文件 修改文件中带md5的引用
-        newFiles.forEach(file => {
-            let content = fs.readFileSync(file, { encoding: "utf8" });
-            fileNameMap.forEach((v, k) => {
-                let regex = new RegExp(k, "g");
-                content = content.replace(regex, v);
+        if (options.md5Cache) {
+            let files = Utils.getAllFiles(srcDir, null, true);
+            files = files.concat(Utils.getAllFiles(rootDir, null, true));
+            let newFiles: string[] = [];
+            //修改src目录下文件的文件名 去除md5
+            let fileNameMap: Map<string, string> = new Map();
+            files.forEach(file => {
+                let newFile = Utils.restoreFilePath(file);
+                let fileName = path.basename(file);
+                let newFileName = path.basename(newFile);
+                fileNameMap.set(fileName, newFileName);
+                fs.renameSync(file, newFile);
+                Logger.info("去除文件名的MD5", file)
+                newFiles.push(newFile);
             });
-            fs.writeFileSync(file, content, { encoding: "utf8" });
-        });
+
+            //修改src目录下文件 修改文件中带md5的引用
+            newFiles.forEach(file => {
+                let content = fs.readFileSync(file, { encoding: "utf8" });
+                fileNameMap.forEach((v, k) => {
+                    let regex = new RegExp(k, "g");
+                    content = content.replace(regex, v);
+                });
+                fs.writeFileSync(file, content, { encoding: "utf8" });
+            });
+        } else {
+            Logger.error("启用热更时应当开启MD5缓存")
+        }
 
         //修改main.js 中的搜索路径
         let mainjs = path.join(rootDir, 'main.js');
@@ -70,7 +68,6 @@ export class HotUpdate {
 
     /** 资源打包后使用最新的清单文件替换旧的清单文件 */
     public static replaceManifest(options: IBuildTaskOption, result: IBuildResult) {
-        if (!this.hotupdateEnable) return;
         let oldManifest = Utils.ProjectPath + "/assets/resources/project.manifest";
         if (!fs.existsSync(oldManifest)) {
             Logger.warn("assets/resources/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
