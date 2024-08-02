@@ -1,5 +1,5 @@
 import { _decorator, Component, director, Enum, Event, game, Node } from 'cc';
-import { EDITOR_NOT_IN_PREVIEW } from 'cc/env';
+import { EDITOR_NOT_IN_PREVIEW, PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
 import { ELoggerLevel } from './module/logger/ELoggerLevel';
@@ -10,7 +10,10 @@ const EGameConfigType = Enum({
     Remote: 1
 })
 
-const LogLevel = Enum(ELoggerLevel);
+const LogLevel = Enum({
+    Auto: 0,
+    ...ELoggerLevel
+});
 
 @ccclass('GameSetting')
 @executeInEditMode
@@ -122,15 +125,29 @@ class GameSetting extends Component {
         this._gameCode = this._gameName + "_" + this.channel
         this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
         this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
-        if (!EDITOR_NOT_IN_PREVIEW) {
-            director.addPersistRootNode(this.node);
-            if (this.m_FrameRate > 0) {
-                game.frameRate = this.m_FrameRate;
-            }
-            logger.setLevel(this.m_LogLevel);
-            this.enableNodeEvent();
-        }
+        if (EDITOR_NOT_IN_PREVIEW) return;
+        director.addPersistRootNode(this.node);
+        this.setFrameRate();
+        this.setLogLevel();
 
+    }
+
+    private setFrameRate() {
+        if (this.m_FrameRate > 0) {
+            game.frameRate = this.m_FrameRate;
+        }
+    }
+
+    private setLogLevel() {
+        if (this.m_LogLevel == LogLevel.Auto) {
+            if (!PREVIEW) {
+                logger.setLevel(LogLevel.Warn);
+            } else {
+                logger.setLevel(LogLevel.Info);
+            }
+        } else {
+            logger.setLevel(this.m_LogLevel);
+        }
     }
 
     /** 主版本号 取前三位 */
