@@ -1,17 +1,27 @@
-/** 使用object模拟一个可以对key自动排序的Map */
-export class SortedMap<T>
-{
-    private _map: { [key: string]: T } = {};
+/** 可以对key自动排序的Map(key为number类型) */
+export class SortedMap<T> {
 
-    public get topKey() {
-        let keys = Object.keys(this._map);
-        if (keys.length > 0) return parseFloat(keys[keys.length - 1]);
-        return -1;
+    /** 存储并维护Key的顺序 */
+    private _array: number[] = [];
+    /** 存储Key和值 */
+    private _map: Map<number, T> = new Map();
+
+    private sortKey() {
+        this._array.sort((a, b) => a - b);
     }
 
-    public get topValue() {
-        let topKey = this.topKey;
-        return this._map[topKey];
+    public get topKey(): number | undefined {
+        if (this._array.length > 0) {
+            return this._array.last;
+        }
+        return undefined;
+    }
+
+    public get topValue(): T | undefined {
+        if (this._array.length > 0) {
+            return this._map.get(this.topKey as number);
+        }
+        return undefined;
     }
 
     public isTopKey(key: number) {
@@ -29,43 +39,54 @@ export class SortedMap<T>
     }
 
     public get size() {
-        let keys = Object.keys(this._map);
-        return keys.length;
+        return this._array.length;
     }
 
     public clear() {
-        this._map = {};
+        this._array.length = 0;
+        this._map.clear();
     }
 
     public get(key: number) {
-
-        return this._map[key];
+        return this._map.get(key);
     }
 
     public set(key: number, item: T) {
+        if (!this._array.includes(key)) {
+            this._array.push(key);
+        }
+        this._map.set(key, item);
+        this.sortKey();
+    }
 
-        this._map[key] = item;
+    public deleteKey(key: number) {
+        this._array.delete(key);
+        this._map.delete(key);
+        this.sortKey();
     }
 
     public delete(key: number, item: T) {
-        let v = this._map[key];
-        if (item == v) delete this._map[key];
+        let v = this._map.get(key);
+        if (item == v) {
+            this.deleteKey(key);
+        }
     }
 
     public hasKey(key: number) {
-        let v = this._map[key];
-        return Boolean(v);
+        return this._map.has(key);
     }
 
     public has(key: number, item: T) {
-        let v = this._map[key];
+        let v = this._map.get(key);
         return item == v;
     }
 
     public forEach(predicate: (item: T, key: number) => void) {
-        for (const key in this._map) {
-            let v = this._map[key];
-            predicate && predicate(v, parseFloat(key));
-        }
+        this._array.forEach(key => {
+            let v = this._map.get(key);
+            predicate && predicate(v as T, key);
+        });
     }
+
+
 }
