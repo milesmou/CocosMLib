@@ -1,6 +1,7 @@
+import { HotUpdate } from "./builder/postbuild/HotUpdate";
 import { CmdExecute } from "./CmdExecute";
-import { HotUpdate } from "./postbuild/HotUpdate";
-import { SceneCmdExecute } from "./scene/SceneCmdExecute";
+import { SceneConnect } from "./scene/SceneConnect";
+
 
 
 /**
@@ -16,10 +17,8 @@ export const methods: { [key: string]: (...any: any) => any } = {
     setTexCompress: CmdExecute.setTexCompress.bind(CmdExecute),
     genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
     openLogFile: CmdExecute.openLogFile.bind(CmdExecute),
-    //场景操作命令
-    autoGenProperty: SceneCmdExecute.autoGenProperty.bind(SceneCmdExecute),
-    replaceComponent: SceneCmdExecute.replaceComponent.bind(SceneCmdExecute),
-    
+    //场景操作命令 除了在此处还需在SceneMain中注册
+    replaceComponent: SceneConnect.send.bind(this, "replaceComponent"),
     //测试
     test: CmdExecute.test.bind(CmdExecute),
 };

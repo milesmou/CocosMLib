@@ -1,14 +1,16 @@
-import path from "path";
 import fs from "fs-extra";
+import { Constant } from "./Constant";
 /** 保存和读取本地配置 */
 export class Config {
-    private static FilePath = path.join(Editor.Project.path, "/settings/amun-editor-config.json");
 
     public static get data() {
-        if (!fs.existsSync(this.FilePath)) {
-            fs.writeJSONSync(this.FilePath, {});
+        let obj: any;
+        try {
+            obj = fs.readJSONSync(Constant.ConfigFilePath);
+        } catch (e) {
+            obj = {};
         }
-        return fs.readJSONSync(this.FilePath) as any;
+        return obj;
     }
     public static get<T>(key: string, defaultV: T) {
         let d = this.data;
@@ -51,7 +53,7 @@ export class Config {
                     }
                 }
             }
-            fs.writeJSONSync(this.FilePath, d, { spaces: 4 });
+            fs.writeJSONSync(Constant.ConfigFilePath, d, { spaces: 4 });
         }
     }
 }

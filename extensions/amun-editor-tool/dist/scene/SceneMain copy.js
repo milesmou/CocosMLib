@@ -1,0 +1,35 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.unload = exports.load = exports.methods = void 0;
+// 临时在当前模块增加编辑器内的模块为搜索路径，为了能够正常 require 到 cc 模块，后续版本将优化调用方式
+const path_1 = require("path");
+module.paths.push((0, path_1.join)(Editor.App.path, 'node_modules'));
+const cc_1 = require("cc");
+const Logger_1 = require("../tools/Logger");
+const SceneCmdExecute_1 = require("./SceneCmdExecute");
+/**
+ * @en Registration method for the main process of Extension
+ * @zh 为扩展的主进程的注册方法
+ */
+exports.methods = {
+    replaceComponent: SceneCmdExecute_1.SceneCmdExecute.replaceComponent.bind(SceneCmdExecute_1.SceneCmdExecute),
+};
+/**
+ * @en Hooks triggered after extension loading is complete
+ * @zh 扩展加载完成后触发的钩子
+ */
+function load() {
+    let node = cc_1.director.getScene();
+    Logger_1.Logger.info("hahahha1", node.name);
+    setInterval(() => {
+        console.log("asdasdasd");
+    }, 1000);
+}
+exports.load = load;
+/**
+ * @en Hooks triggered after extension uninstallation is complete
+ * @zh 扩展卸载完成后触发的钩子
+ */
+function unload() { }
+exports.unload = unload;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiU2NlbmVNYWluIGNvcHkuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi9zb3VyY2Uvc2NlbmUvU2NlbmVNYWluIGNvcHkudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7O0FBQ0EsMkRBQTJEO0FBQzNELCtCQUE0QjtBQUM1QixNQUFNLENBQUMsS0FBSyxDQUFDLElBQUksQ0FBQyxJQUFBLFdBQUksRUFBQyxNQUFNLENBQUMsR0FBRyxDQUFDLElBQUksRUFBRSxjQUFjLENBQUMsQ0FBQyxDQUFDO0FBRXpELDJCQUE4QjtBQUM5Qiw0Q0FBeUM7QUFDekMsdURBQW9EO0FBR3BEOzs7R0FHRztBQUNVLFFBQUEsT0FBTyxHQUE0QztJQUM1RCxnQkFBZ0IsRUFBRSxpQ0FBZSxDQUFDLGdCQUFnQixDQUFDLElBQUksQ0FBQyxpQ0FBZSxDQUFDO0NBQzNFLENBQUM7QUFFRjs7O0dBR0c7QUFDSCxTQUFnQixJQUFJO0lBQ2hCLElBQUksSUFBSSxHQUFHLGFBQVEsQ0FBQyxRQUFRLEVBQUUsQ0FBQztJQUMvQixlQUFNLENBQUMsSUFBSSxDQUFDLFVBQVUsRUFBQyxJQUFJLENBQUMsSUFBSSxDQUFDLENBQUE7SUFDakMsV0FBVyxDQUFDLEdBQUcsRUFBRTtRQUNiLE9BQU8sQ0FBQyxHQUFHLENBQUMsV0FBVyxDQUFDLENBQUM7SUFFN0IsQ0FBQyxFQUFFLElBQUksQ0FBQyxDQUFDO0FBQ2IsQ0FBQztBQVBELG9CQU9DO0FBRUQ7OztHQUdHO0FBQ0gsU0FBZ0IsTUFBTSxLQUFLLENBQUM7QUFBNUIsd0JBQTRCIiwic291cmNlc0NvbnRlbnQiOlsiXG4vLyDkuLTml7blnKjlvZPliY3mqKHlnZflop7liqDnvJbovpHlmajlhoXnmoTmqKHlnZfkuLrmkJzntKLot6/lvoTvvIzkuLrkuobog73lpJ/mraPluLggcmVxdWlyZSDliLAgY2Mg5qih5Z2X77yM5ZCO57ut54mI5pys5bCG5LyY5YyW6LCD55So5pa55byPXG5pbXBvcnQgeyBqb2luIH0gZnJvbSAncGF0aCc7XG5tb2R1bGUucGF0aHMucHVzaChqb2luKEVkaXRvci5BcHAucGF0aCwgJ25vZGVfbW9kdWxlcycpKTtcblxuaW1wb3J0IHsgZGlyZWN0b3IgfSBmcm9tIFwiY2NcIjtcbmltcG9ydCB7IExvZ2dlciB9IGZyb20gJy4uL3Rvb2xzL0xvZ2dlcic7XG5pbXBvcnQgeyBTY2VuZUNtZEV4ZWN1dGUgfSBmcm9tICcuL1NjZW5lQ21kRXhlY3V0ZSc7XG5cblxuLyoqXG4gKiBAZW4gUmVnaXN0cmF0aW9uIG1ldGhvZCBmb3IgdGhlIG1haW4gcHJvY2VzcyBvZiBFeHRlbnNpb25cbiAqIEB6aCDkuLrmianlsZXnmoTkuLvov5vnqIvnmoTms6jlhozmlrnms5VcbiAqL1xuZXhwb3J0IGNvbnN0IG1ldGhvZHM6IHsgW2tleTogc3RyaW5nXTogKC4uLmFueTogYW55KSA9PiBhbnkgfSA9IHtcbiAgICByZXBsYWNlQ29tcG9uZW50OiBTY2VuZUNtZEV4ZWN1dGUucmVwbGFjZUNvbXBvbmVudC5iaW5kKFNjZW5lQ21kRXhlY3V0ZSksXG59O1xuXG4vKipcbiAqIEBlbiBIb29rcyB0cmlnZ2VyZWQgYWZ0ZXIgZXh0ZW5zaW9uIGxvYWRpbmcgaXMgY29tcGxldGVcbiAqIEB6aCDmianlsZXliqDovb3lrozmiJDlkI7op6blj5HnmoTpkqnlrZBcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGxvYWQoKSB7IFxuICAgIGxldCBub2RlID0gZGlyZWN0b3IuZ2V0U2NlbmUoKTtcbiAgICBMb2dnZXIuaW5mbyhcImhhaGFoaGExXCIsbm9kZS5uYW1lKVxuICAgIHNldEludGVydmFsKCgpID0+IHtcbiAgICAgICAgY29uc29sZS5sb2coXCJhc2Rhc2Rhc2RcIik7XG4gICAgICAgIFxuICAgIH0sIDEwMDApO1xufVxuXG4vKipcbiAqIEBlbiBIb29rcyB0cmlnZ2VyZWQgYWZ0ZXIgZXh0ZW5zaW9uIHVuaW5zdGFsbGF0aW9uIGlzIGNvbXBsZXRlXG4gKiBAemgg5omp5bGV5Y246L295a6M5oiQ5ZCO6Kem5Y+R55qE6ZKp5a2QXG4gKi9cbmV4cG9ydCBmdW5jdGlvbiB1bmxvYWQoKSB7IH1cbiJdfQ==

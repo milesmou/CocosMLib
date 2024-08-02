@@ -1,3 +1,8 @@
 {
-  "disable-packages": {}
+  "disable-packages": {
+    "D:\\Workspace\\CocosMLib\\extensions\\amun-scene-tool": {
+      "name": "amun-scene-tool",
+      "time": 1722607915273
+    }
+  }
 }

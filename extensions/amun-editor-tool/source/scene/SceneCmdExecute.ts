@@ -1,31 +1,19 @@
-import { ExecuteSceneScriptMethodOptions } from "@cocos/creator-types/editor/packages/scene/@types/public";
-import { Logger } from "../tools/Logger";
+import { ReplaceComponent } from "./replacecomponent/ReplaceComponent";
 
 export class SceneCmdExecute {
-    static async autoGenProperty() {
-        let nodeUuid = "";
-        let type = Editor.Selection.getLastSelectedType();
-        if (type == "node") {
-            nodeUuid = Editor.Selection.getLastSelected(type);
-        }
 
-        const options: ExecuteSceneScriptMethodOptions = {
-            name: "amun-scene-tool",
-            method: 'autoGenProperty',
-            args: [nodeUuid],
-        };
 
-        Logger.info("SelectNodeUUID", nodeUuid);
-        Editor.Message.request('scene', 'execute-scene-script', options);
-    }
+    public static replaceComponent() {
+        ReplaceComponent.replace();
+        // SceneConnect.send("replaceComponent",1,3,4);
+        // let node = director.getScene();
+        // Logger.info(" replaceComponent hahahha1",node.name)
+        // const options: ExecuteSceneScriptMethodOptions = {
+        //     name: "amun-scene-tool",
+        //     method: 'replaceComponent',
+        //     args: [],
+        // };
 
-    static async replaceComponent() {
-        const options: ExecuteSceneScriptMethodOptions = {
-            name: "amun-scene-tool",
-            method: 'replaceComponent',
-            args: [],
-        };
-
-        Editor.Message.request('scene', 'execute-scene-script', options);
+        // Editor.Message.request('scene', 'execute-scene-script', options);
     }
 }

@@ -5,10 +5,10 @@
     "version": "1.0.0",
     "description": "amun的一些编辑器扩展",
     "author": "Amun",
-    "editor": ">=3.6.3",
-    "main": "./dist/main.js",
+    "editor": ">=3.8.0",
+    "main": "./dist/Main.js",
     "contributions": {
-        "builder": "./dist/builder.js",
+        "builder": "./dist/builder/Builder.js",
         "inspector": {
             "section": {
                 "node": {
@@ -18,12 +18,15 @@
         },
         "assets": {
             "menu": {
-                "methods": "./dist/AssetMenu.js",
+                "methods": "./dist/assetmenu/AssetMenu.js",
                 "createMenu": "onCreateMenu",
                 "assetMenu": "onAssetMenu",
                 "dbMenu": "onDBMenu",
                 "panelMenu": "onPanelMenu"
             }
+        },
+        "scene": {
+            "script": "./dist/scene/SceneMain.js"
         },
         "messages": {
             "saveGameSetting": {
