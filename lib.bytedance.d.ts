@@ -1,5 +1,5 @@
 /** 抖音小游戏API声明 */
-declare module tt {
+declare namespace tt {
     export function getSystemInfoSync();
     export function getLaunchOptionsSync();
     export function getUpdateManager();
