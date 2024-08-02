@@ -98,7 +98,8 @@ class GameSetting extends Component {
 
     @property({
         type: LogLevel,
-        displayName: "日志级别"
+        displayName: "日志级别",
+        tooltip: "默认为Auto,编辑器预览时日志级别为Info,发布后日志级别为Warn"
     })
     private m_LogLevel = LogLevel.Auto;
 
