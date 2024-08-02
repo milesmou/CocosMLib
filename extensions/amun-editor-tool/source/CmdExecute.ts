@@ -119,6 +119,7 @@ export class CmdExecute {
     }
 
     public static closeTexCompress() {
+        Logger.info("关闭纹理压缩开始");
         let exts = [".jpg", ".png", ".jpeg", ".pac"];
         let filter = (file: string) => {
             let ext = path.extname(file);
@@ -137,10 +138,11 @@ export class CmdExecute {
                 Logger.info("关闭纹理压缩", file);
             }
         }
+        Logger.info("关闭纹理压缩结束");
     }
 
     public static setTexCompress() {
-        let presetId: string = Editor.Clipboard.read("text") as string; 
+        let presetId: string = Editor.Clipboard.read("text") as string;
         if (presetId.length != 22) {
             Logger.warn("请先拷贝一个纹理压缩配置的22位UUID到剪切板(项目设置-压缩纹理-配置压缩预设集)")
         } else {
@@ -168,6 +170,7 @@ export class CmdExecute {
                     Logger.info(`纹理压缩设置  ${file}`);
                 }
             }
+            Logger.info("设置纹理压缩结束");
         }
     }
 
