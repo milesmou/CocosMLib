@@ -78,8 +78,8 @@
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-8-2 22:19:46 build success in 9 s!",
-        "detailMessage": "// ---- build task cocos-service：onBeforeCompressSettings ----\r",
+        "message": "2024-8-3 00:55:41 build success in 8 s!",
+        "detailMessage": "// ---- build task cocos-service：onAfterCompressSettings ----\r",
         "options": {
           "name": "NewProject3",
           "server": "",
@@ -127,7 +127,7 @@
           "nativeCodeBundleMode": "wasm",
           "wasmCompressionMode": false
         },
-        "time": "2024-8-2 22:19:37",
+        "time": "2024-8-3 00:55:32",
         "dirty": false
       }
     }

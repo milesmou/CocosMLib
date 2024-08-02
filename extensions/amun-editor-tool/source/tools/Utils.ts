@@ -1,4 +1,5 @@
 import child_process from "child_process";
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { Logger } from "./Logger";
@@ -110,7 +111,7 @@ export class Utils {
         return dirs;
     }
 
-    /** 根据文件路径找到追加了md5值的实际文件路径 */
+    /** 根据文件路径找到追加了Md5值的实际文件路径 */
     public static resolveFilePath(filePath: string) {
         let result = filePath;
         let dir = path.dirname(filePath);
@@ -137,7 +138,7 @@ export class Utils {
         return result.replace(/\\/g, "/");
     }
 
-    /** 将追加了md5的文件路径还原为正常的文件路径 */
+    /** 将追加了Md5的文件路径还原为正常的文件路径 */
     public static restoreFilePath(filePath: string) {
         let ext = path.extname(filePath);
         let p = filePath.replace(ext, "");
@@ -149,6 +150,31 @@ export class Utils {
             return filePath;
         }
     }
+
+    /** 修改文件名，使其文件名后追加Md5值 */
+    public static appendMd5(filePath: string) {
+        if (fs.existsSync(filePath)) {
+            let ext = path.extname(filePath);
+            let p = filePath.replace(ext, "");
+            let reg = new RegExp(/.+\.[A-Za-z0-9]{5}/);
+            if (!reg.test(p)) {
+                let md5 = crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex');
+                let shortMd5 = md5.substring(0, 6);
+                let newFilePath = p + "." + shortMd5 + ext;
+                fs.renameSync(filePath, newFilePath);
+            }
+        }
+    }
+
+    /** 修改文件名，移除其文件名后的Md5值 */
+    public static removeMd5(filePath: string) {
+        if (fs.existsSync(filePath)) {
+            let newFilePath = this.restoreFilePath(filePath);
+            fs.renameSync(filePath, newFilePath);
+        }
+    }
+
+
 
     /** 刷新编辑器内的资源 */
     public static refreshAsset(path: string) {

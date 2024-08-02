@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import fs from "fs-extra";
 import path from "path";
+import { Logger } from "../../tools/Logger";
 import { Utils } from "../../tools/Utils";
 
 class Manifest {
@@ -14,29 +15,25 @@ class Manifest {
 
 export class VersionGenerator {
 
+    private static data = '';
 
-    private static dest = './remote-assets/';
-    private static src = './jsb/';
-
-    public static gen(url: string, version: string, src: string, dest: string) {
+    public static gen(url: string, version: string, data: string, dest: string, normalBuild: boolean) {
         let manifest = new Manifest();
 
         manifest.packageUrl = url;
         manifest.remoteManifestUrl = url + '/project.manifest';
         manifest.remoteVersionUrl = url + '/version.manifest';
         manifest.version = version;
-        this.src = src;
-        this.dest = dest;
-
+        this.data = data;
 
         fs.emptyDirSync(dest);
-        // 生成热更资源时,还原src目录下资源文件名 追加md5
-        this.renameSrcFiles(path.join(src, 'src'));
+        // 生成热更资源时,还原src目录下资源文件名 追加Md5
+        this.renameSrcFiles(path.join(data, 'src'), true);
 
         // Iterate assets and src folder
-        this.readDir(path.join(src, 'src'), manifest.assets);
-        this.readDir(path.join(src, 'assets'), manifest.assets);
-        this.readDir(path.join(src, 'jsb-adapter'), manifest.assets);
+        this.readDir(path.join(data, 'src'), manifest.assets);
+        this.readDir(path.join(data, 'assets'), manifest.assets);
+        this.readDir(path.join(data, 'jsb-adapter'), manifest.assets);
 
         let destManifest = path.join(dest, 'project.manifest');
         let destVersion = path.join(dest, 'version.manifest');
@@ -46,20 +43,20 @@ export class VersionGenerator {
         delete manifest.assets;
         delete manifest.searchPaths;
         fs.writeJSONSync(destVersion, manifest);
+
+        //如果是正常构建工程 还需要移除src目录下文件的Md5
+        if (normalBuild) this.renameSrcFiles(path.join(data, 'src'), false);
     }
 
-    private static renameSrcFiles(dir: string) {
+    private static renameSrcFiles(dir: string, appenOrRemovedMd5: boolean) {
         let files = Utils.getAllFiles(dir, null, true);
         files.forEach(file => {
-            let fileName = path.basename(file);
-            let ext = path.extname(file);
-            let newFileName = fileName.replace(ext, "");
-            let lastIndex = newFileName.lastIndexOf(".");
-            if (lastIndex > -1 && newFileName != "system.bundle") return;
-            let md5 = crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex');
-            newFileName = newFileName + "." + md5.substring(0, 6);
-            newFileName += ext;
-            fs.renameSync(file, file.replace(fileName, newFileName));
+            Logger.debug(appenOrRemovedMd5, file);
+            if (appenOrRemovedMd5) {//追加Md5值
+                Utils.appendMd5(file);
+            } else {//移除Md5值
+                Utils.removeMd5(file);
+            }
         });
     }
 
@@ -85,7 +82,7 @@ export class VersionGenerator {
                     md5 = crypto.createHash('md5').update(fs.readFileSync(subpath)).digest('hex');
                     compressed = path.extname(subpath).toLowerCase() === '.zip';
 
-                    relative = subpath.replace(/\\/g, "/").replace(this.src + "/", "");
+                    relative = subpath.replace(/\\/g, "/").replace(this.data + "/", "");
                     obj[relative] = {
                         'size': size,
                         'md5': md5

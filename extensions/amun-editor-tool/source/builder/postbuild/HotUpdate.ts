@@ -14,17 +14,15 @@ export class HotUpdate {
     /** 修改main.js 和 src目录中的脚本 */
     public static modifyJsFile(options: IBuildTaskOption, result: IBuildResult) {
         let buildPath = Utils.toUniSeparator(result.dest);
-        Config.set("hotupdate.src", buildPath);
+        Config.set("hotupdate.buildPath", buildPath);
 
-        let rootDir = path.join(result.dest, 'data');
-        if (!fs.existsSync(rootDir)) {
-            rootDir = path.join(result.dest, 'assets');
-        }
-        let srcDir = path.join(rootDir, 'src');
+        let dataDir = path.join(result.dest, 'data');
+
+        let srcDir = path.join(dataDir, 'src');
 
         if (options.md5Cache) {
             let files = Utils.getAllFiles(srcDir, null, true);
-            files = files.concat(Utils.getAllFiles(rootDir, null, true));
+            files = files.concat(Utils.getAllFiles(dataDir, null, true));
             let newFiles: string[] = [];
             //修改src目录下文件的文件名 去除md5
             let fileNameMap: Map<string, string> = new Map();
@@ -52,7 +50,7 @@ export class HotUpdate {
         }
 
         //修改main.js 中的搜索路径
-        let mainjs = path.join(rootDir, 'main.js');
+        let mainjs = path.join(dataDir, 'main.js');
         if (fs.existsSync(mainjs)) {
             let version = Config.get("gameSetting.mainVersion", "");
             if (version) {
@@ -74,12 +72,12 @@ export class HotUpdate {
             return;
         }
         let fileUuid = fs.readJSONSync(oldManifest + ".meta")?.uuid;
-        let src = Config.get("hotupdate.src", "");
+        let buildPath = Config.get("hotupdate.buildPath", "");
         let dest = Utils.ProjectPath + "/temp/manifest";
         fs.ensureDirSync(dest);
-        if (this.genManifest(dest, false)) {
+        if (this.genManifest(dest, true)) {
             let newManifest = dest + '/project.manifest';
-            let dir = src + '/data/assets/resources';
+            let dir = buildPath + '/data/assets/resources';
             let oldManifest = Utils.getAllFiles(dir, file => {
                 let basename = path.basename(file);
                 return basename.startsWith(fileUuid) && basename.endsWith(".manifest");
@@ -97,15 +95,16 @@ export class HotUpdate {
 
     /** 生成热更资源 */
     public static genHotUpdateRes() {
-        let src = Config.get("hotupdate.src", "");
+        let buildPath = Config.get("hotupdate.buildPath", "");
         let url = Config.get("gameSetting.hotupdateServer", "");
         let version = Config.get("gameSetting.version", "");
         let dest = Utils.ProjectPath + "/hotupdate/" + version;
+        let data = Utils.toUniSeparator(path.join(buildPath, 'data'));
         try {
-            if (this.genManifest(dest)) {//生成清单后 拷贝资源
-                fs.copySync(src + '/src', dest + "/src");
-                fs.copySync(src + '/assets', dest + "/assets");
-                fs.copySync(src + '/jsb-adapter', dest + "/jsb-adapter");
+            if (this.genManifest(dest, false)) {//生成清单后 拷贝资源
+                fs.copySync(data + '/src', dest + "/src");
+                fs.copySync(data + '/assets', dest + "/assets");
+                fs.copySync(data + '/jsb-adapter', dest + "/jsb-adapter");
                 fs.copySync(dest + '/project.manifest', Utils.ProjectPath + "/assets/resources/project.manifest");
                 Utils.refreshAsset(Utils.ProjectPath + "/assets/resources/project.manifest");
                 Logger.info(`生成热更资源完成 ${dest}`);
@@ -118,31 +117,30 @@ export class HotUpdate {
 
     }
 
-    /** 生成资源清单文件 */
-    private static genManifest(dest: string, printConfig = true) {
-        let src = Config.get("hotupdate.src", "");
+    /** 
+     * 生成资源清单文件
+     * @param normalBuild 是否是正常构建工程,而不是生成热更资源
+     */
+    private static genManifest(dest: string, normalBuild: boolean) {
+        let buildPath = Config.get("hotupdate.buildPath", "");
         let url = Config.get("gameSetting.hotupdateServer", "");
         let version = Config.get("gameSetting.version", "");
         if (!url || !version) {
             Logger.warn(`热更配置不正确,若需要使用热更,请先检查热更配置`);
         }
-        if (!src) {
+        if (!buildPath) {
             Logger.info(`请先构建一次Native工程 再生成热更资源`);
             return false;
         }
-        let newSrc = path.join(src, 'data');
-        if (!fs.existsSync(newSrc)) {
-            newSrc = path.join(src, 'assets');
-        }
-        src = Utils.toUniSeparator(newSrc);
-        if (printConfig) {
+        let data = Utils.toUniSeparator(path.join(buildPath, 'data'));
+        if (!normalBuild) {
             Logger.info(`url=${url}`)
             Logger.info(`version=${version}`)
-            Logger.info(`src=${src}`)
+            Logger.info(`data=${data}`)
             Logger.info(`dest=${dest}`)
         }
         try {
-            VersionGenerator.gen(url, version, src, dest);
+            VersionGenerator.gen(url, version, data, dest, normalBuild);
         } catch (e) {
             Logger.error(e);
             return false;
