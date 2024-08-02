@@ -100,7 +100,7 @@ class GameSetting extends Component {
         type: LogLevel,
         displayName: "日志级别"
     })
-    private m_LogLevel = LogLevel.Info;
+    private m_LogLevel = LogLevel.Auto;
 
     /**  渠道名字 */
     public get channel() { return EChannel[this._channelId]; }
@@ -129,7 +129,7 @@ class GameSetting extends Component {
         director.addPersistRootNode(this.node);
         this.setFrameRate();
         this.setLogLevel();
-
+        this.enableNodeEvent();
     }
 
     private setFrameRate() {
