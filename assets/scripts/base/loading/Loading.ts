@@ -1,4 +1,4 @@
-import { Asset, Label, ProgressBar, TextAsset, Tween, _decorator, game, sys, tween } from 'cc';
+import { Label, ProgressBar, TextAsset, Tween, _decorator, game, sys, tween } from 'cc';
 import { PREVIEW } from 'cc/env';
 import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
@@ -77,10 +77,9 @@ export class Loading extends UIComponent {
     private async checkVersion() {
         if (!PREVIEW) {
             if (gameSetting.hotupdate && GameConfig.rg && sys.isNative) {
-                let manifest = await AssetMgr.loadAsset("project", Asset);
-                if (manifest) {
+                if (gameSetting.manifest) {
                     HotUpdate.Inst.start(
-                        manifest,
+                        gameSetting.manifest,
                         gameSetting.mainVersion,
                         this.onUpdateStateChange.bind(this),
                         this.onUpdateDownloadProgress.bind(this),

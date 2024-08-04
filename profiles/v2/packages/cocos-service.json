@@ -9,6 +9,10 @@
       "android": {
         "configID": "1e2952",
         "services": []
+      },
+      "windows": {
+        "configID": "1e2952",
+        "services": []
       }
     },
     "taskOptionsMap": {
@@ -17,6 +21,10 @@
         "services": []
       },
       "1715658594808": {
+        "configID": "1e2952",
+        "services": []
+      },
+      "1722745824560": {
         "configID": "1e2952",
         "services": []
       }

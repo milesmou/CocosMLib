@@ -1,4 +1,4 @@
-import { _decorator, Component, director, Enum, Event, game, Node } from 'cc';
+import { _decorator, Asset, Component, director, Enum, Event, game, Node } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW, PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
@@ -74,10 +74,24 @@ class GameSetting extends Component {
     @property private _hotupdate = true;
     @property({
         displayName: "热更",
-        tooltip: "开启热更需要再resources中放入本地project.manifest清单文件",
+        tooltip: "是否启用热更,仅支持原生平台",
     })
     public get hotupdate() { return this._hotupdate; }
-    private set hotupdate(val: boolean) { this._hotupdate = val; this.saveGameSetting(); }
+    private set hotupdate(val: boolean) {
+        this._hotupdate = val;
+        this.saveGameSetting();
+        if (!val) this.manifest = null;
+    }
+
+    @property private _manifest: Asset = null;
+    @property({
+        type: Asset,
+        displayName: "热更清单文件",
+        tooltip: "本地project.manifest清单文件",
+        visible: function () { return this._hotupdate; }
+    })
+    public get manifest() { return this._manifest; }
+    private set manifest(val: Asset) { this._manifest = val; }
 
     @property({
         displayName: "帧率",
@@ -103,6 +117,7 @@ class GameSetting extends Component {
     })
     private m_LogLevel = LogLevel.Auto;
 
+
     /**  渠道名字 */
     public get channel() { return EChannel[this._channelId]; }
     private _mainVersion: string;
@@ -126,6 +141,7 @@ class GameSetting extends Component {
         this._gameCode = this._gameName + "_" + this.channel
         this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
         this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
+
         if (EDITOR_NOT_IN_PREVIEW) return;
         director.addPersistRootNode(this.node);
         this.setFrameRate();
@@ -190,7 +206,7 @@ class GameSetting extends Component {
             /** 热更开关 */
             hotupdate: this.hotupdate,
             /** 热更资源地址 */
-            hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg`,
+            hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this.mainVersion}/ResPkg`,
             /** 小游戏资源地址 */
             minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg/`,
         };

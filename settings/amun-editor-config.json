@@ -4,10 +4,10 @@
         "channel": "Dev",
         "version": "1.0.0",
         "mainVersion": "1.0.0",
-        "cdnUrl": "https://",
+        "cdnUrl": "https://zhiqu.zqygame.com/res/zhiqu",
         "hotupdate": true,
-        "hotupdateServer": "https:///OutTest/Channel/Dev/1.0.0/ResPkg",
-        "minigameServer": "https:///OutTest/Channel/Dev/1.0.0/ResPkg/"
+        "hotupdateServer": "https://zhiqu.zqygame.com/res/zhiqu/OutTest/Channel/Dev/1.0.0/ResPkg",
+        "minigameServer": "https://zhiqu.zqygame.com/res/zhiqu/OutTest/Channel/Dev/1.0.0/ResPkg/"
     },
     "hotupdate": {
         "src": "D:/Workspace/CocosMLib/build/android-001",

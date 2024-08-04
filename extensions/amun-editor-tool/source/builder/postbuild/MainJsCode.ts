@@ -1,5 +1,5 @@
 export class MainJsCode {
-    static code = `(function () {
+    static insertCode = `(function () {
         if (typeof window.jsb === 'object') {
             var hotUpdateSearchPaths = localStorage.getItem('<%version%>');
             if (hotUpdateSearchPaths) {

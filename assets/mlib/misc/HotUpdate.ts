@@ -33,7 +33,7 @@ export class HotUpdate {
     private _onDownloadProgress: (loaded: number, total: number) => void;
     private _onComplete: (code: EHotUpdateResult) => void;
 
-    private get storagePath() { return native.fileUtils.getWritablePath() + 'miles_remote_asset'; }
+    private get storagePath() { return native.fileUtils.getWritablePath() + 'remote_asset'; }
 
     public start(manifest: Asset, version: string, onStateChange: (code: EHotUpdateState) => void, onDownloadProgress: (loaded: number, total: number) => void, onComplete: (code: EHotUpdateResult) => void) {
         if (!sys.isNative) {
@@ -95,6 +95,8 @@ export class HotUpdate {
             this.onUpdateComplete(EHotUpdateResult.ManifestError);
             return;
         }
+
+        this._logger.debug("检查更新 remoteVersionUrl", this._assetsMgr.getLocalManifest().getVersionFileUrl());
         this._assetsMgr.setEventCallback(this.checkUpdateCb.bind(this));
         this._assetsMgr.checkUpdate();
     }
@@ -102,7 +104,7 @@ export class HotUpdate {
     /** 下载更新文件 */
     private downloadFiles() {
         this._onStateChange(EHotUpdateState.DownloadFiles);
-        this._logger.debug("下载更新");
+        this._logger.debug("下载更新", this._assetsMgr.getRemoteManifest().getPackageUrl());
         if (!this._updating) {
             this._assetsMgr.setEventCallback(this.downloadFilesCb.bind(this));
             this._assetsMgr.update();
@@ -186,11 +188,11 @@ export class HotUpdate {
     private onUpdateComplete(code: EHotUpdateResult.UpToDate | EHotUpdateResult.Success | EHotUpdateResult.ManifestError) {
         this._onStateChange(EHotUpdateState.Finished);
         if (code == EHotUpdateResult.Success) {
-            //重命名main.js依赖的相关文件,去掉文件名中的MD5后缀,不然main.js中无法加载相关资源
-            this.renameSrcFiles();
             //追加脚本搜索路径
             let searchPaths = native.fileUtils.getSearchPaths();
             let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
+            let manifestRoot = this._assetsMgr.getRemoteManifest().getManifestRoot();
+            this._logger.debug(`manifestRoot ${manifestRoot}`);
             Array.prototype.unshift.apply(searchPaths, newPaths);
             this._logger.debug(`新增搜索路径 ${JSON.stringify(newPaths)}`);
             this._logger.debug(`搜索路径 Key=${this._version}`);
@@ -206,25 +208,5 @@ export class HotUpdate {
     private onUpdateFail() {
         this._assetsMgr.setEventCallback(null);
         this._onComplete(EHotUpdateResult.Fail);
-    }
-
-    private renameSrcFiles() {
-        let files = native.fileUtils.listFiles(this.storagePath + "/src");
-        files.forEach(v => {
-            if (!native.fileUtils.isDirectoryExist(v)) {//文件
-                let fileName = v.replace(native.fileUtils.getFileDir(v) + "/", "");
-                let ext = native.fileUtils.getFileExtension(v);
-                let newFileName = fileName.replace(ext, "");
-                if (fileName == "system.bundle") return;
-                let lastIndex = newFileName.lastIndexOf(".");
-                if (lastIndex > -1) {
-                    newFileName = newFileName.substring(0, lastIndex);
-                }
-                newFileName += ext;
-                let newFile = v.replace(fileName, newFileName);
-                native.fileUtils.renameFile(v, newFile);
-                this._logger.debug("rename", v, "-->", newFile)
-            }
-        });
     }
 }

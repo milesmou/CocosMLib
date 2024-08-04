@@ -135,7 +135,7 @@ export class Utils {
                 }
             }
         }
-        return result.replace(/\\/g, "/");
+        return this.toUniSeparator(result);
     }
 
     /** 将追加了Md5的文件路径还原为正常的文件路径 */

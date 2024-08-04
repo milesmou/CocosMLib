@@ -26,7 +26,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 16
+      "__id__": 19
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -57,7 +57,7 @@
     },
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 17
+      "__id__": 20
     },
     "_id": "0e09b2b3-90f0-4f74-802f-17a05e082e6a"
   },
@@ -122,13 +122,17 @@
     "_gameName": "OutTest",
     "_channelId": 0,
     "_version": "1.0.0",
-    "_cdnUrl": "https://",
+    "_cdnUrl": "https://zhiqu.zqygame.com/res/zhiqu",
     "_languageId": 1,
-    "_gameConfigType": 0,
+    "_gameConfigType": 1,
     "_hotupdate": true,
-    "m_FrameRate": 59,
+    "_manifest": {
+      "__uuid__": "8fe8ee8a-694e-4cb1-9e47-9f8d8060ee9e",
+      "__expectedType__": "cc.Asset"
+    },
+    "m_FrameRate": 0,
     "_nodeEvent": false,
-    "m_LogLevel": 0,
+    "m_LogLevel": 1,
     "_id": "76QxbXHAtFkLugGMgRSVHG"
   },
   {
@@ -162,7 +166,7 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 15
+        "__id__": 18
       }
     ],
     "_prefab": null,
@@ -206,21 +210,24 @@
     "_children": [
       {
         "__id__": 7
+      },
+      {
+        "__id__": 9
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 9
-      },
-      {
-        "__id__": 11
-      },
-      {
-        "__id__": 13
+        "__id__": 12
       },
       {
         "__id__": 14
+      },
+      {
+        "__id__": 16
+      },
+      {
+        "__id__": 17
       }
     ],
     "_prefab": null,
@@ -345,6 +352,115 @@
     "_id": "2d+hnZWhpMyqvieNWGwPdg"
   },
   {
+    "__type__": "cc.Node",
+    "_name": "SpriteSplash",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "_parent": {
+      "__id__": 6
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 10
+      },
+      {
+        "__id__": 11
+      }
+    ],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 3,
+      "y": 3,
+      "z": 1
+    },
+    "_mobility": 0,
+    "_layer": 33554432,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "c86XYPMnRA86z7Vb0ybf17"
+  },
+  {
+    "__type__": "cc.UITransform",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 9
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_contentSize": {
+      "__type__": "cc.Size",
+      "width": 100,
+      "height": 100
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0.5,
+      "y": 0.5
+    },
+    "_id": "65vNvo1NVBtb6aWLIUCvZ1"
+  },
+  {
+    "__type__": "cc.Sprite",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 9
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_customMaterial": null,
+    "_srcBlendFactor": 2,
+    "_dstBlendFactor": 4,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 255
+    },
+    "_spriteFrame": {
+      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
+    "_type": 0,
+    "_fillType": 0,
+    "_sizeMode": 0,
+    "_fillCenter": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
+    "_fillStart": 0,
+    "_fillRange": 0,
+    "_isTrimmedMode": true,
+    "_useGrayscale": false,
+    "_atlas": null,
+    "_id": "cfZIIHlg5B1aVIj6CGzOxM"
+  },
+  {
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
@@ -354,7 +470,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 10
+      "__id__": 13
     },
     "_contentSize": {
       "__type__": "cc.Size",
@@ -382,7 +498,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 12
+      "__id__": 15
     },
     "_cameraComponent": {
       "__id__": 8
@@ -459,28 +575,28 @@
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 18
-    },
-    "shadows": {
-      "__id__": 19
-    },
-    "_skybox": {
-      "__id__": 20
-    },
-    "fog": {
       "__id__": 21
     },
-    "octree": {
+    "shadows": {
       "__id__": 22
     },
-    "skin": {
+    "_skybox": {
       "__id__": 23
     },
-    "lightProbeInfo": {
+    "fog": {
       "__id__": 24
     },
-    "postSettings": {
+    "octree": {
       "__id__": 25
+    },
+    "skin": {
+      "__id__": 26
+    },
+    "lightProbeInfo": {
+      "__id__": 27
+    },
+    "postSettings": {
+      "__id__": 28
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false

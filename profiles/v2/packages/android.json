@@ -6,8 +6,9 @@
       "outputName": "android-001",
       "mainBundleCompressionType": "merge_dep",
       "platform": "android",
-      "md5Cache": true,
-      "useSplashScreen": false
+      "md5Cache": false,
+      "useSplashScreen": false,
+      "mainBundleIsRemote": false
     },
     "options": {
       "android": {
@@ -20,7 +21,7 @@
           "landscapeRight": true,
           "landscapeLeft": true
         },
-        "apiLevel": 33,
+        "apiLevel": 31,
         "appABIs": [
           "arm64-v8a"
         ],

@@ -2,60 +2,33 @@
 import { IBuildResult, IBuildTaskOption } from "@cocos/creator-types/editor/packages/builder/@types/public";
 import fs from "fs-extra";
 import path from "path";
-import { Config } from "../../tools/Config";
 import { Logger } from "../../tools/Logger";
 import { Utils } from "../../tools/Utils";
+import { HotUpdateConfig } from "./HotUpdateConfig";
 import { MainJsCode } from "./MainJsCode";
 import { VersionGenerator } from "./VersionGenerator";
 
 /** 原生平台检查构建配置和修改main.js */
 export class HotUpdate {
 
-    /** 修改main.js 和 src目录中的脚本 */
+    /** 修改main.js脚本version */
     public static modifyJsFile(options: IBuildTaskOption, result: IBuildResult) {
         let buildPath = Utils.toUniSeparator(result.dest);
-        Config.set("hotupdate.buildPath", buildPath);
+        HotUpdateConfig.buildPath = buildPath;
 
         let dataDir = path.join(result.dest, 'data');
 
-        let srcDir = path.join(dataDir, 'src');
-
         if (options.md5Cache) {
-            let files = Utils.getAllFiles(srcDir, null, true);
-            files = files.concat(Utils.getAllFiles(dataDir, null, true));
-            let newFiles: string[] = [];
-            //修改src目录下文件的文件名 去除md5
-            let fileNameMap: Map<string, string> = new Map();
-            files.forEach(file => {
-                let newFile = Utils.restoreFilePath(file);
-                let fileName = path.basename(file);
-                let newFileName = path.basename(newFile);
-                fileNameMap.set(fileName, newFileName);
-                fs.renameSync(file, newFile);
-                Logger.info("去除文件名的MD5", file)
-                newFiles.push(newFile);
-            });
-
-            //修改src目录下文件 修改文件中带md5的引用
-            newFiles.forEach(file => {
-                let content = fs.readFileSync(file, { encoding: "utf8" });
-                fileNameMap.forEach((v, k) => {
-                    let regex = new RegExp(k, "g");
-                    content = content.replace(regex, v);
-                });
-                fs.writeFileSync(file, content, { encoding: "utf8" });
-            });
-        } else {
-            Logger.error("启用热更时应当开启MD5缓存")
+            Logger.error("启用热更时应当关闭MD5缓存")
         }
 
         //修改main.js 中的搜索路径
         let mainjs = path.join(dataDir, 'main.js');
         if (fs.existsSync(mainjs)) {
-            let version = Config.get("gameSetting.mainVersion", "");
+            let version = HotUpdateConfig.mainVersion;
             if (version) {
                 let content = fs.readFileSync(mainjs, { encoding: "utf8" });
-                content = MainJsCode.code.replace("<%version%>", version) + "\n" + content;
+                content = MainJsCode.insertCode.replace("<%version%>", version) + "\n" + content;
                 fs.writeFileSync(mainjs, content, { encoding: "utf8" });
                 Logger.info("修改热更搜索路径完成", version);
             } else {
@@ -66,18 +39,18 @@ export class HotUpdate {
 
     /** 资源打包后使用最新的清单文件替换旧的清单文件 */
     public static replaceManifest(options: IBuildTaskOption, result: IBuildResult) {
-        let oldManifest = Utils.ProjectPath + "/assets/resources/project.manifest";
+        let oldManifest = Utils.ProjectPath + "/assets/project.manifest";
         if (!fs.existsSync(oldManifest)) {
-            Logger.warn("assets/resources/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
+            Logger.warn("assets/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
             return;
         }
         let fileUuid = fs.readJSONSync(oldManifest + ".meta")?.uuid;
-        let buildPath = Config.get("hotupdate.buildPath", "");
+        let buildPath = HotUpdateConfig.buildPath;
         let dest = Utils.ProjectPath + "/temp/manifest";
         fs.ensureDirSync(dest);
         if (this.genManifest(dest, true)) {
             let newManifest = dest + '/project.manifest';
-            let dir = buildPath + '/data/assets/resources';
+            let dir = buildPath + '/data/assets/main';
             let oldManifest = Utils.getAllFiles(dir, file => {
                 let basename = path.basename(file);
                 return basename.startsWith(fileUuid) && basename.endsWith(".manifest");
@@ -95,9 +68,9 @@ export class HotUpdate {
 
     /** 生成热更资源 */
     public static genHotUpdateRes() {
-        let buildPath = Config.get("hotupdate.buildPath", "");
-        let url = Config.get("gameSetting.hotupdateServer", "");
-        let version = Config.get("gameSetting.version", "");
+        let buildPath = HotUpdateConfig.buildPath;
+        let url = HotUpdateConfig.url;
+        let version = HotUpdateConfig.version;
         let dest = Utils.ProjectPath + "/hotupdate/" + version;
         let data = Utils.toUniSeparator(path.join(buildPath, 'data'));
         try {
@@ -105,8 +78,8 @@ export class HotUpdate {
                 fs.copySync(data + '/src', dest + "/src");
                 fs.copySync(data + '/assets', dest + "/assets");
                 fs.copySync(data + '/jsb-adapter', dest + "/jsb-adapter");
-                fs.copySync(dest + '/project.manifest', Utils.ProjectPath + "/assets/resources/project.manifest");
-                Utils.refreshAsset(Utils.ProjectPath + "/assets/resources/project.manifest");
+                fs.copySync(dest + '/project.manifest', Utils.ProjectPath + "/assets/project.manifest");
+                Utils.refreshAsset(Utils.ProjectPath + "/assets/project.manifest");
                 Logger.info(`生成热更资源完成 ${dest}`);
             } else {
                 Logger.error(`生成热更资源失败`);
@@ -122,9 +95,9 @@ export class HotUpdate {
      * @param normalBuild 是否是正常构建工程,而不是生成热更资源
      */
     private static genManifest(dest: string, normalBuild: boolean) {
-        let buildPath = Config.get("hotupdate.buildPath", "");
-        let url = Config.get("gameSetting.hotupdateServer", "");
-        let version = Config.get("gameSetting.version", "");
+        let buildPath = HotUpdateConfig.buildPath;
+        let url = HotUpdateConfig.url;
+        let version = HotUpdateConfig.version;
         if (!url || !version) {
             Logger.warn(`热更配置不正确,若需要使用热更,请先检查热更配置`);
         }
@@ -140,7 +113,7 @@ export class HotUpdate {
             Logger.info(`dest=${dest}`)
         }
         try {
-            VersionGenerator.gen(url, version, data, dest, normalBuild);
+            VersionGenerator.gen(url, version, data, dest);
         } catch (e) {
             Logger.error(e);
             return false;

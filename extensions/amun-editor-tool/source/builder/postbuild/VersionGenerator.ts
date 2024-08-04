@@ -1,8 +1,6 @@
 import crypto from "crypto";
 import fs from "fs-extra";
 import path from "path";
-import { Logger } from "../../tools/Logger";
-import { Utils } from "../../tools/Utils";
 
 class Manifest {
     packageUrl = 'http://localhost/tutorial-hot-update/remote-assets/';
@@ -17,18 +15,16 @@ export class VersionGenerator {
 
     private static data = '';
 
-    public static gen(url: string, version: string, data: string, dest: string, normalBuild: boolean) {
+    public static gen(url: string, version: string, data: string, dest: string) {
         let manifest = new Manifest();
 
-        manifest.packageUrl = url;
-        manifest.remoteManifestUrl = url + '/project.manifest';
+        manifest.packageUrl = url + "/" + version;
+        manifest.remoteManifestUrl = manifest.packageUrl + '/project.manifest';
         manifest.remoteVersionUrl = url + '/version.manifest';
         manifest.version = version;
         this.data = data;
 
         fs.emptyDirSync(dest);
-        // 生成热更资源时,还原src目录下资源文件名 追加Md5
-        this.renameSrcFiles(path.join(data, 'src'), true);
 
         // Iterate assets and src folder
         this.readDir(path.join(data, 'src'), manifest.assets);
@@ -38,26 +34,12 @@ export class VersionGenerator {
         let destManifest = path.join(dest, 'project.manifest');
         let destVersion = path.join(dest, 'version.manifest');
 
-        fs.writeJSONSync(destManifest, manifest);
+        fs.writeJSONSync(destManifest, manifest);//保存project.manifest
 
         delete manifest.assets;
         delete manifest.searchPaths;
-        fs.writeJSONSync(destVersion, manifest);
+        fs.writeJSONSync(destVersion, manifest);//version.manifest
 
-        //如果是正常构建工程 还需要移除src目录下文件的Md5
-        if (normalBuild) this.renameSrcFiles(path.join(data, 'src'), false);
-    }
-
-    private static renameSrcFiles(dir: string, appenOrRemovedMd5: boolean) {
-        let files = Utils.getAllFiles(dir, null, true);
-        files.forEach(file => {
-            Logger.debug(appenOrRemovedMd5, file);
-            if (appenOrRemovedMd5) {//追加Md5值
-                Utils.appendMd5(file);
-            } else {//移除Md5值
-                Utils.removeMd5(file);
-            }
-        });
     }
 
     private static readDir(dir, obj) {
