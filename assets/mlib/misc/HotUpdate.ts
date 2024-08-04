@@ -51,7 +51,8 @@ export class HotUpdate {
 
         this._onStateChange(EHotUpdateState.CheckUpdate);
 
-        this._assetsMgr = new native.AssetsManager("", this.storagePath, this.versionCompareHandle.bind(this));
+        this._assetsMgr = new native.AssetsManager("", this.storagePath);
+        this._assetsMgr.setVersionCompareHandle(this.versionCompareHandle.bind(this));
         this._assetsMgr.setVerifyCallback(this.verifyHandle.bind(this));
         this.checkUpdate();
     }
@@ -59,7 +60,7 @@ export class HotUpdate {
     private versionCompareHandle(versionA: string, versionB: string) {
         this._logger.print("客户端版本: " + versionA + ', 当前最新版本: ' + versionB);
         if (versionA != versionB) return -1;
-        return 0;
+        return 1;
     }
 
     // Setup the verification callback, but we don't have md5 check function yet, so only print some message
