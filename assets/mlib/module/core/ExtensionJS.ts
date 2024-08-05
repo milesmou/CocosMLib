@@ -54,15 +54,67 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     }
 
+    Array.prototype.isSuperset = function <T>(other: T[]) {
+        let self: T[] = this;
+        if (self.length <= other.length) return false;
+        return self.isSubsetE(other);
+    }
+
+    Array.prototype.isSupersetE = function <T>(other: T[]) {
+        let self: T[] = this;
+        if (self.length < other.length) return false;
+        let indexSet: Set<number> = new Set();
+        for (const v of other) {
+            let index = self.findIndex((v1, i1) => {
+                return v1 == v && !indexSet.has(i1);
+            });
+            if (index > -1) {
+                indexSet.add(index);
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    Array.prototype.isSubset = function <T>(other: T[]) {
+        let self: T[] = this;
+        if (self.length >= other.length) return false;
+        return self.isSubsetE(other);
+    }
+
+    Array.prototype.isSubsetE = function <T>(other: T[]) {
+        let self: T[] = this;
+        if (self.length > other.length) return false;
+        let indexSet: Set<number> = new Set();
+        for (const v of self) {
+            let index = other.findIndex((v1, i1) => {
+                return v1 == v && !indexSet.has(i1);
+            });
+            if (index > -1) {
+                indexSet.add(index);
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    Array.prototype.equals = function <T>(other: T[]) {
+        let self: T[] = this;
+        if (self.length != other.length) return false;
+        return self.isSupersetE(other);
+    }
+
     String.prototype.upperFirst = function () {
-        let self = this;
+        let self: string = this;
         if (!self) return self;
         if (self.length < 2) return self.toUpperCase();
         return self[0].toUpperCase() + self.substring(1);
     }
 
     String.prototype.lowerFirst = function () {
-        let self = this;
+        let self: string = this;
         if (!self) return self;
         if (self.length < 2) return self.toLowerCase();
         return self[0].toLowerCase() + self.substring(1);
@@ -99,7 +151,7 @@ declare global {
         /**
          * 从数组中删除一个元素
          */
-        delete<T>(predicate: (value: T, index: number, obj: T[]) => boolean): boolean;
+        delete<T>(predicate: (value: T, index: number, array: T[]) => boolean): boolean;
 
         /**
         * 从数组中随机返回一个值，并将它从数组中移除
@@ -109,7 +161,32 @@ declare global {
         /**
          * 数组随机打乱
          */
-        disarrange();
+        disarrange(): void;
+
+        /**
+         * 是否是另一个数组的父集
+         */
+        isSuperset(other: T[]): boolean;
+
+        /**
+         * 是否是另一个数组的父集或相等
+         */
+        isSupersetE(other: T[]): boolean;
+
+        /**
+         *  是否是另一个数组的子集
+         */
+        isSubset(other: T[]): boolean;
+
+        /**
+         *  是否是另一个数组的子集或相等
+         */
+        isSubsetE(other: T[]): boolean;
+
+        /** 
+         * 是否和另一个数组中元素相同
+         */
+        equals(other: T[]): boolean;
     }
 
     interface String {
