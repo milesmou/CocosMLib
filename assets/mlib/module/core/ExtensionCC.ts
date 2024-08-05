@@ -22,6 +22,18 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
+    Object.defineProperty(Node.prototype, "transform", {
+        get: function () {
+            let self: Node = this;
+            let transform = self['_transform'];
+            if (!transform) {
+                transform = self.getComponent(UITransform);
+                self['_transform'] = transform;
+            }
+            return transform;
+        }
+    })
+
     Node.prototype.getComponentInParent = function <T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef = true) {
         let self: Node = this;
         let node = includeSlef ? self : self.parent;
@@ -69,7 +81,6 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
         return arr.reverse().join("/");
     }
-
 
     Node.prototype.regularSiblingIndex = function () {
         let self: Node = this;
@@ -137,5 +148,8 @@ declare module "cc" {
 
         /** 在子节点zIndex值改变时修改父节点此属性为true，表示需要更新子节点的SiblingIndex */
         childrenSiblingIndexDirty: boolean;
+
+        /** 2d节点的UITransform组件 */
+        get transform(): UITransform;
     }
 }
