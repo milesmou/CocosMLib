@@ -17,70 +17,14 @@
   },
   "BuildTaskManager": {
     "taskMap": {
-      "1715658366833": {
-        "type": "build",
-        "id": "1715658366833",
-        "progress": 1,
-        "state": "success",
-        "stage": "build",
-        "message": "2024-5-14 11:47:13 build success in 1 min 6 s!",
-        "detailMessage": "",
-        "options": {
-          "name": "NewProject3",
-          "server": "",
-          "platform": "web-desktop",
-          "buildPath": "project://build",
-          "debug": false,
-          "md5Cache": false,
-          "skipCompressTexture": false,
-          "sourceMaps": false,
-          "polyfills": {
-            "asyncFunctions": true
-          },
-          "experimentalEraseModules": false,
-          "startSceneAssetBundle": false,
-          "bundleConfigs": [],
-          "useBuiltinServer": false,
-          "mainBundleIsRemote": false,
-          "mainBundleCompressionType": "merge_dep",
-          "useSplashScreen": true,
-          "bundleCommonChunk": false,
-          "packAutoAtlas": true,
-          "startScene": "0e09b2b3-90f0-4f74-802f-17a05e082e6a",
-          "outputName": "web-desktop",
-          "taskName": "web-desktop",
-          "scenes": [
-            {
-              "url": "db://assets/scenes/main.scene",
-              "uuid": "0e09b2b3-90f0-4f74-802f-17a05e082e6a"
-            }
-          ],
-          "packages": {},
-          "__version__": "1.3.7",
-          "buildMode": "normal",
-          "logDest": "project://temp/builder/log/web-desktop2024-5-14 11-46.log",
-          "overwriteProjectSettings": {
-            "includeModules": {
-              "physics": "inherit-project-setting",
-              "physics-2d": "inherit-project-setting",
-              "gfx-webgl2": "inherit-project-setting"
-            },
-            "macroConfig": {
-              "cleanupImageCache": "inherit-project-setting"
-            }
-          }
-        },
-        "time": "2024-5-14 11:46:06",
-        "dirty": false
-      },
       "1715658594808": {
         "type": "build",
         "id": "1715658594808",
         "progress": 1,
         "state": "success",
         "stage": "build",
-        "message": "2024-8-4 15:30:03 build success in 9 s!",
-        "detailMessage": "// ---- build task adsense-h5g-plugin：onAfterBuild ----\r",
+        "message": "2024-8-5 21:49:54 build success in 9 s!",
+        "detailMessage": "[2024/8/5下午9:49:54] [info] 替换热更资源清单文件成功 8fe8ee8a-694e-4cb1-9e47-9f8d8060ee9e.manifest \r\r\r",
         "options": {
           "name": "NewProject3",
           "server": "",
@@ -128,7 +72,7 @@
           "nativeCodeBundleMode": "wasm",
           "wasmCompressionMode": false
         },
-        "time": "2024-8-4 15:29:54",
+        "time": "2024-8-5 21:49:44",
         "dirty": false
       },
       "1722745824560": {
