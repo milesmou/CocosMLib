@@ -1,7 +1,7 @@
 export class MainJsCode {
     static insertCode = `(function () {
         if (typeof window.jsb === 'object') {
-            var hotUpdateSearchPaths = localStorage.getItem('<%version%>');
+            var hotUpdateSearchPaths = localStorage.getItem('HotUpdateSearchPaths');
             if (hotUpdateSearchPaths) {
                 var paths = JSON.parse(hotUpdateSearchPaths);
                 jsb.fileUtils.setSearchPaths(paths);

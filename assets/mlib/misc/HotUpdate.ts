@@ -18,6 +18,8 @@ export enum EHotUpdateResult {
     Fail//更新失败
 }
 
+const HotUpdateSearchPaths = "HotUpdateSearchPaths";//保存热更搜索路径的KEY
+
 export class HotUpdate {
 
     private constructor() { }
@@ -25,7 +27,6 @@ export class HotUpdate {
     public static get Inst() { return this.inst || (this.inst = new HotUpdate()) }
     private _logger = logger.new("HotUpdate")
     private _manifest: Asset = null;//本地project.manifest文件
-    private _version: string;//游戏主版本号 只有三位
     private _assetsMgr: native.AssetsManager;//native资源管理器
     private _updating = false; //更新中
     private _failCount = 3;//更新失败重试次数
@@ -35,14 +36,13 @@ export class HotUpdate {
 
     private get storagePath() { return native.fileUtils.getWritablePath() + 'remote_asset'; }
 
-    public start(manifest: Asset, version: string, onStateChange: (code: EHotUpdateState) => void, onDownloadProgress: (loaded: number, total: number) => void, onComplete: (code: EHotUpdateResult) => void) {
+    public start(manifest: Asset, onStateChange: (code: EHotUpdateState) => void, onDownloadProgress: (loaded: number, total: number) => void, onComplete: (code: EHotUpdateResult) => void) {
         if (!sys.isNative) {
             this._logger.warn("非原生环境");
             return;
         }
 
         this._manifest = manifest;
-        this._version = version;
         this._onStateChange = onStateChange;
         this._onDownloadProgress = onDownloadProgress;
         this._onComplete = onComplete;
@@ -50,6 +50,12 @@ export class HotUpdate {
         this._logger.debug('热更新资源存放路径：' + this.storagePath);
 
         this._onStateChange(EHotUpdateState.CheckUpdate);
+
+        //整包更新 删除热更补丁缓存和搜索路径
+        if (gameSetting.version == gameSetting.mainVersion) {
+            native.fileUtils.removeDirectory(this.storagePath);
+            localStorage.removeItem(HotUpdateSearchPaths);
+        }
 
         this._assetsMgr = new native.AssetsManager("", this.storagePath);
         this._assetsMgr.setVersionCompareHandle(this.versionCompareHandle.bind(this));
@@ -164,6 +170,7 @@ export class HotUpdate {
                 this._updating = false;
                 this._failCount--;
                 if (this._failCount >= 0) {
+                    this._logger.debug('重试');
                     this.downloadFiles();
                 } else {
                     this.onUpdateFail();
@@ -178,9 +185,6 @@ export class HotUpdate {
                 this._logger.error('更新出错 ERROR_DECOMPRESS', event.getMessage());
                 this.onUpdateFail();
                 break;
-
-
-
             default:
                 this._logger.debug("downloadFilesCb 未处理的情况", event.getEventCode(), event.getMessage());
         }
@@ -192,15 +196,11 @@ export class HotUpdate {
             //追加脚本搜索路径
             let searchPaths = native.fileUtils.getSearchPaths();
             let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
-            let manifestRoot = this._assetsMgr.getRemoteManifest().getManifestRoot();
-            this._logger.debug(`manifestRoot ${manifestRoot}`);
             Array.prototype.unshift.apply(searchPaths, newPaths);
             this._logger.debug(`新增搜索路径 ${JSON.stringify(newPaths)}`);
-            this._logger.debug(`搜索路径 Key=${this._version}`);
             this._logger.debug(`搜索路径 Value=${JSON.stringify(searchPaths)}`);
             // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
-            sys.localStorage.setItem(this._version, JSON.stringify(searchPaths));
-            native.fileUtils.setSearchPaths(searchPaths);
+            localStorage.setItem(HotUpdateSearchPaths, JSON.stringify(searchPaths));
         }
         this._assetsMgr.setEventCallback(null);
         this._onComplete(code);

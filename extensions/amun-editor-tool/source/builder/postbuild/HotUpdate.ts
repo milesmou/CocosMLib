@@ -11,7 +11,7 @@ import { VersionGenerator } from "./VersionGenerator";
 /** 原生平台检查构建配置和修改main.js */
 export class HotUpdate {
 
-    /** 修改main.js脚本version */
+    /** 修改main.js脚本 插入添加搜索路径的代码 */
     public static modifyJsFile(options: IBuildTaskOption, result: IBuildResult) {
         let buildPath = Utils.toUniSeparator(result.dest);
         HotUpdateConfig.buildPath = buildPath;
@@ -25,15 +25,10 @@ export class HotUpdate {
         //修改main.js 中的搜索路径
         let mainjs = path.join(dataDir, 'main.js');
         if (fs.existsSync(mainjs)) {
-            let version = HotUpdateConfig.mainVersion;
-            if (version) {
-                let content = fs.readFileSync(mainjs, { encoding: "utf8" });
-                content = MainJsCode.insertCode.replace("<%version%>", version) + "\n" + content;
-                fs.writeFileSync(mainjs, content, { encoding: "utf8" });
-                Logger.info("修改热更搜索路径完成", version);
-            } else {
-                Logger.info("若使用热更请先保存热更配置");
-            }
+            let content = fs.readFileSync(mainjs, { encoding: "utf8" });
+            content = MainJsCode.insertCode + "\n" + content;
+            fs.writeFileSync(mainjs, content, { encoding: "utf8" });
+            Logger.info("修改热更搜索路径完成");
         }
     }
 

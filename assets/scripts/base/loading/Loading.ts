@@ -80,7 +80,6 @@ export class Loading extends UIComponent {
                 if (gameSetting.manifest) {
                     HotUpdate.Inst.start(
                         gameSetting.manifest,
-                        gameSetting.mainVersion,
                         this.onUpdateStateChange.bind(this),
                         this.onUpdateDownloadProgress.bind(this),
                         this.onUpdateComplete.bind(this)
