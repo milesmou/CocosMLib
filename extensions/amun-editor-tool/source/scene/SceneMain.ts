@@ -21,6 +21,10 @@ export const methods: { [key: string]: (...any: any) => any } = {
  * @zh 扩展加载完成后触发的钩子
  */
 export function load() {
+    if (!fs.existsSync(Constant.SceneConnectFilePath)) {
+        fs.createFileSync(Constant.SceneConnectFilePath);
+        fs.writeJSONSync(Constant.SceneConnectFilePath, {});
+    }
     sceneconnectWatcher = fs.watch(Constant.SceneConnectFilePath, sceneconnectListener);
 }
 
