@@ -2,15 +2,7 @@ export abstract class TimerObject {
     protected selfTimeScale: number;
     protected groupTimeScale: number;
 
-    protected valid = true;
-
-    public isValid() {
-        return this.valid;
-    }
-
-    public setInvalid() {
-        this.valid = false;
-    }
+    public abstract isValid();
 
     public setSelfTimeScale(value: number, arg?: any) {
         this.selfTimeScale = value;
@@ -22,7 +14,5 @@ export abstract class TimerObject {
         this.updateTimeScale();
     }
 
-
     protected abstract updateTimeScale(): void;
-
 }

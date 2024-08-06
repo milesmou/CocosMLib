@@ -1,5 +1,6 @@
 import { _decorator, Component, macro } from "cc";
 import { TimerObject } from "./TimerObject";
+import { game } from "cc";
 
 const { ccclass, property } = _decorator;
 
@@ -54,12 +55,14 @@ export class TimerComponent extends Component {
      * tween在添加时会自动开始
      */
     public add(obj: TimerObject) {
+        if (!obj) return;
         this._timerObjs.add(obj);
         this.changeTimerObjectSpeed(obj, true);
     }
 
     /** 移除对象 还原为播放速度 */
     public delete(obj: TimerObject) {
+        if (!obj) return;
         this._timerObjs.delete(obj);
         this.changeTimerObjectSpeed(obj, false);
     }
@@ -74,9 +77,9 @@ export class TimerComponent extends Component {
         });
     }
 
-    private changeTimerObjectSpeed(obj: TimerObject, isAdd: boolean) {
-        let speed = isAdd ? this._timeScale : 1;
-        if (this._pause && isAdd) speed = 0;
+    private changeTimerObjectSpeed(obj: TimerObject, add: boolean) {
+        let speed = add ? this._timeScale : 1;
+        if (this._pause && add) speed = 0;
         obj.setGroupTimeScale(speed);
     }
 
@@ -137,5 +140,24 @@ export class TimerComponent extends Component {
                 if (v.repeat <= 0) this._schedules.delete(v);
             }
         });
+    }
+
+
+    // ===========================================================================================
+    // yang
+    get dtDefault(): number {
+        return game.deltaTime;
+    }
+    private _dt: number;
+    /**游戏统一帧率 增加控制慢镜头缩放比例 */
+    public get dt(): number {
+        this._dt = this.dtDefault;
+        this._dt *= this._timeScale;
+        return this._dt;
+    }
+    /**一秒的帧率平滑 */
+    get dtSecond(): number {
+        let fps: number = typeof game.frameRate === "string" ? parseInt(game.frameRate) : game.frameRate;
+        return this.dt * fps;
     }
 }

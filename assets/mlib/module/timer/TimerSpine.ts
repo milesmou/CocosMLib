@@ -13,7 +13,7 @@ export class TimerSpine extends TimerObject {
     }
 
     public isValid(): boolean {
-        return this.isValid && this._spine?.isValid;
+        return this._spine?.isValid;
     }
 
     protected updateTimeScale(): void {
