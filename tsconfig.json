@@ -7,7 +7,8 @@
         "strict": false,
         "target": "ES2017",
         "types": [
-            "minigame-api-typings"
+            "minigame-api-typings",//微信小游戏API
+            "./extensions/amun-editor-tool/node_modules/@cocos/creator-types/editor",//Cocos编辑器API
         ]
     },
     "exclude": [
