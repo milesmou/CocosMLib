@@ -22,12 +22,12 @@ export class UIComponent extends MComponent {
 
     /** 向父节点第一个UIBase组件发送消息 */
     protected sendToUI(methodName: string, ...args: any[]) {
-        this.sendMessageUpwards("UIBase", methodName, ...args);
+        this.sendMessageUpward("UIBase", methodName, ...args);
     }
 
     /** 向父节点第一个UIComponent组件发送消息 */
     public sendToUIComponent(methodName: string, ...args: any[]) {
-        this.sendMessageUpwards("UIComponent", methodName, ...args);
+        this.sendMessageUpward("UIComponent", methodName, ...args);
     }
 
     /** 自动为所有MButton注册一个点击事件 */

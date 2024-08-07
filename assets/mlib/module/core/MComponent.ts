@@ -25,34 +25,19 @@ export class MComponent extends Component {
         this._rc = this.getComponent(ReferenceCollector);
     }
 
-    public getComponentInParent<T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef = true) {
-        let node = includeSlef ? this.node : this.node.parent;
-        while (node?.isValid) {
-            let comp = node.getComponent(classConstructor);
-            if (comp) return comp;
-            node = node.parent;
-        }
-        return app.getComponent(classConstructor);
-    }
-
-
-    /** 调用此节点componentName组件的methodName方法 */
-    public sendMessage(componentName: string, methodName: string, ...args: any[]) {
-        let comp = this.getComponent(componentName);
-        if (comp) {
+    /** 调用自身节点上所有MComponent中的methodName方法 */
+    public sendMessage(methodName: string, ...args: any[]) {
+        let comps = this.getComponents(MComponent);
+        for (const comp of comps) {
             let method: Function = comp[methodName];
             if (method && typeof method === "function") {
                 method.apply(comp, args);
-            } else {
-                logger.error(`节点上组件未找到指定方法 ${methodName}`);
             }
-        } else {
-            logger.error(`节点上未找到指定组件 ${componentName}`);
         }
     }
 
     /** 调用任意父节点componentName组件的methodName方法 */
-    public sendMessageUpwards(componentName: string, methodName: string, ...args: any[]) {
+    public sendMessageUpward(componentName: string, methodName: string, ...args: any[]) {
         let compConstructor: any = js.getClassByName(componentName);
         let comp = this.getComponentInParent(compConstructor, false);
         if (comp) {
@@ -64,6 +49,18 @@ export class MComponent extends Component {
             }
         } else {
             logger.error(`父节点上未找到指定组件 ${componentName}`);
+        }
+    }
+
+    /** 广播消息 调用自身以及子节点上所有MComponent中的methodName方法 */
+    public broadcastMessage(methodName: string, ...args: any[]) {
+        let comps = this.getComponents(MComponent);
+        comps = comps.concat(this.getComponentsInChildren(MComponent));
+        for (const comp of comps) {
+            let method: Function = comp[methodName];
+            if (method && typeof method === "function") {
+                method.apply(comp, args);
+            }
         }
     }
 }

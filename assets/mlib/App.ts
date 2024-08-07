@@ -15,26 +15,28 @@ import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 
 interface IApp {
+    /** 渠道能力实例 */
     chan: Channel;
+    /** 时间管理组件 */
     timer: TimerComponent;
+    /** 音频播放组件 */
     audio: AudioComponent;
+    /** 资源加载组件 */
     asset: AssetComponent;
     /** 本地存储 */
     stroage: typeof LocalStorage;
-    /** 事件 */
+    /** 全局事件 */
     event: typeof EventMgr;
-    /** 对象池 */
+    /** 全局对象池 */
     pool: typeof PoolMgr;
     /** UI管理 */
     ui: UIMgr;
     /** 多语言 */
     l10n: typeof L10nMgr;
-    /** 音频播放组件管理 */
+    /** 音频播放组件管理类 */
     audioMgr: typeof AudioMgr;
     /** 提示信息 */
     tipMsg: typeof TipMsg;
-
-    getComponent<T extends Component>(classConstructor: new (...args: any[]) => T);
 }
 
 
@@ -60,7 +62,7 @@ class App extends Component implements IApp {
         globalThis["app"] = this;
         director.addPersistRootNode(this.node);
         this.setCanvasResolution();
-        
+
         this.timer = this.addComponent(TimerComponent);
         this.asset = this.addComponent(AssetComponent);
         this.audio = this.addComponent(AudioComponent);
