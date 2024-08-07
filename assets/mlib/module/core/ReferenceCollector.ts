@@ -15,7 +15,6 @@ class CollectorNodeData {
 class CollectorAssetData {
     @property
     public key = "";
-
     @property private _asset: Asset = null;
     @property({ type: Asset })
     public get asset() { return this._asset; }
@@ -156,6 +155,7 @@ export class ReferenceCollector extends Component {
     private genCode() {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let text = "";
+        //生成字段
         this.nodes.forEach(data => {
             let key = data.key;
             if (text) text += "\n";
@@ -163,9 +163,18 @@ export class ReferenceCollector extends Component {
             let line = `this.${name} = this.rc.get("${key}",Node);`;
             text += line;
         });
+        // //生成get属性 
+        // this.nodes.forEach(data => {
+        //     let key = data.key;
+        //     if (text) text += "\n";
+        //     let name = key[0].toLowerCase() + key.substring(1);
+        //     let line = `private get ${name}() { return this.rc.getNode("${key}"); }`;
+        //     text += line;
+        // });
         Editor.Clipboard.write("text", text);
         console.log("已复制到剪切板");
     }
+
     //#endregion
 
 }
