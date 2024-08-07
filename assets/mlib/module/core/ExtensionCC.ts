@@ -78,7 +78,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         set(val: number) {
             let self: Node = this;
             let position = self.position;
-            self.setWorldPosition(val, position.y, position.z);
+            self.setPosition(val, position.y, position.z);
         }
     })
 
@@ -90,7 +90,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         set(val: number) {
             let self: Node = this;
             let position = self.position;
-            self.setWorldPosition(position.x, val, position.z);
+            self.setPosition(position.x, val, position.z);
         }
     })
 
@@ -102,7 +102,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         set(val: number) {
             let self: Node = this;
             let position = self.position;
-            self.setWorldPosition(position.x, position.y, val);
+            self.setPosition(position.x, position.y, val);
         }
     })
 
