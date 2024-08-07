@@ -7,6 +7,18 @@ import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
 
+    Object.defineProperty(Node.prototype, "transform", {
+        get: function () {
+            let self: Node = this;
+            let transform = self['_transform'];
+            if (!transform) {
+                transform = self.getComponent(UITransform);
+                self['_transform'] = transform;
+            }
+            return transform;
+        }
+    })
+
     Object.defineProperty(Node.prototype, "zIndex", {
         get() {
             return this._zIndex || 0;
@@ -22,15 +34,75 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
-    Object.defineProperty(Node.prototype, "transform", {
-        get: function () {
+    Object.defineProperty(Node.prototype, "worldPositionX", {
+        get() {
             let self: Node = this;
-            let transform = self['_transform'];
-            if (!transform) {
-                transform = self.getComponent(UITransform);
-                self['_transform'] = transform;
-            }
-            return transform;
+            return self.worldPosition.x;
+        },
+        set(val: number) {
+            let self: Node = this;
+            let worldPosition = self.worldPosition;
+            self.setWorldPosition(val, worldPosition.y, worldPosition.z);
+        }
+    })
+
+    Object.defineProperty(Node.prototype, "worldPositionY", {
+        get() {
+            let self: Node = this;
+            return self.worldPosition.y;
+        },
+        set(val: number) {
+            let self: Node = this;
+            let worldPosition = self.worldPosition;
+            self.setWorldPosition(worldPosition.x, val, worldPosition.z);
+        }
+    })
+
+    Object.defineProperty(Node.prototype, "worldPositionZ", {
+        get() {
+            let self: Node = this;
+            return self.worldPosition.z;
+        },
+        set(val: number) {
+            let self: Node = this;
+            let worldPosition = self.worldPosition;
+            self.setWorldPosition(worldPosition.x, worldPosition.y, val);
+        }
+    })
+
+    Object.defineProperty(Node.prototype, "positionX", {
+        get() {
+            let self: Node = this;
+            return self.position.x;
+        },
+        set(val: number) {
+            let self: Node = this;
+            let position = self.position;
+            self.setWorldPosition(val, position.y, position.z);
+        }
+    })
+
+    Object.defineProperty(Node.prototype, "positionY", {
+        get() {
+            let self: Node = this;
+            return self.position.y;
+        },
+        set(val: number) {
+            let self: Node = this;
+            let position = self.position;
+            self.setWorldPosition(position.x, val, position.z);
+        }
+    })
+
+    Object.defineProperty(Node.prototype, "positionZ", {
+        get() {
+            let self: Node = this;
+            return self.position.z;
+        },
+        set(val: number) {
+            let self: Node = this;
+            let position = self.position;
+            self.setWorldPosition(position.x, position.y, val);
         }
     })
 
@@ -143,13 +215,32 @@ declare module "cc" {
         /** 根据zIndex的值更新子节点的SiblingIndex */
         regularSiblingIndex(): void;
 
+        /** 2d节点的UITransform组件 */
+        get transform(): UITransform;
+
         /** 模拟2.x中zIndex,刷新层级需要调用父节点的regularSiblingIndex方法 */
         zIndex: number;
 
         /** 在子节点zIndex值改变时修改父节点此属性为true，表示需要更新子节点的SiblingIndex */
         childrenSiblingIndexDirty: boolean;
 
-        /** 2d节点的UITransform组件 */
-        get transform(): UITransform;
+        /** 世界坐标X */
+        worldPositionX: number;
+
+        /** 世界坐标Y */
+        worldPositionY: number;
+
+        /** 世界坐标Z */
+        worldPositionZ: number;
+
+        /** 本地坐标X */
+        positionX: number;
+
+        /** 本地坐标Y */
+        positionY: number;
+
+        /** 本地坐标Z */
+        positionZ: number;
+
     }
 }
