@@ -114,7 +114,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             if (comp) return comp;
             node = node.parent;
         }
-        return app.getComponent(classConstructor);
+        return null;
     }
 
     Node.prototype.ensureComponent = function <T extends Component>(classConstructor: new (...args: any[]) => T): T {

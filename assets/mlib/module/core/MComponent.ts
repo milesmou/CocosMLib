@@ -1,8 +1,8 @@
 import { _decorator, Component, js } from "cc";
 import { AssetComponent } from "../asset/AssetComponent";
 import { AudioComponent } from "../audio/AudioComponent";
-import { ReferenceCollector } from "./ReferenceCollector";
 import { TimerComponent } from "../timer/TimerComponent";
+import { ReferenceCollector } from "./ReferenceCollector";
 
 const { ccclass, property, requireComponent } = _decorator;
 
@@ -19,11 +19,20 @@ export class MComponent extends Component {
     protected get rc() { return this._rc; }
 
     protected __preload(): void {
-        //@ts-ignore
-        this._timer = this.getComponentInParent(TimerComponent);
-        this._asset = this.getComponentInParent(AssetComponent);
-        this._audio = this.getComponentInParent(AudioComponent);
+        this._timer = this.getComponentInParent(TimerComponent) || app.timer;
+        this._asset = this.getComponentInParent(AssetComponent) || app.asset;
+        this._audio = this.getComponentInParent(AudioComponent) || app.audio;
         this._rc = this.getComponent(ReferenceCollector);
+    }
+
+    public getComponentInParent<T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef = true) {
+        let node = includeSlef ? this.node : this.node.parent;
+        while (node?.isValid) {
+            let comp = node.getComponent(classConstructor);
+            if (comp) return comp;
+            node = node.parent;
+        }
+        return app.getComponent(classConstructor);
     }
 
 
