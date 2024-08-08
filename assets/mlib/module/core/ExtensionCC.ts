@@ -179,6 +179,19 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
     }
 }
 
+//CC中使用DOM的Node、Animation时进行提示
+declare global {
+    /**
+    * @deprecated TMD这是DOM的Node,不要使用它
+    */
+    interface Node { }
+
+    /**
+     * @deprecated TMD这是DOM的Animation,不要使用它
+     */
+    interface Animation { }
+}
+
 //扩展CC中的一些类
 declare module "cc" {
     interface Component {

@@ -128,16 +128,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
 }
 
 declare global {
-    /**
-     * @deprecated TMD这是DOM的Node,不要使用它
-     */
-    interface Node { }
-
-    /**
-     * @deprecated TMD这是DOM的Animation,不要使用它
-     */
-    interface Animation { }
-
+    
     interface Array<T> {
         /**
         * 第一个元素
