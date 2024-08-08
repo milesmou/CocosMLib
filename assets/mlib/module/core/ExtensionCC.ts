@@ -24,7 +24,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             return this._zIndex || 0;
         },
         set(val: number) {
-            let zIndex = this._zIndex || 0;
+            let zIndex = this._zIndex;//这不给默认值 避免赋予值等于默认值时不生效
             if (val == zIndex) return;
             this._zIndex = val;
             let self: Node = this;
