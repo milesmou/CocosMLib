@@ -38,11 +38,17 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         let self: T[] = this;
         if (self.length == 0) return undefined;
         let index = Math.floor(Math.random() * self.length);
+        return self[index];
+    }
+
+    Array.prototype.randomR = function <T>() {
+        let self: T[] = this;
+        if (self.length == 0) return undefined;
+        let index = Math.floor(Math.random() * self.length);
         let value: T = self[index];
         self.splice(index, 1);
         return value;
     }
-
 
     Array.prototype.disarrange = function <T>() {
         let self: T[] = this;
@@ -154,9 +160,14 @@ declare global {
         delete<T>(predicate: (value: T, index: number, array: T[]) => boolean): boolean;
 
         /**
-        * 从数组中随机返回一个值，并将它从数组中移除
+        * 从数组中随机返回一个值
         */
         random(): T | undefined;
+
+        /**
+        * 从数组中随机返回一个值，并将它从数组中移除
+        */
+        randomR(): T | undefined;
 
         /**
          * 数组随机打乱
