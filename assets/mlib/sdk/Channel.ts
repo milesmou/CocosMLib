@@ -146,7 +146,7 @@ export class Channel {
     }
 
     /** 使设备发生震动 */
-    public vibrate(...args: any[]) {
+    public vibrate(duration: "short" | "medium" | "long" = "short") {
 
     }
 
