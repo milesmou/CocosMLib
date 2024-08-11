@@ -13,17 +13,23 @@ export class MButton extends Button {
     @property({
         displayName: "默认音效"
     })
-    private m_DefaultAudio = true;
+    public defaultAudio = true;
     @property({
         displayName: "自定义音效",
-        visible() { return !this.m_DefaultAudio; }
+        visible() { return !this.defaultAudio; }
     })
-    private m_CustomAudio = "";
+    public customAudio = "";
     @property({
         displayName: "冷却时间",
         range: [0, 10],
     })
-    private m_Cooldown = 0.2;
+    public cooldown = 0.2;
+
+    @property({
+        displayName: "快速响应",
+        tooltip: "快速响应模式,在手指按下的瞬间就想要点击事件"
+    })
+    public quickMode = false;
 
     @property({
         displayName: "异形按钮",
@@ -114,8 +120,8 @@ export class MButton extends Button {
     private _longPressEvtCount = 0;
 
     private get clickAudio() {
-        if (!this.m_DefaultAudio)
-            return this.m_CustomAudio;
+        if (!this.defaultAudio)
+            return this.customAudio;
         return MButton.DefaultClickAudio;
     }
 
@@ -159,11 +165,11 @@ export class MButton extends Button {
     protected _onTouchEnded(event?: EventTouch): void {
         if (this._isCoolingDown) return;
 
-        if (this['_pressed'] && this.m_Cooldown > 0 && !this._multiClickButton) {//多击按钮不进入冷却
+        if (this['_pressed'] && this.cooldown > 0 && !this._multiClickButton) {//多击按钮不进入冷却
             this._isCoolingDown = true;
             this.scheduleOnce(() => {
                 this._isCoolingDown = false;
-            }, this.m_Cooldown)
+            }, this.cooldown)
         }
 
         if (this.m_PolygonButton) {//异形按钮
