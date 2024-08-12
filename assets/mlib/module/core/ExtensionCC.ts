@@ -106,24 +106,24 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
-    Node.prototype.getComponentInParent = function <T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef = true) {
+    Node.prototype.getComponentInParent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef = true) {
         let self: Node = this;
         let node = includeSlef ? self : self.parent;
         while (node?.isValid) {
-            let comp = node.getComponent(classConstructor);
+            let comp = node.getComponent(ctorOrClassName as any);
             if (comp) return comp;
             node = node.parent;
         }
         return null;
     }
 
-    Node.prototype.ensureComponent = function <T extends Component>(classConstructor: new (...args: any[]) => T): T {
+    Node.prototype.ensureComponent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string): T {
         let self: Node = this;
-        let comp = self.getComponent(classConstructor);
+        let comp = self.getComponent(ctorOrClassName as any);
         if (!comp?.isValid) {
-            comp = self.addComponent(classConstructor);
+            comp = self.addComponent(ctorOrClassName as any);
         }
-        return comp;
+        return comp as T;
     }
 
     Node.prototype.matchParent = function (immediately?: boolean) {
@@ -162,20 +162,20 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         self.childrenSiblingIndexDirty = false;
     }
 
-    Component.prototype.getComponentInParent = function <T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef = true) {
+    Component.prototype.getComponentInParent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef = true) {
         let self: Component = this;
         let node = includeSlef ? self.node : self.node.parent;
         while (node?.isValid) {
-            let comp = node.getComponent(classConstructor);
+            let comp = node.getComponent(ctorOrClassName as any);
             if (comp) return comp;
             node = node.parent;
         }
         return null;
     }
 
-    Component.prototype.ensureComponent = function <T extends Component>(classConstructor: new (...args: any[]) => T) {
+    Component.prototype.ensureComponent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string) {
         let self: Component = this;
-        return self.node.ensureComponent(classConstructor);
+        return self.node.ensureComponent(ctorOrClassName);
     }
 }
 
@@ -199,10 +199,10 @@ declare module "cc" {
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
-        getComponentInParent<T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef?: boolean);
+        getComponentInParent<T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef?: boolean);
 
         /** 确保组件存在 不存在则添加 */
-        ensureComponent<T extends Component>(classConstructor: new (...args: any[]) => T): T;
+        ensureComponent<T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string): T;
 
     }
 
@@ -211,10 +211,10 @@ declare module "cc" {
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
-        getComponentInParent<T extends Component>(classConstructor: new (...args: any[]) => T, includeSlef?: boolean);
+        getComponentInParent<T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef?: boolean);
 
         /** 确保组件存在 不存在则添加 */
-        ensureComponent<T extends Component>(classConstructor: new (...args: any[]) => T): T;
+        ensureComponent<T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string): T;
 
         /** 
          * 节点尺寸匹配父节点大小(通过widget组件来完成)
