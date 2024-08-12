@@ -22,12 +22,12 @@ export class AssetMgr {
         return this.loadingAsset ? this.loadingAsset.size : 0;
     }
 
-    public static async loadBundles(bundleNames?: string[], onProgress?: (loaded: number, total: number) => void) {
+    public static async loadBundles(bundleNames?: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: (loaded: number, total: number) => void }) {
         if (!bundleNames) {
             bundleNames = BundleConstant;
         }
         this.loadingAsset.clear();
-        await BundleMgr.Inst.loadBundles(bundleNames, onProgress);
+        await BundleMgr.Inst.loadBundles(bundleNames, opts);
     }
 
     public static isAssetExists<T extends Asset>(location: string, type: new (...args: any[]) => T) {
@@ -36,9 +36,9 @@ export class AssetMgr {
 
     public static parseLocation<T extends Asset>(location: string, type: (new (...args: any[]) => T) | T) {
         let className = js.getClassName(type);
-        if (className === "cc.SpriteFrame" && !location.endsWith("/spriteFrame")) {
+        if (className == "cc.SpriteFrame" && !location.endsWith("/spriteFrame")) {
             location += "/spriteFrame";
-        } else if (className === "cc.Texture2D" && !location.endsWith("/texture")) {
+        } else if (className == "cc.Texture2D" && !location.endsWith("/texture")) {
             location += "/texture";
         }
         return location;
@@ -77,7 +77,7 @@ export class AssetMgr {
 
         let list = BundleMgr.Inst.getDirAssets(location, type);
         if (!list || list.length == 0) {
-            console.error("目录中无资源");
+            console.error(`目录中无资源 ${location}`);
             return;
         }
 

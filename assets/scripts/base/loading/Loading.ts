@@ -147,7 +147,7 @@ export class Loading extends UIComponent {
         unionProgress.init(this.onProgress.bind(this), 2);
 
         //加载资源包
-        await AssetMgr.loadBundles(null, unionProgress.getOnProgress("AllBundle"));
+        await AssetMgr.loadBundles(null, { onProgress: unionProgress.getOnProgress("AllBundle") });
 
         //加载数据表
         await GameTable.initData(unionProgress.getOnProgress("Table"));

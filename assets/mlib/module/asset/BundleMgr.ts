@@ -13,7 +13,6 @@ export class BundleMgr {
             assetManager.loadBundle(bundleName,
                 {
                     version: version,
-
                 },
                 (err, bundle) => {
                     if (err) {
@@ -29,17 +28,18 @@ export class BundleMgr {
     }
 
     /** 加载多个Bundle */
-    public async loadBundles(bundleNames: string[], onProgress?: (loaded: number, total: number) => void) {
-        let bundleArr: AssetManager.Bundle[] = [];
+    public async loadBundles(bundleNames: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: (loaded: number, total: number) => void }) {
+        let bundleVers = opts && opts.bundleVers;
+        let onProgress = opts && opts.onProgress;
 
+        let bundles: AssetManager.Bundle[] = [];
         for (let i = 0; i < bundleNames.length; i++) {
             let bundleName = bundleNames[i];
-            let bundle = await this.loadBundle(bundleName);
-            bundleArr.push(bundle);
+            let bundle = await this.loadBundle(bundleName, bundleVers && bundleVers[bundleName]);
+            bundles.push(bundle);
             onProgress && onProgress(i + 1, bundleNames.length);
         }
-
-        return bundleArr;
+        return bundles;
     }
 
     private getAssetKey<T extends Asset>(location: string, type: new (...args: any[]) => T) {
