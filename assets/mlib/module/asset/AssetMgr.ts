@@ -30,26 +30,16 @@ export class AssetMgr {
         await BundleMgr.Inst.loadBundles(bundleNames, onProgress);
     }
 
-    public static isAssetExists(location: string) {
-        return BundleMgr.Inst.isAssetExists(location);
+    public static isAssetExists<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+        return BundleMgr.Inst.isAssetExists(location, type);
     }
 
     public static parseLocation<T extends Asset>(location: string, type: (new (...args: any[]) => T) | T) {
         let className = js.getClassName(type);
-        if (className === "cc.SpriteFrame") {
+        if (className === "cc.SpriteFrame" && !location.endsWith("/spriteFrame")) {
             location += "/spriteFrame";
-        } else if (className === "cc.Texture2D") {
+        } else if (className === "cc.Texture2D" && !location.endsWith("/texture")) {
             location += "/texture";
-        } else if (className === "sp.SkeletonData") {
-            location += "/sp.SkeletonData";
-        }
-        return location;
-    }
-
-    private static unparseLocation<T extends Asset>(location: string, type: (new (...args: any[]) => T)) {
-        let className = js.getClassName(type);
-        if (className === "sp.SkeletonData") {
-            location = location.replace("/sp.SkeletonData", "");
         }
         return location;
     }
@@ -64,9 +54,9 @@ export class AssetMgr {
                 resolve(casset);
                 return;
             }
-            let bundle = BundleMgr.Inst.getBundle(location);
+            let bundle = BundleMgr.Inst.getAssetLocatedBundle(location, type);
             this.loadingAsset.add(location);
-            bundle.load(this.unparseLocation(location, type), type, onProgress, (err, asset) => {
+            bundle.load(location, type, onProgress, (err, asset) => {
                 this.loadingAsset.delete(location);
                 if (err) {
                     console.error(err);
@@ -83,8 +73,9 @@ export class AssetMgr {
     }
 
     /** 加载目录中的所有资源 */
-    public static async loadDirAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: (finished: number, total: number) => void) {
-        let list = BundleMgr.Inst.getDirectoryAddress(location);
+    public static async loadDir<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: (finished: number, total: number) => void) {
+
+        let list = BundleMgr.Inst.getDirAssets(location, type);
         if (!list || list.length == 0) {
             console.error("目录中无资源");
             return;
@@ -104,8 +95,8 @@ export class AssetMgr {
 
         let result: T[] = [];
         for (let i = 0; i < list.length; i++) {
-            const address = list[i];
-            let asset = await this.loadAsset(address, type, onProgress2(i));
+            const assetInfo = list[i];
+            let asset = await this.loadAsset(assetInfo.path, type, onProgress2(i));
             result.push(asset);
         }
         return result;
@@ -179,8 +170,8 @@ export class AssetMgr {
      */
     public static loadScene(location: string, onProgress?: (finished: number, total: number, item: AssetManager.RequestItem) => void) {
         let p = new Promise<void>((resolve, reject) => {
-            let bundle = BundleMgr.Inst.getSceneBundle(location);
-            let sceneName = location.substring(location.indexOf("/") + 1);
+            let [bundleName, sceneName] = location.split("/");
+            let bundle = assetManager.getBundle(bundleName);
             this.loadingAsset.add(location);
             bundle.loadScene(sceneName, onProgress, err => {
                 this.loadingAsset.delete(location);
@@ -196,12 +187,14 @@ export class AssetMgr {
     }
 
 
-    /** 预加载资源 (只会下载资源到本地 不会加载到内存中) */
+    /** 
+     * 预加载资源 (只会下载资源到本地 不会加载到内存中)
+     */
     public static preloadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: ((finished: number, total: number, item: AssetManager.RequestItem) => void)) {
         location = this.parseLocation(location, type);
         let p = new Promise<AssetManager.RequestItem[]>((resolve, reject) => {
-            let bundle = BundleMgr.Inst.getBundle(location);
-            bundle.preload(this.unparseLocation(location, type), type, onProgress, (err, items) => {
+            let bundle = BundleMgr.Inst.getAssetLocatedBundle(location, type);
+            bundle.preload(location, type, onProgress, (err, items) => {
                 if (err) {
                     console.error(err);
                     resolve(null);
@@ -217,8 +210,8 @@ export class AssetMgr {
     /** 预加载场景 (只会下载场景资源到本地 不会加载到内存中) */
     public preloadScene(location: string, onProgress?: (finished: number, total: number, item: AssetManager.RequestItem) => void) {
         let p = new Promise<void>((resolve, reject) => {
-            let bundle = BundleMgr.Inst.getSceneBundle(location);
-            let sceneName = location.substring(location.indexOf("/") + 1);
+            let [bundleName, sceneName] = location.split("/");
+            let bundle = assetManager.getBundle(bundleName);
             bundle.preloadScene(sceneName, onProgress, err => {
                 if (err) {
                     console.error(err);
@@ -290,14 +283,14 @@ export class AssetMgr {
     }
 
     /** 让目录下所有资源引用计数减少 */
-    public static decDirRef(location: string, decCount = 1) {
-        let list = BundleMgr.Inst.getDirectoryAddress(location);
+    public static decDirRef<T extends Asset>(location: string, decCount = 1, type?: new (...args: any[]) => T) {
+        let list = BundleMgr.Inst.getDirAssets(location, type);
         if (!list || list.length == 0) {
-            console.warn(`[decDirRef] 目录中无资源 ${location}`);
+            console.warn(`[decDirRef] 目录中无指定类型资源 ${location} ${js.getClassName(type)}`);
             return;
         }
         for (const v of list) {
-            this.decRef(v, decCount);
+            this.decRef(v.path, decCount);
         }
     }
 

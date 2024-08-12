@@ -1,10 +1,6 @@
 import { Asset } from "cc";
 
 export class AssetCache {
-
-    public static get Inst() { return createSingleton(AssetCache); }
-    protected onInst() { }
+    public static get Inst() { return createSingleton<AssetCache>(AssetCache); }
     public cache: Map<string, Asset> = new Map();
 }
-
-

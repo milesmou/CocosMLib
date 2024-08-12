@@ -104,9 +104,9 @@ export class L10nMgr {
     /** 加载当前语言的字体 */
     private static async loadFont() {
         this.lastFont = this.font;
-        if (AssetMgr.isAssetExists(this.fontPath)) {
+        if (AssetMgr.isAssetExists(this.fontPath, Font)) {
             this.font = await AssetMgr.loadAsset(this.fontPath, Font);
-        } else if (AssetMgr.isAssetExists(this.fontPath)) {
+        } else if (AssetMgr.isAssetExists(this.fontPath, TTFFont)) {
             this.font = await AssetMgr.loadAsset(this.fontPath, TTFFont);
         } else {
             this.font = null;
