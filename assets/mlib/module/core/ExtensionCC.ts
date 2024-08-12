@@ -1,6 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Component, UITransform, Widget } from "cc";
+import { Component, js, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
@@ -175,7 +175,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
 
     Component.prototype.ensureComponent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string) {
         let self: Component = this;
-        return self.node.ensureComponent(ctorOrClassName);
+        return self.node.ensureComponent(ctorOrClassName as any);
     }
 }
 
@@ -199,10 +199,19 @@ declare module "cc" {
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
-        getComponentInParent<T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef?: boolean);
+        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean);
+
+        /** 
+         * 从任意父节点上获取组件
+         * @param includeSlef 是否包含自身所在节点 默认为true
+         */
+        getComponentInParent<T extends Component>(className: string, includeSlef?: boolean): T;
 
         /** 确保组件存在 不存在则添加 */
-        ensureComponent<T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string): T;
+        ensureComponent<T extends Component>(ctor: new (...args: any[]) => T): T;
+
+        /** 确保组件存在 不存在则添加 */
+        ensureComponent<T extends Component>(className: string): T;
 
     }
 
@@ -211,10 +220,19 @@ declare module "cc" {
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
-        getComponentInParent<T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef?: boolean);
+        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean);
+
+        /** 
+         * 从任意父节点上获取组件
+         * @param includeSlef 是否包含自身所在节点 默认为true
+         */
+        getComponentInParent<T extends Component>(className: string, includeSlef?: boolean): T;
 
         /** 确保组件存在 不存在则添加 */
-        ensureComponent<T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string): T;
+        ensureComponent<T extends Component>(ctor: new (...args: any[]) => T): T;
+
+        /** 确保组件存在 不存在则添加 */
+        ensureComponent<T extends Component>(className: string): T;
 
         /** 
          * 节点尺寸匹配父节点大小(通过widget组件来完成)
