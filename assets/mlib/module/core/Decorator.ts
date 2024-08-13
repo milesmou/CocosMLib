@@ -1,4 +1,4 @@
-import { Component, director, Director, game, Game, js, Node } from "cc";
+import { Component, director, Director, js, Node } from "cc";
 import { EDITOR } from "cc/env";
 
 
@@ -17,6 +17,14 @@ export function persistNode<T extends Component>(target: { Inst?: T, new(): T })
             director.addPersistRootNode(node);
         }
     });
+}
+
+/** 可以让一个静态方法在脚本加载时执行 */
+export function invokeOnLoad(target: any, propertyKey: string) {
+    let func: Function = target[propertyKey]
+    if (typeof func === "function") {
+        func.call(target);
+    }
 }
 
 export function view(name: string) {
