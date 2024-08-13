@@ -1,6 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Component, js, UITransform, Widget } from "cc";
+import { Component, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
@@ -190,6 +190,9 @@ declare global {
      * @deprecated TMD这是DOM的Animation,不要使用它
      */
     interface Animation { }
+
+    /** 原生平台执行脚本的回调方法  */
+    var onNativeCall: (key: string, arg0: string, arg1: string, arg2: string, arg3: string) => void;
 }
 
 //扩展CC中的一些类

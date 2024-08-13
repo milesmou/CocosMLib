@@ -1,4 +1,4 @@
-import { native } from "cc";
+import { native, sys } from "cc";
 import { JSB } from "cc/env";
 
 export enum ECallNativeKey {
@@ -16,6 +16,8 @@ export enum ECallNativeKey {
     ReportEvent,
     /** 获取用户来源 */
     ReqUserSource,
+    /** 震动 */
+    Vibrate,
 }
 
 export enum ELoginResult {
@@ -89,7 +91,28 @@ export class MSDKWrapper {
     private static init() {
         if (this.isInit) return;
         this.isInit = true;
+        globalThis.onNativeCall = this.onNativeCall2.bind(this);
         native.bridge.onNative = this.onNativeCall.bind(this);
+    }
+
+    /** 原生层发回来的消息 key使用NativeKey中的值 */
+    private static onNativeCall2(key: string, arg0: string, arg1: string, arg2: string, arg3: string) {
+        // let kk = ECallNativeKey[key];
+        // arg = arg || "";
+        // switch (kk) {
+        //     case ECallNativeKey.Login:
+        //         this.onLogin(arg);
+        //         break;
+        //     case ECallNativeKey.RequestIAP:
+        //         this.onInAppPurchase(arg);
+        //         break;
+        //     case ECallNativeKey.ShowRewardedAd:
+        //         this.onShowRewardedAd(arg);
+        //         break;
+        //     case ECallNativeKey.ReqUserSource:
+        //         SDKCallback.onUserSource(arg);
+        //         break;
+        // }
     }
 
     /** 原生层发回来的消息 key使用NativeKey中的值 */
@@ -109,6 +132,20 @@ export class MSDKWrapper {
             case ECallNativeKey.ReqUserSource:
                 SDKCallback.onUserSource(arg);
                 break;
+        }
+    }
+
+    /** 发送消息给原生层 key使用NativeKey中的值*/
+    public static sendToNative2(key: ECallNativeKey, arg0 = "", arg1 = "", arg2 = "", arg3 = "") {
+        this.init();
+        if (JSB) {
+            if (sys.platform == sys.Platform.ANDROID) {
+                native.reflection.callStaticMethod("MSDKWrapper", "sendToNative", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
+            } else if (sys.platform == sys.Platform.IOS) {
+                native.reflection.callStaticMethod("MSDKWrapper", "sendToNative", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
+            } else {
+                console.error("sendToNative 暂未处理的原生平台");
+            }
         }
     }
 
