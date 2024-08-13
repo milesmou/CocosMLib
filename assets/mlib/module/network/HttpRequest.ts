@@ -106,3 +106,11 @@ export class HttpRequest {
     }
 }
 
+/** 将Json对象转化为Url编码格式 */
+export function JsonToUrlEncode(jsonObj: { [key: string]: any }) {
+    let arr: string[] = []
+    for (const key in jsonObj) {
+        arr.push(key + "=" + jsonObj[key]);
+    }
+    return arr.join("&");
+}
