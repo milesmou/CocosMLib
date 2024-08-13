@@ -1,14 +1,25 @@
 
 interface RequestArgs {
-    method?: "GET" | "POST";
-    data?: object | string;
+    method: "GET" | "POST";
+    contentType?: "application/json" | "application/x-www-form-urlencoded";
+    data?: any;
     timeout?: number;
 }
+
+/** 将Json对象转化为Url编码格式 */
+export function JsonToUrlEncode(jsonObj: { [key: string]: any }) {
+    let arr: string[] = []
+    for (const key in jsonObj) {
+        arr.push(key + "=" + jsonObj[key]);
+    }
+    return arr.join("&");
+}
+
 
 export class HttpRequest {
 
     public static async request(url: string, args: RequestArgs) {
-        let { method, data, timeout } = args || {};
+        let { method, contentType, data, timeout } = args;
         method = method || "GET";
         timeout = timeout || 5000;
         let p = new Promise<XMLHttpRequest>((resolve, reject) => {
@@ -37,14 +48,22 @@ export class HttpRequest {
                 }
             }
             xhr.open(method, url, true);
-            if (data && data instanceof ArrayBuffer) {
-                xhr.responseType = "arraybuffer";
-            } else if (data) {
-                if (typeof data === "object") data = JSON.stringify(data);
-                else data = data.toString();
-                xhr.setRequestHeader("Content-Type", "application/json");
+            if (data) {//有携带数据 设置Content-Type
+                contentType = contentType || "application/json";
+                if (data instanceof ArrayBuffer) {
+                    xhr.responseType = "arraybuffer";
+                } else {
+                    if (contentType == "application/json") {
+                        if (typeof data === "object") data = JSON.stringify(data);
+                        else data = data.toString();
+                    } else if (contentType == "application/x-www-form-urlencoded") {
+                        if (typeof data === "object") data = JsonToUrlEncode(data);
+                        else data = data.toString();
+                    }
+                    xhr.setRequestHeader("Content-Type", contentType);
+                }
             }
-            xhr.send(data as any);
+            xhr.send(data);
         });
         return p;
     }
@@ -106,11 +125,3 @@ export class HttpRequest {
     }
 }
 
-/** 将Json对象转化为Url编码格式 */
-export function JsonToUrlEncode(jsonObj: { [key: string]: any }) {
-    let arr: string[] = []
-    for (const key in jsonObj) {
-        arr.push(key + "=" + jsonObj[key]);
-    }
-    return arr.join("&");
-}
