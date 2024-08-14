@@ -13,7 +13,7 @@ export default class GameTable {
 
     public static async initData(onProgress?: (finished: number, total: number) => void) {
         let dir = "table";
-        let assets = await AssetMgr.loadDirAsset(dir, JsonAsset, onProgress);
+        let assets = await AssetMgr.loadDir(dir, JsonAsset, onProgress);
         let datas: Map<string, JsonAsset> = new Map();
         for (let asset of assets) {
             datas.set(asset.name, asset);

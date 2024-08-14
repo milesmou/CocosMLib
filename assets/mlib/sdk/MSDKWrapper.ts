@@ -1,9 +1,10 @@
 import { native, sys } from "cc";
 import { JSB } from "cc/env";
+import { invokeOnLoad } from "../module/core/Decorator";
 
 export enum ECallNativeKey {
     /** 登录 */
-    Login,
+    Login = 1,
     /** 商品详情 */
     ReqProductDetails,
     /** 发起内购 */
@@ -86,13 +87,12 @@ export class SDKCallback {
 /** 处理与SDK的交互 */
 export class MSDKWrapper {
 
-    private static isInit = false;
-
+    @invokeOnLoad
     private static init() {
-        if (this.isInit) return;
-        this.isInit = true;
+        console.log("invokeOnLoad", this);
+
         globalThis.onNativeCall = this.onNativeCall2.bind(this);
-        native.bridge.onNative = this.onNativeCall.bind(this);
+        // native.bridge.onNative = this.onNativeCall.bind(this);
     }
 
     /** 原生层发回来的消息 key使用NativeKey中的值 */
@@ -140,9 +140,9 @@ export class MSDKWrapper {
         this.init();
         if (JSB) {
             if (sys.platform == sys.Platform.ANDROID) {
-                native.reflection.callStaticMethod("MSDKWrapper", "sendToNative", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
+                native.reflection.callStaticMethod("MSDKWrapper", "sendToNative", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
             } else if (sys.platform == sys.Platform.IOS) {
-                native.reflection.callStaticMethod("MSDKWrapper", "sendToNative", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
+                native.reflection.callStaticMethod("MSDKWrapper", "sendToNative", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
             } else {
                 console.error("sendToNative 暂未处理的原生平台");
             }

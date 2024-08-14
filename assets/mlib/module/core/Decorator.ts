@@ -1,11 +1,13 @@
+import { game } from "cc";
+import { Game } from "cc";
 import { Component, director, Director, js, Node } from "cc";
-import { EDITOR } from "cc/env";
+import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 
 /** 将组件添加到常驻节点上 */
 export function persistNode<T extends Component>(target: { Inst?: T, new(): T }) {
+    if (EDITOR_NOT_IN_PREVIEW) return;
     director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
-        if (EDITOR) return;
         let nodeName = `[${js.getClassName(target)}]`;
         let scene = director.getScene();
         if (!scene) return;
@@ -21,9 +23,13 @@ export function persistNode<T extends Component>(target: { Inst?: T, new(): T })
 
 /** 可以让一个静态方法在脚本加载时执行 */
 export function invokeOnLoad(target: any, propertyKey: string) {
-    let func: Function = target[propertyKey]
+    if (EDITOR_NOT_IN_PREVIEW) return;
+    let func: () => void = target[propertyKey]
     if (typeof func === "function") {
         func.call(target);
+        game.on(Game.EVENT_RESTART, func, target);
+    } else {
+        console.error("invokeOnLoad只能添加到静态方法上");
     }
 }
 
