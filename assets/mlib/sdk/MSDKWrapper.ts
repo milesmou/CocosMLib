@@ -138,9 +138,9 @@ export class MSDKWrapper {
         this.init();
         if (JSB) {
             if (sys.platform == sys.Platform.ANDROID) {
-                native.reflection.callStaticMethod("MSDKWrapper", "sendToNative", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
+                native.reflection.callStaticMethod("MSDKWrapper", "onJsCall", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
             } else if (sys.platform == sys.Platform.IOS) {
-                native.reflection.callStaticMethod("MSDKWrapper", "sendToNative", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
+                native.reflection.callStaticMethod("MSDKWrapper", "onJsCall", key as any, arg0, arg1, arg2, arg3);
             } else {
                 console.error("sendToNative 暂未处理的原生平台");
             }
@@ -274,3 +274,7 @@ export interface RequestIAPArgs {
     extParam?: string;
 }
 
+declare global {
+    /** 原生平台向JS层发送消息的回调方法 */
+    var onNativeCall: (key: string, arg0: string, arg1: string, arg2: string, arg3: string) => void;
+}
