@@ -191,7 +191,7 @@ declare global {
      */
     interface Animation { }
 
-    /** 原生平台执行脚本的回调方法  */
+    /** 原生平台向JS层发送消息的回调方法 */
     var onNativeCall: (key: string, arg0: string, arg1: string, arg2: string, arg3: string) => void;
 }
 

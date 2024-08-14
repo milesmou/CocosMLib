@@ -89,10 +89,8 @@ export class MSDKWrapper {
 
     @invokeOnLoad
     private static init() {
-        console.log("invokeOnLoad", this);
-
         globalThis.onNativeCall = this.onNativeCall2.bind(this);
-        // native.bridge.onNative = this.onNativeCall.bind(this);
+        native.bridge.onNative = this.onNativeCall.bind(this);
     }
 
     /** 原生层发回来的消息 key使用NativeKey中的值 */
