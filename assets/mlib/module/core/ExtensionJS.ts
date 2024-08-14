@@ -60,6 +60,17 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     }
 
+    Array.prototype.groupBy = function <T>(groupIdGetter: (value: T) => any) {
+        let self: T[] = this;
+        let groupMap = new Map<any, T[]>();
+        for (const value of self) {
+            let groupId = groupIdGetter(value);
+            if (!groupMap.has(groupId)) groupMap.set(groupId, []);
+            groupMap.get(groupId).push(value)
+        }
+        return groupMap;
+    }
+
     Array.prototype.isSuperset = function <T>(other: T[]) {
         let self: T[] = this;
         if (self.length <= other.length) return false;
@@ -128,7 +139,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
 }
 
 declare global {
-    
+
     interface Array<T> {
         /**
         * 第一个元素
@@ -164,6 +175,11 @@ declare global {
          * 数组随机打乱
          */
         disarrange(): void;
+
+        /** 
+         * 将集合中的数据按规则进行分组
+         */
+        groupBy(groupIdGetter: (value: T) => any): Map<any, T[]>;
 
         /**
          * 是否是另一个数组的父集

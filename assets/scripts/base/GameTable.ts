@@ -26,19 +26,9 @@ export default class GameTable {
         AssetMgr.decDirRef(dir);
     }
 
-    /** 将集合中的数据按规则进行分组 */
-    public groupBy<T>(groupIdGetter: (value: T) => number, list: T[]) {
-        let groupMap = new Map<number, T[]>();
-        for (const value of list) {
-            let groupId = groupIdGetter(value);
-            if (!groupMap.has(groupId)) groupMap.set(groupId, []);
-            groupMap.get(groupId).push(value)
-        }
-        return groupMap;
-    }
 
     private _guideGroup: Map<number, TGuide[]>;
-    public get guideGroup() { return this._guideGroup || (this._guideGroup = this.groupBy(v => v.GuideID, GameTable.Table.TbGuide.getDataList())); }
+    public get guideGroup() { return this._guideGroup || (this._guideGroup = GameTable.Table.TbGuide.getDataList().groupBy(v => v.GuideID,)); }
 
     //引导
     public getGuideGroup(guideId: number) {
