@@ -1,6 +1,4 @@
-import { game } from "cc";
-import { Game } from "cc";
-import { Component, director, Director, js, Node } from "cc";
+import { Component, director, Director, game, Game, js, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 
