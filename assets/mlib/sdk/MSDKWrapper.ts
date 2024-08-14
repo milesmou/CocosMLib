@@ -5,20 +5,28 @@ import { invokeOnLoad } from "../module/core/Decorator";
 export enum ECallNativeKey {
     /** 登录 */
     Login = 1,
+    /** 横幅广告 */
+    ShowBanner,
+    /** 插屏广告 */
+    ShowInterstitial,
+    /** 激励视频广告 */
+    ShowRewardedVideo,
+    /** 分享 */
+    Share,
     /** 商品详情 */
     ReqProductDetails,
     /** 发起内购 */
     RequestIAP,
     /** 恢复内购(补单或订阅) */
     RestoreIAP,
-    /** 激励视频广告 */
-    ShowRewardedAd,
     /** 事件上报 */
     ReportEvent,
-    /** 获取用户来源 */
-    ReqUserSource,
     /** 震动 */
     Vibrate,
+    /** 获取用户来源 */
+    ReqUserSource,
+    /** 执行额外的方法 */
+    ExtraMethod,
 }
 
 export enum ELoginResult {
@@ -124,7 +132,7 @@ export class MSDKWrapper {
             case ECallNativeKey.RequestIAP:
                 this.onInAppPurchase(arg);
                 break;
-            case ECallNativeKey.ShowRewardedAd:
+            case ECallNativeKey.ShowRewardedVideo:
                 this.onShowRewardedAd(arg);
                 break;
             case ECallNativeKey.ReqUserSource:
