@@ -1,6 +1,6 @@
 import child_process from "child_process";
 import crypto from "crypto";
-import fs from "fs";
+import fs from "fs-extra";
 import path from "path";
 import { Logger } from "./Logger";
 export class Utils {
@@ -214,5 +214,26 @@ export class Utils {
     /** 统一换行符为(\n) */
     public static toUniLineBrake(content: string) {
         return content.replace(/\\r\\n/g, "\n");
+    }
+
+    /** 获取文件或者目录所在的bundle路径 */
+    public static getBundlePath(filePath: string) {
+        filePath = this.toUniSeparator(filePath);
+        let dir = path.dirname(filePath);
+        while (true) {
+            let meta = dir + ".meta";
+            if (fs.existsSync(meta)) {
+                let obj = fs.readJsonSync(meta);
+                if (obj?.userData?.isBundle) {
+                    return dir;
+                } else {
+                    dir = path.dirname(dir);
+                    if (dir == this.projectPath) break;
+                }
+            } else {
+                break;
+            }
+        }
+        return null;
     }
 }

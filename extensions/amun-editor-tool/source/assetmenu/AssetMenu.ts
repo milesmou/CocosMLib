@@ -1,4 +1,5 @@
 import { AssetInfo } from "@cocos/creator-types/editor/packages/asset-db/@types/public";
+import { MenuExecute } from "./MenuExecute";
 
 
 /** 点击资源管理器面板左上角的 + 按钮 资源菜单中的 新建 菜单项被选中时  触发的事件 */
@@ -34,6 +35,13 @@ export function onAssetMenu(assetInfo: AssetInfo) {
                     },
                 },
             ],
+        },
+        {
+            label: '复制加载地址',
+            enabled: true,
+            click() {
+                MenuExecute.copyLoadLocation(assetInfo);
+            },
         },
     ];
 
