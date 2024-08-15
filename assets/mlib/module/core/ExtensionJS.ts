@@ -136,6 +136,24 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         if (self.length < 2) return self.toLowerCase();
         return self[0].toLowerCase() + self.substring(1);
     }
+
+    Map.prototype.toArray = function <K, V>() {
+        let self: Map<K, V> = this;
+        let array: [K, V][] = [];
+        self.forEach((v, k) => {
+            array.push([k, v]);
+        });
+        return array;
+    }
+
+    Set.prototype.toArray = function <T>() {
+        let self: Set<T> = this;
+        let array: T[] = [];
+        self.forEach(v => {
+            array.push(v);
+        });
+        return array;
+    }
 }
 
 declare global {
@@ -217,5 +235,15 @@ declare global {
          * 首字母小写 
          */
         lowerFirst(): string;
+    }
+
+    interface Map<K, V> {
+        /** 转化为一个二维数组 */
+        toArray(): [K, V][];
+    }
+
+    interface Set<T> {
+        /** 转化为一个数组 */
+        toArray(): T[];
     }
 }
