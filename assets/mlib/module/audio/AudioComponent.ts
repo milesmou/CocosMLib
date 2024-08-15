@@ -22,12 +22,12 @@ export class AudioComponent extends Component {
     private _asset: AssetComponent;
 
     /** 音乐音量 */
-    private get mVolume() { return AudioMgr.globalVolume.mVolume.value * this.audioVolume.mVolume.value; }
+    private get mVolume() { return AudioMgr.gVolume.mVolume.value * this.volume.mVolume.value; }
     /** 音效音量 */
-    private get eVolume() { return AudioMgr.globalVolume.eVolume.value * this.audioVolume.eVolume.value; }
+    private get eVolume() { return AudioMgr.gVolume.eVolume.value * this.volume.eVolume.value; }
 
     /** 音量 */
-    public audioVolume: AudioVolume;
+    public volume: AudioVolume;
 
     /** 当前音乐是否暂停 */
     private _pause = false;
@@ -48,13 +48,17 @@ export class AudioComponent extends Component {
         this.setKey(this.m_key);
     }
 
+    protected onDestroy(): void {
+        AudioMgr.removeAudioVolume(this.m_key);
+    }
+
     /** 为音频播放组件设置一个Key */
     public setKey(key: string) {
         if (!key) return;
         this.m_key = key;
-        this.audioVolume = AudioMgr.getAudioVolume(key);
-        this.audioVolume.setMusicVolumeListener(this.refreshMusicVolume.bind(this));
-        this.audioVolume.setEffectVolumeListener(this.refreshEffectVolume.bind(this));
+        this.volume = AudioMgr.getAudioVolume(key);
+        this.volume.setMusicVolumeListener(this.refreshMusicVolume.bind(this));
+        this.volume.setEffectVolumeListener(this.refreshEffectVolume.bind(this));
         this._effectOneShot.volume = this.eVolume;
     }
 

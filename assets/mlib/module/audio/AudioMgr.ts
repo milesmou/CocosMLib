@@ -3,21 +3,20 @@ import { AudioVolume } from "./AudioVolume";
 export class AudioMgr {
 
     /** 全局音量 */
-    public static readonly globalVolume = new AudioVolume("Global", this.onGlobalMusicVolumeChange.bind(this), this.onGlobalEffectVolumeChange.bind(this));
-    /** 保存所有音频播放组件的Map */
+    public static readonly gVolume = new AudioVolume("Global", this.onMusicVolumeChange.bind(this), this.onEffectVolumeChange.bind(this));
 
     /** 保存所有音频播放组件的音量Map */
     private static audioVolumeMap: Map<string, AudioVolume> = new Map();
 
     /** 全局音乐音量变化 刷新所有音频播放组件的音乐音量 */
-    private static onGlobalMusicVolumeChange() {
+    private static onMusicVolumeChange() {
         this.audioVolumeMap.forEach(v => {
             v.dispatchMusicVolumeChange();
         });
     }
 
     /** 全局音效音量变化 刷新所有音频播放组件的音效音量 */
-    private static onGlobalEffectVolumeChange() {
+    private static onEffectVolumeChange() {
         this.audioVolumeMap.forEach(v => {
             v.dispatchEffectVolumeChange();
         });
@@ -31,5 +30,10 @@ export class AudioMgr {
             this.audioVolumeMap.set(key, volume);
         }
         return volume;
+    }
+
+    /** 移除音频播放组件音量配置 */
+    public static removeAudioVolume(key: string) {
+        this.audioVolumeMap.delete(key);
     }
 }
