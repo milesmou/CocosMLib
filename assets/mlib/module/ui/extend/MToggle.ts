@@ -55,10 +55,10 @@ export class MToggle extends Toggle {
     private onToggleValueChange(toggle: MToggle) {
         if (this._inToggleContainer) {
             if (this.isChecked && this.isChecked != this._lastIsChecked) {
-                if (this.clickAudio && app.audio) app.audio.playEffect(this.clickAudio);
+                if (this.clickAudio && typeof app !== "undefined" && app.audio) app.audio.playEffect(this.clickAudio);
             }
         } else {
-            if (this.clickAudio && app.audio) app.audio.playEffect(this.clickAudio);
+            if (this.clickAudio && typeof app !== "undefined" && app.audio) app.audio.playEffect(this.clickAudio);
         }
         this.onValueChange.dispatch(toggle);
         this.updateBackground();
