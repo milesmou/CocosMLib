@@ -22,7 +22,7 @@ export class AssetMgr {
         return this.loadingAsset ? this.loadingAsset.size : 0;
     }
 
-    public static async loadBundles(bundleNames?: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: (loaded: number, total: number) => void }) {
+    public static async loadBundles(bundleNames?: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: Progress }) {
         if (!bundleNames) {
             bundleNames = BundleConstant;
         }
@@ -45,12 +45,13 @@ export class AssetMgr {
     }
 
     /** 加载资源 */
-    public static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: (finished: number, total: number) => void) {
+    public static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress) {
         location = this.parseLocation(location, type);
         let p = new Promise<T>((resolve, reject) => {
             let casset = this.cache.get(location) as T;
             if (casset?.isValid) {
                 casset.addRef();
+                onProgress && onProgress(1, 1);
                 resolve(casset);
                 return;
             }
@@ -73,7 +74,7 @@ export class AssetMgr {
     }
 
     /** 加载目录中的所有资源 */
-    public static async loadDir<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: (finished: number, total: number) => void) {
+    public static async loadDir<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress) {
 
         let list = BundleMgr.Inst.getDirAssets(location, type);
         if (!list || list.length == 0) {
@@ -229,7 +230,7 @@ export class AssetMgr {
      * @param url 文件下载链接
      * @param onFileProgress 文件下载进度回调(同一url仅第一次传入的回调有效)
      */
-    public static download(url: string, onFileProgress?: (loaded: number, total: number) => void) {
+    public static download(url: string, onFileProgress?: Progress) {
         let ext = url.substring(url.lastIndexOf("."));
         let p = new Promise<any>((resolve, reject) => {
             if (sys.isBrowser) {

@@ -22,10 +22,10 @@ export class AssetComponent extends Component {
         });
     }
 
-    public async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T): Promise<T> {
+    public async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress): Promise<T> {
         let asset = this._cache.get(location);
         if (asset?.isValid) return asset as T;
-        asset = await AssetMgr.loadAsset(location, type);
+        asset = await AssetMgr.loadAsset(location, type, onProgress);
         if (!this.isValid) {
             this.decRef(location);
             return null;
