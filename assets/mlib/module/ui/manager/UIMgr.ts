@@ -29,8 +29,6 @@ export class UIMgr extends Component {
     /** 拦截所有触摸事件的节点 */
     private _blockInput: Node
 
-    /** 正在加载过程中的UI */
-    private _loadingUI: Set<string> = new Set();
     /** UI的缓存Dict */
     private _uiDict: Map<string, UIForm> = new Map();
     /** 实时的UI栈(加载UI需要时间) */
@@ -97,7 +95,7 @@ export class UIMgr extends Component {
 
     public async show<T extends UIForm>(uiName: string, obj?: {
         args?: any, blockTime?: number, parent?: Node, playAnim?: boolean,
-        visible?: boolean, bottom?: boolean, onProgress?: (loaded: number, total: number) => void
+        visible?: boolean, bottom?: boolean, onProgress?: Progress
     }): Promise<T> {
         let { args, blockTime, parent, playAnim, visible, bottom, onProgress } = obj || {};
         blockTime = blockTime === undefined ? 0.2 : blockTime;
@@ -109,7 +107,7 @@ export class UIMgr extends Component {
         } else {//子UI
             this._subUINameStack.add(uiName, !visible || bottom)
         }
-        this.checkShowUI(uiName);
+        this.checkShowUI(uiName, visible);
         this.blockTime = blockTime;
         EventMgr.emit(EventKey.OnUIInitBegin, uiName, visible);
         this._uiArgs[uiName] = args;
@@ -197,7 +195,7 @@ export class UIMgr extends Component {
 
     }
 
-    public async showHigher(uiName: string, obj?: { args?: any, visible?: boolean, onProgress?: (loaded: number, total: number) => void }) {
+    public async showHigher(uiName: string, obj?: { args?: any, visible?: boolean, onProgress?: Progress }) {
         let { args, visible, onProgress } = obj || {};
         visible = visible === undefined ? true : visible;
         this.blockTime = 0.2;
@@ -218,8 +216,8 @@ export class UIMgr extends Component {
         EventMgr.emit(EventKey.OnUIHide, ui);
     }
 
-    public showResident(uiName: string, onProgress?: (loaded: number, total: number) => void) {
-        this.instNode(uiName, this._resident, onProgress);
+    public showResident(uiName: string) {
+        this.instNode(uiName, this._resident);
     }
 
     public hideAll(...exclude: string[]) {
@@ -229,19 +227,15 @@ export class UIMgr extends Component {
         });
     }
 
-    private async initUI(uiName: string, parent: Node, visible = true, bottom = false, onProgress?: (loaded: number, total: number) => void): Promise<UIForm> {
+    private async initUI(uiName: string, parent: Node, visible = true, bottom = false, onProgress?: Progress): Promise<UIForm> {
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) {
-            if (this._loadingUI.has(uiName)) {
-                ui = await this.waitUILoad(uiName);
-            } else {
-                this._loadingUI.add(uiName);
-                let node = await this.instNode(uiName, parent, onProgress);
-                ui = node.getComponent(UIComponent) as UIForm;
-                ui.init(uiName);
-                this._uiDict.set(uiName, ui);
-                this._loadingUI.delete(uiName);
-            }
+            let node = await this.instNode(uiName, parent, onProgress);
+            ui = node.getComponent(UIComponent) as UIForm;
+            ui.init(uiName);
+            this._uiDict.set(uiName, ui);
+        } else {
+            onProgress && onProgress(1, 1);
         }
         ui.node.active = true;
         ui.setVisible(visible);
@@ -249,21 +243,7 @@ export class UIMgr extends Component {
         return ui;
     }
 
-    private async waitUILoad(uiName: string) {
-        while (!this._uiDict.get(uiName)) {
-            await this.nextFrame();
-        }
-        return this._uiDict.get(uiName);
-    }
-
-    private nextFrame() {
-        let p = new Promise((resolve) => {
-            this.scheduleOnce(resolve);
-        });
-        return p;
-    }
-
-    private async instNode(uiName: string, parent: Node, onProgress?: (loaded: number, total: number) => void): Promise<Node> {
+    private async instNode(uiName: string, parent: Node, onProgress?: Progress): Promise<Node> {
         let prefab = await AssetMgr.loadAsset(uiName, Prefab, onProgress);
         let uiObj = instantiate(prefab);
         uiObj.parent = parent;
@@ -349,15 +329,18 @@ export class UIMgr extends Component {
     }
 
     /** 检测是否在短时间内(0.1s)连续打开同一UI 抛出警告 */
-    private checkShowUI(uiName: string) {
+    private checkShowUI(uiName: string, visible: boolean) {
+        if (!visible) return;
         let now = Date.now();
         if (this._openUITime.has(uiName)) {
-            let lastTime = this._openUITime.get(uiName);
+            let lastTime = this._openUITime[uiName];
             if (now - lastTime < 100) {
                 logger.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
+                this._openUITime.delete(uiName);
             }
+            this._openUITime[uiName] = now;
         }
-        this._openUITime.set(uiName, now);
+        else this._openUITime.set(uiName, now);
     }
 
     protected update(dt: number) {
