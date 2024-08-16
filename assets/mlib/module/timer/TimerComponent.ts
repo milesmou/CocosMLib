@@ -1,6 +1,5 @@
 import { _decorator, Component, macro } from "cc";
 import { TimerObject } from "./TimerObject";
-import { game } from "cc";
 
 const { ccclass, property } = _decorator;
 
@@ -140,24 +139,5 @@ export class TimerComponent extends Component {
                 if (v.repeat <= 0) this._schedules.delete(v);
             }
         });
-    }
-
-
-    // ===========================================================================================
-    // yang
-    get dtDefault(): number {
-        return game.deltaTime;
-    }
-    private _dt: number;
-    /**游戏统一帧率 增加控制慢镜头缩放比例 */
-    public get dt(): number {
-        this._dt = this.dtDefault;
-        this._dt *= this._timeScale;
-        return this._dt;
-    }
-    /**一秒的帧率平滑 */
-    get dtSecond(): number {
-        let fps: number = typeof game.frameRate === "string" ? parseInt(game.frameRate) : game.frameRate;
-        return this.dt * fps;
     }
 }
