@@ -23,7 +23,7 @@ export class MButton extends Button {
         displayName: "冷却时间",
         range: [0, 10],
     })
-    private cooldown = 0.2;
+    public cooldown = 0.2;
 
     @property({
         displayName: "快速响应",
