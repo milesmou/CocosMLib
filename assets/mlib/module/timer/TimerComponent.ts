@@ -67,6 +67,7 @@ export class TimerComponent extends Component {
     }
 
     private refresh() {
+        if (!this.isValid) return;
         this._timerObjs.forEach(v => {
             if (v.isValid()) {
                 this.changeTimerObjectSpeed(v, true);
