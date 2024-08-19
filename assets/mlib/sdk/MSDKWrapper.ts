@@ -77,7 +77,12 @@ export class MSDKWrapper {
     public static sendToNative(key: ENativeBridgeKey, arg0 = "", arg1 = "", arg2 = "", arg3 = "") {
         if (JSB) {
             if (sys.platform == sys.Platform.ANDROID) {
-                native.reflection.callStaticMethod("com/cocos/game/MSDKWrapper", "onJsCall", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
+                native.reflection.callStaticMethod(
+                    "com/cocos/game/MSDKWrapper",
+                    "onJsCall",
+                    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+                    ENativeBridgeKey[key], arg0, arg1, arg2, arg3
+                );
             } else if (sys.platform == sys.Platform.IOS) {
                 native.reflection.callStaticMethod("MSDKWrapper", "onJsCall", key as any, arg0, arg1, arg2, arg3);
             } else {
