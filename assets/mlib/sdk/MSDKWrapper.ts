@@ -1,6 +1,5 @@
-import { native, sys } from "cc";
+import { native } from "cc";
 import { JSB } from "cc/env";
-import { invokeOnLoad } from "../module/core/Decorator";
 
 /** 原生和JS交互的Key */
 export enum ENativeBridgeKey {
@@ -50,16 +49,31 @@ export class SDKCallback {
     public static inAppPurchase: (code: EIAPResult, arg: string) => void;
 }
 
+/** 与原生交互时的参数分隔符 */
+const ParamSeparator = "[-_-]";
+
 /** 处理与SDK的交互 */
 export class MSDKWrapper {
 
-    @invokeOnLoad
+    private static isInit = false;
+
     private static init() {
-        globalThis.onNativeCall = this.onNativeCall.bind(this);
+        if (this.isInit) return;
+        this.isInit = true;
+        native.bridge.onNative = (key: string, args?: string) => {
+            let [arg0, arg1, arg2, arg3] = args.split(ParamSeparator);
+            this.onNativeCall(key, arg0, arg1, arg2, arg3);
+        }
     }
 
-    /** 原生层发回来的消息 key使用ENativeBridgeKey中的值 */
-    private static onNativeCall(key: ENativeBridgeKey, arg0?: string, arg1?: string, arg2?: string, arg3?: string) {
+    /** 非原生环境触发回调 */
+    public static call(key: number, arg0?: string, arg1?: string, arg2?: string, arg3?: string) {
+        this.onNativeCall(ENativeBridgeKey[key], arg0, arg1, arg2, arg3);
+    }
+
+    /** 原生层发回来的消息 strKey使用ENativeBridgeKey中的值 */
+    private static onNativeCall(strKey: string, arg0?: string, arg1?: string, arg2?: string, arg3?: string) {
+        let key = ENativeBridgeKey[strKey];
         switch (key) {
             case ENativeBridgeKey.Login:
                 this.onLogin(arg0, arg1);
@@ -76,18 +90,9 @@ export class MSDKWrapper {
     /** 发送消息给原生层 key使用ENativeBridgeKey中的值*/
     public static sendToNative(key: ENativeBridgeKey, arg0 = "", arg1 = "", arg2 = "", arg3 = "") {
         if (JSB) {
-            if (sys.platform == sys.Platform.ANDROID) {
-                native.reflection.callStaticMethod(
-                    "com/cocos/game/msdk/MSDKWrapper",
-                    "onJsCall",
-                    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
-                    ENativeBridgeKey[key], arg0, arg1, arg2, arg3
-                );
-            } else if (sys.platform == sys.Platform.IOS) {
-                native.reflection.callStaticMethod("MSDKWrapper", "onJsCall", key as any, arg0, arg1, arg2, arg3);
-            } else {
-                console.error("sendToNative 暂未处理的原生平台");
-            }
+            this.init();
+            let args = [arg0, arg1, arg2, arg3].join(ParamSeparator);
+            native.bridge.sendToNative(ENativeBridgeKey[key], args);
         }
     }
 
@@ -245,9 +250,4 @@ export enum EReawrdedAdResult {
     Click,
     /** 广告播放失败 */
     Error,
-}
-
-declare global {
-    /** 原生平台向JS层发送消息的回调方法 */
-    var onNativeCall: (key: ENativeBridgeKey, arg0?: string, arg1?: string, arg2?: string, arg3?: string) => void;
 }

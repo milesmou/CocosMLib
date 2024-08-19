@@ -1,7 +1,7 @@
 /** 微信小游戏平台相关方法的实现 */
 import { Game, _decorator, game } from "cc";
 import { Channel } from "../../../../mlib/sdk/Channel";
-import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, LoginArgs, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../../mlib/sdk/MSDKWrapper";
+import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../../mlib/sdk/MSDKWrapper";
 
 const { ccclass } = _decorator;
 
@@ -47,10 +47,10 @@ export class WeChatGame extends Channel {
         SDKCallback.login = args;
         wx.login({
             success: loginRes => {
-                onNativeCall(ENativeBridgeKey.Login, ELoginResult.Success.toString(), loginRes.code)
+                MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), loginRes.code)
             },
             fail: loginRes => {
-                onNativeCall(ENativeBridgeKey.Login, ELoginResult.Fail.toString(), loginRes.errMsg)
+                MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Fail.toString(), loginRes.errMsg)
             }
         });
     }
@@ -250,8 +250,8 @@ export class WeChatGame extends Channel {
         SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(args.extParam);
 
         if (skipAdAndIap) {
-            onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Show.toString());
-            onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Success.toString());
+            MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Show.toString());
+            MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Success.toString());
             return;
         }
 
@@ -259,9 +259,9 @@ export class WeChatGame extends Channel {
             this._onRewardedAdClose = (res) => {
                 this._isLoadingRewardedAd = false;
                 if (res.isEnded) {
-                    onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Success.toString());
+                    MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Success.toString());
                 } else {
-                    onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Fail.toString());
+                    MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Fail.toString());
                 }
             }
             this._onRewardedAdError = (err) => {
@@ -279,7 +279,7 @@ export class WeChatGame extends Channel {
         video.onError(this._onRewardedAdError);
         video.load().then(() => {
             video.show().then(() => {
-                onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Show.toString());
+                MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Show.toString());
             });
         });
     }
@@ -306,7 +306,7 @@ export class WeChatGame extends Channel {
     /** 发起内购 */
     requestIAP(args: RequestIAPArgs) {
         if (skipAdAndIap) {
-            onNativeCall(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId);
+            MSDKWrapper.call(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId);
             return;
         }
         wx.requestMidasPayment({
@@ -315,10 +315,10 @@ export class WeChatGame extends Channel {
             mode: "game",
             outTradeNo: "",
             success: res => {
-                onNativeCall(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId);
+                MSDKWrapper.call(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId);
             },
             fail: err => {
-                onNativeCall(ENativeBridgeKey.RequestIAP, EIAPResult.Fail.toString(), args.productId);
+                MSDKWrapper.call(ENativeBridgeKey.RequestIAP, EIAPResult.Fail.toString(), args.productId);
             }
         });
     }

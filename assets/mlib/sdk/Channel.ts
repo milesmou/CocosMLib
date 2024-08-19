@@ -2,7 +2,7 @@ import { _decorator, sys } from 'cc';
 import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
-import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GameDataArgs, LoginArgs, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
+import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
 const { ccclass } = _decorator;
 
 @ccclass("Channel")
@@ -41,7 +41,7 @@ export class Channel {
             sys.localStorage.setItem("userId", userId);
         }
         SDKCallback.login = args;
-        onNativeCall(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId)
+        MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId)
     }
 
     /** 获取玩家存档 */
@@ -74,8 +74,8 @@ export class Channel {
     public showRewardedAd(args: ShowRewardedAdArgs) {
         SDKCallback.rewardedAd = args;
         SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(args.extParam);
-        onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Show.toString());//测试直接成功
-        onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Success.toString());//测试直接成功
+        MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Show.toString());//测试直接成功
+        MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Success.toString());//测试直接成功
     }
 
     /** 展示插屏广告 */
@@ -95,14 +95,14 @@ export class Channel {
 
     /** 获取所有商品的详情信息 商品id之间用|隔开 */
     public reqProductDetails(productIds: string) {
-        onNativeCall(ENativeBridgeKey.ReqProductDetails, EIAPResult.ProductDetail.toString(), "default")//测试直接成功
+        MSDKWrapper.call(ENativeBridgeKey.ReqProductDetails, EIAPResult.ProductDetail.toString(), "default")//测试直接成功
     }
 
     /** 发起内购 */
     public requestIAP(args: RequestIAPArgs) {
         SDKCallback.onStartInAppPurchase && SDKCallback.onStartInAppPurchase(args.productId);
         setTimeout(() => {
-            onNativeCall(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId)//测试直接成功
+            MSDKWrapper.call(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId)//测试直接成功
         }, 1000);
     }
 
