@@ -2,7 +2,8 @@ import { native, sys } from "cc";
 import { JSB } from "cc/env";
 import { invokeOnLoad } from "../module/core/Decorator";
 
-export enum ECallNativeKey {
+/** 原生和JS交互的Key */
+export enum ENativeBridgeKey {
     /** 登录 */
     Login = 1,
     /** 横幅广告 */
@@ -23,49 +24,8 @@ export enum ECallNativeKey {
     ReportEvent,
     /** 震动 */
     Vibrate,
-    /** 获取用户来源 */
-    ReqUserSource,
     /** 执行额外的方法 */
     ExtraMethod,
-}
-
-export enum ELoginResult {
-    /** 登录成功 */
-    Success,
-    /** 登录失败 */
-    Fail
-}
-
-export enum EIAPResult {
-    /** 支付环境错误 */
-    NoEnv,
-    /** 商品不存在 */
-    NoProduct,
-    /** 支付成功 */
-    Success,
-    /** 延时到账 补单成功 */
-    DelaySuccess,
-    /** 支付失败 */
-    Fail,
-    /** 订单验证失败 可能延时到账 */
-    VerifyFail,
-    /** 获取商品详情 */
-    ProductDetail,
-}
-
-export enum EReawrdedAdResult {
-    /** 播放成功且获取奖励 */
-    Success,
-    /** 放成功但未获取奖励 */
-    Fail,
-    /** 开始播放广告 */
-    Show,
-    /** 广告关闭 */
-    Close,
-    /** 点击广告 */
-    Click,
-    /** 广告播放失败 */
-    Error,
 }
 
 /** SDK相关的所有回调 */
@@ -88,8 +48,6 @@ export class SDKCallback {
     public static onStartInAppPurchase: StringCallback;
     /** 内购结果回调 */
     public static inAppPurchase: (code: EIAPResult, arg: string) => void;
-    /** 请求用户来源完成回调 */
-    public static onUserSource: StringCallback;
 }
 
 /** 处理与SDK的交互 */
@@ -97,56 +55,29 @@ export class MSDKWrapper {
 
     @invokeOnLoad
     private static init() {
-        globalThis.onNativeCall = this.onNativeCall2.bind(this);
-        native.bridge.onNative = this.onNativeCall.bind(this);
+        globalThis.onNativeCall = this.onNativeCall.bind(this);
     }
 
-    /** 原生层发回来的消息 key使用NativeKey中的值 */
-    private static onNativeCall2(key: string, arg0: string, arg1: string, arg2: string, arg3: string) {
-        // let kk = ECallNativeKey[key];
-        // arg = arg || "";
-        // switch (kk) {
-        //     case ECallNativeKey.Login:
-        //         this.onLogin(arg);
-        //         break;
-        //     case ECallNativeKey.RequestIAP:
-        //         this.onInAppPurchase(arg);
-        //         break;
-        //     case ECallNativeKey.ShowRewardedAd:
-        //         this.onShowRewardedAd(arg);
-        //         break;
-        //     case ECallNativeKey.ReqUserSource:
-        //         SDKCallback.onUserSource(arg);
-        //         break;
-        // }
-    }
-
-    /** 原生层发回来的消息 key使用NativeKey中的值 */
-    private static onNativeCall(key: string, arg: string) {
-        let kk = ECallNativeKey[key];
-        arg = arg || "";
-        switch (kk) {
-            case ECallNativeKey.Login:
-                this.onLogin(arg);
+    /** 原生层发回来的消息 key使用ENativeBridgeKey中的值 */
+    private static onNativeCall(key: ENativeBridgeKey, arg0?: string, arg1?: string, arg2?: string, arg3?: string) {
+        switch (key) {
+            case ENativeBridgeKey.Login:
+                this.onLogin(arg0, arg1);
                 break;
-            case ECallNativeKey.RequestIAP:
-                this.onInAppPurchase(arg);
+            case ENativeBridgeKey.RequestIAP:
+                this.onInAppPurchase(arg0, arg1);
                 break;
-            case ECallNativeKey.ShowRewardedVideo:
-                this.onShowRewardedAd(arg);
-                break;
-            case ECallNativeKey.ReqUserSource:
-                SDKCallback.onUserSource(arg);
+            case ENativeBridgeKey.ShowRewardedVideo:
+                this.onShowRewardedAd(arg0);
                 break;
         }
     }
 
-    /** 发送消息给原生层 key使用NativeKey中的值*/
-    public static sendToNative2(key: ECallNativeKey, arg0 = "", arg1 = "", arg2 = "", arg3 = "") {
-        this.init();
+    /** 发送消息给原生层 key使用ENativeBridgeKey中的值*/
+    public static sendToNative(key: ENativeBridgeKey, arg0 = "", arg1 = "", arg2 = "", arg3 = "") {
         if (JSB) {
             if (sys.platform == sys.Platform.ANDROID) {
-                native.reflection.callStaticMethod("MSDKWrapper", "onJsCall", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
+                native.reflection.callStaticMethod("com/cocos/game/MSDKWrapper", "onJsCall", "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", key, arg0, arg1, arg2, arg3);
             } else if (sys.platform == sys.Platform.IOS) {
                 native.reflection.callStaticMethod("MSDKWrapper", "onJsCall", key as any, arg0, arg1, arg2, arg3);
             } else {
@@ -155,39 +86,29 @@ export class MSDKWrapper {
         }
     }
 
-    /** 发送消息给原生层 key使用NativeKey中的值*/
-    public static sendToNative(key: ECallNativeKey, arg?: string) {
-        this.init();
-        if (JSB) {
-            native.bridge.sendToNative(ECallNativeKey[key], arg || "");
-        }
-    }
-
 
     /** 登录回调处理 */
-    public static onLogin(arg: string) {
-        let arr = arg.split("|");
-        let code: ELoginResult = parseInt(arr[0]);
+    private static onLogin(strCode: string, arg: string) {
+        let code: ELoginResult = parseInt(strCode);
         switch (code) {
             case ELoginResult.Success:
-                SDKCallback.login?.success && SDKCallback.login.success(arr[1]);
+                SDKCallback.login?.success && SDKCallback.login.success(arg);
                 break;
             case ELoginResult.Fail:
-                SDKCallback.login?.fail && SDKCallback.login.fail(arr[1]);
+                SDKCallback.login?.fail && SDKCallback.login.fail(arg);
                 break;
         }
     }
 
     /** 内购回调 */
-    public static onInAppPurchase(arg: string) {
-        let arr = arg.split("|");
-        let code: EIAPResult = parseInt(arr[0]);
-        SDKCallback.inAppPurchase(code, arr[1]);
+    private static onInAppPurchase(strCode: string, arg: string) {
+        let code: EIAPResult = parseInt(strCode);
+        SDKCallback.inAppPurchase(code, arg);
     }
 
     /** 看视频广告回调 */
-    public static onShowRewardedAd(arg: string) {
-        let code = parseInt(arg);
+    private static onShowRewardedAd(strCode: string) {
+        let code = parseInt(strCode);
         let key = SDKCallback.rewardedAd?.extParam;
         switch (code) {
             case EReawrdedAdResult.Success:
@@ -282,7 +203,46 @@ export interface RequestIAPArgs {
     extParam?: string;
 }
 
+export enum ELoginResult {
+    /** 登录成功 */
+    Success,
+    /** 登录失败 */
+    Fail
+}
+
+export enum EIAPResult {
+    /** 支付环境错误 */
+    NoEnv,
+    /** 商品不存在 */
+    NoProduct,
+    /** 支付成功 */
+    Success,
+    /** 延时到账 补单成功 */
+    DelaySuccess,
+    /** 支付失败 */
+    Fail,
+    /** 订单验证失败 可能延时到账 */
+    VerifyFail,
+    /** 获取商品详情 */
+    ProductDetail,
+}
+
+export enum EReawrdedAdResult {
+    /** 播放成功且获取奖励 */
+    Success,
+    /** 放成功但未获取奖励 */
+    Fail,
+    /** 开始播放广告 */
+    Show,
+    /** 广告关闭 */
+    Close,
+    /** 点击广告 */
+    Click,
+    /** 广告播放失败 */
+    Error,
+}
+
 declare global {
     /** 原生平台向JS层发送消息的回调方法 */
-    var onNativeCall: (key: string, arg0: string, arg1: string, arg2: string, arg3: string) => void;
+    var onNativeCall: (key: ENativeBridgeKey, arg0?: string, arg1?: string, arg2?: string, arg3?: string) => void;
 }

@@ -1,15 +1,14 @@
 import { sys } from "cc";
+import { invokeOnLoad } from "../module/core/Decorator";
 
 /**
  *  用于原生平台操作本地存储的类
  *  方便将原生平台的一些值传递给JS层使用
  */
 export class MLocalStorage {
-    private static isInit = false;
 
-    public static init() {
-        if (this.isInit) return;
-        this.isInit = true;
+    @invokeOnLoad
+    private static init() {
         globalThis.onNativeLocalStorage = this.onNativeLocalStorage.bind(this);
     }
 
@@ -24,13 +23,7 @@ export class MLocalStorage {
                 break;
         }
     }
-
-
-
-
 }
-
-MLocalStorage.init();
 
 declare global {
     /** 原生平台操作本地存储方法 */

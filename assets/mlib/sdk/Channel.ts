@@ -2,7 +2,7 @@ import { _decorator, sys } from 'cc';
 import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
-import { EIAPResult, ELoginResult, EReawrdedAdResult, GameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
+import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GameDataArgs, LoginArgs, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
 const { ccclass } = _decorator;
 
 @ccclass("Channel")
@@ -41,7 +41,7 @@ export class Channel {
             sys.localStorage.setItem("userId", userId);
         }
         SDKCallback.login = args;
-        MSDKWrapper.onLogin(ELoginResult.Success + "|" + userId)
+        onNativeCall(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId)
     }
 
     /** 获取玩家存档 */
@@ -70,17 +70,12 @@ export class Channel {
         });
     }
 
-    /** 设置默认激励视频回调 */
-    public setRewardVideoDefaultCallback(args: ShowRewardedAdArgs) {
-        SDKCallback.rewardedAdDefault = args;
-    }
-
     /** 展示激励视频广告 */
     public showRewardedAd(args: ShowRewardedAdArgs) {
         SDKCallback.rewardedAd = args;
         SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(args.extParam);
-        MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Show.toString());//测试直接成功
-        MSDKWrapper.onShowRewardedAd(EReawrdedAdResult.Success.toString());//测试直接成功
+        onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Show.toString());//测试直接成功
+        onNativeCall(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Success.toString());//测试直接成功
     }
 
     /** 展示插屏广告 */
@@ -100,14 +95,14 @@ export class Channel {
 
     /** 获取所有商品的详情信息 商品id之间用|隔开 */
     public reqProductDetails(productIds: string) {
-        MSDKWrapper.onInAppPurchase(EIAPResult.ProductDetail + "|default");//测试直接成功
+        onNativeCall(ENativeBridgeKey.ReqProductDetails, EIAPResult.ProductDetail.toString(), "default")//测试直接成功
     }
 
     /** 发起内购 */
     public requestIAP(args: RequestIAPArgs) {
         SDKCallback.onStartInAppPurchase && SDKCallback.onStartInAppPurchase(args.productId);
         setTimeout(() => {
-            MSDKWrapper.onInAppPurchase(EIAPResult.Success + "|" + args.productId);//测试直接成功
+            onNativeCall(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId)//测试直接成功
         }, 1000);
     }
 
@@ -137,12 +132,6 @@ export class Channel {
     public reportSumEvent(eventName: string, num: number, args?: { [key: string]: any }) {
         let paramStr = args ? Object.values(args).join("|") : "";
         MCloudDataSDK.reportEvent(eventName, num, paramStr);
-    }
-
-    /** 请求用户来源 source为空表示获取失败 */
-    public reqUserSource(complete: (source: string) => void) {
-        SDKCallback.onUserSource = complete;
-        SDKCallback.onUserSource("Editor");
     }
 
     /** 使设备发生震动 */
