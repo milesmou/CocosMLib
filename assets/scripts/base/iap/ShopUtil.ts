@@ -36,7 +36,7 @@ export class ShopUtil {
         //     if (v.IAPID) ids.push(v.IAPID);
         // });
         app.chan.reqProductDetails(ids.join("|"));
-        app.scheduleOnce(this.reqProductDetail.bind(this), 5);
+        app.timer.scheduleOnce(this.reqProductDetail.bind(this), 5);
     }
 
     private static onStartInAppPurchase(productId: string) {
