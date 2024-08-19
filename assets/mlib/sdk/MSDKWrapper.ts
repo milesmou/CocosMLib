@@ -78,7 +78,7 @@ export class MSDKWrapper {
         if (JSB) {
             if (sys.platform == sys.Platform.ANDROID) {
                 native.reflection.callStaticMethod(
-                    "com/cocos/game/MSDKWrapper",
+                    "com/cocos/game/msdk/MSDKWrapper",
                     "onJsCall",
                     "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
                     ENativeBridgeKey[key], arg0, arg1, arg2, arg3
