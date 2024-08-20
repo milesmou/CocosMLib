@@ -18,7 +18,6 @@ export class Channel {
     /** 初始化SDK */
     public initSDK() {
         this.initEvent();
-        this.reportEvent({ defaultName: "initSDK", enable: true });
     }
 
     /** 初始化SDK相关的事件 */
@@ -114,7 +113,8 @@ export class Channel {
      * @param tag 针对不同平台特殊处理标记
     */
     public reportEvent(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
-        if (!event.enable || !event.defaultName) return;
+        let enable = event.enable === undefined ? true : event.enable;
+        if (!enable || !event.defaultName) return;
         if (args && args["_tag"]) return;//忽略需要特殊处理的事件
         let paramStr = args ? Object.values(args).join("|") : "";
         MCloudDataSDK.reportEvent(event.defaultName, 0, paramStr);
@@ -122,13 +122,11 @@ export class Channel {
 
     /** 上报事件 每天一次(本地存档卸载失效)*/
     public reportEventDaily(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
-        if (!event.enable || !event.defaultName) return;
         if (Channel.isValidDailyEvent(event.defaultName)) this.reportEvent(event, args, tag);
     }
 
     /** 上报事件 终生一次(本地存档卸载失效)*/
     public reportEventLifetime(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
-        if (!event.enable || !event.defaultName) return;
         if (Channel.isValidLifetimeEvent(event.defaultName)) this.reportEvent(event, args, tag);
     }
 

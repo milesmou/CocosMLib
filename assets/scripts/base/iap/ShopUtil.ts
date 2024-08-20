@@ -41,7 +41,7 @@ export class ShopUtil {
 
     private static onStartInAppPurchase(productId: string) {
         // UIWait.Inst.show();
-        app.chan.reportEvent("iap_start", { k: productId });
+        app.chan.reportEvent({ defaultName: "iap_start" }, { k: productId });
     }
 
     private static onPurchaseUpdate(code: EIAPResult, arg: string) {
@@ -51,11 +51,11 @@ export class ShopUtil {
         switch (code) {
             case EIAPResult.NoEnv:
                 // app.ui.showToast("IAP0001", true);
-                app.chan.reportEvent("iap_fail", { k: arg });
+                app.chan.reportEvent({ defaultName: "iap_fail" }, { k: arg });
                 break;
             case EIAPResult.NoProduct:
                 // app.ui.showToast("IAP0002", true);
-                app.chan.reportEvent("iap_fail", { k: arg });
+                app.chan.reportEvent({ defaultName: "iap_fail" }, { k: arg });
                 break;
             case EIAPResult.Success:
                 this.purchaseSuccess(arg, true);
@@ -65,7 +65,7 @@ export class ShopUtil {
                 break;
             case EIAPResult.Fail:
                 // app.ui.showToast("IAP0004", true);//支付失败
-                app.chan.reportEvent("iap_fail", { k: arg });
+                app.chan.reportEvent({ defaultName: "iap_fail" }, { k: arg });
                 break;
             case EIAPResult.VerifyFail:
                 // app.ui.showToast("IAP0003", true);//验证失败，支付结果可能会有延迟

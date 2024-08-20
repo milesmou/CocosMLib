@@ -3,6 +3,6 @@ export interface IReportEvent {
     defaultName: string;
     /** 不同打点系统的事件名字 */
     eventName?: { [key: string]: string };
-    /** 事件上报是否启用 */
-    enable: boolean;
+    /** 事件上报是否启用 默认为true */
+    enable?: boolean;
 }

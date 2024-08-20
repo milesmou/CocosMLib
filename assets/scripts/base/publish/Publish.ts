@@ -1,5 +1,6 @@
 import { sys } from "cc";
 import { Channel } from "../../../mlib/sdk/Channel";
+import { ReportEvent } from "../reportevent/ReportEvent";
 
 
 
@@ -12,6 +13,7 @@ export class Publish {
         }
         chan = chan || new Channel();
         chan.initSDK();
+        app.chan.reportEvent(ReportEvent.InitSDK)
         return chan;
     }
 }
