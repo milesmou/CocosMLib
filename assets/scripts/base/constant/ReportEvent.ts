@@ -1,5 +1,4 @@
 import { IReportEvent } from "../../../mlib/sdk/IReportEvent";
-
 /**
  * @param defaultName 默认事件名字
  * @param eventName 不同打点系统的事件名字
