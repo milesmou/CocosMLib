@@ -2,6 +2,7 @@ import { _decorator, sys } from 'cc';
 import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
+import { IReportEvent } from './IReportEvent';
 import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
 const { ccclass } = _decorator;
 
@@ -17,7 +18,7 @@ export class Channel {
     /** 初始化SDK */
     public initSDK() {
         this.initEvent();
-        this.reportEvent("initSDK")
+        this.reportEvent({ defaultName: "initSDK", enable: true });
     }
 
     /** 初始化SDK相关的事件 */
@@ -107,25 +108,32 @@ export class Channel {
 
     }
 
-    /** 上报事件 (若需针对不同打点平台特殊处理,可在参数中添加_tag字段)*/
-    public reportEvent(eventName: string, args?: { [key: string]: any }) {
+    /** 
+     * 上报事件 
+     * @param args 事件参数
+     * @param tag 针对不同平台特殊处理标记
+    */
+    public reportEvent(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
+        if (!event.enable || !event.defaultName) return;
         if (args && args["_tag"]) return;//忽略需要特殊处理的事件
         let paramStr = args ? Object.values(args).join("|") : "";
-        MCloudDataSDK.reportEvent(eventName, 0, paramStr);
+        MCloudDataSDK.reportEvent(event.defaultName, 0, paramStr);
     }
 
     /** 上报事件 每天一次(本地存档卸载失效)*/
-    public reportEventDaily(eventName: string, args?: { [key: string]: any }) {
-        if (Channel.isValidDailyEvent(eventName)) this.reportEvent(eventName, args);
+    public reportEventDaily(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
+        if (!event.enable || !event.defaultName) return;
+        if (Channel.isValidDailyEvent(event.defaultName)) this.reportEvent(event, args, tag);
     }
 
     /** 上报事件 终生一次(本地存档卸载失效)*/
-    public reportEventLifetime(eventName: string, args?: { [key: string]: any }) {
-        if (Channel.isValidLifetimeEvent(eventName)) this.reportEvent(eventName, args);
+    public reportEventLifetime(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
+        if (!event.enable || !event.defaultName) return;
+        if (Channel.isValidLifetimeEvent(event.defaultName)) this.reportEvent(event, args, tag);
     }
 
     /** 上报数值累加事件 */
-    public reportSumEvent(eventName: string, num: number, args?: { [key: string]: any }) {
+    public reportSumEvent(eventName: string, num: number, args?: { [key: string]: any }, tag?: string) {
         let paramStr = args ? Object.values(args).join("|") : "";
         MCloudDataSDK.reportEvent(eventName, num, paramStr);
     }
@@ -138,11 +146,6 @@ export class Channel {
     /** 额外的方法 用于一些特殊的处理 */
     public extraMethod(arg0?: string, arg1?: string, arg2?: string, arg3?: string): void {
 
-    }
-
-    public static getEventParamJsonStr(args?: { [key: string]: any }) {
-        if (!args) return "";
-        return JSON.stringify(args);
     }
 
     public static isValidDailyEvent(key: string) {
