@@ -20,7 +20,7 @@ const ReportEvent = {
     /** 内购失败 */
     IapFail: EventObject("IapFail"),
     ///其它打点事件
-};
+} as const;
 
 ///@ts-ignore
 globalThis.mReportEvent = ReportEvent;

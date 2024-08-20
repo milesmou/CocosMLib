@@ -4,7 +4,7 @@ const Contanst = {
     bundles: ["dynamic", "localization"],
     /** 按钮默认音效地址 */
     buttonAuidoLocation: "audio/Click_1",
-}
+} as const;
 
 ///@ts-ignore
 globalThis.mContanst = Contanst;
