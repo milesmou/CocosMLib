@@ -11,10 +11,6 @@ export class Channel {
     /** 用户id */
     public userId: string;
 
-
-    /** 环境 开发版 体验版 正式版*/
-    public env: 'develop' | 'trial' | 'release';
-
     /** 设备震动开关 */
     public vibrateEnable = new StroageValue("VibrateEnable", true);
 
@@ -41,7 +37,7 @@ export class Channel {
             sys.localStorage.setItem("userId", userId);
         }
         SDKCallback.login = args;
-        MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId)
+        MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId);
     }
 
     /** 获取玩家存档 */
@@ -135,12 +131,12 @@ export class Channel {
     }
 
     /** 使设备发生震动 */
-    public vibrate(duration: "short" | "medium" | "long" = "short") {
+    public vibrate(duration?: "short" | "medium" | "long") {
 
     }
 
     /** 额外的方法 用于一些特殊的处理 */
-    public extraMethod(key: string, ...args: any[]): void {
+    public extraMethod(arg0?: string, arg1?: string, arg2?: string, arg3?: string): void {
 
     }
 

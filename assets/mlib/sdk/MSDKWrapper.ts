@@ -13,7 +13,7 @@ export enum ENativeBridgeKey {
     ShowRewardedVideo,
     /** 分享 */
     Share,
-    /** 商品详情 */
+    /** 请求商品信息 */
     ReqProductDetails,
     /** 发起内购 */
     RequestIAP,
@@ -55,19 +55,16 @@ const ParamSeparator = "[-_-]";
 /** 处理与SDK的交互 */
 export class MSDKWrapper {
 
-    private static isInit = false;
-
-    private static init() {
-        if (this.isInit) return;
-        this.isInit = true;
+    private static init = (() => {
+        if (!JSB) return;
         native.bridge.onNative = (key: string, args?: string) => {
             let [arg0, arg1, arg2, arg3] = args.split(ParamSeparator);
             this.onNativeCall(key, arg0, arg1, arg2, arg3);
         }
-    }
+    })();
 
     /** 非原生环境触发回调 */
-    public static call(key: number, arg0?: string, arg1?: string, arg2?: string, arg3?: string) {
+    public static call(key: ENativeBridgeKey, arg0?: string, arg1?: string, arg2?: string, arg3?: string) {
         this.onNativeCall(ENativeBridgeKey[key], arg0, arg1, arg2, arg3);
     }
 
@@ -89,11 +86,9 @@ export class MSDKWrapper {
 
     /** 发送消息给原生层 key使用ENativeBridgeKey中的值*/
     public static sendToNative(key: ENativeBridgeKey, arg0 = "", arg1 = "", arg2 = "", arg3 = "") {
-        if (JSB) {
-            this.init();
-            let args = [arg0, arg1, arg2, arg3].join(ParamSeparator);
-            native.bridge.sendToNative(ENativeBridgeKey[key], args);
-        }
+        if (!JSB) return;
+        let args = [arg0, arg1, arg2, arg3].join(ParamSeparator);
+        native.bridge.sendToNative(ENativeBridgeKey[key], args);
     }
 
 
