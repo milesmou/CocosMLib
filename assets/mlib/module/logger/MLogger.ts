@@ -12,13 +12,13 @@ const warnStyle = `color: #FFFF00; font-weight: bold;`;
 const errorStyle = `color: #C52B2B; font-weight: bold;`;
 const printStyle = `color: #AE63FF; font-weight: bold;`;
 
-class MLogger {
+class Logger {
 
     /** 日子打印级别枚举 */
     public static readonly ELogLevel = ELoggerLevel;
 
     public static new(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
-        return new MLogger(tag, level);
+        return new Logger(tag, level);
     }
 
     public static setLevel(level: ELoggerLevel) {
@@ -64,12 +64,12 @@ class MLogger {
     public print: (...data) => void;
 }
 
-MLogger.setLevel(ELoggerLevel.Info);
+Logger.setLevel(ELoggerLevel.Info);
 
 //@ts-ignore
-globalThis["logger"] = MLogger;
+globalThis.mLogger = Logger;
 
 declare global {
     /** 日志打印类 */
-    const logger: typeof MLogger;
+    const mLogger: typeof Logger;
 }

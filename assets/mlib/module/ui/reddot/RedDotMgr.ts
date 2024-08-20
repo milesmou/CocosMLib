@@ -23,7 +23,7 @@ class RedDotNode {
 
     public set value(val) {
         if (this.child.length > 0) {
-            logger.error("只能修改叶子节点的值", this.name);
+            mLogger.error("只能修改叶子节点的值", this.name);
             return;
         }
         this.nodeValue = val;
@@ -62,7 +62,7 @@ export class RedDotMgr {
                 this.addRedDot(nodeName, parentName);
             }
             else {
-                logger.error(`节点路径错误 ${strPath}`);
+                mLogger.error(`节点路径错误 ${strPath}`);
             }
         }
     }
@@ -77,11 +77,11 @@ export class RedDotMgr {
                 this.nodes[name] = node;
             }
             else {
-                logger.error(`节点已存在 ${name}`);
+                mLogger.error(`节点已存在 ${name}`);
             }
         }
         else {
-            logger.error(`父节点不存在 ${name}`);
+            mLogger.error(`父节点不存在 ${name}`);
         }
     }
 
@@ -92,7 +92,7 @@ export class RedDotMgr {
             node.onValueChange.addListener(onValueChange, thisObj);
         }
         else {
-            logger.error(`节点不存在 ${name}`);
+            mLogger.error(`节点不存在 ${name}`);
         }
     }
 
@@ -103,7 +103,7 @@ export class RedDotMgr {
             node.onValueChange.removeListener(onValueChange, thisObj);
         }
         else {
-            logger.error(`节点不存在 ${name}`);
+            mLogger.error(`节点不存在 ${name}`);
         }
     }
 
@@ -115,11 +115,11 @@ export class RedDotMgr {
                 node.value = value;
             }
             else {
-                logger.error(`只能修改叶子节点的值 ${name}`);
+                mLogger.error(`只能修改叶子节点的值 ${name}`);
             }
         }
         else {
-            logger.error(`节点不存在 ${name}`);
+            mLogger.error(`节点不存在 ${name}`);
         }
     }
 
@@ -130,7 +130,7 @@ export class RedDotMgr {
             return node.value;
         }
         else {
-            logger.error(`节点不存在 ${name}`);
+            mLogger.error(`节点不存在 ${name}`);
             return 0;
         }
     }
@@ -139,7 +139,7 @@ export class RedDotMgr {
     public static printAllRedDotValue() {
         for (const name in this.nodes) {
             let node = this.nodes[name];
-            logger.debug(`name=${name} value=${node.value} isLeaf=${node.child.length == 0}`)
+            mLogger.debug(`name=${name} value=${node.value} isLeaf=${node.child.length == 0}`)
         }
     }
 }

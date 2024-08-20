@@ -136,7 +136,7 @@ class GameSetting extends Component {
 
     protected onLoad(): void {
         //@ts-ignore
-        globalThis["gameSetting"] = this;
+        globalThis.mGameSetting = this;
         this._mainVersion = this.getMainVersion();
         this._gameCode = this._gameName + "_" + this.channel
         this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
@@ -158,12 +158,12 @@ class GameSetting extends Component {
     private setLogLevel() {
         if (this.m_LogLevel == LogLevel.Auto) {
             if (!PREVIEW) {
-                logger.setLevel(LogLevel.Warn);
+                mLogger.setLevel(LogLevel.Warn);
             } else {
-                logger.setLevel(LogLevel.Info);
+                mLogger.setLevel(LogLevel.Info);
             }
         } else {
-            logger.setLevel(this.m_LogLevel);
+            mLogger.setLevel(this.m_LogLevel);
         }
     }
 
@@ -217,5 +217,5 @@ class GameSetting extends Component {
 
 declare global {
     /** 游戏的配置 */
-    const gameSetting: GameSetting;
+    const mGameSetting: GameSetting;
 }

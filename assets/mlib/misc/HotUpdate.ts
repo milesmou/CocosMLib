@@ -25,7 +25,7 @@ export class HotUpdate {
     private constructor() { }
     private static inst: HotUpdate;
     public static get Inst() { return this.inst || (this.inst = new HotUpdate()) }
-    private _logger = logger.new("HotUpdate")
+    private _logger = mLogger.new("HotUpdate")
     private _manifest: Asset = null;//本地project.manifest文件
     private _assetsMgr: native.AssetsManager;//native资源管理器
     private _updating = false; //更新中
@@ -52,7 +52,7 @@ export class HotUpdate {
         this._onStateChange(EHotUpdateState.CheckUpdate);
 
         //整包更新 删除热更补丁缓存和搜索路径
-        if (gameSetting.version == gameSetting.mainVersion) {
+        if (mGameSetting.version == mGameSetting.mainVersion) {
             native.fileUtils.removeDirectory(this.storagePath);
             localStorage.removeItem(HotUpdateSearchPaths);
         }

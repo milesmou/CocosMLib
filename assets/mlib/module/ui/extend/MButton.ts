@@ -129,7 +129,7 @@ export class MButton extends Button {
         if (this.m_PolygonButton) {
             this._polygon = this.getComponent(PolygonCollider2D);
             if (!this._polygon) {
-                logger.error(`节点${this.node.name}上没有PolygonCollider2D组件`);
+                mLogger.error(`节点${this.node.name}上没有PolygonCollider2D组件`);
                 return;
             }
         }

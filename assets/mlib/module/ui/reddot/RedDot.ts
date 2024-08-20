@@ -23,7 +23,7 @@ export class RedDot extends Component {
     onLoad() {
         this.redDotName = this.redDotName.trim();
         if (!this.redDotName) {
-            logger.error("RedDotName不能为空");
+            mLogger.error("RedDotName不能为空");
             return;
         }
     }

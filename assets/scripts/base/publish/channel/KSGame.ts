@@ -1,6 +1,7 @@
 /** 快手小游戏平台相关方法的实现 */
 import { Camera, Game, _decorator, game } from "cc";
 import { Channel } from "../../../../mlib/sdk/Channel";
+import { IReportEvent } from "../../../../mlib/sdk/IReportEvent";
 import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from "../../../../mlib/sdk/MSDKWrapper";
 
 const { ccclass } = _decorator;
@@ -306,7 +307,7 @@ export class KSGame extends Channel {
             }
             this._onRewardedAdError = (err) => {
                 this._isLoadingRewardedAd = false;
-                logger.error(err);
+                mLogger.error(err);
             }
         }
 
@@ -337,7 +338,7 @@ export class KSGame extends Channel {
                     this.interstitial.show();
                 })
                 .catch(err => {
-                    logger.error(err);
+                    mLogger.error(err);
                 });
         }
     }
@@ -363,20 +364,17 @@ export class KSGame extends Channel {
     }
 
 
-    public reportEvent(eventName: string, args?: { [key: string]: any; }): void {
-        super.reportEvent(eventName, args);
-        if (args) {
-            eventName = eventName + "_" + Object.values(args).join("_");
-        }
-        // GameSdk.BI.evtCustomizeDataReport(eventName);
+    public reportEvent(event: IReportEvent, args?: { [key: string]: any; }, tag?: string): void {
+        super.reportEvent(event, args, tag);
     }
 
-    public vibrate(...args: any[]): void {
+    public vibrate(duration?: "short" | "medium" | "long"): void {
+        duration = duration || "short";
         if (!this.vibrateEnable) return;
-        if (args.length > 0 && args[0]) {
-            wx.vibrateLong();
-        } else {
+        if (duration == "short") {
             wx.vibrateShort({ type: "light" });
+        } else {
+            wx.vibrateLong();
         }
     }
 
@@ -388,7 +386,7 @@ export class KSGame extends Channel {
         let sdkVer = this.systemInfo!.SDKVersion;
         let pat = /\d+.\d+.\d+/;
         if (!pat.test(ver) || !pat.test(sdkVer)) {
-            logger.warn("SDKVersion取值异常");
+            mLogger.warn("SDKVersion取值异常");
             return false;
         }
         let arr1 = sdkVer.split(".");

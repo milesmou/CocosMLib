@@ -131,7 +131,7 @@ export abstract class GameSave {
                 let obj = JSON.parse(jsonStr);
                 if (obj) this.mergeValue(inst, obj);
             } catch (err) {
-                logger.error(err);
+                mLogger.error(err);
             }
         }
         return inst;

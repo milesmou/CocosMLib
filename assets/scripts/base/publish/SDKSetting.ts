@@ -28,7 +28,7 @@ class SDKSetting extends Component {
 
     protected onLoad(): void {
         //@ts-ignore
-        globalThis["sdkSetting"] = this;
+        globalThis.mSdkSetting = this;
     }
 
     public getPrintInfo() {
@@ -39,5 +39,5 @@ class SDKSetting extends Component {
 
 declare global {
     /** SDK的一些配置 */
-    const sdkSetting: SDKSetting;
+    const mSdkSetting: SDKSetting;
 }

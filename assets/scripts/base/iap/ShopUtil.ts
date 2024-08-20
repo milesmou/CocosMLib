@@ -41,7 +41,7 @@ export class ShopUtil {
 
     private static onStartInAppPurchase(productId: string) {
         // UIWait.Inst.show();
-        app.chan.reportEvent({ defaultName: "iap_start" }, { k: productId });
+        app.chan.reportEvent(mReportEvent.IapStart, { k: productId });
     }
 
     private static onPurchaseUpdate(code: EIAPResult, arg: string) {
@@ -51,11 +51,11 @@ export class ShopUtil {
         switch (code) {
             case EIAPResult.NoEnv:
                 // app.ui.showToast("IAP0001", true);
-                app.chan.reportEvent({ defaultName: "iap_fail" }, { k: arg });
+                app.chan.reportEvent(mReportEvent.IapFail, { k: arg });
                 break;
             case EIAPResult.NoProduct:
                 // app.ui.showToast("IAP0002", true);
-                app.chan.reportEvent({ defaultName: "iap_fail" }, { k: arg });
+                app.chan.reportEvent(mReportEvent.IapFail, { k: arg });
                 break;
             case EIAPResult.Success:
                 this.purchaseSuccess(arg, true);
@@ -65,7 +65,7 @@ export class ShopUtil {
                 break;
             case EIAPResult.Fail:
                 // app.ui.showToast("IAP0004", true);//支付失败
-                app.chan.reportEvent({ defaultName: "iap_fail" }, { k: arg });
+                app.chan.reportEvent(mReportEvent.IapFail, { k: arg });
                 break;
             case EIAPResult.VerifyFail:
                 // app.ui.showToast("IAP0003", true);//验证失败，支付结果可能会有延迟
@@ -80,7 +80,7 @@ export class ShopUtil {
 
     /** 从后台获取商品详情 default:使用数据表的商品详情*/
     private static onGetProductDetail(content: string) {
-        logger.debug("onGetProductDetail");
+        mLogger.debug("onGetProductDetail");
         try {
             if (content == "default") {
                 ProductDetail.productDetailMap = new Map();
@@ -116,13 +116,13 @@ export class ShopUtil {
             }
 
         } catch (error) {
-            logger.error(error);
+            mLogger.error(error);
         }
     }
 
     /** 支付成功 */
     private static purchaseSuccess(productId: string, showReward: boolean) {
-        logger.debug("purchaseSuccess");
+        mLogger.debug("purchaseSuccess");
         this.settleProduct(productId, showReward);
     }
 
@@ -136,7 +136,7 @@ export class ShopUtil {
 
 
     private static restoreSuccess(goodsIds: string[]) {
-        logger.debug("restoreSuccess");
+        mLogger.debug("restoreSuccess");
     }
 }
 

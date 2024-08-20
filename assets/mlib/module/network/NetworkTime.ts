@@ -9,7 +9,7 @@ export class NetworkTime extends Component {
 
     public static Inst: NetworkTime;
 
-    private _logger = logger.new("NetworkTime", logger.ELogLevel.Error);
+    private _logger = mLogger.new("NetworkTime", mLogger.ELogLevel.Error);
 
     //网络获取的时间戳(毫秒)
     private _networkTimeMS = 0;

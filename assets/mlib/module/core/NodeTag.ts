@@ -12,7 +12,7 @@ export default class NodeTag extends Component {
 
     protected onLoad(): void {
         if (!this.m_Tag) {
-            logger.error(`Tag不能为空`, this.node);
+            mLogger.error(`Tag不能为空`, this.node);
             return;
         }
         NodeTag.add(this.m_Tag, this.node);
@@ -26,7 +26,7 @@ export default class NodeTag extends Component {
 
     public static add(tag: string, node: Node) {
         if (NodeTag.map.has(tag)) {
-            logger.error(`${tag} Tag重复`, node);
+            mLogger.error(`${tag} Tag重复`, node);
             return;
         }
         NodeTag.map.set(tag, node);

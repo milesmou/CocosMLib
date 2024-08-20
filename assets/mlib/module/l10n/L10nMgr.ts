@@ -40,7 +40,7 @@ export class L10nMgr {
 
     /** 获取语言环境 */
     private static getLanguage(): ELanguageCode {
-        let languageId = gameSetting.languageId;
+        let languageId = mGameSetting.languageId;
         let v: ELanguageCode = ELanguageCode.ChineseSimplified;
         if (languageId == ELanguage.Auto) {
             let code = this.languageCode.value;
@@ -192,7 +192,7 @@ export class L10nMgr {
     public static getStringByKey(key: string, ...args: any[]): string {
         let data = GameTable.Table.TbLocalization.get(key);
         if (!data) {
-            logger.error(`key=${key} Lang=${this.lang}  在语言表中无对应内容`);
+            mLogger.error(`key=${key} Lang=${this.lang}  在语言表中无对应内容`);
             return "";
         }
         return Utils.formatString(data[this.lang], ...args);

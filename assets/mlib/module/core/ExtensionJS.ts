@@ -157,7 +157,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
 }
 
 declare global {
-    
+
     /** 通用进度回调方法的声明 */
     type Progress = (loaded: number, total: number) => void;
 

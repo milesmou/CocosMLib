@@ -42,7 +42,7 @@ export class Channel {
 
     /** 获取玩家存档 */
     public getGameData(args: GameDataArgs) {
-        logger.debug("getGameData", args.userId);
+        mLogger.debug("getGameData", args.userId);
         SDKCallback.getGameData = args;
         MCloudDataSDK.getGameData(args.userId).then(v => {
             if (v) {
@@ -55,7 +55,7 @@ export class Channel {
 
     /** 上传玩家存档 */
     public uploadGameData(args: GameDataArgs) {
-        logger.debug("uploadGameData", args.userId);
+        mLogger.debug("uploadGameData", args.userId);
         SDKCallback.uploadGameData = args;
         MCloudDataSDK.saveGameData(args.userId, args.userGameData).then(v => {
             if (v) {

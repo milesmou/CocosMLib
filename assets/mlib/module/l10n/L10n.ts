@@ -109,7 +109,7 @@ export class L10n extends UIComponent implements IL10n {
                 }
             }
         } else {
-            logger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${this.node.getPath()}`);
+            mLogger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${this.node.getPath()}`);
         }
     }
 

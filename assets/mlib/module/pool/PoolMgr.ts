@@ -23,7 +23,7 @@ export class PoolMgr {
             let pool = new ObjectPool(args);
             this.poolMap.set(poolName, pool);
         } else {
-            logger.warn("请勿重复创建对象池!");
+            mLogger.warn("请勿重复创建对象池!");
         }
     }
     /**
@@ -35,7 +35,7 @@ export class PoolMgr {
             let pool = this.poolMap.get(poolName);
             return pool.get() as T;
         } else {
-            logger.error("对象池不存在!");
+            mLogger.error("对象池不存在!");
         }
     }
     /**
@@ -54,7 +54,7 @@ export class PoolMgr {
                 pool.put(obj);
             }
         } else {
-            logger.error("对象池不存在!");
+            mLogger.error("对象池不存在!");
         }
     }
 }

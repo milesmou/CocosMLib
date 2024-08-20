@@ -123,7 +123,7 @@ export class UIBase extends UIForm {
                             tween(uiOpacity).to(clip.duration, { opacity: 255 }).start();
                         }
                     } else {
-                        logger.warn(this.node.name, "无UI打开动画文件");
+                        mLogger.warn(this.node.name, "无UI打开动画文件");
                         callback();
                     }
                 } else {
@@ -156,7 +156,7 @@ export class UIBase extends UIForm {
                             tween(uiOpacity).to(clip.duration, { opacity: 0 }).start();
                         }
                     } else {
-                        logger.warn(this.node.name, "无UI关闭动画文件");
+                        mLogger.warn(this.node.name, "无UI关闭动画文件");
                         callback();
                     }
                 } else {

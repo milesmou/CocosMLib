@@ -38,7 +38,7 @@ export class StateMachine {
         if (this._curNode)
             this._curNode.onEnter();
         else
-        logger.error(`Not found entry node : ${nodeName}`);
+        mLogger.error(`Not found entry node : ${nodeName}`);
     }
 
 
@@ -54,7 +54,7 @@ export class StateMachine {
             this._nodes.set(node.name, node);
         }
         else {
-            logger.warn(`Node ${node.name} already existed`);
+            mLogger.warn(`Node ${node.name} already existed`);
         }
     }
 
@@ -62,7 +62,7 @@ export class StateMachine {
     public changeState(nodeName: string) {
         let node = this._nodes.get(nodeName);
         if (!node) {
-            logger.error(`Can not found node ${nodeName}`);
+            mLogger.error(`Can not found node ${nodeName}`);
             return;
         }
         this._preNode = this._curNode;

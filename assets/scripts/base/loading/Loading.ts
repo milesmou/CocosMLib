@@ -33,11 +33,9 @@ export class Loading extends UIComponent {
 
     async start() {
         await GameInit.initBeforeLoadConfig();
-        app.chan.reportEvent("开始加载配置");
-        app.chan.reportEventDaily("每日开始加载配置");
         this.loadCfg();
         //版本号
-        this._lblVersion.string = gameSetting.channel + "_" + gameSetting.version;
+        this._lblVersion.string = mGameSetting.channel + "_" + mGameSetting.version;
     }
 
     protected onDestroy(): void {
@@ -48,22 +46,18 @@ export class Loading extends UIComponent {
     private async loadCfg() {
         this.setTips(LoadingText.Config);
         this.startFakeProgress(2);
-        if (gameSetting.gameConfigType == gameSetting.ConfigType.Local) {//使用本地配置
+        if (mGameSetting.gameConfigType == mGameSetting.ConfigType.Local) {//使用本地配置
             let textAsset = await AssetMgr.loadAsset("GameConfig", TextAsset);
             GameConfig.deserialize(textAsset.text);
             AssetMgr.decRef("GameConfig");
             this.checkVersion();
         } else {
-            let strRes = await HttpRequest.requestText(gameSetting.gameConfigUrl + "?" + Date.now(), { method: "GET" });
+            let strRes = await HttpRequest.requestText(mGameSetting.gameConfigUrl + "?" + Date.now(), { method: "GET" });
             if (strRes) {
-                app.chan.reportEvent("加载配置成功");
-                app.chan.reportEventDaily("每日加载配置成功");
                 GameConfig.deserialize(strRes);
                 this.checkVersion();
             } else {
-                app.chan.reportEvent("加载配置失败");
-                app.chan.reportEventDaily("每日加载配置失败");
-                logger.error(`加载配置失败 Url=${gameSetting.gameConfigUrl}`);
+                mLogger.error(`加载配置失败 Url=${mGameSetting.gameConfigUrl}`);
                 app.tipMsg.showConfirm(this.getText(LoadingText.ConfigFail), {
                     type: 1, cbOk: () => {
                         this.loadCfg();
@@ -76,17 +70,17 @@ export class Loading extends UIComponent {
     /** 版本更新检测 */
     private async checkVersion() {
         if (!PREVIEW) {
-            if (gameSetting.hotupdate && GameConfig.rg && sys.isNative) {
-                if (gameSetting.manifest) {
+            if (mGameSetting.hotupdate && GameConfig.rg && sys.isNative) {
+                if (mGameSetting.manifest) {
                     HotUpdate.Inst.start(
-                        gameSetting.manifest,
+                        mGameSetting.manifest,
                         this.onUpdateStateChange.bind(this),
                         this.onUpdateDownloadProgress.bind(this),
                         this.onUpdateComplete.bind(this)
                     );
                     return;
                 } else {
-                    logger.error("加载清单文件失败");
+                    mLogger.error("加载清单文件失败");
                 }
             }
         }
@@ -95,16 +89,16 @@ export class Loading extends UIComponent {
 
     /** 登录 */
     private login() {
-        logger.info("开始登录");
+        mLogger.info("开始登录");
 
         app.chan.login({
             success: uid => {
-                logger.debug("登录成功", uid);
+                mLogger.debug("登录成功", uid);
                 app.chan.userId = uid;
                 this.syncGameData();
             },
             fail: reason => {
-                logger.error("登录失败", reason);
+                mLogger.error("登录失败", reason);
             },
         })
     }
@@ -116,22 +110,22 @@ export class Loading extends UIComponent {
         app.chan.getGameData({
             userId: app.chan.userId,
             success: (obj: MResponse) => {
-                logger.debug("获取数据成功", obj);
+                mLogger.debug("获取数据成功", obj);
                 if (obj.code == 100 && obj.data) {
                     let cData = obj.data as ResponseGameData;
                     if (cData.updateTime * 1000 > GameData.Inst.time) {
-                        logger.debug("使用云存档");
+                        mLogger.debug("使用云存档");
                         GameData.Inst.replaceGameData(cData.data);
                     } else {
-                        logger.debug("使用本地存档");
+                        mLogger.debug("使用本地存档");
                     }
                 } else {
-                    logger.debug("无云存档数据");
+                    mLogger.debug("无云存档数据");
                 }
                 this.loadRes();
             },
             fail: () => {
-                logger.error("获取数据失败");
+                mLogger.error("获取数据失败");
                 this.loadRes();
             },
         })
@@ -158,9 +152,6 @@ export class Loading extends UIComponent {
         //加载场景
         this.setTips(LoadingText.LoadScene);
         unionProgress.init(this.onProgress.bind(this), 2);
-
-        app.chan.reportEvent("解析配置完成");
-        app.chan.reportEventDaily("每日解析配置完成");
 
         await GameGuide.Inst.checkShowGuide();
 
@@ -251,7 +242,7 @@ export class Loading extends UIComponent {
      * 热更新结果
      */
     private onUpdateComplete(code: EHotUpdateResult) {
-        logger.print("HotUpdate ResultCode = ", EHotUpdateResult[code]);
+        mLogger.print("HotUpdate ResultCode = ", EHotUpdateResult[code]);
         if (code == EHotUpdateResult.Success) {
             game.restart();
         } else if (code == EHotUpdateResult.Fail) {

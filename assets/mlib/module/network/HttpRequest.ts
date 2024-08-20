@@ -27,15 +27,15 @@ export class HttpRequest {
 
             xhr.timeout = timeout;
             xhr.ontimeout = () => {
-                logger.error(url, "timeout");
+                mLogger.error(url, "timeout");
                 resolve(null);
             };
             xhr.onabort = () => {
-                logger.error(url, "user abort");
+                mLogger.error(url, "user abort");
                 resolve(null);
             };
             xhr.onerror = () => {
-                logger.error(url, "network error");
+                mLogger.error(url, "network error");
                 resolve(null);
             };
             xhr.onreadystatechange = () => {
@@ -80,7 +80,7 @@ export class HttpRequest {
         try {
             return JSON.parse(text) as object;
         } catch (error) {
-            logger.error(error);
+            mLogger.error(error);
         }
         return null;
     }

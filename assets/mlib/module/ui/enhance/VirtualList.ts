@@ -70,7 +70,7 @@ export class VirtualList extends Component {
     public get numItems() { return this._numItems; }
     public set numItems(value: number) {
         if (!this._itemRenderer) {
-            logger.error("必须先设置itemRenderer");
+            mLogger.error("必须先设置itemRenderer");
             return;
         }
         this._numItems = value;
@@ -100,7 +100,7 @@ export class VirtualList extends Component {
 
         this.m_childNode = this.m_childNode || this._scrollview.content.children[0];
         if (this.m_childNode.children.length > 1) {
-            logger.error("节点下只能有一个Item节点");
+            mLogger.error("节点下只能有一个Item节点");
             return;
         }
         this._itemNode = this.m_childNode.children[0];

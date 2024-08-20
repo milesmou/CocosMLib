@@ -359,10 +359,10 @@ export class ParseItemTool {
             for (let i = start; i < 3; i++) {
                 let v = parseFloat(arr[i + di]);
                 if (!isNaN(v)) result[i] = v;
-                else logger.error("请检查物品配置:", str);
+                else mLogger.error("请检查物品配置:", str);
             }
         } else {
-            logger.error("请检查物品配置:", str);
+            mLogger.error("请检查物品配置:", str);
         }
         return result;
     }

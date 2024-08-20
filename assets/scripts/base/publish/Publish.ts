@@ -1,7 +1,5 @@
 import { sys } from "cc";
 import { Channel } from "../../../mlib/sdk/Channel";
-import { ReportEvent } from "../reportevent/ReportEvent";
-
 
 
 /** 项目发布相关的配置和处理 */
@@ -13,7 +11,7 @@ export class Publish {
         }
         chan = chan || new Channel();
         chan.initSDK();
-        app.chan.reportEvent(ReportEvent.InitSDK)
+        app.chan.reportEvent(mReportEvent.InitSDK)
         return chan;
     }
 }

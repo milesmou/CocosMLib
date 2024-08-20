@@ -19,7 +19,7 @@ export class UIGuide extends UIComponent {
 
     public static Inst: UIGuide;
 
-    private _logger = logger.new("Guide", ELoggerLevel.Warn);
+    private _logger = mLogger.new("Guide", ELoggerLevel.Warn);
 
     private _mask: GuideMask = null;
     private _ring: Node = null;
@@ -95,7 +95,7 @@ export class UIGuide extends UIComponent {
         this._logger.debug("---------结束引导步骤", this._guideId, this.stepId);
         this._logger.debug();
         let data = this._guideData[this._dataIndex];
-        app.chan.reportEvent("guide_step", { k: data.ID });
+        app.chan.reportEvent(mReportEvent.GuideStep, { k: data.ID });
         if (this._dataIndex == this._guideData.length - 1) {
             this._logger.debug("结束引导" + this._guideId);
             this.guideOver();

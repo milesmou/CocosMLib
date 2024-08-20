@@ -2,6 +2,8 @@
 import { _decorator } from 'cc';
 import { UIBase } from '../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../gen/UIConstant';
+import { resources } from 'cc';
+import { SpriteFrame } from 'cc';
 
 const { ccclass, property } = _decorator;
 
@@ -18,8 +20,10 @@ export class UIHUD extends UIBase {
         console.log(arr.first);
         console.log(arr.last);
 
-
-
+        let info = resources.getInfoWithPath("DefaultSprite/spriteFrame", SpriteFrame);
+        let info2 = resources.getDirWithPath("uiPrefab/22", SpriteFrame);
+        console.log(info);
+        console.log(info2);
 
         // let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
         // let buffer: Uint8Array = pbroot.PlayerInfo.encode(jsonObj).finish();

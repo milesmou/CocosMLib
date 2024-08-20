@@ -324,7 +324,7 @@ export class UIMgr extends Component {
         if (method && typeof method === "function") {
             method.apply(ui, args);
         } else {
-            logger.error(`${UIConstant[uiName]}上未找到指定方法 ${methodName}`);
+            mLogger.error(`${UIConstant[uiName]}上未找到指定方法 ${methodName}`);
         }
     }
 
@@ -335,7 +335,7 @@ export class UIMgr extends Component {
         if (this._openUITime.has(uiName)) {
             let lastTime = this._openUITime[uiName];
             if (now - lastTime < 100) {
-                logger.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
+                mLogger.warn(`短时间内连续打开UI[${uiName}] 请检查是否有逻辑问题`);
                 this._openUITime.delete(uiName);
             }
             this._openUITime[uiName] = now;

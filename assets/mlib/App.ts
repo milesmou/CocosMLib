@@ -59,7 +59,7 @@ class App extends Component implements IApp {
 
     protected onLoad() {
         //@ts-ignore
-        globalThis["app"] = this;
+        globalThis.app = this;
         director.addPersistRootNode(this.node);
         this.setCanvasResolution();
 
@@ -70,8 +70,8 @@ class App extends Component implements IApp {
 
         this.chan = Publish.getChannelInstance();
 
-        logger.print(`GameSetting Channel=${gameSetting.channel}|${js.getClassName(this.chan)} Version=${gameSetting.version} Language=${L10nMgr.lang}`);
-        logger.print(`SDKSetting ${sdkSetting.getPrintInfo()}`);
+        mLogger.print(`GameSetting Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version} Language=${L10nMgr.lang}`);
+        mLogger.print(`SDKSetting ${mSdkSetting.getPrintInfo()}`);
     }
 
     protected start() {

@@ -18,14 +18,14 @@ export class GameDataPost {
 
     /** 新用户 */
     private onNewUser() {
-        logger.debug("新手玩家");
+        mLogger.debug("新手玩家");
 
 
     }
 
     /** 跨天处理 */
     private onDateChange(lastDate: number, today: number) {
-        logger.debug("onDateChange", lastDate, today);
+        mLogger.debug("onDateChange", lastDate, today);
 
 
 
