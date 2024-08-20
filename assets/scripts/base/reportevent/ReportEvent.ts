@@ -24,7 +24,7 @@ const ReportEvent = {
 };
 
 ///@ts-ignore
-globalThis.reportEvent = ReportEvent;
+globalThis.mReportEvent = ReportEvent;
 declare global {
     /** 所有的打点事件 */
     const mReportEvent: typeof ReportEvent;

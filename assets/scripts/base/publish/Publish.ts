@@ -11,7 +11,7 @@ export class Publish {
         }
         chan = chan || new Channel();
         chan.initSDK();
-        app.chan.reportEvent(mReportEvent.InitSDK)
+        chan.reportEvent(mReportEvent.InitSDK)
         return chan;
     }
 }
