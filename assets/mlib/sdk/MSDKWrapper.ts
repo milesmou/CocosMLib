@@ -4,7 +4,7 @@ import { JSB } from "cc/env";
 /** 原生和JS交互的Key */
 export enum ENativeBridgeKey {
     /** 登录 */
-    Login = 1,
+    Login,
     /** 横幅广告 */
     ShowBanner,
     /** 插屏广告 */
@@ -50,7 +50,7 @@ export class SDKCallback {
 }
 
 /** 与原生交互时的参数分隔符 */
-const ParamSeparator = "[-_-]";
+const ParamSeparator = "<-_->";
 
 /** 处理与SDK的交互 */
 export class MSDKWrapper {
@@ -85,7 +85,7 @@ export class MSDKWrapper {
     }
 
     /** 发送消息给原生层 key使用ENativeBridgeKey中的值*/
-    public static sendToNative(key: ENativeBridgeKey, arg0 = "", arg1 = "", arg2 = "", arg3 = "") {
+    public static sendToNative(key: ENativeBridgeKey, arg0 = "null", arg1 = "null", arg2 = "null", arg3 = "null") {
         if (!JSB) return;
         let args = [arg0, arg1, arg2, arg3].join(ParamSeparator);
         native.bridge.sendToNative(ENativeBridgeKey[key], args);
