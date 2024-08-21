@@ -3,7 +3,7 @@ import { TimerObject } from "./TimerObject";
 
 export class TimerTween<T = any> extends TimerObject {
 
-    private _valid: boolean;
+    private _valid: boolean = true;
 
     private _tween: Tween<T>;
     public get tween() { return this._tween; }
