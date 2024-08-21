@@ -8,7 +8,7 @@ export class Publish {
     public static getChannelInstance(): Channel {
         let chan: Channel;
         if (sys.platform == sys.Platform.ANDROID) {
-
+            
         }
         chan = chan || new Dev();
         chan.initSDK();
