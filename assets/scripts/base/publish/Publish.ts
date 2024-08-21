@@ -1,5 +1,6 @@
 import { sys } from "cc";
 import { Channel } from "../../../mlib/sdk/Channel";
+import { Dev } from "./channel/Dev";
 
 
 /** 项目发布相关的配置和处理 */
@@ -9,7 +10,7 @@ export class Publish {
         if (sys.platform == sys.Platform.ANDROID) {
 
         }
-        chan = chan || new Channel();
+        chan = chan || new Dev();
         chan.initSDK();
         chan.reportEvent(mReportEvent.InitSDK)
         return chan;
