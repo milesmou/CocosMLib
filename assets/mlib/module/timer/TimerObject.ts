@@ -1,6 +1,7 @@
 export abstract class TimerObject {
-    protected selfTimeScale: number;
-    protected groupTimeScale: number;
+    protected valid: boolean = true;
+    protected selfTimeScale = 1;
+    protected groupTimeScale = 1;
 
     public abstract isValid();
 
