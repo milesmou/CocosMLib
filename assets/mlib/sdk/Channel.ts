@@ -113,21 +113,20 @@ export class Channel {
      * @param tag 针对不同平台特殊处理标记
     */
     public reportEvent(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
-        let enable = event.enable === undefined ? true : event.enable;
-        if (!enable || !event.defaultName) return;
+        if (!event.enable || !event.name) return;
         if (args && args["_tag"]) return;//忽略需要特殊处理的事件
         let paramStr = args ? Object.values(args).join("|") : "";
-        MCloudDataSDK.reportEvent(event.defaultName, 0, paramStr);
+        MCloudDataSDK.reportEvent(event.name, 0, paramStr);
     }
 
     /** 上报事件 每天一次(本地存档卸载失效)*/
     public reportEventDaily(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
-        if (Channel.isValidDailyEvent(event.defaultName)) this.reportEvent(event, args, tag);
+        if (Channel.isValidDailyEvent(event.name)) this.reportEvent(event, args, tag);
     }
 
     /** 上报事件 终生一次(本地存档卸载失效)*/
     public reportEventLifetime(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
-        if (Channel.isValidLifetimeEvent(event.defaultName)) this.reportEvent(event, args, tag);
+        if (Channel.isValidLifetimeEvent(event.name)) this.reportEvent(event, args, tag);
     }
 
     /** 上报数值累加事件 */
