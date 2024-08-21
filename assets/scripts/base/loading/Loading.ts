@@ -7,7 +7,6 @@ import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { MResponse, ResponseGameData } from '../../../mlib/sdk/MResponse';
 import { UnionProgress } from '../../../mlib/utils/UnionProgress';
 import { UIConstant } from '../../gen/UIConstant';
-import { GameConfig } from '../GameConfig';
 import { GameData } from '../GameData';
 import { GameGuide } from '../GameGuide';
 import { GameInit } from '../GameInit';
@@ -48,13 +47,13 @@ export class Loading extends UIComponent {
         this.startFakeProgress(2);
         if (mGameSetting.gameConfigType == mGameSetting.ConfigType.Local) {//使用本地配置
             let textAsset = await AssetMgr.loadAsset("GameConfig", TextAsset);
-            GameConfig.deserialize(textAsset.text);
+            mGameConfig.deserialize(textAsset.text);
             AssetMgr.decRef("GameConfig");
             this.checkVersion();
         } else {
             let strRes = await HttpRequest.requestText(mGameSetting.gameConfigUrl + "?" + Date.now(), { method: "GET" });
             if (strRes) {
-                GameConfig.deserialize(strRes);
+                mGameConfig.deserialize(strRes);
                 this.checkVersion();
             } else {
                 mLogger.error(`加载配置失败 Url=${mGameSetting.gameConfigUrl}`);
@@ -70,7 +69,7 @@ export class Loading extends UIComponent {
     /** 版本更新检测 */
     private async checkVersion() {
         if (!PREVIEW) {
-            if (mGameSetting.hotupdate && GameConfig.rg && sys.isNative) {
+            if (mGameSetting.hotupdate && mGameConfig.rg && sys.isNative) {
                 if (mGameSetting.manifest) {
                     HotUpdate.Inst.start(
                         mGameSetting.manifest,

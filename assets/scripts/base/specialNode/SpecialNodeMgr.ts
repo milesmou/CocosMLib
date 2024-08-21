@@ -1,5 +1,4 @@
 import { sys } from "cc";
-import { GameConfig } from "../GameConfig";
 import { ESpecialNodeType } from "./ESpecialNodeType";
 
 export class SpecialNodeMgr {
@@ -12,9 +11,9 @@ export class SpecialNodeMgr {
     public getActive(specialNodeType: ESpecialNodeType): boolean {
         switch (specialNodeType) {
             case ESpecialNodeType.GM:
-                return GameConfig.gm;
+                return mGameConfig.gm;
             case ESpecialNodeType.SH:
-                return GameConfig.sh;
+                return mGameConfig.sh;
             case ESpecialNodeType.Android:
                 return sys.platform == sys.Platform.ANDROID;
             case ESpecialNodeType.IOS:

@@ -1,47 +1,5 @@
-
-/** 商品类 */
-export class ProductData {
-    /** 主键ID */
-    public id: string;
-
-    /** 商品ID */
-    public goodsId: string;
-
-    /** 商品类型 */
-    public type: number;
-
-    /** 货币符号 */
-    public unit: string;
-
-    /** 价格 */
-    public price: number;
-
-    /** 次数限制 */
-    public limit: number;
-
-    /** 名字 */
-    public name: string;
-
-    /** 描述 */
-    public desc: string;
-
-    /** 图标 */
-    public icon: string;
-
-    /** 奖励 */
-    public reward: string;
-
-    public static fromId(id: string) {
-        return GameConfig.product.find(v => v.id == id);
-    }
-
-    public static fromGoodsId(goodsId: string) {
-        return GameConfig.product.find(v => v.goodsId == goodsId);
-    }
-}
-
-/** 游戏一些配置参数 可以是远程或本地 */
-export class GameConfig {
+/** 游戏一些配置 可以是远程或本地 */
+class GameConfig {
     //基本配置
     /** 关服 此包不在生效 */
     public static gf = false;
@@ -55,14 +13,10 @@ export class GameConfig {
     public static event = true;
 
     /** 远程bundle名字:版本 */
-    public static bundleVersion: Map<string, string> = new Map();
-
-    //商品(广告或内购)
-    public static product: ProductData[] = [];
-
+    public static bundleVers: Map<string, string> = new Map();
 
     public static deserialize(content: string) {
-        let iniData = this.getIniData(content);
+        let iniData = this.getTxtData(content);
 
         if (iniData.has("base")) {
             let lines = iniData.get("base");
@@ -80,37 +34,14 @@ export class GameConfig {
             for (const line of lines) {
                 let arr = line.split("=");
                 if (arr.length == 2) {
-                    this.bundleVersion.set(arr[0], arr[1]);
-                }
-            }
-        }
-
-        if (iniData.has("goods")) {
-            let lines = iniData.get("goods");
-            if (lines.length > 1) {
-                let tagMap = this.getTagIndexMap(lines[0].split('|'));
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i];
-                    let columns = line.split('|');
-                    let productData = new ProductData();
-                    productData.id = this.convertString(columns[tagMap.get("id")]);
-                    productData.goodsId = this.convertString(columns[tagMap.get("goodsId")]);
-                    productData.type = this.convertNumber(columns[tagMap.get("type")]);
-                    productData.unit = this.convertString(columns[tagMap.get("unit")]);
-                    productData.price = this.convertNumber(columns[tagMap.get("price")]);
-                    productData.limit = this.convertNumber(columns[tagMap.get("limit")]);
-                    productData.name = this.convertString(columns[tagMap.get("name")]);
-                    productData.desc = this.convertString(columns[tagMap.get("desc")]);
-                    productData.icon = this.convertString(columns[tagMap.get("icon")]);
-                    productData.reward = this.convertString(columns[tagMap.get("reward")]);
-                    this.product.push(productData);
+                    this.bundleVers.set(arr[0], arr[1]);
                 }
             }
         }
     }
 
 
-    public static getTagIndexMap(tags: string[]): Map<string, number> {
+    private static getTagIndexMap(tags: string[]): Map<string, number> {
         let tagMap = new Map<string, number>();
         for (let i = 0; i < tags.length; i++) {
             tagMap.set(tags[i], i);
@@ -119,16 +50,16 @@ export class GameConfig {
         return tagMap;
     }
 
-    public static convertString(value: string) {
+    private static convertString(value: string) {
         return value.trim();
     }
 
-    public static convertBool(value: string) {
+    private static convertBool(value: string) {
         value = value.trim();
         return value == "1" || value.toUpperCase() == "TRUE";
     }
 
-    public static convertNumber(value: string) {
+    private static convertNumber(value: string) {
         value = value.trim();
         let result = parseFloat(value)
         if (isNaN(result)) {
@@ -137,7 +68,7 @@ export class GameConfig {
         return result;
     }
 
-    public static getIniData(content: string): Map<string, string[]> {
+    private static getTxtData(content: string): Map<string, string[]> {
         let map = new Map<string, string[]>();
         let lastTag: string = null;
         let lines = content.split("\n");
@@ -156,4 +87,12 @@ export class GameConfig {
         }
         return map;
     }
+}
+
+//@ts-ignore
+globalThis.mGameConfig = GameConfig;
+export { };
+declare global {
+    /** 游戏一些配置 可以是远程或本地 */
+    const mGameConfig: typeof GameConfig;
 }
