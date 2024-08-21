@@ -28,4 +28,4 @@ export const LoadingText = {
     SyncGameData: textObject("数据同步中", "數據同步中", "Sync PlayerData"),
     LoadGameRes: textObject("加载游戏资源", "加載遊戲資源", "Loading GameData"),
     LoadScene: textObject("加载场景", "加載場景", "Loading Scene"),
-}
+} as const;
