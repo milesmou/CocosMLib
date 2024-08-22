@@ -1,11 +1,11 @@
-import { Game } from "cc";
-import { game } from "cc";
+import { Game, game } from "cc";
 
 /** 时长统计工具类 */
 export class TimeDuration {
 
     private static startTimeMS: Map<string, number> = new Map();
 
+    /** 脚本加载时自动执行 */
     private static init = (() => {
         game.on(Game.EVENT_RESTART, () => {
             this.startTimeMS.clear();

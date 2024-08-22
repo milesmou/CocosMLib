@@ -55,6 +55,7 @@ const ParamSeparator = "<-_->";
 /** 处理与SDK的交互 */
 export class MSDKWrapper {
 
+    /** 脚本加载时自动执行 */
     private static init = (() => {
         if (!JSB) return;
         native.bridge.onNative = (key: string, args?: string) => {

@@ -17,6 +17,11 @@ class MLogger {
     /** 日子打印级别枚举 */
     public static readonly ELogLevel = ELoggerLevel;
 
+    /** 脚本加载时自动执行 */
+    private static init = (() => {
+        MLogger.setLevel(ELoggerLevel.Info);
+    })();
+
     public static new(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
         return new MLogger(tag, level);
     }
@@ -64,11 +69,8 @@ class MLogger {
     public print: (...data) => void;
 }
 
-MLogger.setLevel(ELoggerLevel.Info);
-
 //@ts-ignore
 globalThis.mLogger = MLogger;
-
 declare global {
     /** 日志打印类 */
     const mLogger: typeof MLogger;
