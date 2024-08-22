@@ -1,7 +1,16 @@
+import { Game } from "cc";
+import { game } from "cc";
+
 /** 时长统计工具类 */
 export class TimeDuration {
 
     private static startTimeMS: Map<string, number> = new Map();
+
+    private static init = (() => {
+        game.on(Game.EVENT_RESTART, () => {
+            this.startTimeMS.clear();
+        });
+    })();
 
     /** 给予一个Key，并开始计时 */
     public static time(key: string) {
