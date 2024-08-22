@@ -109,30 +109,30 @@ export class Channel {
 
     /** 
      * 上报事件 
+     * @param event 事件对象
      * @param args 事件参数
-     * @param tag 针对不同平台特殊处理标记
     */
-    public reportEvent(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
+    public reportEvent(event: IReportEvent, args?: { [key: string]: any }) {
         if (!event.enable || !event.name) return;
-        if (args && args["_tag"]) return;//忽略需要特殊处理的事件
+        if (event.tag) return;//忽略需要特殊处理的事件
         let paramStr = args ? Object.values(args).join("|") : "";
-        MCloudDataSDK.reportEvent(event.name, 0, paramStr);
+        MCloudDataSDK.reportEvent(event.name, paramStr);
     }
 
     /** 上报事件 每天一次(本地存档卸载失效)*/
-    public reportEventDaily(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
-        if (Channel.isValidDailyEvent(event.name)) this.reportEvent(event, args, tag);
+    public reportEventDaily(event: IReportEvent, args?: { [key: string]: any }) {
+        if (Channel.isValidDailyEvent(event)) this.reportEvent(event, args,);
     }
 
     /** 上报事件 终生一次(本地存档卸载失效)*/
-    public reportEventLifetime(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
-        if (Channel.isValidLifetimeEvent(event.name)) this.reportEvent(event, args, tag);
+    public reportEventLifetime(event: IReportEvent, args?: { [key: string]: any }) {
+        if (Channel.isValidLifetimeEvent(event)) this.reportEvent(event, args);
     }
 
-    /** 上报数值累加事件 */
-    public reportSumEvent(eventName: string, num: number, args?: { [key: string]: any }, tag?: string) {
+    /** 上报数值累加事件(仅用于自己的打点系统) */
+    public reportSumEvent(event: IReportEvent, num: number, args?: { [key: string]: any }) {
         let paramStr = args ? Object.values(args).join("|") : "";
-        MCloudDataSDK.reportEvent(eventName, num, paramStr);
+        MCloudDataSDK.reportEvent(event.name, paramStr, num);
     }
 
     /** 使设备发生震动 */
@@ -145,7 +145,8 @@ export class Channel {
 
     }
 
-    public static isValidDailyEvent(key: string) {
+    protected static getEventName(event: IReportEvent) {
+        let key = event.name
         let today = Utils.getDate();
         let i = parseFloat(sys.localStorage.getItem(key));
         if (isNaN(i) || i < today) {
@@ -155,7 +156,19 @@ export class Channel {
         return false;
     }
 
-    public static isValidLifetimeEvent(key: string) {
+    protected static isValidDailyEvent(event: IReportEvent) {
+        let key = event.name + event.tag ? `_${event.tag}` : "";
+        let today = Utils.getDate();
+        let i = parseFloat(sys.localStorage.getItem(key));
+        if (isNaN(i) || i < today) {
+            sys.localStorage.setItem(key, today.toString())
+            return true;
+        }
+        return false;
+    }
+
+    protected static isValidLifetimeEvent(event: IReportEvent) {
+        let key = event.name + event.tag ? `_${event.tag}` : "";
         let today = Utils.getDate();
         let i = parseFloat(sys.localStorage.getItem(key));
         if (isNaN(i)) {
@@ -164,4 +177,6 @@ export class Channel {
         }
         return false;
     }
+
+
 }

@@ -88,7 +88,7 @@ export class MCloudDataSDK {
 
 
     /** 上报事件 */
-    public static reportEvent(eventName: string, num: number, paramStr = "") {
+    public static reportEvent(eventName: string, paramStr = "", num = 0) {
         eventName = PREVIEW ? "00_" + eventName : eventName;
         let body = {
             gameCode: mGameSetting.gameCode,
