@@ -5,7 +5,7 @@ export class TimerAnimation extends TimerObject {
     private _anim: Animation;
     public get anim() { return this._anim; }
 
-    private _selfTimeScaleMap: Map<string, number> = new Map();//保存每个Animation中每个AnimationState的TimeScale
+    private _selfTimeScaleMap: Map<string, number> = new Map();//保存Animation中每个AnimationState的TimeScale
 
     public constructor(anim: Animation) {
         super();
