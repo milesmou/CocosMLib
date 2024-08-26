@@ -106,7 +106,7 @@ export class CmdExecute {
 
             let content = "export const UIConstant = {\n";
             for (const key in map) {
-                content += `    "${key}": "${map[key]}",\n`;
+                content += `    ${key}: "${map[key]}",\n`;
             }
             content += "}";
 
