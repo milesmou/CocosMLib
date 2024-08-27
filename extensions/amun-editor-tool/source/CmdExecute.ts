@@ -108,7 +108,7 @@ export class CmdExecute {
             for (const key in map) {
                 content += `    ${key}: "${map[key]}",\n`;
             }
-            content += "}";
+            content += "} as const;";
 
             fs.ensureDirSync(path.dirname(outFile));
             fs.writeFileSync(outFile, content);
