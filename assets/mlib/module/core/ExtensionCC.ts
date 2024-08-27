@@ -3,6 +3,8 @@
 import { Component, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
+//@ts-ignore
+import { Animation } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
@@ -177,6 +179,25 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         let self: Component = this;
         return self.node.ensureComponent(ctorOrClassName as any);
     }
+
+    Animation.prototype.setSpeed = function (speed: number, name?: string) {
+        let self: Animation = this;
+        if (name) {
+            let state = self.getState(name);
+            if (state) {
+                state.speed = speed;
+            } else {
+                console.warn(`动画不存在: ${name}`);
+            }
+        } else {
+            for (const clip of self.clips) {
+                let state = this._anim.getState(clip.name);
+                if (state) {
+                    state.speed = speed;
+                }
+            }
+        }
+    }
 }
 
 //CC中使用DOM的Node、Animation时进行提示
@@ -194,26 +215,6 @@ declare global {
 
 //扩展CC中的一些类
 declare module "cc" {
-    interface Component {
-        /** 
-         * 从任意父节点上获取组件
-         * @param includeSlef 是否包含自身所在节点 默认为true
-         */
-        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean);
-
-        /** 
-         * 从任意父节点上获取组件
-         * @param includeSlef 是否包含自身所在节点 默认为true
-         */
-        getComponentInParent<T extends Component>(className: string, includeSlef?: boolean): T;
-
-        /** 确保组件存在 不存在则添加 */
-        ensureComponent<T extends Component>(ctor: new (...args: any[]) => T): T;
-
-        /** 确保组件存在 不存在则添加 */
-        ensureComponent<T extends Component>(className: string): T;
-
-    }
 
     interface Node {
         /** 
@@ -273,5 +274,35 @@ declare module "cc" {
         /** 本地坐标Z */
         positionZ: number;
 
+    }
+
+    interface Component {
+        /** 
+         * 从任意父节点上获取组件
+         * @param includeSlef 是否包含自身所在节点 默认为true
+         */
+        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean);
+
+        /** 
+         * 从任意父节点上获取组件
+         * @param includeSlef 是否包含自身所在节点 默认为true
+         */
+        getComponentInParent<T extends Component>(className: string, includeSlef?: boolean): T;
+
+        /** 确保组件存在 不存在则添加 */
+        ensureComponent<T extends Component>(ctor: new (...args: any[]) => T): T;
+
+        /** 确保组件存在 不存在则添加 */
+        ensureComponent<T extends Component>(className: string): T;
+
+    }
+
+    interface Animation {
+        /**
+         * 修改动画播放的速度 (注意调用时机,应当在组件初始化完成后调用)
+         * @param speed 速度缩放
+         * @param name 动画名字，若未指定则修改所有动画的速度
+         */
+        setSpeed(speed: number, name?: string): void;
     }
 }
