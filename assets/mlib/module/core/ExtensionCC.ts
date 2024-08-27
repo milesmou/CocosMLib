@@ -198,6 +198,22 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             }
         }
     }
+
+    Animation.prototype.setAtFirstFrame = function (name?: string) {
+        let self: Animation = this;
+        name = name || self.defaultClip?.name;
+        if (!name) {
+            console.warn(`未指定动画且默认动画不存在`);
+            return;
+        }
+        let state = self.getState(name);
+        if (state) {
+            state.update(0);
+        } else {
+            console.warn(`动画不存在: ${name}`);
+        }
+
+    }
 }
 
 //CC中使用DOM的Node、Animation时进行提示
@@ -299,10 +315,16 @@ declare module "cc" {
 
     interface Animation {
         /**
-         * 修改动画播放的速度 (注意调用时机,应当在组件初始化完成后调用)
+         * 修改动画播放的速度 (注意调用时机,应当在组件onLoad完成后调用)
          * @param speed 速度缩放
          * @param name 动画名字，若未指定则修改所有动画的速度
          */
         setSpeed(speed: number, name?: string): void;
+
+        /**
+         * 动画未播放前，将动画控制的属性处于第一帧状态 (注意调用时机,应当在组件onLoad完成后调用)
+         * @param name 动画名字，若未指定则表示默认动画
+         */
+        setAtFirstFrame(name?: string): void;
     }
 }
