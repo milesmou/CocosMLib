@@ -191,7 +191,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             }
         } else {
             for (const clip of self.clips) {
-                let state = this._anim.getState(clip.name);
+                let state = self.getState(clip.name);
                 if (state) {
                     state.speed = speed;
                 }
