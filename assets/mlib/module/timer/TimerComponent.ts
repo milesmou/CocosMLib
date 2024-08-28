@@ -1,4 +1,4 @@
-import { _decorator, Component, macro } from "cc";
+import { _decorator, Component, game, macro } from "cc";
 import { TimerObject } from "./TimerObject";
 
 const { ccclass, property } = _decorator;
@@ -24,10 +24,6 @@ export class TimerComponent extends Component {
 
     private _schedules: Set<ScheduleValue> = new Set();
     private _timerObjs: Set<TimerObject> = new Set();
-
-    protected start(): void {
-        this.schedule(this.checkValid, 3);
-    }
 
     public setTimeScale(timeScale: number) {
         this._timeScale = timeScale;
@@ -56,42 +52,57 @@ export class TimerComponent extends Component {
     public add(obj: TimerObject) {
         if (!obj) return;
         this._timerObjs.add(obj);
-        this.changeTimerObjectSpeed(obj, true);
+        this.changeSpeed(obj);
     }
 
     /** 移除对象 还原为播放速度 */
     public delete(obj: TimerObject) {
         if (!obj) return;
         this._timerObjs.delete(obj);
-        this.changeTimerObjectSpeed(obj, false);
+        this.revertSpeed(obj);
     }
 
     private refresh() {
         if (!this.isValid) return;
         this._timerObjs.forEach(v => {
             if (v.isValid()) {
-                this.changeTimerObjectSpeed(v, true);
+                this.changeSpeed(v);
             } else {
                 this._timerObjs.delete(v);
             }
         });
     }
 
-    private changeTimerObjectSpeed(obj: TimerObject, add: boolean) {
-        let speed = add ? this._timeScale : 1;
-        if (this._pause && add) speed = 0;
+    private changeSpeed(obj: TimerObject) {
+        let speed = this._pause ? 0 : this._timeScale;
         obj.setGroupTimeScale(speed);
     }
 
+    private revertSpeed(obj: TimerObject) {
+        obj.setGroupTimeScale(1);
+    }
+
+    /** 
+     * @deprecated 请使用scheduleM替代此方法
+     */
+    public schedule(callback: any, interval?: number, repeat?: number, delay?: number) { }
     public scheduleM(callback: (dt: number) => void, thisObj: object, interval = 0, repeat = macro.REPEAT_FOREVER, execImmediate = true) {
         let value: ScheduleValue = { callback: callback, thisObj: thisObj, interval: interval, repeat: repeat, delay: execImmediate ? 0 : interval, totalDt: 0 };
         this._schedules.add(value);
     }
 
+    /** 
+     * @deprecated 请使用scheduleOnceM替代此方法
+     */
+    public scheduleOnce(callback: any, delay?: number) { }
     public scheduleOnceM(callback: () => void, thisObj: object, delay?: number) {
         this.scheduleM(callback, thisObj, delay, 1, false);
     }
 
+    /** 
+     * @deprecated 请使用unschedule替代此方法
+     */
+    public unschedule(callback_fn: any) { }
     public unScheduleM(callback: (dt: number) => void, thisObj: object) {
         let iter = this._schedules.values();
         for (const v of iter) {
@@ -102,6 +113,10 @@ export class TimerComponent extends Component {
         }
     }
 
+    /** 
+    * @deprecated 请使用unscheduleAllCallbacks替代此方法
+    */
+    public unscheduleAllCallbacks() { }
     public unscheduleAllCallbacksM() {
         this._schedules.clear();
     }
@@ -115,16 +130,7 @@ export class TimerComponent extends Component {
         return p;
     }
 
-    /** 检测并移除无效的TimerObject */
-    private checkValid() {
-        this._timerObjs.forEach(v => {
-            if (!v.isValid) {
-                this._timerObjs.delete(v);
-            }
-        });
-    }
-
-    public update(dt: number): void {
+    protected update(dt: number): void {
         if (this._pause) return;
 
         //Scheduler
