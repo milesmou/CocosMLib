@@ -12,6 +12,14 @@ interface ScheduleValue {
     totalDt: number;
 }
 
+interface OnceScheduleValue {
+    callback: () => void;
+    thisObj: object;
+    delay: number;
+    onRatio: (ratio: number) => void;
+    totalDt: number;
+}
+
 /**
  * 一个时间管理组件 可以控制tween、schedule、animation、spine的速度
  * schedule：自定义了一套scheduler方法
@@ -23,6 +31,7 @@ export class TimerComponent extends Component {
     private _pause: boolean = false;
 
     private _schedules: Set<ScheduleValue> = new Set();
+    private _onceSchedules: Set<OnceScheduleValue> = new Set();
     private _timerObjs: Set<TimerObject> = new Set();
 
     public setTimeScale(timeScale: number) {
@@ -86,8 +95,11 @@ export class TimerComponent extends Component {
      * @deprecated 请使用scheduleM替代此方法
      */
     public schedule(callback: any, interval?: number, repeat?: number, delay?: number) { }
-    public scheduleM(callback: (dt: number) => void, thisObj: object, interval = 0, repeat = macro.REPEAT_FOREVER, execImmediate = true) {
-        let value: ScheduleValue = { callback: callback, thisObj: thisObj, interval: interval, repeat: repeat, delay: execImmediate ? 0 : interval, totalDt: 0 };
+    public scheduleM(callback: (dt: number) => void, thisObj: object, interval = 0, repeat = -1, execImmediate = true) {
+        let value: ScheduleValue = {
+            callback: callback, thisObj: thisObj, interval: interval, repeat: repeat > 0 ? repeat : macro.REPEAT_FOREVER,
+            delay: execImmediate ? 0 : interval, totalDt: 0
+        };
         this._schedules.add(value);
     }
 
@@ -95,17 +107,20 @@ export class TimerComponent extends Component {
      * @deprecated 请使用scheduleOnceM替代此方法
      */
     public scheduleOnce(callback: any, delay?: number) { }
-    public scheduleOnceM(callback: () => void, thisObj: object, delay?: number) {
-        this.scheduleM(callback, thisObj, delay, 1, false);
+    public scheduleOnceM(callback: () => void, thisObj: object, delay?: number, onRatio?: (ratio: number) => void) {
+        onRatio && onRatio(0);
+        let value: OnceScheduleValue = {
+            callback: callback, thisObj: thisObj, delay: delay || 0, onRatio: onRatio, totalDt: 0
+        };
+        this._onceSchedules.add(value);
     }
 
     /** 
      * @deprecated 请使用unschedule替代此方法
      */
-    public unschedule(callback_fn: any) { }
+    public unschedule(callback: any) { }
     public unScheduleM(callback: (dt: number) => void, thisObj: object) {
-        let iter = this._schedules.values();
-        for (const v of iter) {
+        for (const v of this._schedules.values()) {
             if (v.callback == callback && v.thisObj == thisObj) {
                 this._schedules.delete(v);
                 break;
@@ -121,11 +136,20 @@ export class TimerComponent extends Component {
         this._schedules.clear();
     }
 
-    public dealy(delay?: number) {
+    public hasCallback(callback: (dt: number) => void, thisObj: object): boolean {
+        for (const v of this._schedules.values()) {
+            if (v.callback == callback && v.thisObj == thisObj) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public dealy(delay?: number, onRatio?: (ratio: number) => void) {
         let p = new Promise<void>((resolve, reject) => {
             this.scheduleOnceM(() => {
                 resolve();
-            }, this, delay || 0);
+            }, this, delay, onRatio);
         });
         return p;
     }
@@ -133,9 +157,9 @@ export class TimerComponent extends Component {
     protected update(dt: number): void {
         if (this._pause) return;
 
+        let realDt = dt * this._timeScale;
         //Scheduler
         this._schedules.forEach(v => {
-            let realDt = dt * this._timeScale;
             v.delay -= realDt;
             v.totalDt += realDt;
             if (v.delay <= 0) {
@@ -146,5 +170,16 @@ export class TimerComponent extends Component {
                 if (v.repeat <= 0) this._schedules.delete(v);
             }
         });
+        //OnceScheduler
+        this._onceSchedules.forEach(v => {
+            v.totalDt += realDt;
+            v.onRatio && v.onRatio(v.totalDt / v.delay);
+            if (v.totalDt >= v.delay) {
+                v.callback();
+                this._onceSchedules.delete(v);
+            }
+        });
+
+
     }
 }
