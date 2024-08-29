@@ -1,6 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Component, UITransform, Widget } from "cc";
+import { Component, Tween, TweenSystem, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 //@ts-ignore
@@ -214,6 +214,18 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
 
     }
+
+    Tween.setTimeScaleByTag = function (tag: number, timeScale: number) {
+        const hashTargets: Map<unknown, { actions: any[] }> = TweenSystem.instance.ActionManager['_hashTargets'];
+        hashTargets.forEach((element) => {
+            for (let i = element.actions.length - 1; i >= 0; --i) {
+                const action = element.actions[i];
+                if (action && action.getTag() === tag) {
+                    action.setSpeed(timeScale);
+                }
+            }
+        });
+    }
 }
 
 //CC中使用DOM的Node、Animation时进行提示
@@ -327,4 +339,13 @@ declare module "cc" {
          */
         setAtFirstFrame(name?: string): void;
     }
+
+    namespace Tween {
+        /**
+         * 修改指定tag的所有缓动的速度缩放(已执行start方法的缓动才会生效)
+         */
+        function setTimeScaleByTag(tag: number, timeScale: number): void;
+    }
+
 }
+
