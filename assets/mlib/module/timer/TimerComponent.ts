@@ -13,7 +13,7 @@ interface ScheduleValue {
 }
 
 interface OnceScheduleValue {
-    callback: () => void;
+    callback: (dt: number) => void;
     thisObj: object;
     delay: number;
     onRatio: (ratio: number) => void;
@@ -142,6 +142,11 @@ export class TimerComponent extends Component {
                 return true;
             }
         }
+        for (const v of this._onceSchedules.values()) {
+            if (v.callback == callback && v.thisObj == thisObj) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -175,7 +180,7 @@ export class TimerComponent extends Component {
             v.totalDt += realDt;
             v.onRatio && v.onRatio(v.totalDt / v.delay);
             if (v.totalDt >= v.delay) {
-                v.callback();
+                v.callback(v.totalDt);
                 this._onceSchedules.delete(v);
             }
         });
