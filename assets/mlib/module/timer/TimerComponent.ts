@@ -126,6 +126,12 @@ export class TimerComponent extends Component {
                 break;
             }
         }
+        for (const v of this._onceSchedules.values()) {
+            if (v.callback == callback && v.thisObj == thisObj) {
+                this._onceSchedules.delete(v);
+                break;
+            }
+        }
     }
 
     /** 
@@ -184,7 +190,5 @@ export class TimerComponent extends Component {
                 this._onceSchedules.delete(v);
             }
         });
-
-
     }
 }
