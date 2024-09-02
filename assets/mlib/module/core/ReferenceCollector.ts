@@ -136,6 +136,7 @@ export class ReferenceCollector extends Component {
         console.log("已复制到剪切板");
     }
 
+    /** 获取属性类型名字 */
     private getPropertyType(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         if (node.getComponent("Switch")) return "Switch";
