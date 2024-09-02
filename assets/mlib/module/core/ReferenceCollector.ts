@@ -1,4 +1,4 @@
-import { _decorator, Component, Node } from "cc";
+import { _decorator, Component, js, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
@@ -140,11 +140,16 @@ export class ReferenceCollector extends Component {
     private getPropertyType(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         if (node.getComponent("Switch")) return "Switch";
+        if (node.getComponent("MButton")) return "MButton";
+        if (node.getComponent("MToggle")) return "MToggle";
+        if (node.getComponent("MSlider")) return "MSlider";
         if (node.getComponent("cc.Sprite")) return "Sprite";
         if (node.getComponent("cc.Label")) return "Label";
         if (node.getComponent("cc.RichText")) return "RichText";
         if (node.getComponent("cc.ScrollView")) return "ScrollView";
         if (node.getComponent("cc.PageView")) return "PageView";
+        let comp = node.getComponent('MComponent');
+        if (comp) return js.getClassName(comp);
         return "Node";
     }
 
