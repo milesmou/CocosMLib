@@ -1,4 +1,4 @@
-import { _decorator, CCObject, Component, js, Node } from "cc";
+import { _decorator, Component, Node } from "cc";
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 const { ccclass, property, executeInEditMode, executionOrder, disallowMultiple } = _decorator;
@@ -61,13 +61,18 @@ export class ReferenceCollector extends Component {
         return this._nodeMap.get(key);
     }
 
-    public get<T extends CCObject>(key: string, type: new (...args: any[]) => T): T {
+    public get(key: string, type: typeof Node): Node;
+    public get<T extends Component>(key: string, type: new (...args: any[]) => T): T;
+    public get(key: string, type: any): any {
         let node = this._nodeMap.get(key);
-        if (node && js.isChildClassOf(type, Component)) {
-            return node.getComponent(type);
-        } else {
-            return node as any;
+        if (node) {
+            if (type as any === Node) {
+                return node;
+            } else {
+                return node.getComponent(type);
+            }
         }
+        return undefined;
     }
 
     //#region 编辑器逻辑
@@ -119,24 +124,26 @@ export class ReferenceCollector extends Component {
     private genCode() {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let text = "";
-        // //生成字段
-        // this.nodes.forEach(data => {
-        //     let key = data.key;
-        //     if (text) text += "\n";
-        //     let name = "_" + key[0].toLowerCase() + key.substring(1);
-        //     let line = `this.${name} = this.rc.get("${key}",Node);`;
-        //     text += line;
-        // });
         //生成get属性 
         this.nodes.forEach(data => {
             let key = data.key;
             if (text) text += "\n";
             let name = key[0].toLowerCase() + key.substring(1);
-            let line = `private get ${name}() { return this.rc.get("${key}",Node); }`;
+            let line = `private get ${name}() { return this.rc.get("${key}",${this.getPropertyType(data.node)}); }`;
             text += line;
         });
         Editor.Clipboard.write("text", text);
         console.log("已复制到剪切板");
+    }
+
+    private getPropertyType(node: Node) {
+        if (!EDITOR_NOT_IN_PREVIEW) return;
+        if (node.getComponent("Sprite")) return "Sprite";
+        if (node.getComponent("Label")) return "Label";
+        if (node.getComponent("ScrollView")) return "ScrollView";
+        if (node.getComponent("PageView")) return "PageView";
+        if (node.getComponent("Switch")) return "Switch";
+        return "Node";
     }
 
     //#endregion
