@@ -119,22 +119,22 @@ export class ReferenceCollector extends Component {
     private genCode() {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let text = "";
-        //生成字段
-        this.nodes.forEach(data => {
-            let key = data.key;
-            if (text) text += "\n";
-            let name = "_" + key[0].toLowerCase() + key.substring(1);
-            let line = `this.${name} = this.rc.get("${key}",Node);`;
-            text += line;
-        });
-        // //生成get属性 
+        // //生成字段
         // this.nodes.forEach(data => {
         //     let key = data.key;
         //     if (text) text += "\n";
-        //     let name = key[0].toLowerCase() + key.substring(1);
-        //     let line = `private get ${name}() { return this.rc.getNode("${key}"); }`;
+        //     let name = "_" + key[0].toLowerCase() + key.substring(1);
+        //     let line = `this.${name} = this.rc.get("${key}",Node);`;
         //     text += line;
         // });
+        //生成get属性 
+        this.nodes.forEach(data => {
+            let key = data.key;
+            if (text) text += "\n";
+            let name = key[0].toLowerCase() + key.substring(1);
+            let line = `private get ${name}() { return this.rc.get("${key}",Node); }`;
+            text += line;
+        });
         Editor.Clipboard.write("text", text);
         console.log("已复制到剪切板");
     }
