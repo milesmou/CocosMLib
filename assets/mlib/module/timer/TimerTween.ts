@@ -15,7 +15,7 @@ export class TimerTween<T = any> extends TimerObject<Tween<T>> {
     }
 
     public isValid() {
-        return this._finalAction.isDone();
+        return !this._finalAction.isDone();
     }
 
     protected updateTimeScale(): void {

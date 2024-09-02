@@ -76,6 +76,10 @@ export class TimerComponent extends Component {
                 timerObject = new TimerSpine(target);
             }
         }
+        if (timerObject) {
+            this._timerObjs.add(timerObject);
+            this.changeSpeed(timerObject);
+        }
         return timerObject;
     }
 
@@ -222,4 +226,3 @@ export class TimerComponent extends Component {
         });
     }
 }
-
