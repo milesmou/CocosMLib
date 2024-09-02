@@ -1,26 +1,24 @@
 import { Animation } from "cc";
 import { TimerObject } from "./TimerObject";
 
-export class TimerAnimation extends TimerObject {
-    private _anim: Animation;
-    public get anim() { return this._anim; }
+export class TimerAnimation extends TimerObject<Animation> {
 
     private _selfTimeScaleMap: Map<string, number> = new Map();//保存Animation中每个AnimationState的TimeScale
 
     public constructor(anim: Animation) {
         super();
-        this._anim = anim;
+        this._target = anim;
         this.initSelfTimeScale();
         this.groupTimeScale = 1;
     }
 
     public isValid(): boolean {
-        return this._anim?.isValid;
+        return this._target?.isValid;
     }
 
     private initSelfTimeScale() {
-        for (const clip of this._anim.clips) {
-            let state = this._anim.getState(clip.name);
+        for (const clip of this._target.clips) {
+            let state = this._target.getState(clip.name);
             if (state) {
                 this._selfTimeScaleMap.set(state.name, state.speed);
             }
@@ -33,8 +31,8 @@ export class TimerAnimation extends TimerObject {
     }
 
     protected updateTimeScale(): void {
-        for (const clip of this._anim.clips) {
-            let state = this._anim.getState(clip.name);
+        for (const clip of this._target.clips) {
+            let state = this._target.getState(clip.name);
             if (state) {
                 if (!this._selfTimeScaleMap.has(state.name)) {
                     this._selfTimeScaleMap.set(state.name, state.speed);
@@ -42,7 +40,7 @@ export class TimerAnimation extends TimerObject {
                 let selfTimeScale = this._selfTimeScaleMap.get(state.name);
                 state.speed = selfTimeScale * this.groupTimeScale;
             } else {
-                this.anim.scheduleOnce(this.updateTimeScale.bind(this));
+                this._target.scheduleOnce(this.updateTimeScale.bind(this));
                 return;
             }
         }

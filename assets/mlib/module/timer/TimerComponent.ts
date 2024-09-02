@@ -1,5 +1,8 @@
-import { _decorator, Component, game, macro } from "cc";
+import { _decorator, Animation, Component, macro, sp, Tween } from "cc";
+import { TimerAnimation } from "./TimerAnimation";
 import { TimerObject } from "./TimerObject";
+import { TimerSpine } from "./TimerSpine";
+import { TimerTween } from "./TimerTween";
 
 const { ccclass, property } = _decorator;
 
@@ -21,7 +24,7 @@ interface OnceScheduleValue {
 }
 
 /**
- * 一个时间管理组件 可以控制tween、schedule、animation、spine的速度
+ * 一个时间管理组件 可以控制schedule、tween、animation、spine的速度
  * schedule：自定义了一套scheduler方法
  * tween animation spine：通过使用TimerObject进行包装来控制速度
  */
@@ -53,18 +56,45 @@ export class TimerComponent extends Component {
         this.refresh();
     }
 
-
     /** 
      * 添加对象 管理动作播放速度
-     * tween在添加时会自动开始
+     * 
+     * 添加到统一管理后，请通过返回值的setSelfTimeScale方法调整自身速度
      */
-    public add(obj: TimerObject) {
-        if (!obj) return;
-        this._timerObjs.add(obj);
-        this.changeSpeed(obj);
+    public add<T>(target: Tween<T>): TimerTween<T>;
+    public add(target: Animation): TimerAnimation;
+    public add(target: sp.Skeleton): TimerSpine;
+    public add<T>(target: Tween<T> | Animation | sp.Skeleton) {
+        if (!target) return;
+        let timerObject: TimerObject;
+        if (target instanceof Tween) {
+            timerObject = new TimerTween(target);
+        } else if (target.isValid) {
+            if (target instanceof Animation) {
+                timerObject = new TimerAnimation(target);
+            } else if (target instanceof sp.Skeleton) {
+                timerObject = new TimerSpine(target);
+            }
+        }
+        return timerObject;
     }
 
-    /** 移除对象 还原为播放速度 */
+    /** 
+     * 移除对象 还原为播放速度
+     */
+    public deleteByTarget<T>(obj: Tween<T> | Animation | sp.Skeleton) {
+        if (!obj) return;
+        for (const timerObj of this._timerObjs) {
+            if (timerObj.target == obj) {
+                this.delete(timerObj);
+                break;
+            }
+        }
+    }
+
+    /** 
+     * 移除对象 还原为播放速度
+     */
     public delete(obj: TimerObject) {
         if (!obj) return;
         this._timerObjs.delete(obj);
@@ -192,3 +222,4 @@ export class TimerComponent extends Component {
         });
     }
 }
+
