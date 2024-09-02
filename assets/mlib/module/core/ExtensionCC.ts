@@ -234,7 +234,6 @@ declare global {
     * @deprecated TMD这是DOM的Node,不要使用它
     */
     interface Node { }
-
     /**
      * @deprecated TMD这是DOM的Animation,不要使用它
      */
@@ -250,58 +249,42 @@ declare module "cc" {
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
         getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean);
-
         /** 
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
         getComponentInParent<T extends Component>(className: string, includeSlef?: boolean): T;
-
         /** 确保组件存在 不存在则添加 */
         ensureComponent<T extends Component>(ctor: new (...args: any[]) => T): T;
-
         /** 确保组件存在 不存在则添加 */
         ensureComponent<T extends Component>(className: string): T;
-
         /** 
          * 节点尺寸匹配父节点大小(通过widget组件来完成)
          * @param immediately 是否立即生效，只有当你需要在当前帧结束前生效才传true，默认为false
          */
         matchParent(immediately?: boolean): void;
-
         /** 获取节点在场景树的路径 */
         getPath(): void;
-
         /** 根据zIndex的值更新子节点的SiblingIndex */
         regularSiblingIndex(): void;
-
         /** 2d节点的UITransform组件 */
         get transform(): UITransform;
-
         /** 模拟2.x中zIndex,刷新层级需要调用父节点的regularSiblingIndex方法 */
         zIndex: number;
-
         /** 在子节点zIndex值改变时修改父节点此属性为true，表示需要更新子节点的SiblingIndex */
         childrenSiblingIndexDirty: boolean;
-
         /** 世界坐标X */
         worldPositionX: number;
-
         /** 世界坐标Y */
         worldPositionY: number;
-
         /** 世界坐标Z */
         worldPositionZ: number;
-
         /** 本地坐标X */
         positionX: number;
-
         /** 本地坐标Y */
         positionY: number;
-
         /** 本地坐标Z */
         positionZ: number;
-
     }
 
     interface Component {
@@ -310,19 +293,19 @@ declare module "cc" {
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
         getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean);
-
         /** 
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
         getComponentInParent<T extends Component>(className: string, includeSlef?: boolean): T;
-
-        /** 确保组件存在 不存在则添加 */
+        /**
+         * 确保组件存在 不存在则添加
+         */
         ensureComponent<T extends Component>(ctor: new (...args: any[]) => T): T;
-
-        /** 确保组件存在 不存在则添加 */
+        /**
+         *  确保组件存在 不存在则添加
+         */
         ensureComponent<T extends Component>(className: string): T;
-
     }
 
     interface Animation {
@@ -332,7 +315,6 @@ declare module "cc" {
          * @param name 动画名字，若未指定则修改所有动画的速度
          */
         setSpeed(speed: number, name?: string): void;
-
         /**
          * 动画未播放前，将动画控制的属性处于第一帧状态 (注意调用时机,应当在组件onLoad完成后调用)
          * @param name 动画名字，若未指定则表示默认动画

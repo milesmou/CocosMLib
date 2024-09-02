@@ -137,6 +137,29 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return self[0].toLowerCase() + self.substring(1);
     }
 
+    Map.prototype.find = function <K, V>(predicate: (value: V) => boolean) {
+        let self: Map<K, V> = this;
+        for (const kv of self) {
+            if (predicate(kv[1])) return kv[1];
+        }
+        return undefined;
+    }
+
+    Map.prototype.hasP = function <K, V>(predicate: (value: V) => boolean) {
+        let self: Map<K, V> = this;
+        return self.find(predicate) !== undefined;
+    }
+
+    Map.prototype.deleteP = function <K, V>(predicate: (value: V) => boolean) {
+        let self: Map<K, V> = this;
+        for (const kv of self) {
+            if (predicate(kv[1])) {
+                self.delete(kv[0]);
+            }
+        }
+        return undefined;
+    }
+
     Map.prototype.toArray = function <K, V>() {
         let self: Map<K, V> = this;
         let array: [K, V][] = [];
@@ -144,6 +167,30 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             array.push([k, v]);
         });
         return array;
+    }
+
+    Set.prototype.find = function <T>(predicate: (value: T) => boolean) {
+        let self: Set<T> = this;
+        for (const v of self) {
+            if (predicate(v)) return v;
+        }
+        return undefined;
+    }
+
+    Set.prototype.hasP = function <T>(predicate: (value: T) => boolean) {
+        let self: Set<T> = this;
+        return self.find(predicate) !== undefined;
+    }
+
+    Set.prototype.deleteP = function <T>(predicate: (value: T) => boolean) {
+        let self: Set<T> = this;
+        for (const v of self) {
+            if (predicate(v)) {
+                self.delete(v);
+                return true;
+            }
+        }
+        return false;
     }
 
     Set.prototype.toArray = function <T>() {
@@ -160,7 +207,6 @@ declare global {
 
     /** 通用进度回调方法的声明 */
     type Progress = (loaded: number, total: number) => void;
-
     /** 无返回值的方法声明 */
     type Action<T1 = any, T2 = any, T3 = any, T4 = any, T5 = any> = (arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4, arg5?: T5) => void;
 
@@ -169,62 +215,50 @@ declare global {
         * 第一个元素
         */
         get first(): T | undefined;
-
         /** 
          * 最后一个元素
          */
         get last(): T | undefined;
-
         /**
          * 从数组中删除一个元素
          */
         delete<T>(item: T): boolean;
-
         /**
          * 从数组中删除一个元素
          */
         delete<T>(predicate: (value: T, index: number, array: T[]) => boolean): boolean;
-
         /**
         * 从数组中随机返回一个值
         */
         random(): T | undefined;
-
         /**
         * 从数组中随机返回一个值，并将它从数组中移除
         */
         randomR(): T | undefined;
-
         /**
          * 数组随机打乱
          */
         disarrange(): void;
-
         /** 
          * 将集合中的数据按规则进行分组
          */
         groupBy(groupIdGetter: (value: T) => any): Map<any, T[]>;
-
         /**
          * 是否是另一个数组的父集
          */
         isSuperset(other: T[]): boolean;
-
         /**
          * 是否是另一个数组的父集或相等
          */
         isSupersetE(other: T[]): boolean;
-
         /**
          *  是否是另一个数组的子集
          */
         isSubset(other: T[]): boolean;
-
         /**
          *  是否是另一个数组的子集或相等
          */
         isSubsetE(other: T[]): boolean;
-
         /** 
          * 是否和另一个数组中元素相同
          */
@@ -236,7 +270,6 @@ declare global {
          * 首字母大写
          */
         upperFirst(): string;
-
         /**
          * 首字母小写 
          */
@@ -244,12 +277,40 @@ declare global {
     }
 
     interface Map<K, V> {
-        /** 转化为一个二维数组 */
+        /**
+         * 查找符合要求的元素
+         */
+        find(predicate: (value: V) => boolean): V | undefined;
+        /** 
+         * 是否有符合要求的元素
+         */
+        hasP(predicate: (value: V) => boolean): boolean;
+        /** 
+         * 删除符合要求的元素
+         */
+        deleteP(predicate: (value: V) => boolean): boolean;
+        /** 
+         * 转化为一个二维数组
+         */
         toArray(): [K, V][];
     }
 
     interface Set<T> {
-        /** 转化为一个数组 */
+        /** 
+         * 查找符合要求的元素 
+         */
+        find(predicate: (value: T) => boolean): T | undefined;
+        /** 
+         * 是否有符合要求的元素
+         */
+        hasP(predicate: (value: T) => boolean): boolean;
+        /** 
+         * 删除符合要求的元素
+         */
+        deleteP(predicate: (value: T) => boolean): boolean;
+        /** 
+         * 转化为一个数组
+         */
         toArray(): T[];
     }
 }
