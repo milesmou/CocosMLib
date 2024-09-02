@@ -138,11 +138,12 @@ export class ReferenceCollector extends Component {
 
     private getPropertyType(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
-        if (node.getComponent("Sprite")) return "Sprite";
-        if (node.getComponent("Label")) return "Label";
-        if (node.getComponent("ScrollView")) return "ScrollView";
-        if (node.getComponent("PageView")) return "PageView";
         if (node.getComponent("Switch")) return "Switch";
+        if (node.getComponent("cc.Sprite")) return "Sprite";
+        if (node.getComponent("cc.Label")) return "Label";
+        if (node.getComponent("cc.RichText")) return "RichText";
+        if (node.getComponent("cc.ScrollView")) return "ScrollView";
+        if (node.getComponent("cc.PageView")) return "PageView";
         return "Node";
     }
 
