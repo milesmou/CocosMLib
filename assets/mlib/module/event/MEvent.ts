@@ -6,7 +6,6 @@ interface EventListener<T1 = undefined, T2 = undefined, T3 = undefined, T4 = und
 
 export class MEvent<T1 = undefined, T2 = undefined, T3 = undefined, T4 = undefined, T5 = undefined> {
 
-    /** 尽量不要直接修改这个属性 */
     private _listeners: Set<EventListener<T1, T2, T3, T4, T5>> = new Set();
 
     public addListener(func: (arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4, arg5?: T5) => void, thisObj?: object, disposable = false) {
