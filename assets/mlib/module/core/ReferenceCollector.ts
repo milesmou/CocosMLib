@@ -146,6 +146,7 @@ export class ReferenceCollector extends Component {
         if (node.getComponent("cc.Sprite")) return "Sprite";
         if (node.getComponent("cc.Label")) return "Label";
         if (node.getComponent("cc.RichText")) return "RichText";
+        if (node.getComponent("cc.ProgressBar")) return "ProgressBar";
         if (node.getComponent("cc.ScrollView")) return "ScrollView";
         if (node.getComponent("cc.PageView")) return "PageView";
         let comp = node.getComponent('MComponent');
