@@ -292,7 +292,7 @@ declare module "cc" {
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
-        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean);
+        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean): T;
         /** 
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
@@ -330,4 +330,3 @@ declare module "cc" {
     }
 
 }
-
