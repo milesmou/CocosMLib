@@ -9,7 +9,7 @@ export class ObjectPool<T extends object = object> {
 
     constructor(args: ObjectPoolArgs<T>) {
         this._args = args;
-        for (let i = 0; i < args.defaultCreateNum; i++) {
+        for (let i = 0; i < args.createNum; i++) {
             this._list.push(this._args.newObject());
         }
     }
@@ -33,7 +33,9 @@ export class ObjectPool<T extends object = object> {
         if (this._args.onPutObject) {
             this._args.onPutObject(obj);
         }
-        this._list.push(obj);
+        if (!this._args.canPutObject || this._args.canPutObject(obj)) {
+            this._list.push(obj);
+        }
     }
 
     /** 销毁对象池所有对象 */

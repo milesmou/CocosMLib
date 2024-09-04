@@ -108,7 +108,7 @@ export class VirtualList extends Component {
         this.m_childNode.removeAllChildren();
 
         this._itemPool = new ObjectPool<Node>({
-            defaultCreateNum: 5,
+            createNum: 5,
             newObject: () => {
                 return instantiate(this._itemNode);
             },

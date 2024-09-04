@@ -73,7 +73,7 @@ export class UITipMsg extends UIComponent {
         this._toastGroup.active = true;
         this._toastItem = this._toastGroup.children[0];
         this._toastPool = new ObjectPool({
-            defaultCreateNum: 10,
+            createNum: 10,
             newObject: () => {
                 let toastItem = new ToastItem();
                 let node = instantiate(this._toastItem);
