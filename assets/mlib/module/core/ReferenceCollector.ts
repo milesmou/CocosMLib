@@ -139,16 +139,21 @@ export class ReferenceCollector extends Component {
     /** 获取属性类型名字 */
     private getPropertyType(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
+        //自定义组件
         if (node.getComponent("Switch")) return "Switch";
         if (node.getComponent("MButton")) return "MButton";
         if (node.getComponent("MToggle")) return "MToggle";
         if (node.getComponent("MSlider")) return "MSlider";
-        if (node.getComponent("cc.Sprite")) return "Sprite";
-        if (node.getComponent("cc.Label")) return "Label";
-        if (node.getComponent("cc.RichText")) return "RichText";
+        //UI组件
         if (node.getComponent("cc.ProgressBar")) return "ProgressBar";
         if (node.getComponent("cc.ScrollView")) return "ScrollView";
         if (node.getComponent("cc.PageView")) return "PageView";
+        if (node.getComponent("cc.Animation")) return "Animation";
+        //渲染组件
+        if (node.getComponent("cc.Sprite")) return "Sprite";
+        if (node.getComponent("cc.Label")) return "Label";
+        if (node.getComponent("cc.RichText")) return "RichText";
+        //自定义脚本
         let comp = node.getComponent('MComponent');
         if (comp) return js.getClassName(comp);
         return "Node";
