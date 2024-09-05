@@ -18,23 +18,16 @@ const { ccclass, property } = _decorator;
 @ccclass("Loading")
 export class Loading extends UIComponent {
 
-    private _progressBar: ProgressBar = null;
-    private _lblDesc: Label = null;
-    private _lblProgress: Label = null;
-    private _lblVersion: Label = null;
+    private get lblDesc() { return this.rc.get("lblDesc", Label); }
+    private get progressBar() { return this.rc.get("progressBar", ProgressBar); }
+    private get lblProgress() { return this.rc.get("lblProgress", Label); }
+    private get lblVersion() { return this.rc.get("lblVersion", Label); }
 
-    protected onLoad(): void {
-        this._progressBar = this.rc.get("progressBar", ProgressBar);
-        this._lblDesc = this.rc.get("lblDesc", Label);
-        this._lblProgress = this.rc.get("lblProgress", Label);
-        this._lblVersion = this.rc.get("lblVersion", Label);
-    }
-
-    async start() {
+    protected async start() {
         await GameInit.initBeforeLoadConfig();
         this.loadCfg();
         //版本号
-        this._lblVersion.string = mGameSetting.channel + "_" + mGameSetting.version;
+        this.lblVersion.string = mGameSetting.channel + "_" + mGameSetting.version;
     }
 
     protected onDestroy(): void {
@@ -177,11 +170,11 @@ export class Loading extends UIComponent {
      */
     private setTips(obj: ILanguage) {
         let content = this.getText(obj);
-        if (this._lblDesc) {
-            this._lblDesc.string = content || "";
+        if (this.lblDesc) {
+            this.lblDesc.string = content || "";
         }
-        if (this._progressBar) {
-            this._progressBar.progress = 0;
+        if (this.progressBar) {
+            this.progressBar.progress = 0;
             this.onProgress(0, 1);
         }
         this.startFakeProgress(0);
@@ -189,13 +182,13 @@ export class Loading extends UIComponent {
 
     /** 更新进度 */
     private onProgress(loaded: number, total: number) {
-        if (this._progressBar) {
+        if (this.progressBar) {
             let progress = loaded / total;
             progress = isNaN(progress) ? 0 : progress;
-            if (this._progressBar.progress > progress) return;
-            this._progressBar.progress = progress;
-            if (this._lblProgress) {
-                this._lblProgress.string = Math.round(progress * 100) + "%";
+            if (this.progressBar.progress > progress) return;
+            this.progressBar.progress = progress;
+            if (this.lblProgress) {
+                this.lblProgress.string = Math.round(progress * 100) + "%";
             }
         }
     }
