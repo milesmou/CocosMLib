@@ -19,7 +19,7 @@ export class ReferenceCollector extends Component {
 
     @property
     private _refresh = false;
-    @property({ displayName: "刷新" })
+    @property({ displayName: "复制属性" })
     private get refresh() { return this._refresh; }
     private set refresh(val: boolean) {
         if (EDITOR_NOT_IN_PREVIEW) {
