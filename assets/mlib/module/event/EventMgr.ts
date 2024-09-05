@@ -5,7 +5,7 @@ type ParamFunc<T extends (...args: any[]) => void> = (...args: Parameters<T>) =>
 
 /** 全局事件管理工具 */
 export class EventMgr {
-    private static eventMap: Map<Function, MEvent> = new Map();
+    private static eventMap: Map<VoidFunc, MEvent> = new Map();
     private static strEventMap: Map<string, MEvent> = new Map();
     private static numEventMap: Map<number, MEvent> = new Map();
 
@@ -20,7 +20,7 @@ export class EventMgr {
     public static on<T extends VoidFunc>(event: T, callback: ParamFunc<T>, thisObj?: object): void;
     public static on(name: string, callback: (...args: any[]) => void, thisObj?: object): void;
     public static on(name: number, callback: (...args: any[]) => void, thisObj?: object): void;
-    public static on(arg: Function | string | number, callback: (...args: any[]) => void, thisObj?: object): void {
+    public static on(arg: VoidFunc | string | number, callback: (...args: any[]) => void, thisObj?: object): void {
         let event = this.getEvent(arg);
         event.addListener(callback, thisObj, false);
     }
@@ -29,7 +29,7 @@ export class EventMgr {
     public static once<T extends VoidFunc>(event: T, callback: ParamFunc<T>, thisObj?: object): void;
     public static once(name: string, callback: (...args: any[]) => void, thisObj?: object): void;
     public static once(name: number, callback: (...args: any[]) => void, thisObj?: object): void;
-    public static once(arg: Function | string | number, callback: (...args: any[]) => void, thisObj?: object): void {
+    public static once(arg: VoidFunc | string | number, callback: (...args: any[]) => void, thisObj?: object): void {
         let event = this.getEvent(arg);
         event.addListener(callback, thisObj, true);
     }
@@ -38,7 +38,7 @@ export class EventMgr {
     public static off<T extends VoidFunc>(event: T, callback?: ParamFunc<T>, thisObj?: object): void;
     public static off(name: string, callback?: (...args: any[]) => void, thisObj?: object): void;
     public static off(name: number, callback?: (...args: any[]) => void, thisObj?: object): void;
-    public static off(arg: Function | string | number, callback?: (...args: any[]) => void, thisObj?: object): void {
+    public static off(arg: VoidFunc | string | number, callback?: (...args: any[]) => void, thisObj?: object): void {
         let event = this.getEvent(arg, false);
         if (event) {
             if (callback) {
@@ -53,14 +53,14 @@ export class EventMgr {
     public static emit<T extends VoidFunc, P extends Parameters<T>>(event: T, ...args: P): void;
     public static emit(name: string, ...args: any[]): void;
     public static emit(name: number, ...args: any[]): void;
-    public static emit(arg: Function | string | number, ...args: any[]): void {
+    public static emit(arg: VoidFunc | string | number, ...args: any[]): void {
         let event = this.getEvent(arg, false);
         if (event) {
             event.dispatch(...args);
         }
     }
 
-    private static getEvent(arg: Function | string | number, ensureExist = true) {
+    private static getEvent(arg: VoidFunc | string | number, ensureExist = true) {
         let event: MEvent;
         if (typeof arg === "string") {
             event = this.strEventMap.get(arg);
