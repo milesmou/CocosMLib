@@ -222,11 +222,11 @@ declare global {
         /**
          * 从数组中删除一个元素
          */
-        delete<T>(item: T): boolean;
+        delete(item: T): boolean;
         /**
          * 从数组中删除一个元素
          */
-        delete<T>(predicate: (value: T, index: number, array: T[]) => boolean): boolean;
+        delete(predicate: (value: T, index: number, array: T[]) => boolean): boolean;
         /**
         * 从数组中随机返回一个值
         */
