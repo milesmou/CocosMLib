@@ -97,9 +97,7 @@ export class Channel {
     /** 发起内购 */
     public requestIAP(args: RequestIAPArgs) {
         SDKCallback.onStartInAppPurchase && SDKCallback.onStartInAppPurchase(args.productId);
-        setTimeout(() => {
-            MSDKWrapper.call(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId)//测试直接成功
-        }, 1000);
+        MSDKWrapper.call(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId)//测试直接成功
     }
 
     /** 恢复内购(订阅或漏单) */
