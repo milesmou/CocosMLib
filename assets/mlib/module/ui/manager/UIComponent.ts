@@ -10,7 +10,6 @@ const { ccclass, requireComponent } = _decorator;
 export class UIComponent extends MComponent {
 
     protected __preload(): void {
-        super.__preload();
         this.getComponentsInChildren(MButton).forEach(v => {
             let root = v.getComponentInParent(UIComponent, true);
             if (root != this) return;//忽略其它UI组件所在节点下的按钮

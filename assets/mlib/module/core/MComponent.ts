@@ -6,24 +6,29 @@ import { ReferenceCollector } from "./ReferenceCollector";
 
 const { ccclass } = _decorator;
 
-@ccclass
+@ccclass("MComponent")
 export class MComponent extends Component {
 
     private _timer: TimerComponent;
-    protected get timer() { return this._timer; }
-    private _asset: AssetComponent;
-    protected get asset() { return this._asset; }
-    private _audio: AudioComponent;
-    protected get audio() { return this._audio; }
-    private _rc: ReferenceCollector;
-    protected get rc() { return this._rc; }
-
-    protected __preload(): void {
-        this._timer = this.getComponentInParent(TimerComponent) || app.timer;
-        this._asset = this.getComponentInParent(AssetComponent) || app.asset;
-        this._audio = this.getComponentInParent(AudioComponent) || app.audio;
-        this._rc = this.getComponent(ReferenceCollector);
+    protected get timer() {
+        if (!this.node.parent) console.error("父节点不存在!");
+        if (!this._timer) this._timer = this.getComponentInParent(TimerComponent) || app.timer;
+        return this._timer;
     }
+    private _asset: AssetComponent;
+    protected get asset() {
+        if (!this.node.parent) console.error("父节点不存在!");
+        if (!this._asset) this._asset = this.getComponentInParent(AssetComponent) || app.asset;
+        return this._asset;
+    }
+    private _audio: AudioComponent;
+    protected get audio() {
+        if (!this.node.parent) console.error("父节点不存在!");
+        if (!this._audio) this._audio = this.getComponentInParent(AudioComponent) || app.audio;
+        return this._audio;
+    }
+    private _rc: ReferenceCollector;
+    protected get rc() { return this._rc || (this._rc = this.getComponent(ReferenceCollector)); }
 
     /** 调用自身节点上所有MComponent中的methodName方法 */
     public sendMessage(methodName: string, ...args: any[]) {
