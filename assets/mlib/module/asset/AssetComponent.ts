@@ -16,21 +16,21 @@ export class AssetComponent extends Component {
     private decRefCount() {
         this._cache.forEach((v, k) => {
             if (v?.isValid) {
-                let location = AssetMgr.parseLocation(k, v)
-                AssetMgr.decRef(location, 1);
+                AssetMgr.decRef(k, 1);
             }
         });
     }
 
     public async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress): Promise<T> {
-        let asset = this._cache.get(location);
+        let cacheKey = AssetMgr.parseLocation(location, type);
+        let asset = this._cache.get(cacheKey);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadAsset(location, type, onProgress);
         if (!this.isValid) {
-            this.decRef(location);
+            AssetMgr.decRef(cacheKey);
             return null;
         }
-        if (asset?.isValid) this._cache.set(location, asset);
+        if (asset?.isValid) this._cache.set(cacheKey, asset);
         return asset as T;
     }
 
@@ -39,7 +39,7 @@ export class AssetComponent extends Component {
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset(url);
         if (!this.isValid) {
-            this.decRef(url);
+            AssetMgr.decRef(url);
             return null;
         }
         if (asset?.isValid) this._cache.set(url, asset);
@@ -70,14 +70,19 @@ export class AssetComponent extends Component {
         } else {
             spFrame = await this.loadAsset(location, SpriteFrame);
         }
-        if (!spFrame || !sprite.isValid) return;
+        if (!sprite?.isValid) {
+            console.warn("Sprite已销毁 " + location);
+            return;
+        }
+        if (!spFrame) return;
         sprite.spriteFrame = spFrame;
     }
 
-    /** 让资源引用计数减少 */
+    /** 
+     * 让资源引用计数减少 (注意精灵和纹理需要使用完整路径)
+     */
     public decRef(location: string) {
         if (this._cache.has(location)) {
-            location = AssetMgr.parseLocation(location, this._cache.get(location));
             this._cache.delete(location);
             AssetMgr.decRef(location, 1);
         }

@@ -267,7 +267,9 @@ export class AssetMgr {
         }
     }
 
-    /** 让资源引用计数减少 */
+    /** 
+     * 让资源引用计数减少 (注意精灵和纹理需要使用完整路径)
+     */
     public static decRef(location: string, decCount = 1) {
         let asset = this.cache.get(location);
         if (asset?.isValid) {
@@ -283,7 +285,9 @@ export class AssetMgr {
         }
     }
 
-    /** 让目录下所有资源引用计数减少 */
+    /** 
+     * 让目录下所有资源引用计数减少
+     */
     public static decDirRef<T extends Asset>(location: string, decCount = 1, type?: new (...args: any[]) => T) {
         let list = BundleMgr.Inst.getDirAssets(location, type);
         if (!list || list.length == 0) {
