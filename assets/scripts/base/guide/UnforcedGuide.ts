@@ -62,7 +62,7 @@ export default class UnforcedGuide extends Component {
         if (!this._guideDatas) return;
         let guideData: TUnforcedGuide = null;
         for (const data of this._guideDatas) {
-            if (!app.ui.isTopUI(UIConstant[data.UIName])) continue;
+            if (!app.ui.isTopUI(UIConstant[data.UIName] )) continue;
             if (GameGuide.Inst.checkUnforcedGuide(data)) {
                 guideData = data;
                 break;
