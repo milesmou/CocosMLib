@@ -4,11 +4,18 @@
     /* Add your custom configuration here. */
     /* Add your custom configuration here. */
     "compilerOptions": {
-        "strict": false,
         "target": "ES2017",
+        "noImplicitAny": true, /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+        "strictNullChecks": false, /* When type checking, take into account 'null' and 'undefined'. */
+        "strictFunctionTypes": true, /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
+        "strictBindCallApply": true, /* Check that the arguments for 'bind', 'call', and 'apply' methods match the original function. */
+        "strictPropertyInitialization": false, /* Check for class properties that are declared but not set in the constructor. */
+        "noImplicitThis": true, /* Enable error reporting when 'this' is given the type 'any'. */
+        "useUnknownInCatchVariables": true, /* Default catch clause variables as 'unknown' instead of 'any'. */
+        "alwaysStrict": true, /* Ensure 'use strict' is always emitted. */
         "types": [
-            "minigame-api-typings",//微信小游戏API
-            "./extensions/amun-editor-tool/node_modules/@cocos/creator-types/editor",//Cocos编辑器API
+            "minigame-api-typings", //微信小游戏API
+            "./extensions/amun-editor-tool/node_modules/@cocos/creator-types/editor", //Cocos编辑器API
         ]
     },
     "exclude": [

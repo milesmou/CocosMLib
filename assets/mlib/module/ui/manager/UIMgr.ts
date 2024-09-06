@@ -112,7 +112,7 @@ export class UIMgr extends Component {
         this.checkShowUI(uiName, visible);
         this.blockTime = blockTime;
         EventMgr.emit(EventKey.OnUIInitBegin, uiName, visible);
-        this._uiArgs[uiName] = args;
+        this._uiArgs.set(uiName, args);
         let ui = await this.initUI(uiName, parent || this._normal, visible, bottom, onProgress);
         if (!parent) {//主UI
             this._uiStack.add(ui, !visible || bottom)
@@ -340,7 +340,7 @@ export class UIMgr extends Component {
     public sendMessage(uiName: string, methodName: string, ...args: any[]) {
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) return -1;
-        let method: Function = ui[methodName];
+        let method: Function = (ui as any)[methodName];
         if (method && typeof method === "function") {
             method.apply(ui, args);
         } else {
