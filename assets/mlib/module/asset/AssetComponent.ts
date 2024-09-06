@@ -70,7 +70,7 @@ export class AssetComponent extends Component {
         } else {
             spFrame = await this.loadAsset(location, SpriteFrame);
         }
-        if (!spFrame) return;
+        if (!spFrame || !sprite.isValid) return;
         sprite.spriteFrame = spFrame;
     }
 
