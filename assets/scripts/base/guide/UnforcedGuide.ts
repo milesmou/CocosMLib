@@ -1,5 +1,4 @@
 import { Component, Node, _decorator, instantiate, v3 } from "cc";
-import { CCUtils } from "../../../mlib/utils/CCUtil";
 import { UIConstant } from "../../gen/UIConstant";
 import { TUnforcedGuide } from "../../gen/table/Types";
 import { GameData } from "../GameData";
@@ -43,7 +42,7 @@ export default class UnforcedGuide extends Component {
         let ui = app.ui.getUI(UIConstant[guideData.UIName]);
         let targetNode: Node = null;
         if (guideData.NodePath) {
-            targetNode = CCUtils.getNodeAtPath(ui.node, guideData.NodePath);
+            targetNode = ui.node.getChildByPath(guideData.NodePath);
         } else {
             targetNode = await GameGuide.Inst.getUnforcedGuideStepNode(guideData);
         }
