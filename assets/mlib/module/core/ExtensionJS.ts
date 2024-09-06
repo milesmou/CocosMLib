@@ -124,17 +124,13 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
     }
 
     String.prototype.upperFirst = function () {
-        let self: string = this;
-        if (!self) return self;
-        if (self.length < 2) return self.toUpperCase();
-        return self[0].toUpperCase() + self.substring(1);
+        if (this.length < 2) return this.toUpperCase();
+        return this[0].toUpperCase() + this.substring(1);
     }
 
     String.prototype.lowerFirst = function () {
-        let self: string = this;
-        if (!self) return self;
-        if (self.length < 2) return self.toLowerCase();
-        return self[0].toLowerCase() + self.substring(1);
+        if (this.length < 2) return this.toLowerCase();
+        return this[0].toLowerCase() + this.substring(1);
     }
 
     Map.prototype.find = function <K, V>(predicate: (value: V) => boolean) {
