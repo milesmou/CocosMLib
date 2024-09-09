@@ -1,7 +1,6 @@
 import { Button, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel } from '../../../mlib/module/logger/ELoggerLevel';
-import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
 import { CCUtils } from '../../../mlib/utils/CCUtil';
@@ -115,7 +114,7 @@ export class UIGuide extends UIComponent {
      */
     public startGuide(guideId: number, args?: {
         onStep?: (stepId: number) => void,
-        onStepNode?: (stepId: number, ui: UIBase) => Promise<Node>,
+        onStepNode?: (stepId: number, ui: UIForm) => Promise<Node>,
         onManualStep?: (stepId: number) => void
         onEnded?: () => void,
     }) {
