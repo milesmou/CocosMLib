@@ -88,7 +88,7 @@ class GameSetting extends Component {
         type: Asset,
         displayName: "热更清单文件",
         tooltip: "本地project.manifest清单文件",
-        visible: function () { return this._hotupdate; }
+        visible: function () { return (this as GameSetting)._hotupdate; }
     })
     public get manifest() { return this._manifest; }
     private set manifest(val: Asset) { this._manifest = val; }
