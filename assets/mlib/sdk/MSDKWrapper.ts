@@ -149,7 +149,7 @@ export class MSDKWrapper {
 type NoneCallback = () => void;
 type StringCallback = (str?: string) => void;
 type NumberCallback = (num?: number) => void;
-type ObjectCallback = (obj?: object) => void;
+type AnyCallback = (arg?: any) => void;
 
 /** 发起登录请求参数 */
 export interface LoginArgs {
@@ -166,7 +166,7 @@ export interface GameDataArgs {
     /** 用户id */
     userId: string;
     /** 成功 */
-    success?: ObjectCallback;
+    success?: AnyCallback;
     /** 失败 */
     fail?: NoneCallback;
     /** 存档数据 上传专用 */
