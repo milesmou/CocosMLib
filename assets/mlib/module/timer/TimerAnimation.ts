@@ -25,8 +25,12 @@ export class TimerAnimation extends TimerObject<Animation> {
         }
     }
 
-    public setSelfTimeScale(value: number, animName: string): void {
-        this._selfTimeScaleMap.set(animName, value);
+    public setSelfTimeScale(value: number, animName?: string): void {
+        if (animName) {
+            this._selfTimeScaleMap.set(animName, value);
+        } else {
+            this._selfTimeScaleMap.forEach((v, k) => this._selfTimeScaleMap.set(k, value));
+        }
         this.updateTimeScale();
     }
 
