@@ -24,7 +24,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         if (!(len > 0)) return value;
         let s = value > 0 ? 1 : -1;
         let multiple = 10 ** len;
-        return s * Math.floor(Math.abs(value) * multiple) /multiple;
+        return s * Math.floor(Math.abs(value) * multiple) / multiple;
     }
 
     Array.prototype.delete = function <T>(itemOrPredicate: T | ((value: T, index: number, obj: T[]) => unknown)) {
@@ -212,7 +212,7 @@ declare global {
     /** 通用进度回调方法的声明 */
     type Progress = (loaded: number, total: number) => void;
     /** 无返回值的方法声明 */
-    type Action<T1 = any, T2 = any, T3 = any, T4 = any, T5 = any> = (arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4, arg5?: T5) => void;
+    type Action<T1 = undefined, T2 = undefined, T3 = undefined, T4 = undefined, T5 = undefined> = (arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4, arg5?: T5) => void;
 
     interface Number {
         /** 
