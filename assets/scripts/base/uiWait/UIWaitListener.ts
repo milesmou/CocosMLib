@@ -2,7 +2,6 @@ import { _decorator, Component } from 'cc';
 import { persistNode } from '../../../mlib/module/core/Decorator';
 import { UIConstant } from '../../gen/UIConstant';
 import { EWaitShowType, UIWaitCfg } from './UIWaitCfg';
-import { EventKey } from '../GameEnum';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
 const { ccclass, property } = _decorator;
 
@@ -15,8 +14,8 @@ export class UIWaitListener extends Component {
     private _showWaitUI: Map<string, number> = new Map();
 
     protected onLoad(): void {
-        app.event.on(EventKey.OnUIInitBegin, this.checkShowWait, this);
-        app.event.on(EventKey.OnUIShowBegin, this.checkHideWait, this);
+        app.event.on(mEventKey.OnUIInitBegin, this.checkShowWait, this);
+        app.event.on(mEventKey.OnUIShowBegin, this.checkHideWait, this);
     }
 
     private checkShowWait(uiName: string, visible: boolean) {

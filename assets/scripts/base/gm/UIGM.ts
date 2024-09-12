@@ -1,6 +1,5 @@
 import { Button, EditBox, Node, Toggle, _decorator } from 'cc';
 import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
-import { EventKey } from '../GameEnum';
 import { PlayerData } from '../PlayerData';
 const { ccclass, property } = _decorator;
 
@@ -67,7 +66,7 @@ export class UIGM extends UIBase {
             PlayerData.Inst.delCost([_itemId, Math.abs(_itemNum)])
             app.tipMsg.showToast("删除道具成功");
         }
-        app.event.emit(EventKey.OnInventoryChange);
+        app.event.emit(mEventKey.OnInventoryChange);
 
     }
 }

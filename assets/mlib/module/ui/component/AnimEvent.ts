@@ -57,7 +57,7 @@ export default class AnimEvent extends Component {
         if (animE != this) animE.setEventListener(this.animEventListener.bind(this));//避免死循环 需要判断
     }
 
-    private event(evt: string) {
+    protected event(evt: string) {
         let arr = evt.split(this._sep);
         this._listener && this._listener(arr[0], arr[1]);
     }

@@ -1,6 +1,6 @@
 import { PlayerInventory } from "../../mlib/misc/PlayerInventory";
 import { GameData } from "./GameData";
-import { EventKey, ItemId } from "./GameEnum";
+import { ItemId } from "./GameEnum";
 
 /**
  * 玩家数据管理类
@@ -12,7 +12,7 @@ export class PlayerData extends PlayerInventory {
 
     protected onInst() {
         this.init(GameData.Inst, () => {
-            app.event.emit(EventKey.OnInventoryChange);
+            app.event.emit(mEventKey.OnInventoryChange);
         });
     }
 

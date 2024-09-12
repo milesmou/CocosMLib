@@ -2,7 +2,7 @@ import { Node, find } from "cc";
 import { UIConstant } from "../gen/UIConstant";
 import { TUnforcedGuide } from "../gen/table/Types";
 import { GameData } from "./GameData";
-import { EGuideType, EUnforcedGuideType, EventKey } from "./GameEnum";
+import { EGuideType, EUnforcedGuideType } from "./GameEnum";
 import { PlayerData } from "./PlayerData";
 import { UIGuide } from "./guide/UIGuide";
 
@@ -15,13 +15,13 @@ export class GameGuide {
 
     protected onInst() {
         this._readyToGuide = false;
-        app.event.on(EventKey.OnGuideStart, () => {
+        app.event.on(mEventKey.OnGuideStart, () => {
             this._readyToGuide = false;
         }, this);
-        app.event.on(EventKey.OnGuideEnd, (guideId: number) => {
+        app.event.on(mEventKey.OnGuideEnd, (guideId: number) => {
             this.finisheGuide(guideId);
         }, this);
-        app.event.on(EventKey.ShowGuide, this.showGuide, this);
+        app.event.on(mEventKey.ShowGuide, this.showGuide, this);
     }
 
     /** 准备开始引导 但还在等待中 */

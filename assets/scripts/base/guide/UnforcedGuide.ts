@@ -2,7 +2,6 @@ import { Component, Node, _decorator, instantiate, v3 } from "cc";
 import { UIConstant } from "../../gen/UIConstant";
 import { TUnforcedGuide } from "../../gen/table/Types";
 import { GameData } from "../GameData";
-import { EventKey } from "../GameEnum";
 import { GameGuide } from "../GameGuide";
 import GameTable from "../GameTable";
 
@@ -26,10 +25,10 @@ export default class UnforcedGuide extends Component {
         UnforcedGuide.Inst = this;
         this.m_finger.removeFromParent();
         this.hide();
-        // App.event.on(EventKey.OnUIHideBegin, this.hide, this);
-        app.event.on(EventKey.OnUIHide, this.check, this);
-        // App.event.on(EventKey.OnUIShowBegin, this.hide, this);
-        app.event.on(EventKey.OnUIShow, this.check, this);
+        // App.event.on(mEventKey.OnUIHideBegin, this.hide, this);
+        app.event.on(mEventKey.OnUIHide, this.check, this);
+        // App.event.on(mEventKey.OnUIShowBegin, this.hide, this);
+        app.event.on(mEventKey.OnUIShow, this.check, this);
     }
 
     protected start(): void {
@@ -62,7 +61,7 @@ export default class UnforcedGuide extends Component {
         if (!this._guideDatas) return;
         let guideData: TUnforcedGuide = null;
         for (const data of this._guideDatas) {
-            if (!app.ui.isTopUI(UIConstant[data.UIName] )) continue;
+            if (!app.ui.isTopUI(UIConstant[data.UIName])) continue;
             if (GameGuide.Inst.checkUnforcedGuide(data)) {
                 guideData = data;
                 break;

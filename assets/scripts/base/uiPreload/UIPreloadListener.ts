@@ -1,7 +1,6 @@
 import { _decorator, Component, Prefab } from "cc";
 import { AssetMgr } from "../../../mlib/module/asset/AssetMgr";
 import { persistNode } from "../../../mlib/module/core/Decorator";
-import { EventKey } from "../GameEnum";
 import { UIPreloadCfg } from "./UIPreloadCfg";
 const { ccclass, property } = _decorator;
 
@@ -14,8 +13,8 @@ export class UIPreloadListener extends Component {
     private _isLoading = false;//是否正在加载UI
 
     protected onLoad(): void {
-        app.event.on(EventKey.OnUIShow, this.checkPreload, this);
-        app.event.on(EventKey.OnUIHide, this.checkPreload, this);
+        app.event.on(mEventKey.OnUIShow, this.checkPreload, this);
+        app.event.on(mEventKey.OnUIHide, this.checkPreload, this);
     }
 
     private checkPreload() {

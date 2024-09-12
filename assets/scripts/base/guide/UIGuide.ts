@@ -6,7 +6,6 @@ import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
 import { CCUtils } from '../../../mlib/utils/CCUtil';
 import { UIConstant } from '../../gen/UIConstant';
 import { TGuide, Vector2 } from '../../gen/table/Types';
-import { EventKey } from '../GameEnum';
 import GameTable from '../GameTable';
 import { EMaskHollowType, GuideMask } from './GuideMask';
 import { GuidePrefab } from './GuidePrefab';
@@ -83,7 +82,7 @@ export class UIGuide extends UIComponent {
     }
 
     private guideOver() {
-        app.event.emit(EventKey.OnGuideEnd, this._guideId);
+        app.event.emit(mEventKey.OnGuideEnd, this._guideId);
         this._guideId = 0;
         this.hide();
         this._onEnded && this._onEnded();
@@ -129,7 +128,7 @@ export class UIGuide extends UIComponent {
         this._guideData = GameTable.Inst.getGuideGroup(guideId);
         if (this._guideData != null) {
             this._logger.debug("开始引导" + guideId);
-            app.event.emit(EventKey.OnGuideStart, this._guideId);
+            app.event.emit(mEventKey.OnGuideStart, this._guideId);
             this._onStep = onStep;
             this._onStepNode = onStepNode;
             this._onManualStep = onManualStep;
@@ -260,13 +259,13 @@ export class UIGuide extends UIComponent {
                     this._logger.debug(`${uiName} 等待被打开`);
                     let func = ui => {
                         if (app.ui.isTopUI(uiName)) {
-                            app.event.off(EventKey.OnUIShow, func);
-                            app.event.off(EventKey.OnUIHide, func);
+                            app.event.off(mEventKey.OnUIShow, func);
+                            app.event.off(mEventKey.OnUIHide, func);
                             checkUI();
                         }
                     };
-                    app.event.on(EventKey.OnUIShow, func);
-                    app.event.on(EventKey.OnUIHide, func);
+                    app.event.on(mEventKey.OnUIShow, func);
+                    app.event.on(mEventKey.OnUIHide, func);
                 }
             }, Math.max(0.05, guide.DelayCheckUI));
         });
@@ -276,7 +275,7 @@ export class UIGuide extends UIComponent {
     private async waitManualStartStep() {
         this._logger.debug("等待手动开始引导步骤");
         this._onManualStep && this._onManualStep(this.stepId);
-        app.event.emit(EventKey.ManualGuideStep, this._guideId, this.stepId);
+        app.event.emit(mEventKey.ManualGuideStep, this._guideId, this.stepId);
     }
 
 

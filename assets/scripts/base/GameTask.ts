@@ -1,5 +1,4 @@
 import { GameData } from "./GameData";
-import { EventKey } from "./GameEnum";
 
 /** 任务状态 */
 export enum TaskState {
@@ -115,6 +114,6 @@ export class GameTask {
 
     private saveTaskInfo() {
         GameData.Inst.delaySave();
-        app.event.emit(EventKey.OnTaskChange);
+        app.event.emit(mEventKey.OnTaskChange);
     }
 }
