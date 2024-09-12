@@ -49,7 +49,7 @@ export default class AnimEvent extends Component {
     }
 
     private registerSpineListener(spine: sp.Skeleton) {
-        spine.setEventListener(this.spineEventListener.bind(this));
+        spine.setEventListener(this.spineEventListener.bind(this) as any);
     }
 
     private registerAnimListener(anim: Animation) {
