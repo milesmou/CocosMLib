@@ -1,6 +1,11 @@
 import { tween } from "cc";
 import { GameSave } from "../module/stroage/GameSave";
 
+/** 物品信息 物品类型,物品ID,物品数量 */
+type ItemInfo = [number, number, number];
+/** 物品信息 只有物品ID和物品数量 物品类型默认为1 */
+type ItemInfo2 = [number, number];
+
 /** 背包物品的基本信息 */
 export class InventoryItemSO {
 
@@ -55,12 +60,12 @@ export class PlayerInventory {
     }
 
     /**可重写 解析配置的奖励 部分奖励需要特殊处理(如掉落池之类) */
-    protected postParseRewards(reawrds: number[][], tag?: any) {
+    protected postParseRewards(reawrds: ItemInfo[], tag?: any) {
         return reawrds;
     }
 
     /**可重写 最后解析物品，在获得奖励、计算数量是否足够、消耗物品时会调用 */
-    protected postParseSingleItem(reawrd: number[], tag?: any) {
+    protected postParseSingleItem(reawrd: ItemInfo, tag?: any) {
         return reawrd;
     }
 
@@ -242,18 +247,18 @@ export class PlayerInventory {
 
     /** 格式化不同方式的道具配置 */
     private formatItems(items: string | string[] | number[] | number[][]) {
-        let result: number[][];
+        let result: ItemInfo[];
         if (Array.isArray(items) && Array.isArray(items[0])) {
             result = [];
             for (const item of items) {
-                if ((item as number[]).length < 3) result.push([1, ...item as number[]]);
-                else result.push(item as number[]);
+                if ((item as number[]).length < 3) result.push([1, ...item as ItemInfo2]);
+                else result.push(item as ItemInfo);
             }
         }
         else if (Array.isArray(items) && typeof items[0] === "number") {
             result = [];
-            if (items.length < 3) result.push([1, ...items as number[]]);
-            else result.push(items as number[]);
+            if (items.length < 3) result.push([1, ...items as ItemInfo2]);
+            else result.push(items as ItemInfo);
         }
         else {
             result = ParseItemTool.parseGameItem(items as any);
@@ -336,7 +341,7 @@ export class ParseItemTool {
                 map[key] = count + arr[2];
             }
         }
-        let result: number[][] = [];
+        let result: ItemInfo[] = [];
 
         for (const key in map) {
             let strings = key.split('_');
@@ -348,7 +353,7 @@ export class ParseItemTool {
     }
 
     static parseSingleGameItem(str: string) {
-        let result = [1, 0, 0];
+        let result: ItemInfo = [1, 0, 0];
         let arr = str.trim().split(",").filter(v => v != "");
         if (arr.length >= 2) {
             let start = 0, di = 0;
