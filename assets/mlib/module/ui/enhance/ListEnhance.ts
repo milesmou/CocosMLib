@@ -1,5 +1,5 @@
-import { Vec2 } from 'cc';
-import { Component, Node, UIOpacity, Vec3, _decorator, geometry } from 'cc';
+import { Mask } from 'cc';
+import { Component, Node, UIOpacity, Vec2, _decorator, geometry } from 'cc';
 const { ccclass, property, disallowMultiple, integer } = _decorator;
 
 /** 优化列表的DC 隐藏不在视图范围内的节点 */
@@ -17,13 +17,11 @@ export class ListEnhance extends Component {
     @property({
         type: Node,
         displayName: "View",
-        tooltip: "显示范围"
+        tooltip: "显示范围，默认使用有Mask组件的父节点"
     })
     private m_view: Node;
 
     private _wPosition = new Vec2();
-    private _wRotation = new Vec2();
-    private _wScale = new Vec2();
 
     private _viewAABB: geometry.AABB = new geometry.AABB();//重复利用避免GC过多
     private _childAABB: geometry.AABB = new geometry.AABB();//重复利用避免GC过多
@@ -36,7 +34,7 @@ export class ListEnhance extends Component {
     private _onceUpdateitemVisible: Map<number, boolean> = new Map();
 
     protected onLoad() {
-        this.delayUpdateItemsVisible();
+        this.init();
     }
 
     protected onEnable(): void {
@@ -54,6 +52,10 @@ export class ListEnhance extends Component {
     }
 
 
+    private init() {
+        this.m_view = this.m_view || this.getComponentInParent(Mask).node;
+        this.delayUpdateItemsVisible();
+    }
 
 
     protected update(dt: number): void {
