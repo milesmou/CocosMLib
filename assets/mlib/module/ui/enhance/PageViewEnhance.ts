@@ -1,21 +1,19 @@
 import { Component, Label, Node, PageView, _decorator, misc } from 'cc';
-const { ccclass, property } = _decorator;
+const { ccclass, property, requireComponent } = _decorator;
 
 @ccclass('PageViewEnhance')
+@requireComponent(PageView)
 export class PageViewEnhance extends Component {
     @property({
         type: Node,
-        visible: function () { return this.getComponent(PageView) }
     })
     btnPrevious: Node = null;
     @property({
         type: Node,
-        visible: function () { return this.getComponent(PageView) }
     })
     btnNext: Node = null;
     @property({
         type: Label,
-        visible: function () { return this.getComponent(PageView) }
     })
     pageNum: Label = null;
     pageView: PageView = null;
