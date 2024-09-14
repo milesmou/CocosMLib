@@ -46,7 +46,7 @@ export class GMCloudDataMgr extends UIComponent {
     private onClickSave() {
         let desc = this._saveDesc.string.trim();
         if (!desc) {
-            desc = new Date().toString();
+            desc = new Date().toLocaleString();
         }
 
         let data = GameData.Inst.getSerializeStr();
