@@ -83,9 +83,6 @@ export class ListEnhance extends Component {
 
     private updateItemsVisible() {
 
-        console.log("list enhance updateItemsVisible");
-
-
         this.m_view.transform.getComputeAABB(this._viewAABB);
 
         this._onceUpdateitemVisible.clear();
