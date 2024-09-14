@@ -167,8 +167,11 @@ export class MButton extends Button {
         }
 
         if (!this.quickMode) this.checkTouchEvent(event);
-        super._onTouchEnded(event);
         if (this._longPressButton) this.unschedule(this.updateLongPress);
+        super._onTouchCancel(event);
+        if (event) {
+            event.propagationStopped = true;
+        }
     }
 
     private checkPolygonButton(event: EventTouch) {
