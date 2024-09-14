@@ -16,7 +16,7 @@ export class MButton extends Button {
     public defaultAudio = true;
     @property({
         displayName: "自定义音效",
-        visible() { return !this.defaultAudio; }
+        visible() { return !(this as MButton).defaultAudio; }
     })
     public customAudio = "";
     @property({
@@ -51,7 +51,7 @@ export class MButton extends Button {
     @property({
         displayName: "连击每次最大间隔(秒)",
         range: [0.1, 2],
-        visible() { return this._multiClickButton; }
+        visible() { return (this as MButton)._multiClickButton; }
     })
     public get multiClickInterval() { return this._multiClickInterval; }
     private set multiClickInterval(val: number) { this._multiClickInterval = val; }
@@ -69,24 +69,24 @@ export class MButton extends Button {
     @property({
         displayName: "长按忽略点击事件",
         tooltip: "True:只会触发长按事件 False:触发长按事件或点击事件",
-        visible() { return this._longPressButton; }
+        visible() { return (this as MButton)._longPressButton; }
     })
     private m_LongPressIgnoreClick = true;
     @property({
         displayName: "长按触发时长(秒)",
         range: [0.1, 5],
-        visible() { return this._longPressButton; }
+        visible() { return (this as MButton)._longPressButton; }
     })
     private m_LongPressDuration = 1;
     @property({
         displayName: "长按连续触发事件",
-        visible() { return this._longPressButton; }
+        visible() { return (this as MButton)._longPressButton; }
     })
     private m_LongPressRepeatInvoke = false;
     @property({
         displayName: "长按连续触发间隔(秒)",
         range: [0.05, 5],
-        visible() { return this._longPressButton && this.m_LongPressRepeatInvoke; }
+        visible() { return (this as MButton)._longPressButton && (this as MButton).m_LongPressRepeatInvoke; }
     })
     private m_LongPressRepeatInterval = 0.15;
 

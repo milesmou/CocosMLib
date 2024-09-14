@@ -16,7 +16,7 @@ export class MSlider extends Slider {
 
     @property({
         displayName: "进度条长度",
-        visible: function () { return this.m_BarSprite && this.m_BarSprite.type != Sprite.Type.FILLED; }
+        visible: function () { return (this as MSlider).m_BarSprite && (this as MSlider).m_BarSprite.type != Sprite.Type.FILLED; }
     })
     private m_TotalLength = 0;
 

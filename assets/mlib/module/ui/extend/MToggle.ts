@@ -19,7 +19,7 @@ export class MToggle extends Toggle {
     private m_DefaultAudio = true;
     @property({
         displayName: "自定义音效",
-        visible() { return !this.m_DefaultAudio; }
+        visible() { return !(this as MToggle).m_DefaultAudio; }
     })
     private m_CustomAudio = "";
     @property({
