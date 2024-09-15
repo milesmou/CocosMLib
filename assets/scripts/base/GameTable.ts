@@ -1,6 +1,7 @@
-import { JsonAsset } from 'cc';
+import { BufferAsset } from 'cc';
 import { AssetMgr } from '../../mlib/module/asset/AssetMgr';
-import { Tables, TGuide, TUnforcedGuide } from '../gen/table/Types';
+import ByteBuf from '../gen/bright/serialization/ByteBuf';
+import { Tables, TGuide, TUnforcedGuide } from '../gen/table/schema';
 
 /**
 * 数据表管理类
@@ -8,20 +9,20 @@ import { Tables, TGuide, TUnforcedGuide } from '../gen/table/Types';
 export default class GameTable {
     public static get Inst() { return createSingleton(GameTable); }
 
-    public Table: Tables = null;
     public static Table: Tables = null;
+
+    public static get GlobalVar() { return this.Table.TbGlobalVar; }
 
     /** 加载所有数据表 */
     public static async initData(onProgress?: (finished: number, total: number) => void) {
         let dir = "table";
-        let assets = await AssetMgr.loadDir(dir, JsonAsset, onProgress);
-        let datas: Map<string, JsonAsset> = new Map();
+        let assets = await AssetMgr.loadDir(dir, BufferAsset, onProgress);
+        let datas: Map<string, Uint8Array> = new Map();
         for (let asset of assets) {
-            datas.set(asset.name, asset);
+            datas.set(asset.name, new Uint8Array(asset.buffer().slice(0, asset.buffer().byteLength)));
         }
         GameTable.Table = new Tables(file => {
-            let obj = datas.get(file)?.json;
-            return obj;
+            return new ByteBuf(datas.get(file));
         });
         AssetMgr.decDirRef(dir);
     }

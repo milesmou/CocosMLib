@@ -4,6 +4,7 @@ import { UIBase } from '../../mlib/module/ui/manager/UIBase';
 import { UIConstant } from '../gen/UIConstant';
 import { resources } from 'cc';
 import { SpriteFrame } from 'cc';
+import GameTable from '../base/GameTable';
 
 const { ccclass, property } = _decorator;
 
@@ -24,6 +25,8 @@ export class UIHUD extends UIBase {
         let info2 = resources.getDirWithPath("uiPrefab/22", SpriteFrame);
         console.log(info);
         console.log(info2);
+        console.log(GameTable.Table.TbGuide.getDataList());
+
 
         // let jsonObj: pbroot.IPlayerInfo = { userId: 1, gender: 1, userName: "uu", nickName: "hjh" };
         // let buffer: Uint8Array = pbroot.PlayerInfo.encode(jsonObj).finish();

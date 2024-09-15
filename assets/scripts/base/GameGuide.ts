@@ -1,6 +1,6 @@
 import { Node, find } from "cc";
 import { UIConstant } from "../gen/UIConstant";
-import { TUnforcedGuide } from "../gen/table/Types";
+import { TUnforcedGuide } from "../gen/table/schema";
 import { GameData } from "./GameData";
 import { EGuideType, EUnforcedGuideType } from "./GameEnum";
 import { PlayerData } from "./PlayerData";

@@ -5,7 +5,7 @@ import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
 import { CCUtils } from '../../../mlib/utils/CCUtil';
 import { UIConstant } from '../../gen/UIConstant';
-import { TGuide, Vector2 } from '../../gen/table/Types';
+import { TGuide, vector2 } from '../../gen/table/schema';
 import GameTable from '../GameTable';
 import { EMaskHollowType, GuideMask } from './GuideMask';
 import { GuidePrefab } from './GuidePrefab';
@@ -410,14 +410,14 @@ export class UIGuide extends UIComponent {
     }
 
     /** 显示圆圈 */
-    public showRing(scale: number, pos: Vec3, offset: Vector2) {
+    public showRing(scale: number, pos: Vec3, offset: vector2) {
         this._ring.active = true;
         this._ring.setScale(scale, scale);
         this._ring.position = pos.add(v3(offset.x, offset.y));
     }
 
     /** 显示手指 */
-    public showFinger(dir: number, pos: Vec3, offset: Vector2) {
+    public showFinger(dir: number, pos: Vec3, offset: vector2) {
         if (dir == 0) {
             this._finger.active = false;
         }
@@ -443,7 +443,7 @@ export class UIGuide extends UIComponent {
     }
 
     /** 展示提示文字 */
-    public showTipText(text: string, pos: Vector2) {
+    public showTipText(text: string, pos: vector2) {
         if (!text || !text.trim()) {
             this._tip.active = false;
         }
