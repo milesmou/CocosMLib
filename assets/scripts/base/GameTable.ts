@@ -15,6 +15,17 @@ export default class GameTable {
 
     /** 加载所有数据表 */
     public static async initData(onProgress?: (finished: number, total: number) => void) {
+        // //JSON
+        // let assets = await AssetMgr.loadDir(dir, JsonAsset, onProgress);
+        // let datas: Map<string, JsonAsset> = new Map();
+        // for (let asset of assets) {
+        //     datas.set(asset.name, asset);
+        // }
+        // GameTable.Table = new Tables(file => {
+        //     let obj = datas.get(file)?.json;
+        //     return obj;
+        // });
+        //Bin
         let dir = "table";
         let assets = await AssetMgr.loadDir(dir, BufferAsset, onProgress);
         let datas: Map<string, Uint8Array> = new Map();

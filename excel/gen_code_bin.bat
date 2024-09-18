@@ -1,7 +1,7 @@
 set WORKSPACE=..
 
-set LUBAN_EXE=%WORKSPACE%\excel\Tools\Luban\Luban.exe
-set CONF_ROOT=%WORKSPACE%\excel\Confs
+set LUBAN_EXE=Tools\Luban\Luban.exe
+set CONF_ROOT=Confs
 
 %LUBAN_EXE% ^
     -t all ^

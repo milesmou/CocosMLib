@@ -1,7 +1,7 @@
 set WORKSPACE=..
 
-set LUBAN_EXE=%WORKSPACE%\excel\Tools\Luban\Luban.exe
-set CONF_ROOT=%WORKSPACE%\excel\Confs
+set LUBAN_EXE=Tools\Luban\Luban.exe
+set CONF_ROOT=Confs
 
 %LUBAN_EXE% ^
     -t all ^
@@ -10,6 +10,7 @@ set CONF_ROOT=%WORKSPACE%\excel\Confs
     --conf %CONF_ROOT%\luban.conf ^
     -x outputCodeDir=%WORKSPACE%\assets\scripts\gen\table ^
     -x outputDataDir=%WORKSPACE%\assets\bundles\dynamic\table ^
-    -x tableImporter.name=miles
+    -x tableImporter.name=miles ^
+    -x json.compact=1
 
 pause
