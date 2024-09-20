@@ -1,3 +1,3 @@
 export enum ELoggerLevel {
-    Info = 1, Debug, Warn, Error
+    Debug = 1, Info, Warn, Error
 }

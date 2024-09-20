@@ -113,7 +113,7 @@ class GameSetting extends Component {
     @property({
         type: LogLevel,
         displayName: "日志级别",
-        tooltip: "默认为Auto,编辑器预览时日志级别为Info,发布后日志级别为Warn"
+        tooltip: "默认为Auto,编辑器预览时日志级别为Debug,发布后日志级别为Info"
     })
     private m_LogLevel = LogLevel.Auto;
 
@@ -157,8 +157,8 @@ class GameSetting extends Component {
 
     private setLogLevel() {
         if (this.m_LogLevel == LogLevel.Auto) {
-            if (!PREVIEW) {
-                mLogger.setLevel(LogLevel.Warn);
+            if (PREVIEW) {
+                mLogger.setLevel(LogLevel.Debug);
             } else {
                 mLogger.setLevel(LogLevel.Info);
             }

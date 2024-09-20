@@ -70,8 +70,8 @@ class App extends Component implements IApp {
 
         this.chan = Publish.getChannelInstance();
 
-        mLogger.print(`GameSetting Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version} Language=${L10nMgr.lang}`);
-        mLogger.print(`SDKSetting ${mSdkSetting.getPrintInfo()}`);
+        mLogger.info(`GameSetting Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version} Language=${L10nMgr.lang}`);
+        mLogger.info(`SDKSetting ${mSdkSetting.getPrintInfo()}`);
     }
 
     protected start() {
