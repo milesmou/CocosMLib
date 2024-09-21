@@ -1,7 +1,6 @@
 import { Button, Component, EventTouch, Node, Rect, Sprite, Toggle, UITransform, _decorator, v2, v3 } from "cc";
 import { MEvent } from "../../../mlib/module/event/MEvent";
 import { MButton } from "../../../mlib/module/ui/extend/MButton";
-import { MToggle } from "../../../mlib/module/ui/extend/MToggle";
 import { HollowOut } from "./HollowOut";
 
 
@@ -54,16 +53,10 @@ export class GuideMask extends Component {
         this.hollowOut.reset();
     }
 
-    /** 挖孔并在点击挖孔区域时触发事件 */
+    /** 挖孔 若指定eventTarget则可在点击挖孔区域时触发事件 */
     public hollow(type: EMaskHollowType, hollowTarget: Node, eventTarget: Node, scale: number, duration = 0.25) {
         this._canClick = true;
-        this._isTweenHollow = true;
-        this._eventTarget = eventTarget || hollowTarget;
-        this.hollow2(type, hollowTarget, scale, duration);
-    }
-
-    /** 仅挖孔 不可点击挖孔区域 */
-    public hollow2(type: EMaskHollowType, hollowTarget: Node, scale: number, duration = 0.25) {
+        this._eventTarget = eventTarget;
         this._hollowTargetRect = hollowTarget.getComponent(UITransform).getBoundingBoxToWorld();
 
         let center = this._hollowTargetRect.center;
@@ -71,6 +64,7 @@ export class GuideMask extends Component {
         let pos = v2(posV3.x, posV3.y);
         scale = scale || 1;
 
+        this._isTweenHollow = true;
         if (type == EMaskHollowType.Rect) {
             let width = this._hollowTargetRect.width * scale;
             let height = this._hollowTargetRect.height * scale;
@@ -90,7 +84,7 @@ export class GuideMask extends Component {
 
         this.scheduleOnce(() => {
             this._isTweenHollow = false;
-        }, 0.05);
+        }, duration + 0.05);
     }
 
     private stopTouchEvent(evt: EventTouch) {
@@ -99,9 +93,11 @@ export class GuideMask extends Component {
 
     private onTouchEnd(evt: EventTouch) {
 
-        if (this._isTweenHollow) return;
+        if (this._isTweenHollow) return;//挖空正在进行中
 
-        if (!this._canClick) return;
+        if (!this._canClick) return;//已触发过点击事件
+
+        if (!this._eventTarget) return;//不需要触发点击事件
 
 
         let pos = evt.getUILocation();
@@ -117,28 +113,22 @@ export class GuideMask extends Component {
                 return;
             }
 
-            {
-                let btn = this._eventTarget.getComponent(Button);
-                if (btn) {
-                    Component.EventHandler.emitEvents(btn.clickEvents, evt);
-                    btn.node.emit("click", btn);
-                    if (btn instanceof MButton) btn.onClick.dispatch();
-                    return;
-                }
+            let btn = this._eventTarget.getComponent(Button);
+            if (btn) {
+                Component.EventHandler.emitEvents(btn.clickEvents, evt);
+                btn.node.emit(Button.EventType.CLICK, btn);
+                if (btn instanceof MButton) btn.onClick.dispatch();
+                return;
             }
-
-            {
-                let tog = this._eventTarget.getComponent(Toggle);
-                if (tog) {
-                    Component.EventHandler.emitEvents(tog.clickEvents, evt);
-                    tog.node.emit("click", tog);
-                    if (tog instanceof MToggle) tog.onValueChange.dispatch();
-                    return;
-                }
+            let tog = this._eventTarget.getComponent(Toggle);
+            if (tog) {
+                Component.EventHandler.emitEvents(tog.clickEvents, evt);
+                tog.node.emit(Toggle.EventType.CLICK, tog);
+                return;
             }
-
             this._eventTarget.emit(Button.EventType.CLICK);
         }
+
     }
 
 }

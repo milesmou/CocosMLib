@@ -156,9 +156,7 @@ export class UIGuide extends UIComponent {
 
         this._logger.debug(`手动开始引导 GuideId=${guideId} StepId=${stepId}`);
 
-        if (guide.ClickScreen) {//点击屏幕
-            this.showBtnScreen();
-        } else {
+        {
             if (guide.NodeSize.x == 0 || guide.NodeSize.y == 0) {
                 this._logger.error(`挖孔必须在表中指定NodeSize`);
                 this.guideOver();
@@ -171,8 +169,9 @@ export class UIGuide extends UIComponent {
             }
             this._hollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this._hollowTarget.parent);
             this._hollowTargetTf.setContentSize(guide.NodeSize.x, guide.NodeSize.y);
-            this.showHollowByTarget(this._hollowTarget, eventTarget, hollowDuration);
+            this.showHollow(this._hollowTarget, eventTarget, hollowDuration);
         }
+        this.showBtnScreen();
         this.showPrefab();
         this.showTipAVG();
     }
@@ -216,12 +215,11 @@ export class UIGuide extends UIComponent {
             this.waitManualStartStep();
         } else {
             let ui = await this.waitUIShow();
-            if (guide.ClickScreen) {//点击屏幕
-                this.showBtnScreen();
-            } else {//点击指定节点
+            if (guide.NodePath) {//点击指定节点
                 let targetNode = await this.findTargetNode(ui);
-                this.showHollowByTarget(targetNode.hollowTarget, targetNode.eventTarget);
+                this.showHollow(targetNode.hollowTarget, targetNode.eventTarget);
             }
+            this.showBtnScreen();
             this.showTipAVG();
             this.showPrefab();
         }
@@ -280,6 +278,8 @@ export class UIGuide extends UIComponent {
 
 
     private async showBtnScreen() {
+        let guide = this._guideData[this._dataIndex];
+        if (!guide.ClickScreen) return;
         this._logger.debug("点击屏幕即可");
         this._btnScreen.active = true
         this._btnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
@@ -328,7 +328,7 @@ export class UIGuide extends UIComponent {
     private async findTargetNode(ui: UIForm) {
         let guide = this._guideData[this._dataIndex];
         let btnNode: Node;
-        if (!guide.NodePath.trim()) {
+        if (guide.NodePath.trim() == "x") {
             btnNode = await this._onStepNode(this.stepId, ui);
             if (!btnNode?.isValid) {
                 this._logger.error(`引导${this._guideId} stepId=${this.stepId} 目标节点未找到`);
@@ -354,12 +354,13 @@ export class UIGuide extends UIComponent {
         }
     }
 
-    /** 展示挖孔 并且可以点击挖孔区域 */
-    private showHollowByTarget(hollowTarget?: Node, eventTarget?: Node, duration = 0.25) {
+    /** 展示挖孔 */
+    private showHollow(hollowTarget: Node, eventTarget: Node, duration = 0.25) {
         let guide = this._guideData[this._dataIndex];
         if (hollowTarget) {
-            this._mask.hollow(guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle, hollowTarget, eventTarget, guide.HollowScale, duration);
-            eventTarget.once("click", this.checkOver.bind(this));
+            let hollowType = guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle;
+            this._mask.hollow(hollowType, hollowTarget, guide.ClickScreen ? null : eventTarget, guide.HollowScale, duration);
+            if (!guide.ClickScreen) eventTarget.once("click", this.checkOver.bind(this));
             this._logger.debug(`挖孔Size width=${this._hollowTargetTf.width} height=${this._hollowTargetTf.height}`);
             this.scheduleOnce(() => {
                 app.ui.blockTime = -1;
@@ -370,6 +371,13 @@ export class UIGuide extends UIComponent {
         }
     }
 
+    /** 展示自定义挖孔 挖孔不可点击  */
+    public showCustomHollow(type: EMaskHollowType, screenPos: Vec3, size: Size, duration = 0.25) {
+        this._hollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this._hollowTarget.parent);
+        this._hollowTargetTf.width = size.width;
+        this._hollowTargetTf.height = size.height;
+        this._mask.hollow(type, this._hollowTarget, null, 1, duration);
+    }
 
 
     /** 展示提示文字对话框 */
@@ -386,14 +394,6 @@ export class UIGuide extends UIComponent {
     /** 遮罩是否接收触摸事件 */
     public setMaskTouchEnable(enable: boolean) {
         this._mask.setTouchEnable(enable);
-    }
-
-    /** 自定义挖孔 仅挖孔不可点击  */
-    public showCustomHollow(type: EMaskHollowType, screenPos: Vec3, size: Size, duration = 0.25) {
-        this._hollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this._hollowTarget.parent);
-        this._hollowTargetTf.width = size.width;
-        this._hollowTargetTf.height = size.height;
-        this._mask.hollow2(type, this._hollowTarget, 1, duration);
     }
 
     /** 设置遮罩透明度 */
