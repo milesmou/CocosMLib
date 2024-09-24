@@ -38,6 +38,9 @@ export class UIGuide extends UIComponent {
     private get prefabParent() { return this.rc.get("PrefabParent", Node); }
     private get debug() { return this.rc.get("Debug", Node); }
 
+    /** 遮罩默认透明度 */
+    private _maskOpacity = 0;
+
     public get isGuide() { return this._guideId > 0; }
     public get nowGuide() { return this._guideId; }
     public get stepId() {
@@ -56,8 +59,6 @@ export class UIGuide extends UIComponent {
     private _onManualStep?: (stepId: number) => void;
     private _onEnded: () => void;
 
-    private _skipGuide = false;//关闭所有引导
-
     protected onLoad() {
         UIGuide.Inst = this;
 
@@ -75,6 +76,7 @@ export class UIGuide extends UIComponent {
 
 
     private hide(fast = false) {
+        this._maskOpacity = this.mask.getComponent(UIOpacity).opacity;
         this.setShadeOpacity(0, fast ? 0 : 0.15, () => {
             this.mask.node.active = false;
         });
@@ -119,7 +121,6 @@ export class UIGuide extends UIComponent {
         onManualStep?: (stepId: number) => void
         onEnded?: () => void,
     }) {
-        if (this._skipGuide) return;
         let { onStep, onManualStep, onEnded } = args || {};
         if (this._guideId != 0) {
             this._logger.warn("正在进引导: " + this._guideId + " 想要开始引导: " + guideId);
@@ -134,6 +135,10 @@ export class UIGuide extends UIComponent {
             this._onStep = onStep;
             this._onManualStep = onManualStep;
             this._onEnded = onEnded;
+            if (mGameSetting.skipGuide) {
+                this.guideOver();
+                return;
+            }
             this.showGuideStep();
         }
         else {
@@ -192,7 +197,7 @@ export class UIGuide extends UIComponent {
         this.finger.active = false;
         this.btnScreen.active = false
 
-        this.setShadeOpacity(guide.Opacity < 0 ? 0 : (guide.Opacity || 185));
+        this.setShadeOpacity(guide.Opacity < 0 ? 0 : (guide.Opacity || this._maskOpacity));
         if (!guide.TipText || guide.Delay > 0) this.tip.active = false;
 
         this.scheduleOnce(() => {
@@ -322,17 +327,16 @@ export class UIGuide extends UIComponent {
     private showHollow() {
         let guide = this._guideData[this._dataIndex];
         if (guide.HollowPos && guide.HollowSize) {
-            let hollowWorldPos = this.fixupHollowPos();
+            let hollowPos = this.fixupHollowPos();
             let hollowSize = new Size(guide.HollowSize.x, guide.HollowSize.y);
             let hollowType = guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle;
             let hollowAnimDur = guide.HollowAnimDur < 0 ? 0 : (guide.HollowAnimDur || 0.25);
-            this.mask.hollow(hollowType, hollowWorldPos, hollowSize, guide.HollowScale, hollowAnimDur, guide.FinishStepType == EFinishStepType.ClickHollow);
+            this.mask.hollow(hollowType, hollowPos, hollowSize, guide.HollowScale, hollowAnimDur, guide.FinishStepType == EFinishStepType.ClickHollow);
             this._logger.debug(`挖孔Size width=${hollowSize.width} height=${hollowSize.height}`);
             this.scheduleOnce(() => {
                 app.ui.blockTime = -1;
-                let pos = this.node.transform.convertToNodeSpaceAR(hollowWorldPos);
-                this.showRing(guide.RingScale, pos, guide.RingOffset);
-                this.showFinger(guide.FingerDir, pos, guide.FingerOffset);
+                this.showRing(guide.RingScale, hollowPos.clone(), guide.RingOffset);
+                this.showFinger(guide.FingerDir, hollowPos.clone(), guide.FingerOffset);
             }, hollowAnimDur + 0.05);
         }
 
@@ -470,11 +474,14 @@ export class UIGuide extends UIComponent {
                 pos.x = Math.floor(pos.x);
                 pos.y = Math.floor(pos.y);
                 let aabb = self.transform.getComputeAABB();
+                let nodePos = self.transform.convertToWorldSpaceAR(v3(0, 0));
+                nodePos.x = Math.floor(nodePos.x);
+                nodePos.y = Math.floor(nodePos.y);
                 logger.debug("------------------------------")
-                logger.debug("ClickPos " + `${pos.x},${pos.y} | ${pos.x - viewSize.width / 2},${pos.y - viewSize.height / 2}`);
+                logger.debug("ClickPos " + `${pos.x - viewSize.width / 2},${pos.y - viewSize.height / 2}`);
                 logger.debug("NodePath " + self.getPath());
-                logger.debug("NodePostion " + `${Math.floor(aabb.center.x)},${Math.floor(aabb.center.y)}`);
-                logger.debug("NodeSize " + `${aabb.halfExtents.x * 2},${aabb.halfExtents.y * 2}`);
+                logger.debug("NodePostion " + `${nodePos.x - viewSize.width / 2},${nodePos.y - viewSize.height / 2}`);
+                logger.debug("NodeSize " + `${Math.floor(aabb.halfExtents.x * 2)},${Math.floor(aabb.halfExtents.y * 2)}`);
                 let top = viewSize.height - aabb.center.y - aabb.halfExtents.y;
                 let bottom = aabb.center.y - aabb.halfExtents.y;
                 let left = aabb.center.x - aabb.halfExtents.x;

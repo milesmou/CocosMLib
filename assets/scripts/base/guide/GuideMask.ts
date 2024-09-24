@@ -1,4 +1,4 @@
-import { Component, EventTouch, Node, Rect, Size, Sprite, UITransform, Vec2, Vec3, _decorator, v2 } from "cc";
+import { Component, EventTouch, Node, Rect, Size, Sprite, Vec2, Vec3, _decorator, v2, view } from "cc";
 import { MEvent } from "../../../mlib/module/event/MEvent";
 import { HollowOut } from "./HollowOut";
 
@@ -16,7 +16,7 @@ export class GuideMask extends Component {
     @property(HollowOut)
     private hollowOut: HollowOut = null;
 
-    /** 触摸响应区域 */
+    /** 触摸响应区域(世界坐标系) */
     private _touchRect: Rect = new Rect();
 
     private _isClickInTouchArea = false;//是否在触摸区域内点击
@@ -51,16 +51,19 @@ export class GuideMask extends Component {
         this.hollowOut.reset();
     }
 
-    /** 挖孔  */
-    public hollow(type: EMaskHollowType, hollowWorldPos: Vec3, hollowSize: Size, scale: number, duration: number, canClick = true) {
+    /** 
+     * 挖孔
+     * @param hollowPos 屏幕中心为原点的坐标
+     */
+    public hollow(type: EMaskHollowType, hollowPos: Vec3, hollowSize: Size, scale: number, duration: number, canClick = true) {
         this._canClick = canClick;
 
-        let posV3 = this.getComponent(UITransform).convertToNodeSpaceAR(hollowWorldPos);
-        let pos = v2(posV3.x, posV3.y);
+        let pos = v2(hollowPos.x, hollowPos.y);
         scale = scale || 1;
 
-        this._touchRect.x = hollowWorldPos.x - hollowSize.width / 2;
-        this._touchRect.y = hollowWorldPos.y - hollowSize.height / 2;
+        let viewSize = view.getVisibleSize();
+        this._touchRect.x = hollowPos.x - hollowSize.width / 2 + viewSize.width / 2;
+        this._touchRect.y = hollowPos.y - hollowSize.height / 2 + viewSize.height / 2;
         this._touchRect.width = hollowSize.width;
         this._touchRect.height = hollowSize.height;
 

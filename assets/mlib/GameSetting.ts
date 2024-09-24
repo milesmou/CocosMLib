@@ -102,6 +102,14 @@ class GameSetting extends Component {
     @integer
     private m_FrameRate = 0;
 
+    @property private _skipGuide = false;
+    @property({
+        displayName: "跳过引导",
+        tooltip: "跳过所有的引导",
+    })
+    public get skipGuide() { return this._skipGuide; }
+    private set skipGuide(val: boolean) { this._skipGuide = val; }
+
     @property private _nodeEvent = false;
     @property({
         displayName: "节点事件",
