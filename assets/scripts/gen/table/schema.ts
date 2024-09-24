@@ -127,13 +127,14 @@ export class TGuide {
         this.GuideID = _buf_.ReadInt()
         this.StepId = _buf_.ReadInt()
         this.UIName = _buf_.ReadString()
-        this.DelayCheckUI = _buf_.ReadFloat()
+        this.Delay = _buf_.ReadFloat()
         this.FinishStepType = _buf_.ReadInt()
         if(_buf_.ReadBool()) { this.HollowPos = new vector2(_buf_) } else { this.HollowPos = null; }
         if(_buf_.ReadBool()) { this.HollowSize = new vector2(_buf_) } else { this.HollowSize = null; }
         { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.HollowAlign = []; for(let i = 0 ; i < n ; i++) { let _e0 ;_e0 = _buf_.ReadFloat(); this.HollowAlign.push(_e0);}}
         this.HollowKeep = _buf_.ReadBool()
         this.HollowType = _buf_.ReadInt()
+        this.HollowAnimDur = _buf_.ReadFloat()
         this.HollowScale = _buf_.ReadFloat()
         this.FinishStepDelay = _buf_.ReadFloat()
         this.Opacity = _buf_.ReadInt()
@@ -163,9 +164,9 @@ export class TGuide {
      */
     readonly UIName: string
     /**
-     * 延迟检测当前所在UI
+     * 延迟开始本步引导
      */
-    readonly DelayCheckUI: number
+    readonly Delay: number
     /**
      * 完成这一步引导的方式
      */
@@ -190,6 +191,10 @@ export class TGuide {
      * 挖孔类型
      */
     readonly HollowType: number
+    /**
+     * 挖孔动画时长
+     */
+    readonly HollowAnimDur: number
     /**
      * 挖孔缩放
      */
@@ -232,6 +237,7 @@ export class TGuide {
     readonly Prefab: string
 
     resolve(tables:Tables) {
+        
         
         
         
@@ -267,13 +273,14 @@ export class TGuideOpenPlan {
         this.GuideID = _buf_.ReadInt()
         this.StepId = _buf_.ReadInt()
         this.UIName = _buf_.ReadString()
-        this.DelayCheckUI = _buf_.ReadFloat()
+        this.Delay = _buf_.ReadFloat()
         this.FinishStepType = _buf_.ReadInt()
         if(_buf_.ReadBool()) { this.HollowPos = new vector2(_buf_) } else { this.HollowPos = null; }
         if(_buf_.ReadBool()) { this.HollowSize = new vector2(_buf_) } else { this.HollowSize = null; }
         { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.HollowAlign = []; for(let i = 0 ; i < n ; i++) { let _e0 ;_e0 = _buf_.ReadFloat(); this.HollowAlign.push(_e0);}}
         this.HollowKeep = _buf_.ReadBool()
         this.HollowType = _buf_.ReadInt()
+        this.HollowAnimDur = _buf_.ReadFloat()
         this.HollowScale = _buf_.ReadFloat()
         this.FinishStepDelay = _buf_.ReadFloat()
         this.Opacity = _buf_.ReadInt()
@@ -303,9 +310,9 @@ export class TGuideOpenPlan {
      */
     readonly UIName: string
     /**
-     * 延迟检测当前所在UI
+     * 延迟开始本步引导
      */
-    readonly DelayCheckUI: number
+    readonly Delay: number
     /**
      * 完成这一步引导的方式
      */
@@ -330,6 +337,10 @@ export class TGuideOpenPlan {
      * 挖孔类型
      */
     readonly HollowType: number
+    /**
+     * 挖孔动画时长
+     */
+    readonly HollowAnimDur: number
     /**
      * 挖孔缩放
      */
@@ -372,6 +383,7 @@ export class TGuideOpenPlan {
     readonly Prefab: string
 
     resolve(tables:Tables) {
+        
         
         
         

@@ -58,7 +58,6 @@ export class UIGuide extends UIComponent {
 
     private _skipGuide = false;//关闭所有引导
 
-
     protected onLoad() {
         UIGuide.Inst = this;
 
@@ -176,7 +175,7 @@ export class UIGuide extends UIComponent {
         this.checkOver();
     }
 
-    private async showGuideStep() {
+    private showGuideStep() {
         if (this._guideData.length <= this._dataIndex) {
             this._logger.error(`引导${this._guideId} 步骤索引${this._dataIndex} 数据错误`);
             return;
@@ -194,20 +193,23 @@ export class UIGuide extends UIComponent {
         this.btnScreen.active = false
 
         this.setShadeOpacity(guide.Opacity < 0 ? 0 : (guide.Opacity || 185));
-        if (!guide.TipText) this.tip.active = false;
+        if (!guide.TipText || guide.Delay > 0) this.tip.active = false;
 
-        this._onStep && this._onStep(this.stepId);
+        this.scheduleOnce(() => {
+            this._onStep && this._onStep(this.stepId);
 
-        if (guide.FinishStepType == EFinishStepType.Manual) {//需要手动开始引导步骤
-            this.waitManualStartStep();
-        } else {
-            await this.waitUIShow();
-            this.showHollow();
-            this.showBtnScreen();
-            this.delayFinishStep();
-            this.showTipAVG();
-            this.showPrefab();
-        }
+            if (guide.FinishStepType == EFinishStepType.Manual) {//需要手动开始引导步骤
+                this.waitManualStartStep();
+            } else {
+                this.waitUIShow().then(() => {
+                    this.showHollow();
+                    this.showBtnScreen();
+                    this.delayFinishStep();
+                    this.showTipAVG();
+                    this.showPrefab();
+                });
+            }
+        }, Math.max(0.05, guide.Delay))
     }
 
 
@@ -218,39 +220,37 @@ export class UIGuide extends UIComponent {
         this._logger.debug(`guideId=${this._guideId} assignUIName=${uiName}`);
 
         let p = new Promise<UIForm>((resovle, reject) => {
-            this.scheduleOnce(() => {
-                this._logger.debug(`IsTopUI=${app.ui.isTopUI(uiName)}`);
+            this._logger.debug(`IsTopUI=${app.ui.isTopUI(uiName)}`);
 
-                let checkUI = () => {
-                    this._logger.debug(`${uiName} 已被打开`);
-                    this._logger.debug(`isAnimEnd=${app.ui.getUI(uiName).isAnimEnd}`);
-                    let ui = app.ui.getUI(uiName);
-                    if (app.ui.getUI(uiName).isAnimEnd) {
+            let checkUI = () => {
+                this._logger.debug(`${uiName} 已被打开`);
+                this._logger.debug(`isAnimEnd=${app.ui.getUI(uiName).isAnimEnd}`);
+                let ui = app.ui.getUI(uiName);
+                if (app.ui.getUI(uiName).isAnimEnd) {
+                    resovle(ui);
+                } else {
+                    ui.onAnimEnd.addListener(() => {
                         resovle(ui);
-                    } else {
-                        ui.onAnimEnd.addListener(() => {
-                            resovle(ui);
-                        }, this, true);
-                    }
+                    }, this, true);
                 }
+            }
 
-                if (app.ui.isTopUI(uiName)) {//UI已打开
-                    checkUI();
-                }
-                else //等待UI被打开
-                {
-                    this._logger.debug(`${uiName} 等待被打开`);
-                    let func = ui => {
-                        if (app.ui.isTopUI(uiName)) {
-                            app.event.off(mEventKey.OnUIShow, func);
-                            app.event.off(mEventKey.OnUIHide, func);
-                            checkUI();
-                        }
-                    };
-                    app.event.on(mEventKey.OnUIShow, func);
-                    app.event.on(mEventKey.OnUIHide, func);
-                }
-            }, Math.max(0.05, guide.DelayCheckUI));
+            if (app.ui.isTopUI(uiName)) {//UI已打开
+                checkUI();
+            }
+            else //等待UI被打开
+            {
+                this._logger.debug(`${uiName} 等待被打开`);
+                let func = ui => {
+                    if (app.ui.isTopUI(uiName)) {
+                        app.event.off(mEventKey.OnUIShow, func);
+                        app.event.off(mEventKey.OnUIHide, func);
+                        checkUI();
+                    }
+                };
+                app.event.on(mEventKey.OnUIShow, func);
+                app.event.on(mEventKey.OnUIHide, func);
+            }
         });
         return p;
     }
@@ -325,7 +325,7 @@ export class UIGuide extends UIComponent {
             let hollowWorldPos = this.fixupHollowPos();
             let hollowSize = new Size(guide.HollowSize.x, guide.HollowSize.y);
             let hollowType = guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle;
-            let hollowAnimDur = 0.25;
+            let hollowAnimDur = guide.HollowAnimDur < 0 ? 0 : (guide.HollowAnimDur || 0.25);
             this.mask.hollow(hollowType, hollowWorldPos, hollowSize, guide.HollowScale, hollowAnimDur, guide.FinishStepType == EFinishStepType.ClickHollow);
             this._logger.debug(`挖孔Size width=${hollowSize.width} height=${hollowSize.height}`);
             this.scheduleOnce(() => {
@@ -452,9 +452,10 @@ export class UIGuide extends UIComponent {
         }
         else {
             this.tip.active = true;
-            this.tip.position = v3(pos.x, pos.y);
+            this.tip.position = pos ? v3(pos.x, pos.y) : v3(0, 0);
             let lbl = this.tip.getComponentInChildren(Label);
-            lbl.string = app.l10n.getStringByKey(text);
+            // lbl.string = app.l10n.getStringByKey(text);
+            lbl.string = text;
         }
     }
 
@@ -466,9 +467,11 @@ export class UIGuide extends UIComponent {
             if (event.type == "touch-end") {//点击事件
                 let viewSize = view.getVisibleSize();
                 let pos = event.getUILocation();
+                pos.x = Math.floor(pos.x);
+                pos.y = Math.floor(pos.y);
                 let aabb = self.transform.getComputeAABB();
                 logger.debug("------------------------------")
-                logger.debug("ClickPos " + `${Math.floor(pos.x)},${Math.floor(pos.y)}`);
+                logger.debug("ClickPos " + `${pos.x},${pos.y} | ${pos.x - viewSize.width / 2},${pos.y - viewSize.height / 2}`);
                 logger.debug("NodePath " + self.getPath());
                 logger.debug("NodePostion " + `${Math.floor(aabb.center.x)},${Math.floor(aabb.center.y)}`);
                 logger.debug("NodeSize " + `${aabb.halfExtents.x * 2},${aabb.halfExtents.y * 2}`);
