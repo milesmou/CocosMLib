@@ -63,10 +63,7 @@ export class UIGuide extends UIComponent {
         UIGuide.Inst = this;
 
         this.hide(true);
-        this.mask.onEventTargetInvalid.addListener(() => {
-            this._logger.warn(`事件节点已销毁 跳过本步引导`);
-            this.checkOver();
-        });
+
         this.mask.onClickSucc.addListener(() => {
             this._logger.warn(`点击挖孔成功`);
             this.checkOver();

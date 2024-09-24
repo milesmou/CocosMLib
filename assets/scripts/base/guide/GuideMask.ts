@@ -23,9 +23,7 @@ export class GuideMask extends Component {
     private _canClick = false;//是否可以点击挖孔区域
     private _isTweenHollow = false;//挖孔是否在动画过程中
 
-    /** 当事件节点已销毁 */
-    public onEventTargetInvalid: MEvent = new MEvent();
-    /** 当点击挖孔成功 */
+    /** 点击挖孔成功 */
     public onClickSucc: MEvent = new MEvent();
 
     protected onLoad(): void {
