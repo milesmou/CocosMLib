@@ -10,7 +10,7 @@ export enum EMaskHollowType {
     Circle = 2
 }
 
-@ccclass
+@ccclass("GuideMask")
 @requireComponent(Sprite)
 export class GuideMask extends Component {
     @property(HollowOut)
