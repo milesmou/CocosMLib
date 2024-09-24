@@ -127,13 +127,16 @@ export class TGuide {
         this.GuideID = _buf_.ReadInt()
         this.StepId = _buf_.ReadInt()
         this.UIName = _buf_.ReadString()
-        this.NodePath = _buf_.ReadString()
-        if(_buf_.ReadBool()) { this.NodeSize = new vector2(_buf_) } else { this.NodeSize = null; }
         this.DelayCheckUI = _buf_.ReadFloat()
-        this.ClickScreen = _buf_.ReadBool()
-        this.Opacity = _buf_.ReadInt()
+        this.FinishStepType = _buf_.ReadInt()
+        if(_buf_.ReadBool()) { this.HollowPos = new vector2(_buf_) } else { this.HollowPos = null; }
+        if(_buf_.ReadBool()) { this.HollowSize = new vector2(_buf_) } else { this.HollowSize = null; }
+        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.HollowAlign = []; for(let i = 0 ; i < n ; i++) { let _e0 ;_e0 = _buf_.ReadFloat(); this.HollowAlign.push(_e0);}}
+        this.HollowKeep = _buf_.ReadBool()
         this.HollowType = _buf_.ReadInt()
         this.HollowScale = _buf_.ReadFloat()
+        this.FinishStepDelay = _buf_.ReadFloat()
+        this.Opacity = _buf_.ReadInt()
         this.RingScale = _buf_.ReadFloat()
         if(_buf_.ReadBool()) { this.RingOffset = new vector2(_buf_) } else { this.RingOffset = null; }
         this.FingerDir = _buf_.ReadInt()
@@ -156,29 +159,33 @@ export class TGuide {
      */
     readonly StepId: number
     /**
-     * 节点所在UI名字
+     * 引导所在UI名字
      */
     readonly UIName: string
     /**
-     * 节点在UI中的路径
-     */
-    readonly NodePath: string
-    /**
-     * 指定尺寸
-     */
-    readonly NodeSize: vector2|undefined
-    /**
-     * 延迟检测
+     * 延迟检测当前所在UI
      */
     readonly DelayCheckUI: number
     /**
-     * 点击屏幕即完成引导
+     * 完成这一步引导的方式
      */
-    readonly ClickScreen: boolean
+    readonly FinishStepType: number
     /**
-     * 遮罩透明度
+     * 挖孔位置
      */
-    readonly Opacity: number
+    readonly HollowPos: vector2|undefined
+    /**
+     * 挖孔尺寸
+     */
+    readonly HollowSize: vector2|undefined
+    /**
+     * 挖孔对齐方式
+     */
+    readonly HollowAlign: number[]
+    /**
+     * 保留上一步挖孔
+     */
+    readonly HollowKeep: boolean
     /**
      * 挖孔类型
      */
@@ -187,6 +194,14 @@ export class TGuide {
      * 挖孔缩放
      */
     readonly HollowScale: number
+    /**
+     * 延时多久完成本步引导
+     */
+    readonly FinishStepDelay: number
+    /**
+     * 遮罩透明度
+     */
+    readonly Opacity: number
     /**
      * 圆圈缩放
      */
@@ -217,6 +232,9 @@ export class TGuide {
     readonly Prefab: string
 
     resolve(tables:Tables) {
+        
+        
+        
         
         
         
@@ -249,13 +267,16 @@ export class TGuideOpenPlan {
         this.GuideID = _buf_.ReadInt()
         this.StepId = _buf_.ReadInt()
         this.UIName = _buf_.ReadString()
-        this.NodePath = _buf_.ReadString()
-        if(_buf_.ReadBool()) { this.NodeSize = new vector2(_buf_) } else { this.NodeSize = null; }
         this.DelayCheckUI = _buf_.ReadFloat()
-        this.ClickScreen = _buf_.ReadBool()
-        this.Opacity = _buf_.ReadInt()
+        this.FinishStepType = _buf_.ReadInt()
+        if(_buf_.ReadBool()) { this.HollowPos = new vector2(_buf_) } else { this.HollowPos = null; }
+        if(_buf_.ReadBool()) { this.HollowSize = new vector2(_buf_) } else { this.HollowSize = null; }
+        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.HollowAlign = []; for(let i = 0 ; i < n ; i++) { let _e0 ;_e0 = _buf_.ReadFloat(); this.HollowAlign.push(_e0);}}
+        this.HollowKeep = _buf_.ReadBool()
         this.HollowType = _buf_.ReadInt()
         this.HollowScale = _buf_.ReadFloat()
+        this.FinishStepDelay = _buf_.ReadFloat()
+        this.Opacity = _buf_.ReadInt()
         this.RingScale = _buf_.ReadFloat()
         if(_buf_.ReadBool()) { this.RingOffset = new vector2(_buf_) } else { this.RingOffset = null; }
         this.FingerDir = _buf_.ReadInt()
@@ -278,29 +299,33 @@ export class TGuideOpenPlan {
      */
     readonly StepId: number
     /**
-     * 节点所在UI名字
+     * 引导所在UI名字
      */
     readonly UIName: string
     /**
-     * 节点在UI中的路径
-     */
-    readonly NodePath: string
-    /**
-     * 指定尺寸
-     */
-    readonly NodeSize: vector2|undefined
-    /**
-     * 延迟检测
+     * 延迟检测当前所在UI
      */
     readonly DelayCheckUI: number
     /**
-     * 点击屏幕即完成引导
+     * 完成这一步引导的方式
      */
-    readonly ClickScreen: boolean
+    readonly FinishStepType: number
     /**
-     * 遮罩透明度
+     * 挖孔位置
      */
-    readonly Opacity: number
+    readonly HollowPos: vector2|undefined
+    /**
+     * 挖孔尺寸
+     */
+    readonly HollowSize: vector2|undefined
+    /**
+     * 挖孔对齐方式
+     */
+    readonly HollowAlign: number[]
+    /**
+     * 保留上一步挖孔
+     */
+    readonly HollowKeep: boolean
     /**
      * 挖孔类型
      */
@@ -309,6 +334,14 @@ export class TGuideOpenPlan {
      * 挖孔缩放
      */
     readonly HollowScale: number
+    /**
+     * 延时多久完成本步引导
+     */
+    readonly FinishStepDelay: number
+    /**
+     * 遮罩透明度
+     */
+    readonly Opacity: number
     /**
      * 圆圈缩放
      */
@@ -339,6 +372,9 @@ export class TGuideOpenPlan {
     readonly Prefab: string
 
     resolve(tables:Tables) {
+        
+        
+        
         
         
         

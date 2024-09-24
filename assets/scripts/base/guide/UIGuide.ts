@@ -1,9 +1,8 @@
-import { Button, Label, Node, Prefab, Size, Tween, UIOpacity, UITransform, Vec3, _decorator, instantiate, misc, tween, v3 } from 'cc';
+import { Button, EventTouch, Label, Node, Prefab, Size, Tween, UIOpacity, Vec3, _decorator, instantiate, misc, tween, v3, view } from 'cc';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel } from '../../../mlib/module/logger/ELoggerLevel';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
-import { CCUtils } from '../../../mlib/utils/CCUtil';
 import { UIConstant } from '../../gen/UIConstant';
 import { TGuide, vector2 } from '../../gen/table/schema';
 import GameTable from '../GameTable';
@@ -11,22 +10,33 @@ import { EMaskHollowType, GuideMask } from './GuideMask';
 import { GuidePrefab } from './GuidePrefab';
 const { ccclass, property } = _decorator;
 
+/** 引导步骤完成方式 */
+enum EFinishStepType {
+    /** 手动 */
+    Manual,
+    /** 点击挖孔 */
+    ClickHollow,
+    /** 点击屏幕 */
+    ClickScreen,
+    /** 延时完成 */
+    Delay
+}
+
 
 @ccclass
 export class UIGuide extends UIComponent {
 
     public static Inst: UIGuide;
 
-    private _logger = mLogger.new("Guide", ELoggerLevel.Warn);
+    private _logger = mLogger.new("Guide", ELoggerLevel.Debug);
 
-    private _mask: GuideMask = null;
-    private _ring: Node = null;
-    private _finger: Node = null;
-    private _tip: Node = null;
-    private _hollowTarget: Node = null;
-    private _btnScreen: Node = null;
-    private _prefabParent: Node = null;
-    private _hollowTargetTf: UITransform;
+    private get mask() { return this.rc.get("Mask", GuideMask); }
+    private get ring() { return this.rc.get("Ring", Node); }
+    private get finger() { return this.rc.get("Finger", Node); }
+    private get tip() { return this.rc.get("Tip", Node); }
+    private get btnScreen() { return this.rc.get("BtnScreen", Node); }
+    private get prefabParent() { return this.rc.get("PrefabParent", Node); }
+    private get debug() { return this.rc.get("Debug", Node); }
 
     public get isGuide() { return this._guideId > 0; }
     public get nowGuide() { return this._guideId; }
@@ -43,41 +53,39 @@ export class UIGuide extends UIComponent {
     private _guideData: TGuide[] = [];
     private _dataIndex: number;// 数据索引 从_guideData中取值使用
     private _onStep?: (stepId: number) => void;
-    private _onStepNode?: (stepId: number, ui: UIForm) => Promise<Node>;
     private _onManualStep?: (stepId: number) => void;
     private _onEnded: () => void;
 
     private _skipGuide = false;//关闭所有引导
 
 
-    onLoad() {
+    protected onLoad() {
         UIGuide.Inst = this;
 
-        this._mask = this.rc.get("Mask", GuideMask);
-        this._ring = this.rc.getNode("Ring");
-        this._finger = this.rc.getNode("Finger");
-        this._tip = this.rc.getNode("Tip");
-        this._hollowTarget = this.rc.getNode("HollowTarget");
-        this._btnScreen = this.rc.getNode("BtnScreen");
-        this._prefabParent = this.rc.getNode("Prefab");
-        this._hollowTargetTf = this._hollowTarget.getComponent(UITransform);
-
         this.hide(true);
-        this._mask.onEventTargetInvalid.addListener(() => {
+        this.mask.onEventTargetInvalid.addListener(() => {
             this._logger.warn(`事件节点已销毁 跳过本步引导`);
             this.checkOver();
-        })
+        });
+        this.mask.onClickSucc.addListener(() => {
+            this._logger.warn(`点击挖孔成功`);
+            this.checkOver();
+        });
+
+        if (this.debug.active) {
+            this.enableDebug();
+        }
     }
 
 
     private hide(fast = false) {
         this.setShadeOpacity(0, fast ? 0 : 0.15, () => {
-            this._mask.node.active = false;
+            this.mask.node.active = false;
         });
-        this._ring.active = false;
-        this._finger.active = false;
-        this._tip.active = false;
-        this._btnScreen.active = false;
+        this.ring.active = false;
+        this.finger.active = false;
+        this.tip.active = false;
+        this.btnScreen.active = false;
         this.destroyPrefab();
     }
 
@@ -99,7 +107,6 @@ export class UIGuide extends UIComponent {
             this.guideOver();
         }
         else {
-            this._mask.reset();
             this._dataIndex++;
             this.showGuideStep();
         }
@@ -113,12 +120,11 @@ export class UIGuide extends UIComponent {
      */
     public startGuide(guideId: number, args?: {
         onStep?: (stepId: number) => void,
-        onStepNode?: (stepId: number, ui: UIForm) => Promise<Node>,
         onManualStep?: (stepId: number) => void
         onEnded?: () => void,
     }) {
         if (this._skipGuide) return;
-        let { onStep, onStepNode, onManualStep, onEnded } = args || {};
+        let { onStep, onManualStep, onEnded } = args || {};
         if (this._guideId != 0) {
             this._logger.warn("正在进引导: " + this._guideId + " 想要开始引导: " + guideId);
             return;
@@ -126,11 +132,10 @@ export class UIGuide extends UIComponent {
         this._guideId = guideId;
         this._dataIndex = 0;
         this._guideData = GameTable.Inst.getGuideGroup(guideId);
-        if (this._guideData != null) {
+        if (this._guideData?.length > 0) {
             this._logger.debug("开始引导" + guideId);
             app.event.emit(mEventKey.OnGuideStart, this._guideId);
             this._onStep = onStep;
-            this._onStepNode = onStepNode;
             this._onManualStep = onManualStep;
             this._onEnded = onEnded;
             this.showGuideStep();
@@ -142,7 +147,7 @@ export class UIGuide extends UIComponent {
     }
 
     /** 手动开始引导步骤 */
-    public startGuideStep(guideId: number, stepId: number, screenPos?: Vec3, eventTarget?: Node, hollowDuration = 0.25) {
+    public startGuideStep(guideId: number, stepId: number) {
         if (this._guideId != guideId) {
             this._logger.error("引导id不一致", this._guideId, guideId);
             return;
@@ -152,26 +157,11 @@ export class UIGuide extends UIComponent {
             return;
         }
 
-        let guide = this._guideData[this._dataIndex];
-
         this._logger.debug(`手动开始引导 GuideId=${guideId} StepId=${stepId}`);
 
-        {
-            if (guide.NodeSize.x == 0 || guide.NodeSize.y == 0) {
-                this._logger.error(`挖孔必须在表中指定NodeSize`);
-                this.guideOver();
-                return;
-            }
-            if (!screenPos || !eventTarget) {
-                this._logger.error(`挖孔需要传入 挖孔位置和事件节点`);
-                this.guideOver();
-                return;
-            }
-            this._hollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this._hollowTarget.parent);
-            this._hollowTargetTf.setContentSize(guide.NodeSize.x, guide.NodeSize.y);
-            this.showHollow(this._hollowTarget, eventTarget, hollowDuration);
-        }
+        this.showHollow();
         this.showBtnScreen();
+        this.delayFinishStep();
         this.showPrefab();
         this.showTipAVG();
     }
@@ -196,30 +186,28 @@ export class UIGuide extends UIComponent {
         }
         this._logger.debug();
         this._logger.debug("---------开始引导步骤", this._guideId, this.stepId);
+        let guide = this._guideData[this._dataIndex];
 
         app.ui.blockTime = 99999;
         this.setMaskVisible(true)
         this.setMaskTouchEnable(true);
-        this._mask.reset();
-        this._ring.active = false;
-        this._finger.active = false;
-        this._btnScreen.active = false
+        if (!guide.HollowKeep) this.mask.reset();
+        this.ring.active = false;
+        this.finger.active = false;
+        this.btnScreen.active = false
 
-        let guide = this._guideData[this._dataIndex];
-        this.setShadeOpacity(guide.Opacity || 185)
-        if (!guide.TipText) this._tip.active = false;
+        this.setShadeOpacity(guide.Opacity < 0 ? 0 : (guide.Opacity || 185));
+        if (!guide.TipText) this.tip.active = false;
 
         this._onStep && this._onStep(this.stepId);
 
-        if (!guide.UIName.trim()) {//需要手动开始引导步骤
+        if (guide.FinishStepType == EFinishStepType.Manual) {//需要手动开始引导步骤
             this.waitManualStartStep();
         } else {
-            let ui = await this.waitUIShow();
-            if (guide.NodePath) {//点击指定节点
-                let targetNode = await this.findTargetNode(ui);
-                this.showHollow(targetNode.hollowTarget, targetNode.eventTarget);
-            }
+            await this.waitUIShow();
+            this.showHollow();
             this.showBtnScreen();
+            this.delayFinishStep();
             this.showTipAVG();
             this.showPrefab();
         }
@@ -276,26 +264,35 @@ export class UIGuide extends UIComponent {
         app.event.emit(mEventKey.ManualGuideStep, this._guideId, this.stepId);
     }
 
-
     private async showBtnScreen() {
         let guide = this._guideData[this._dataIndex];
-        if (!guide.ClickScreen) return;
+        if (guide.FinishStepType != EFinishStepType.ClickScreen) return;
         this._logger.debug("点击屏幕即可");
-        this._btnScreen.active = true
-        this._btnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
+        this.btnScreen.active = true
+        this.btnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
         app.ui.blockTime = -1;
     }
 
-    public async showPrefab() {
+    private async delayFinishStep() {
+        let guide = this._guideData[this._dataIndex];
+        if (guide.FinishStepType != EFinishStepType.Delay) return;
+        this._logger.debug(`延迟${guide.FinishStepDelay}秒 完成本步引导`);
+        this.scheduleOnce(() => {
+            app.ui.blockTime = -1;
+            this.checkOver();
+        }, guide.FinishStepDelay);
+    }
+
+    private async showPrefab() {
         let guide = this._guideData[this._dataIndex];
         this._logger.debug("加载预制体", guide.Prefab);
         let prefabNode: Node;
-        if (this._prefabParent.children.length > 0) {
-            let nodeName = this._prefabParent.children[0].name;
+        if (this.prefabParent.children.length > 0) {
+            let nodeName = this.prefabParent.children[0].name;
             if (nodeName != guide.Prefab) {
                 this.destroyPrefab();
             } else {
-                prefabNode = this._prefabParent.children[0];
+                prefabNode = this.prefabParent.children[0];
             }
         }
         if (!guide.Prefab) return;
@@ -303,7 +300,7 @@ export class UIGuide extends UIComponent {
         if (!prefabNode?.isValid) {
             let prefab = await AssetMgr.loadAsset("prefab/guide/" + guide.Prefab, Prefab);
             prefabNode = instantiate(prefab);
-            prefabNode.parent = this._prefabParent;
+            prefabNode.parent = this.prefabParent;
         }
 
         let comp = prefabNode.getComponent(GuidePrefab);
@@ -316,67 +313,70 @@ export class UIGuide extends UIComponent {
 
     /** 销毁加载的预制件 */
     private destroyPrefab() {
-        if (this._prefabParent.children.length > 0) {
-            let nodeName = this._prefabParent.children[0].name;
-            this._prefabParent.destroyAllChildren();
+        if (this.prefabParent.children.length > 0) {
+            let nodeName = this.prefabParent.children[0].name;
+            this.prefabParent.destroyAllChildren();
             AssetMgr.decRef("prefab/guide/" + nodeName);
         }
     }
 
 
-    /** 获取UI上的目标节点 */
-    private async findTargetNode(ui: UIForm) {
-        let guide = this._guideData[this._dataIndex];
-        let btnNode: Node;
-        if (guide.NodePath.trim() == "x") {
-            btnNode = await this._onStepNode(this.stepId, ui);
-            if (!btnNode?.isValid) {
-                this._logger.error(`引导${this._guideId} stepId=${this.stepId} 目标节点未找到`);
-                return;
-            }
-        }
-        else {
-            btnNode = ui.node.getChildByPath(guide.NodePath);
-        }
-        if (btnNode) {
-            let result: { hollowTarget: Node, eventTarget: Node } = { hollowTarget: btnNode, eventTarget: btnNode };
-            if (guide.NodeSize.x > 0 && guide.NodeSize.y > 0) {
-                this._hollowTarget.position = CCUtils.uiNodePosToUINodePos(btnNode, this.node, v3(0, 0));
-                this._hollowTargetTf.setContentSize(guide.NodeSize.x, guide.NodeSize.y);
-                result.hollowTarget = this._hollowTarget;
-            }
-            return result;
-        }
-        else {
-            this._logger.error(`引导${this._guideId} stepId=${this.stepId} 未找到指定Node`);
-            this.guideOver();
-            return null;
-        }
-    }
-
     /** 展示挖孔 */
-    private showHollow(hollowTarget: Node, eventTarget: Node, duration = 0.25) {
+    private showHollow() {
         let guide = this._guideData[this._dataIndex];
-        if (hollowTarget) {
+        if (guide.HollowPos && guide.HollowSize) {
+            let hollowWorldPos = this.fixupHollowPos();
+            let hollowSize = new Size(guide.HollowSize.x, guide.HollowSize.y);
             let hollowType = guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle;
-            this._mask.hollow(hollowType, hollowTarget, guide.ClickScreen ? null : eventTarget, guide.HollowScale, duration);
-            if (!guide.ClickScreen) eventTarget.once("click", this.checkOver.bind(this));
-            this._logger.debug(`挖孔Size width=${this._hollowTargetTf.width} height=${this._hollowTargetTf.height}`);
+            let hollowAnimDur = 0.25;
+            this.mask.hollow(hollowType, hollowWorldPos, hollowSize, guide.HollowScale, hollowAnimDur, guide.FinishStepType == EFinishStepType.ClickHollow);
+            this._logger.debug(`挖孔Size width=${hollowSize.width} height=${hollowSize.height}`);
             this.scheduleOnce(() => {
                 app.ui.blockTime = -1;
-                let pos = CCUtils.uiNodePosToUINodePos(hollowTarget.parent, this.node, hollowTarget.position);
+                let pos = this.node.transform.convertToNodeSpaceAR(hollowWorldPos);
                 this.showRing(guide.RingScale, pos, guide.RingOffset);
                 this.showFinger(guide.FingerDir, pos, guide.FingerOffset);
-            }, duration + 0.05);
+            }, hollowAnimDur + 0.05);
         }
+
     }
 
     /** 展示自定义挖孔 挖孔不可点击  */
-    public showCustomHollow(type: EMaskHollowType, screenPos: Vec3, size: Size, duration = 0.25) {
-        this._hollowTarget.position = CCUtils.screenPosToUINodePos(screenPos, this._hollowTarget.parent);
-        this._hollowTargetTf.width = size.width;
-        this._hollowTargetTf.height = size.height;
-        this._mask.hollow(type, this._hollowTarget, null, 1, duration);
+    public showCustomHollow(type: EMaskHollowType, screenPos: Vec3, size: Size, duration = 0.25, canClick = true) {
+        this.mask.hollow(type, screenPos, size, 1, duration, canClick);
+    }
+
+    private fixupHollowPos() {
+        let guide = this._guideData[this._dataIndex];
+        if (guide.HollowAlign.length >= 2) {
+            let viewSize = view.getVisibleSize();
+            let x = guide.HollowPos.x;
+            let y = guide.HollowPos.y;
+            let align = guide.HollowAlign[0];
+            let dist = guide.HollowAlign[1];
+            switch (align) {
+                case 1://向上停靠
+                    y = viewSize.height - dist - guide.HollowSize.y / 2;
+                    break;
+                case 2://向下停靠
+                    y = dist + guide.HollowSize.y / 2;
+                    break;
+                case 3://向左停靠
+                    x = dist + guide.HollowSize.x / 2;
+                    break;
+                case 4://向右停靠
+                    x = viewSize.width - dist - guide.HollowSize.x / 2;
+                    break;
+                default:
+                    this._logger.error(`错误的对齐方式`, align, guide);
+                    break;
+            }
+
+            return v3(x, y);
+
+        } else {
+            return v3(guide.HollowPos.x, guide.HollowPos.y);
+        }
     }
 
 
@@ -388,19 +388,19 @@ export class UIGuide extends UIComponent {
 
     /** 设置遮罩可见性 */
     private setMaskVisible(visible: boolean) {
-        this._mask.node.active = visible;
+        this.mask.node.active = visible;
     }
 
     /** 遮罩是否接收触摸事件 */
     public setMaskTouchEnable(enable: boolean) {
-        this._mask.setTouchEnable(enable);
+        this.mask.setTouchEnable(enable);
     }
 
     /** 设置遮罩透明度 */
     public setShadeOpacity(opacity: number, dur = 0.15, onEnded?: () => void) {
-        let uiOpacity = this._mask.getComponent(UIOpacity);
+        let uiOpacity = this.mask.getComponent(UIOpacity);
         if (opacity == uiOpacity.opacity) return;
-        Tween.stopAllByTarget(this._mask.node);
+        Tween.stopAllByTarget(this.mask.node);
         if (dur == 0) {
             uiOpacity.opacity = opacity;
             onEnded && onEnded();
@@ -411,32 +411,38 @@ export class UIGuide extends UIComponent {
 
     /** 显示圆圈 */
     public showRing(scale: number, pos: Vec3, offset: vector2) {
-        this._ring.active = true;
-        this._ring.setScale(scale, scale);
-        this._ring.position = pos.add(v3(offset.x, offset.y));
+        this.ring.active = true;
+        this.ring.setScale(scale, scale);
+        if (offset) {
+            pos.add(v3(offset.x, offset.y))
+        }
+        this.ring.position = pos;
     }
 
     /** 显示手指 */
     public showFinger(dir: number, pos: Vec3, offset: vector2) {
         if (dir == 0) {
-            this._finger.active = false;
+            this.finger.active = false;
         }
         else {
             dir = misc.clampf(dir, 1, 4);
-            this._finger.active = true;
-            this._finger.position = pos.add(v3(offset.x, offset.y));
+            this.finger.active = true;
+            if (offset) {
+                pos.add(v3(offset.x, offset.y))
+            }
+            this.finger.position = pos;
             switch (dir) {
                 case 1:
-                    this._finger.angle = 0;
+                    this.finger.angle = 0;
                     break;
                 case 2:
-                    this._finger.angle = 180;
+                    this.finger.angle = 180;
                     break;
                 case 3:
-                    this._finger.angle = 90;
+                    this.finger.angle = 90;
                     break;
                 case 4:
-                    this._finger.angle = -90;
+                    this.finger.angle = -90;
                     break;
             }
         }
@@ -445,14 +451,38 @@ export class UIGuide extends UIComponent {
     /** 展示提示文字 */
     public showTipText(text: string, pos: vector2) {
         if (!text || !text.trim()) {
-            this._tip.active = false;
+            this.tip.active = false;
         }
         else {
-            this._tip.active = true;
-            this._tip.position = v3(pos.x, pos.y);
-            let lbl = this._tip.getComponentInChildren(Label);
+            this.tip.active = true;
+            this.tip.position = v3(pos.x, pos.y);
+            let lbl = this.tip.getComponentInChildren(Label);
             lbl.string = app.l10n.getStringByKey(text);
         }
     }
 
+
+    private enableDebug() {
+        let logger = mLogger.new("Guide Node");
+        Node.prototype.dispatchEvent = function (event: EventTouch) {
+            let self: Node = this;
+            if (event.type == "touch-end") {//点击事件
+                let viewSize = view.getVisibleSize();
+                let pos = event.getUILocation();
+                let aabb = self.transform.getComputeAABB();
+                logger.debug("------------------------------")
+                logger.debug("ClickPos " + `${Math.floor(pos.x)},${Math.floor(pos.y)}`);
+                logger.debug("NodePath " + self.getPath());
+                logger.debug("NodePostion " + `${Math.floor(aabb.center.x)},${Math.floor(aabb.center.y)}`);
+                logger.debug("NodeSize " + `${aabb.halfExtents.x * 2},${aabb.halfExtents.y * 2}`);
+                let top = viewSize.height - aabb.center.y - aabb.halfExtents.y;
+                let bottom = aabb.center.y - aabb.halfExtents.y;
+                let left = aabb.center.x - aabb.halfExtents.x;
+                let right = viewSize.width - aabb.center.x - aabb.halfExtents.x;
+                logger.debug("NodeMargin " + `Top:${Math.floor(top)}|Bottom:${Math.floor(bottom)}|Left:${Math.floor(left)}|Right:${Math.floor(right)}`);
+                logger.debug("------------------------------")
+            }
+            this._eventProcessor.dispatchEvent(event);
+        }
+    }
 }
