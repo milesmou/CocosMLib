@@ -1,9 +1,9 @@
 import { Node, find } from "cc";
-import { UIConstant } from "../gen/UIConstant";
-import { TUnforcedGuide } from "../gen/table/schema";
-import { GameData } from "./GameData";
-import { PlayerData } from "./PlayerData";
-import { UIGuide } from "./guide/UIGuide";
+import { UIConstant } from "../../gen/UIConstant";
+import { TUnforcedGuide } from "../../gen/table/schema";
+import { GameData } from "../GameData";
+import { PlayerData } from "../PlayerData";
+import { UIGuide } from "./UIGuide";
 
 /** 引导ID枚举 */
 export enum EGuideId {

@@ -8,7 +8,7 @@ import { MResponse, ResponseGameData } from '../../../mlib/sdk/MResponse';
 import { UnionProgress } from '../../../mlib/utils/UnionProgress';
 import { UIConstant } from '../../gen/UIConstant';
 import { GameData } from '../GameData';
-import { GameGuide } from '../GameGuide';
+import { GameGuide } from '../guide/GameGuide';
 import { GameInit } from '../GameInit';
 import GameTable from '../GameTable';
 import { ILanguage, LoadingText } from './LoadingText';

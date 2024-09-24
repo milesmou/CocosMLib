@@ -1,5 +1,5 @@
 import { UIConstant } from "../gen/UIConstant";
-import { GameGuide } from "./GameGuide";
+import { GameGuide } from "./guide/GameGuide";
 
 /** 管理进入主界面的自动弹窗 */
 export class GamePopUp {

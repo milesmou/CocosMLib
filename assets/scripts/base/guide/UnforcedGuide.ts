@@ -2,7 +2,7 @@ import { Component, Node, _decorator, instantiate, v3 } from "cc";
 import { UIConstant } from "../../gen/UIConstant";
 import { TUnforcedGuide } from "../../gen/table/schema";
 import { GameData } from "../GameData";
-import { GameGuide } from "../GameGuide";
+import { GameGuide } from "./GameGuide";
 import GameTable from "../GameTable";
 
 const { ccclass, property } = _decorator;
