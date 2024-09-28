@@ -31,10 +31,10 @@ interface IApp {
     pool: typeof PoolMgr;
     /** UI管理 */
     ui: UIMgr;
-    /** 多语言 */
-    l10n: typeof L10nMgr;
     /** 音频播放组件管理类 */
     audioMgr: AudioMgr;
+    /** 多语言 */
+    l10n: typeof L10nMgr;
     /** 提示信息 */
     tipMsg: typeof TipMsg;
 }
@@ -54,7 +54,7 @@ class App extends Component implements IApp {
     public pool = PoolMgr;
     public ui: UIMgr;
     public l10n = L10nMgr;
-    public audioMgr = AudioMgr.Inst;
+    public audioMgr: AudioMgr;
     public tipMsg = TipMsg;
 
     protected onLoad() {
@@ -75,6 +75,7 @@ class App extends Component implements IApp {
     }
 
     protected start() {
+        this.audioMgr = AudioMgr.Inst;
         this.ui = UIMgr.Inst;
     }
 
