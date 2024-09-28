@@ -59,36 +59,36 @@ export class MSDKWrapper {
     private static init = (() => {
         if (!JSB) return;
         native.bridge.onNative = (key: string, args?: string) => {
-            let [arg0, arg1, arg2, arg3] = args.split(ParamSeparator);
-            this.onNativeCall(key, arg0, arg1, arg2, arg3);
+            let [arg1, arg2, arg3, arg4] = args.split(ParamSeparator);
+            this.onNativeCall(key, arg1, arg2, arg3, arg4);
         }
     })();
 
     /** 非原生环境触发回调 */
-    public static call(key: ENativeBridgeKey, arg0?: string, arg1?: string, arg2?: string, arg3?: string) {
-        this.onNativeCall(ENativeBridgeKey[key], arg0, arg1, arg2, arg3);
+    public static call(key: ENativeBridgeKey, arg1?: string, arg2?: string, arg3?: string, arg4?: string) {
+        this.onNativeCall(ENativeBridgeKey[key], arg1, arg2, arg3, arg4);
     }
 
     /** 原生层发回来的消息 strKey使用ENativeBridgeKey中的值 */
-    private static onNativeCall(strKey: string, arg0?: string, arg1?: string, arg2?: string, arg3?: string) {
+    private static onNativeCall(strKey: string, arg1?: string, arg2?: string, arg3?: string, arg4?: string) {
         let key = ENativeBridgeKey[strKey];
         switch (key) {
             case ENativeBridgeKey.Login:
-                this.onLogin(arg0, arg1);
+                this.onLogin(arg1, arg2);
                 break;
             case ENativeBridgeKey.RequestIAP:
-                this.onInAppPurchase(arg0, arg1);
+                this.onInAppPurchase(arg1, arg2);
                 break;
             case ENativeBridgeKey.ShowRewardedVideo:
-                this.onShowRewardedAd(arg0);
+                this.onShowRewardedAd(arg1);
                 break;
         }
     }
 
     /** 发送消息给原生层 key使用ENativeBridgeKey中的值*/
-    public static sendToNative(key: ENativeBridgeKey, arg0 = "null", arg1 = "null", arg2 = "null", arg3 = "null") {
+    public static sendToNative(key: ENativeBridgeKey, arg1 = "null", arg2 = "null", arg3 = "null", arg4 = "null") {
         if (!JSB) return;
-        let args = [arg0, arg1, arg2, arg3].join(ParamSeparator);
+        let args = [arg1, arg2, arg3, arg4].join(ParamSeparator);
         native.bridge.sendToNative(ENativeBridgeKey[key], args);
     }
 
