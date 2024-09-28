@@ -218,7 +218,7 @@ class GameSetting extends Component {
             /** 小游戏资源地址 */
             minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg/`,
         };
-        Editor.Message.send("amun-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
+        Editor.Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
     }
 }
 

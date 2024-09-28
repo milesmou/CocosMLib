@@ -46,7 +46,7 @@ export class PlayerInventory {
     public getReward(reawrds: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
         let { multiple, tag } = args || {};
         multiple = multiple || 1;
-        if (reawrds.length == 0) return
+        if (!reawrds || reawrds.length == 0) return
         let items = this.formatItems(reawrds);
         items = this.postParseRewards(items, tag);
         if (items.length > 0) {
@@ -78,7 +78,7 @@ export class PlayerInventory {
     public delCost(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
         let { multiple, tag } = args || {};
         multiple = multiple || 1;
-        if (costs.length == 0) return;
+        if (!costs || costs.length == 0) return;
         let items = this.formatItems(costs);
         for (let item of items) {
             item = this.postParseSingleItem(item, tag);

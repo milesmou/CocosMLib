@@ -1,4 +1,5 @@
 import { _decorator, sys } from 'cc';
+import { LocalStorage } from '../module/stroage/LocalStorage';
 import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
@@ -13,7 +14,7 @@ export class Channel {
     public userId: string;
 
     /** 设备震动开关 */
-    public vibrateEnable = new StroageValue("VibrateEnable", true);
+    public vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
 
     /** 初始化SDK */
     public initSDK() {
@@ -146,31 +147,31 @@ export class Channel {
     protected static getEventName(event: IReportEvent) {
         let key = event.name
         let today = Utils.getDate();
-        let i = parseFloat(sys.localStorage.getItem(key));
-        if (isNaN(i) || i < today) {
-            sys.localStorage.setItem(key, today.toString())
+        let i = ReportEventCache.Inst.get(key);
+        if (i < today) {
+            ReportEventCache.Inst.set(key, today)
             return true;
         }
         return false;
     }
 
     protected static isValidDailyEvent(event: IReportEvent) {
-        let key = event.name + event.tag ? `_${event.tag}` : "";
+        let key = event.name + (event.tag ? `_${event.tag}` : "");
         let today = Utils.getDate();
-        let i = parseFloat(sys.localStorage.getItem(key));
-        if (isNaN(i) || i < today) {
-            sys.localStorage.setItem(key, today.toString())
+        let i = ReportEventCache.Inst.get(key);
+        if (i < today) {
+            ReportEventCache.Inst.set(key, today)
             return true;
         }
         return false;
     }
 
     protected static isValidLifetimeEvent(event: IReportEvent) {
-        let key = event.name + event.tag ? `_${event.tag}` : "";
+        let key = event.name + (event.tag ? `_${event.tag}` : "");
         let today = Utils.getDate();
-        let i = parseFloat(sys.localStorage.getItem(key));
-        if (isNaN(i)) {
-            sys.localStorage.setItem(key, today.toString())
+        let i = ReportEventCache.Inst.get(key);
+        if (!i) {
+            ReportEventCache.Inst.set(key, today);
             return true;
         }
         return false;
@@ -178,3 +179,43 @@ export class Channel {
 
 
 }
+
+/** 缓存打点事件上报的日期 */
+class ReportEventCache {
+
+    public static get Inst() { return createSingleton(ReportEventCache); }
+    protected onInst() {
+        this._cache = LocalStorage.getValue(this._saveKey, {});
+    }
+
+    private _readySave = false;
+
+    private _saveKey = mGameSetting.gameName + "_ReportEvent";
+
+    private _cache: { [key: string]: number };
+
+    public get(key: string) {
+        return this._cache[key] || 0;
+    }
+
+    public set(key: string, value: number) {
+        this._cache[key] = value;
+        this.delaySave();
+    }
+
+    private save() {
+        LocalStorage.setValue(this._saveKey, this._cache);
+    }
+
+    private delaySave() {
+        if (!this._readySave) {
+            this._readySave = true;
+            setTimeout(() => {
+                this._readySave = false;
+                this.save();
+            }, 20);
+        }
+    }
+}
+
+

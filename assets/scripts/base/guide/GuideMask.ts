@@ -10,6 +10,15 @@ export enum EMaskHollowType {
     Circle = 2
 }
 
+export enum EClickType {
+    /** 不允许点击 */
+    None,
+    /** 手指松开完成点击 */
+    PointerUp = 1,
+    /** 手指按下即完成点击 */
+    PointerDown = 10,
+}
+
 @ccclass("GuideMask")
 @requireComponent(Sprite)
 export class GuideMask extends Component {
@@ -19,9 +28,10 @@ export class GuideMask extends Component {
     /** 触摸响应区域(世界坐标系) */
     private _touchRect: Rect = new Rect();
 
-    private _isClickInTouchArea = false;//是否在触摸区域内点击
-    private _canClick = false;//是否可以点击挖孔区域
     private _isTweenHollow = false;//挖孔是否在动画过程中
+    private _isClickInTouchArea = false;//是否在触摸区域内点击
+    private _clickType = EClickType.None;//点击类型
+    private _canClick = false;//是否可以点击挖孔区域
 
     /** 点击挖孔成功 */
     public onClickSucc: MEvent = new MEvent();
@@ -55,8 +65,9 @@ export class GuideMask extends Component {
      * 挖孔
      * @param hollowPos 屏幕中心为原点的坐标
      */
-    public hollow(type: EMaskHollowType, hollowPos: Vec3, hollowSize: Size, scale: number, duration: number, canClick = true) {
-        this._canClick = canClick;
+    public hollow(type: EMaskHollowType, hollowPos: Vec3, hollowSize: Size, scale: number, duration: number, clickType: EClickType) {
+        this._clickType = clickType;
+        this._canClick = clickType != EClickType.None;
 
         let pos = v2(hollowPos.x, hollowPos.y);
         scale = scale || 1;
@@ -72,16 +83,16 @@ export class GuideMask extends Component {
         let height = hollowSize.height * scale;
         if (type == EMaskHollowType.Rect) {
             if (duration > 0) {
-                this.hollowOut.rectTo(duration, pos, width, height, 1, 0.5);
+                this.hollowOut.rectTo(duration, pos, width, height, 20, 2);
             } else {
-                this.hollowOut.rect(pos, width, height, 1, 0.5);
+                this.hollowOut.rect(pos, width, height, 20, 2);
             }
         } else {
             let radius = Math.sqrt((width / 2) ** 2 + (height / 2) ** 2) * scale;
             if (duration > 0) {
-                this.hollowOut.circleTo(duration, pos, radius, 0.5);
+                this.hollowOut.circleTo(duration, pos, radius, 2);
             } else {
-                this.hollowOut.circle(pos, radius, 0.5);
+                this.hollowOut.circle(pos, radius, 2);
             }
         }
 
@@ -91,6 +102,7 @@ export class GuideMask extends Component {
     }
 
     private stopTouchEvent(evt: EventTouch) {
+        evt.preventSwallow = false;
         evt.propagationStopped = true;
     }
 
@@ -109,6 +121,10 @@ export class GuideMask extends Component {
             this._isClickInTouchArea = true;
             evt.preventSwallow = true;
             evt.propagationStopped = false;
+            if (this._clickType == EClickType.PointerDown) {
+                this._canClick = false;
+                this.onClickSucc.dispatch();
+            }
         } else {
             this._isClickInTouchArea = false;
             evt.preventSwallow = false;
@@ -124,10 +140,10 @@ export class GuideMask extends Component {
 
         let pos = evt.getUILocation();
         if (this._isClickInTouchArea && this.isInTouchArea(pos)) {
-            this._canClick = false;
             this._isClickInTouchArea = true;
             evt.preventSwallow = true;
             evt.propagationStopped = false;
+            this._canClick = false;
             this.onClickSucc.dispatch();
         } else {
             evt.preventSwallow = false;

@@ -68,9 +68,9 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     }
 
-    Array.prototype.groupBy = function <T>(groupIdGetter: (value: T) => any) {
+    Array.prototype.groupBy = function <T, ID = any>(groupIdGetter: (value: T) => ID) {
         let self: T[] = this;
-        let groupMap = new Map<any, T[]>();
+        let groupMap = new Map<ID, T[]>();
         for (const value of self) {
             let groupId = groupIdGetter(value);
             if (!groupMap.has(groupId)) groupMap.set(groupId, []);
@@ -141,10 +141,10 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return this[0].toLowerCase() + this.substring(1);
     }
 
-    Map.prototype.find = function <K, V>(predicate: (value: V) => boolean) {
+    Map.prototype.find = function <K, V>(predicate: (value: V, key: K) => boolean) {
         let self: Map<K, V> = this;
         for (const kv of self) {
-            if (predicate(kv[1])) return kv[1];
+            if (predicate(kv[1], kv[0])) return kv[1];
         }
         return undefined;
     }
@@ -254,7 +254,7 @@ declare global {
         /** 
          * 将集合中的数据按规则进行分组
          */
-        groupBy(groupIdGetter: (value: T) => any): Map<any, T[]>;
+        groupBy<ID = any>(groupIdGetter: (value: T) => ID): Map<ID, T[]>;
         /**
          * 是否是另一个数组的父集
          */
@@ -292,7 +292,7 @@ declare global {
         /**
          * 查找符合要求的元素
          */
-        find(predicate: (value: V) => boolean): V | undefined;
+        find(predicate: (value: V, key?: K) => boolean): V | undefined;
         /** 
          * 是否有符合要求的元素
          */

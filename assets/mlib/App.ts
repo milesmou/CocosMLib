@@ -34,7 +34,7 @@ interface IApp {
     /** 多语言 */
     l10n: typeof L10nMgr;
     /** 音频播放组件管理类 */
-    audioMgr: typeof AudioMgr;
+    audioMgr: AudioMgr;
     /** 提示信息 */
     tipMsg: typeof TipMsg;
 }
@@ -54,7 +54,7 @@ class App extends Component implements IApp {
     public pool = PoolMgr;
     public ui: UIMgr;
     public l10n = L10nMgr;
-    public audioMgr = AudioMgr;
+    public audioMgr = AudioMgr.Inst;
     public tipMsg = TipMsg;
 
     protected onLoad() {

@@ -1,25 +1,26 @@
 import { Button, EventTouch, Label, Node, Prefab, Size, Tween, UIOpacity, Vec3, _decorator, instantiate, misc, tween, v3, view } from 'cc';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel } from '../../../mlib/module/logger/ELoggerLevel';
+import { SafeWidget } from '../../../mlib/module/ui/component/SafeWidget';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
 import { UIConstant } from '../../gen/UIConstant';
 import { TGuide, vector2 } from '../../gen/table/schema';
 import GameTable from '../GameTable';
-import { EMaskHollowType, GuideMask } from './GuideMask';
+import { EClickType, EMaskHollowType, GuideMask } from './GuideMask';
 import { GuidePrefab } from './GuidePrefab';
 const { ccclass, property } = _decorator;
 
 /** 引导步骤完成方式 */
 enum EFinishStepType {
-    /** 手动 */
-    Manual,
     /** 点击挖孔 */
-    ClickHollow,
+    ClickHollow = 1,
     /** 点击屏幕 */
-    ClickScreen,
+    ClickScreen = 2,
     /** 延时完成 */
-    Delay
+    Delay = 3,
+    /** 点击挖孔(手指按下瞬间生效) */
+    ClickHollowStart = 10,
 }
 
 
@@ -62,10 +63,12 @@ export class UIGuide extends UIComponent {
     protected onLoad() {
         UIGuide.Inst = this;
 
+        this._maskOpacity = this.mask.getComponent(UIOpacity).opacity;
+
         this.hide(true);
 
         this.mask.onClickSucc.addListener(() => {
-            this._logger.warn(`点击挖孔成功`);
+            this._logger.debug(`点击挖孔成功`);
             this.checkOver();
         });
 
@@ -76,7 +79,7 @@ export class UIGuide extends UIComponent {
 
 
     private hide(fast = false) {
-        this._maskOpacity = this.mask.getComponent(UIOpacity).opacity;
+
         this.setShadeOpacity(0, fast ? 0 : 0.15, () => {
             this.mask.node.active = false;
         });
@@ -113,7 +116,6 @@ export class UIGuide extends UIComponent {
     /** 
      * 开始引导
      * onStep:每一步引导回调
-     * onStepNode:手动获取目标节点回调
      * onManualStep:手动开始引导步骤回调
      */
     public startGuide(guideId: number, args?: {
@@ -130,7 +132,6 @@ export class UIGuide extends UIComponent {
         this._dataIndex = 0;
         this._guideData = GameTable.Inst.getGuideGroup(guideId);
         if (this._guideData?.length > 0) {
-            this._logger.debug("开始引导" + guideId);
             app.event.emit(mEventKey.OnGuideStart, this._guideId);
             this._onStep = onStep;
             this._onManualStep = onManualStep;
@@ -139,16 +140,20 @@ export class UIGuide extends UIComponent {
                 this.guideOver();
                 return;
             }
+            this._logger.debug("开始引导" + guideId);
             this.showGuideStep();
         }
         else {
-            this._logger.debug(`引导${this._guideId}数据错误`);
+            this._logger.error(`引导${this._guideId}数据错误`);
             this.guideOver();
         }
     }
 
-    /** 手动开始引导步骤 */
-    public startGuideStep(guideId: number, stepId: number) {
+    /** 
+     * 手动开始引导步骤
+     * @param hollowPos 挖孔位置 以屏幕中心为坐标原点
+     */
+    public startGuideStep(guideId: number, stepId: number, hollowPos?: Vec3, size?: Size) {
         if (this._guideId != guideId) {
             this._logger.error("引导id不一致", this._guideId, guideId);
             return;
@@ -160,7 +165,7 @@ export class UIGuide extends UIComponent {
 
         this._logger.debug(`手动开始引导 GuideId=${guideId} StepId=${stepId}`);
 
-        this.showHollow();
+        this.showHollow(hollowPos, size);
         this.showBtnScreen();
         this.delayFinishStep();
         this.showPrefab();
@@ -203,7 +208,7 @@ export class UIGuide extends UIComponent {
         this.scheduleOnce(() => {
             this._onStep && this._onStep(this.stepId);
 
-            if (guide.FinishStepType == EFinishStepType.Manual) {//需要手动开始引导步骤
+            if (!guide.UIName) {//需要手动开始引导步骤
                 this.waitManualStartStep();
             } else {
                 this.waitUIShow().then(() => {
@@ -266,7 +271,7 @@ export class UIGuide extends UIComponent {
         app.event.emit(mEventKey.ManualGuideStep, this._guideId, this.stepId);
     }
 
-    private async showBtnScreen() {
+    private showBtnScreen() {
         let guide = this._guideData[this._dataIndex];
         if (guide.FinishStepType != EFinishStepType.ClickScreen) return;
         this._logger.debug("点击屏幕即可");
@@ -275,7 +280,7 @@ export class UIGuide extends UIComponent {
         app.ui.blockTime = -1;
     }
 
-    private async delayFinishStep() {
+    private delayFinishStep() {
         let guide = this._guideData[this._dataIndex];
         if (guide.FinishStepType != EFinishStepType.Delay) return;
         this._logger.debug(`延迟${guide.FinishStepDelay}秒 完成本步引导`);
@@ -287,7 +292,6 @@ export class UIGuide extends UIComponent {
 
     private async showPrefab() {
         let guide = this._guideData[this._dataIndex];
-        this._logger.debug("加载预制体", guide.Prefab);
         let prefabNode: Node;
         if (this.prefabParent.children.length > 0) {
             let nodeName = this.prefabParent.children[0].name;
@@ -298,6 +302,7 @@ export class UIGuide extends UIComponent {
             }
         }
         if (!guide.Prefab) return;
+        this._logger.debug("加载预制体", guide.Prefab);
 
         if (!prefabNode?.isValid) {
             let prefab = await AssetMgr.loadAsset("prefab/guide/" + guide.Prefab, Prefab);
@@ -324,27 +329,32 @@ export class UIGuide extends UIComponent {
 
 
     /** 展示挖孔 */
-    private showHollow() {
+    private showHollow(pos?: Vec3, size?: Size) {
         let guide = this._guideData[this._dataIndex];
-        if (guide.HollowPos && guide.HollowSize) {
-            let hollowPos = this.fixupHollowPos();
-            let hollowSize = new Size(guide.HollowSize.x, guide.HollowSize.y);
+        if ((pos || guide.HollowPos) && (size || guide.HollowSize)) {
+            let hollowPos = pos || this.fixupHollowPos();
+            let hollowSize = size || new Size(guide.HollowSize.x, guide.HollowSize.y);
             let hollowType = guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle;
             let hollowAnimDur = guide.HollowAnimDur < 0 ? 0 : (guide.HollowAnimDur || 0.25);
-            this.mask.hollow(hollowType, hollowPos, hollowSize, guide.HollowScale, hollowAnimDur, guide.FinishStepType == EFinishStepType.ClickHollow);
+            let clickType = (guide.FinishStepType == EFinishStepType.ClickHollow || guide.FinishStepType == EFinishStepType.ClickHollowStart) ?
+                guide.FinishStepType as any as EClickType : EClickType.None;
+            let canClick = clickType != EClickType.None;
+            this.mask.hollow(hollowType, hollowPos, hollowSize, guide.HollowScale, hollowAnimDur, clickType);
             this._logger.debug(`挖孔Size width=${hollowSize.width} height=${hollowSize.height}`);
             this.scheduleOnce(() => {
                 app.ui.blockTime = -1;
-                this.showRing(guide.RingScale, hollowPos.clone(), guide.RingOffset);
-                this.showFinger(guide.FingerDir, hollowPos.clone(), guide.FingerOffset);
+                if (canClick) {
+                    this.showRing(guide.RingScale, hollowPos.clone(), guide.RingOffset);
+                    this.showFinger(guide.FingerDir, hollowPos.clone(), guide.FingerOffset);
+                }
             }, hollowAnimDur + 0.05);
         }
 
     }
 
     /** 展示自定义挖孔 挖孔不可点击  */
-    public showCustomHollow(type: EMaskHollowType, screenPos: Vec3, size: Size, duration = 0.25, canClick = true) {
-        this.mask.hollow(type, screenPos, size, 1, duration, canClick);
+    public showCustomHollow(type: EMaskHollowType, screenPos: Vec3, size: Size, duration: number) {
+        this.mask.hollow(type, screenPos, size, 1, duration, EClickType.None);
     }
 
     private fixupHollowPos() {
@@ -357,16 +367,24 @@ export class UIGuide extends UIComponent {
             let dist = guide.HollowAlign[1];
             switch (align) {
                 case 1://向上停靠
-                    y = viewSize.height - dist - guide.HollowSize.y / 2;
+                case 10://适配刘海
+                    if (align >= 10) dist += SafeWidget.safeAreaGap.top;
+                    y = viewSize.height / 2 - dist - guide.HollowSize.y / 2;
                     break;
                 case 2://向下停靠
-                    y = dist + guide.HollowSize.y / 2;
+                case 20://适配刘海
+                    if (align >= 10) dist += SafeWidget.safeAreaGap.bottom;
+                    y = -viewSize.height / 2 + dist + guide.HollowSize.y / 2;
                     break;
                 case 3://向左停靠
-                    x = dist + guide.HollowSize.x / 2;
+                case 30://适配刘海
+                    if (align >= 10) dist += SafeWidget.safeAreaGap.left;
+                    x = -viewSize.width / 2 + dist + guide.HollowSize.x / 2;
                     break;
                 case 4://向右停靠
-                    x = viewSize.width - dist - guide.HollowSize.x / 2;
+                case 40://适配刘海
+                    if (align >= 10) dist += SafeWidget.safeAreaGap.right;
+                    x = viewSize.width / 2 - dist - guide.HollowSize.x / 2;
                     break;
                 default:
                     this._logger.error(`错误的对齐方式`, align, guide);

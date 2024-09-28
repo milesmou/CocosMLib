@@ -16,8 +16,8 @@ export class GameData extends GameSave {
         return this._inst;
     }
 
-    /** 存档名字 为避免浏览器存档冲突 最好不同游戏不同名字 */
-    public name = "GameData";
+    /** 存档名字 使用游戏名 */
+    public readonly name = mGameSetting.gameName;
 
 }
 

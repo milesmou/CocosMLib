@@ -8,8 +8,8 @@ export class AudioVolume {
     public eVolume: StroageValue<number>;
 
     public constructor(key: string, onMusicVolumeChange?: () => void, onEffectVolumeChange?: () => void) {
-        this.mVolume = new StroageValue("MusicVolume_" + key, 1, onMusicVolumeChange);
-        this.eVolume = new StroageValue("EffectVolume_" + key, 1, onEffectVolumeChange);
+        this.mVolume = new StroageValue(mGameSetting.gameName + "_MusicVolume_" + key, 1, onMusicVolumeChange);
+        this.eVolume = new StroageValue(mGameSetting.gameName + "_EffectVolume_" + key, 1, onEffectVolumeChange);
     }
 
     /** 设置音乐音量变化监听器 */

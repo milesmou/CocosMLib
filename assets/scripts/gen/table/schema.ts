@@ -131,19 +131,19 @@ export class TGuide {
         this.FinishStepType = _buf_.ReadInt()
         if(_buf_.ReadBool()) { this.HollowPos = new vector2(_buf_) } else { this.HollowPos = null; }
         if(_buf_.ReadBool()) { this.HollowSize = new vector2(_buf_) } else { this.HollowSize = null; }
-        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.HollowAlign = []; for(let i = 0 ; i < n ; i++) { let _e0 ;_e0 = _buf_.ReadFloat(); this.HollowAlign.push(_e0);}}
-        this.HollowKeep = _buf_.ReadBool()
-        this.HollowType = _buf_.ReadInt()
-        this.HollowAnimDur = _buf_.ReadFloat()
-        this.HollowScale = _buf_.ReadFloat()
+        this.FingerDir = _buf_.ReadInt()
+        if(_buf_.ReadBool()) { this.TipPos = new vector2(_buf_) } else { this.TipPos = null; }
+        this.TipText = _buf_.ReadString()
         this.FinishStepDelay = _buf_.ReadFloat()
+        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.HollowAlign = []; for(let i = 0 ; i < n ; i++) { let _e0; _e0 = _buf_.ReadFloat(); this.HollowAlign.push(_e0);}}
+        this.HollowKeep = _buf_.ReadBool()
+        this.HollowAnimDur = _buf_.ReadFloat()
+        this.HollowType = _buf_.ReadInt()
+        this.HollowScale = _buf_.ReadFloat()
         this.Opacity = _buf_.ReadInt()
         this.RingScale = _buf_.ReadFloat()
         if(_buf_.ReadBool()) { this.RingOffset = new vector2(_buf_) } else { this.RingOffset = null; }
-        this.FingerDir = _buf_.ReadInt()
         if(_buf_.ReadBool()) { this.FingerOffset = new vector2(_buf_) } else { this.FingerOffset = null; }
-        this.TipText = _buf_.ReadString()
-        if(_buf_.ReadBool()) { this.TipPos = new vector2(_buf_) } else { this.TipPos = null; }
         this.Prefab = _buf_.ReadString()
     }
 
@@ -168,7 +168,7 @@ export class TGuide {
      */
     readonly Delay: number
     /**
-     * 完成这一步引导的方式
+     * 行进逻辑
      */
     readonly FinishStepType: number
     /**
@@ -180,6 +180,22 @@ export class TGuide {
      */
     readonly HollowSize: vector2|undefined
     /**
+     * 手指方向
+     */
+    readonly FingerDir: number
+    /**
+     * 提示文字位置
+     */
+    readonly TipPos: vector2|undefined
+    /**
+     * 提示文字
+     */
+    readonly TipText: string
+    /**
+     * 等多久完成
+     */
+    readonly FinishStepDelay: number
+    /**
      * 挖孔对齐方式
      */
     readonly HollowAlign: number[]
@@ -188,21 +204,17 @@ export class TGuide {
      */
     readonly HollowKeep: boolean
     /**
-     * 挖孔类型
-     */
-    readonly HollowType: number
-    /**
      * 挖孔动画时长
      */
     readonly HollowAnimDur: number
     /**
+     * 挖孔类型
+     */
+    readonly HollowType: number
+    /**
      * 挖孔缩放
      */
     readonly HollowScale: number
-    /**
-     * 延时多久完成本步引导
-     */
-    readonly FinishStepDelay: number
     /**
      * 遮罩透明度
      */
@@ -216,21 +228,9 @@ export class TGuide {
      */
     readonly RingOffset: vector2|undefined
     /**
-     * 手指方向
-     */
-    readonly FingerDir: number
-    /**
      * 手指相对挖孔偏移
      */
     readonly FingerOffset: vector2|undefined
-    /**
-     * 提示文字
-     */
-    readonly TipText: string
-    /**
-     * 提示文字位置
-     */
-    readonly TipPos: vector2|undefined
     /**
      * 加载预制体
      */
@@ -266,136 +266,58 @@ export class TGuide {
 
 
 
-export class TGuideOpenPlan {
+export class TGuideOpen {
 
     constructor(_buf_: ByteBuf) {
         this.ID = _buf_.ReadInt()
-        this.GuideID = _buf_.ReadInt()
-        this.StepId = _buf_.ReadInt()
-        this.UIName = _buf_.ReadString()
-        this.Delay = _buf_.ReadFloat()
-        this.FinishStepType = _buf_.ReadInt()
-        if(_buf_.ReadBool()) { this.HollowPos = new vector2(_buf_) } else { this.HollowPos = null; }
-        if(_buf_.ReadBool()) { this.HollowSize = new vector2(_buf_) } else { this.HollowSize = null; }
-        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.HollowAlign = []; for(let i = 0 ; i < n ; i++) { let _e0 ;_e0 = _buf_.ReadFloat(); this.HollowAlign.push(_e0);}}
-        this.HollowKeep = _buf_.ReadBool()
-        this.HollowType = _buf_.ReadInt()
-        this.HollowAnimDur = _buf_.ReadFloat()
-        this.HollowScale = _buf_.ReadFloat()
-        this.FinishStepDelay = _buf_.ReadFloat()
-        this.Opacity = _buf_.ReadInt()
-        this.RingScale = _buf_.ReadFloat()
-        if(_buf_.ReadBool()) { this.RingOffset = new vector2(_buf_) } else { this.RingOffset = null; }
-        this.FingerDir = _buf_.ReadInt()
-        if(_buf_.ReadBool()) { this.FingerOffset = new vector2(_buf_) } else { this.FingerOffset = null; }
-        this.TipText = _buf_.ReadString()
-        if(_buf_.ReadBool()) { this.TipPos = new vector2(_buf_) } else { this.TipPos = null; }
-        this.Prefab = _buf_.ReadString()
+        this.GuideCondition = _buf_.ReadInt()
+        this.FuncOpenID = _buf_.ReadInt()
+        this.ItemRequire = _buf_.ReadString()
+        this.GiveItem = _buf_.ReadBool()
+        this.EmitOnce = _buf_.ReadBool()
+        this.Args1 = _buf_.ReadString()
+        this.Args2 = _buf_.ReadString()
+        this.Args3 = _buf_.ReadString()
     }
 
     /**
-     * 主键
+     * 引导ID
      */
     readonly ID: number
     /**
-     * 引导ID
+     * 引导触发条件类型
      */
-    readonly GuideID: number
+    readonly GuideCondition: number
     /**
-     * 步骤id
+     * 功能开启ID
      */
-    readonly StepId: number
+    readonly FuncOpenID: number
     /**
-     * 引导所在UI名字
+     * 背包物品要求
      */
-    readonly UIName: string
+    readonly ItemRequire: string
     /**
-     * 延迟开始本步引导
+     * 是否补充物品
      */
-    readonly Delay: number
+    readonly GiveItem: boolean
     /**
-     * 完成这一步引导的方式
+     * 触发一次
      */
-    readonly FinishStepType: number
+    readonly EmitOnce: boolean
     /**
-     * 挖孔位置
+     * 参数1
      */
-    readonly HollowPos: vector2|undefined
+    readonly Args1: string
     /**
-     * 挖孔尺寸
+     * 参数2
      */
-    readonly HollowSize: vector2|undefined
+    readonly Args2: string
     /**
-     * 挖孔对齐方式
+     * 参数3
      */
-    readonly HollowAlign: number[]
-    /**
-     * 保留上一步挖孔
-     */
-    readonly HollowKeep: boolean
-    /**
-     * 挖孔类型
-     */
-    readonly HollowType: number
-    /**
-     * 挖孔动画时长
-     */
-    readonly HollowAnimDur: number
-    /**
-     * 挖孔缩放
-     */
-    readonly HollowScale: number
-    /**
-     * 延时多久完成本步引导
-     */
-    readonly FinishStepDelay: number
-    /**
-     * 遮罩透明度
-     */
-    readonly Opacity: number
-    /**
-     * 圆圈缩放
-     */
-    readonly RingScale: number
-    /**
-     * 圆圈相对挖孔偏移
-     */
-    readonly RingOffset: vector2|undefined
-    /**
-     * 手指方向
-     */
-    readonly FingerDir: number
-    /**
-     * 手指相对挖孔偏移
-     */
-    readonly FingerOffset: vector2|undefined
-    /**
-     * 提示文字
-     */
-    readonly TipText: string
-    /**
-     * 提示文字位置
-     */
-    readonly TipPos: vector2|undefined
-    /**
-     * 加载预制体
-     */
-    readonly Prefab: string
+    readonly Args3: string
 
     resolve(tables:Tables) {
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
@@ -691,24 +613,24 @@ export class TbUnforcedGuide {
 
 
 
-export class TbGuideOpenPlan {
-    private _dataMap: Map<number, TGuideOpenPlan>
-    private _dataList: TGuideOpenPlan[]
+export class TbGuideOpen {
+    private _dataMap: Map<number, TGuideOpen>
+    private _dataList: TGuideOpen[]
     constructor(_buf_: ByteBuf) {
-        this._dataMap = new Map<number, TGuideOpenPlan>()
+        this._dataMap = new Map<number, TGuideOpen>()
         this._dataList = []
         for(let n = _buf_.ReadInt(); n > 0; n--) {
-            let _v: TGuideOpenPlan
-            _v = new TGuideOpenPlan(_buf_)
+            let _v: TGuideOpen
+            _v = new TGuideOpen(_buf_)
             this._dataList.push(_v)
             this._dataMap.set(_v.ID, _v)
         }
     }
 
-    getDataMap(): Map<number, TGuideOpenPlan> { return this._dataMap; }
-    getDataList(): TGuideOpenPlan[] { return this._dataList; }
+    getDataMap(): Map<number, TGuideOpen> { return this._dataMap; }
+    getDataList(): TGuideOpen[] { return this._dataList; }
 
-    get(key: number): TGuideOpenPlan | undefined {
+    get(key: number): TGuideOpen | undefined {
         return this._dataMap.get(key); 
     }
 
@@ -766,8 +688,8 @@ export class Tables {
     get TbGuide(): TbGuide  { return this._TbGuide;}
     private _TbUnforcedGuide: TbUnforcedGuide
     get TbUnforcedGuide(): TbUnforcedGuide  { return this._TbUnforcedGuide;}
-    private _TbGuideOpenPlan: TbGuideOpenPlan
-    get TbGuideOpenPlan(): TbGuideOpenPlan  { return this._TbGuideOpenPlan;}
+    private _TbGuideOpen: TbGuideOpen
+    get TbGuideOpen(): TbGuideOpen  { return this._TbGuideOpen;}
     private _TbLocalization: TbLocalization
     get TbLocalization(): TbLocalization  { return this._TbLocalization;}
 
@@ -776,7 +698,7 @@ export class Tables {
         names.push('tbglobalvar');
         names.push('tbguide');
         names.push('tbunforcedguide');
-        names.push('tbguideopenplan');
+        names.push('tbguideopen');
         names.push('tblocalization');
         return names;
     }
@@ -785,13 +707,13 @@ export class Tables {
         this._TbGlobalVar = new TbGlobalVar(loader('tbglobalvar'))
         this._TbGuide = new TbGuide(loader('tbguide'))
         this._TbUnforcedGuide = new TbUnforcedGuide(loader('tbunforcedguide'))
-        this._TbGuideOpenPlan = new TbGuideOpenPlan(loader('tbguideopenplan'))
+        this._TbGuideOpen = new TbGuideOpen(loader('tbguideopen'))
         this._TbLocalization = new TbLocalization(loader('tblocalization'))
 
         this._TbGlobalVar.resolve(this)
         this._TbGuide.resolve(this)
         this._TbUnforcedGuide.resolve(this)
-        this._TbGuideOpenPlan.resolve(this)
+        this._TbGuideOpen.resolve(this)
         this._TbLocalization.resolve(this)
     }
 }

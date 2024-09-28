@@ -2,28 +2,30 @@ import { AudioVolume } from "./AudioVolume";
 /** 管理音频播放组建 */
 export class AudioMgr {
 
+    public static get Inst() { return createSingleton(AudioMgr); }
+
     /** 全局音量 */
-    public static readonly gVolume = new AudioVolume("Global", this.onMusicVolumeChange.bind(this), this.onEffectVolumeChange.bind(this));
+    public readonly gVolume = new AudioVolume("Global", this.onMusicVolumeChange.bind(this), this.onEffectVolumeChange.bind(this));
 
     /** 保存所有音频播放组件的音量Map */
-    private static audioVolumeMap: Map<string, AudioVolume> = new Map();
+    private audioVolumeMap: Map<string, AudioVolume> = new Map();
 
     /** 全局音乐音量变化 刷新所有音频播放组件的音乐音量 */
-    private static onMusicVolumeChange() {
+    private onMusicVolumeChange() {
         this.audioVolumeMap.forEach(v => {
             v.dispatchMusicVolumeChange();
         });
     }
 
     /** 全局音效音量变化 刷新所有音频播放组件的音效音量 */
-    private static onEffectVolumeChange() {
+    private onEffectVolumeChange() {
         this.audioVolumeMap.forEach(v => {
             v.dispatchEffectVolumeChange();
         });
     }
 
     /** 获取音频播放组件音量配置 */
-    public static getAudioVolume(key: string) {
+    public getAudioVolume(key: string) {
         let volume = this.audioVolumeMap.get(key);
         if (!volume) {
             volume = new AudioVolume(key);
@@ -33,7 +35,7 @@ export class AudioMgr {
     }
 
     /** 移除音频播放组件音量配置 */
-    public static removeAudioVolume(key: string) {
+    public removeAudioVolume(key: string) {
         this.audioVolumeMap.delete(key);
     }
 }

@@ -9,6 +9,52 @@ const MIN_CAPACITY: number = 16;
 const f_2power32 = Math.pow(2, 32);
 const f_2power56 = Math.pow(2, 56);
 
+function arrayBufferToString(buffer: ArrayBuffer) {
+    var uint8Array = new Uint8Array(buffer);
+    var result = '';
+    var i = 0;
+
+    while (i < uint8Array.length) {
+        var byte1 = uint8Array[i++];
+
+        if (byte1 < 0x80) {
+            // 1字节字符 (ASCII)
+            result += String.fromCharCode(byte1);
+        } else if (byte1 < 0xE0) {
+            // 2字节字符
+            var byte2 = uint8Array[i++];
+            result += String.fromCharCode(((byte1 & 0x1F) << 6) | (byte2 & 0x3F));
+        } else if (byte1 < 0xF0) {
+            // 3字节字符
+            var byte2 = uint8Array[i++];
+            var byte3 = uint8Array[i++];
+            result += String.fromCharCode(
+                ((byte1 & 0x0F) << 12) |
+                ((byte2 & 0x3F) << 6) |
+                (byte3 & 0x3F)
+            );
+        } else {
+            // 4字节字符 (少见字符或emoji)
+            var byte2 = uint8Array[i++];
+            var byte3 = uint8Array[i++];
+            var byte4 = uint8Array[i++];
+            var codepoint =
+                ((byte1 & 0x07) << 18) |
+                ((byte2 & 0x3F) << 12) |
+                ((byte3 & 0x3F) << 6) |
+                (byte4 & 0x3F);
+            codepoint -= 0x10000;
+            result += String.fromCharCode(
+                0xD800 + (codepoint >> 10), // High surrogate
+                0xDC00 + (codepoint & 0x3FF) // Low surrogate
+            );
+        }
+    }
+
+    return result;
+}
+
+
 export default class ByteBuf {
     private static emptyBuff: Uint8Array = new Uint8Array(0);
 
@@ -588,7 +634,12 @@ export default class ByteBuf {
         const n = this.ReadSize();
         if (n > 0) {
             this.EnsureRead(n);
-            const s = new TextDecoder().decode(this._bytes.subarray(this._readerIndex, this._readerIndex + n));
+            let s: string;
+            if (typeof TextDecoder === "undefined") {
+                s = arrayBufferToString(this._bytes.subarray(this._readerIndex, this._readerIndex + n));
+            } else {
+                s = new TextDecoder().decode(this._bytes.subarray(this._readerIndex, this._readerIndex + n))
+            }
             this._readerIndex += n;
             return s;
         }
