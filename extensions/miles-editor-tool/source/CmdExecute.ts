@@ -26,7 +26,7 @@ export class CmdExecute {
     /** 导表 */
     public static loadExcel() {
         let workDir = Utils.ProjectPath + "/excel";
-        let batPath = "gen_code_bin.bat";
+        let batPath = "gen_code.bat";
         let tsDir = Utils.ProjectPath + "/assets/scripts/gen/table";
         fs.ensureDirSync(tsDir);
         Logger.debug(workDir)
