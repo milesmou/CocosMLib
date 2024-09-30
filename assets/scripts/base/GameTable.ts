@@ -1,4 +1,4 @@
-import { BufferAsset } from 'cc';
+import { BufferAsset, JsonAsset } from 'cc';
 import { AssetMgr } from '../../mlib/module/asset/AssetMgr';
 import ByteBuf from '../gen/bright/serialization/ByteBuf';
 import { Tables, TGuide, TUnforcedGuide } from '../gen/table/schema';
@@ -14,30 +14,35 @@ export default class GameTable {
     public static get GlobalVar() { return this.Table.TbGlobalVar; }
 
     /** 加载所有数据表 */
-    public static async initData(onProgress?: (finished: number, total: number) => void) {
+    public static async initData(progress?: Progress) {
         let dir = "table";
-        // //JSON
-        // let assets = await AssetMgr.loadDir(dir, JsonAsset, onProgress);
-        // let datas: Map<string, JsonAsset> = new Map();
-        // for (let asset of assets) {
-        //     datas.set(asset.name, asset);
-        // }
-        // GameTable.Table = new Tables(file => {
-        //     let obj = datas.get(file)?.json;
-        //     return obj;
-        // });
-        //Bin
-        let assets = await AssetMgr.loadDir(dir, BufferAsset, onProgress);
-        let datas: Map<string, Uint8Array> = new Map();
+        await this.loadJsonData(dir, progress);//JSON
+        // await this.loadBinData(dir, progress);//BIN
+        AssetMgr.decDirRef(dir);
+    }
+
+    private static async loadJsonData(dir: string, progress?: Progress) {
+        let assets = await AssetMgr.loadDir(dir, JsonAsset, progress);
+        let datas: Map<string, JsonAsset> = new Map();
+        for (let asset of assets) {
+            datas.set(asset.name, asset);
+        }
+        GameTable.Table = new Tables(file => {
+            let obj = datas.get(file)?.json;
+            return obj;
+        });
+    }
+
+    private static async loadBinData(dir: string, progress?: Progress) {
+        let assets = await AssetMgr.loadDir(dir, BufferAsset, progress);
+        let datas: Map<string, Uint8Array> = new Map(); progress
         for (let asset of assets) {
             datas.set(asset.name, new Uint8Array(asset.buffer().slice(0, asset.buffer().byteLength)));
         }
         GameTable.Table = new Tables(file => {
             return new ByteBuf(datas.get(file));
         });
-        AssetMgr.decDirRef(dir);
     }
-
 
     private _guideGroup: Map<number, TGuide[]>;
     public get guideGroup() { return this._guideGroup || (this._guideGroup = GameTable.Table.TbGuide.getDataList().groupBy(v => v.GuideID,)); }

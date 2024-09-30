@@ -8,8 +8,6 @@
 //------------------------------------------------------------------------------
 
 
-import ByteBuf from '../bright/serialization/ByteBuf'
-
 export namespace test { 
 export enum AccessFlag {
     WRITE = 1,
@@ -48,17 +46,27 @@ export enum ETestQuality {
 
 export class TGlobalVar {
 
-    constructor(_buf_: ByteBuf) {
-        this.LeafletClickCnt = _buf_.ReadInt()
-        this.LeafletCnt = _buf_.ReadInt()
-        this.LeafletRecover = _buf_.ReadFloat()
-        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.BandBuff = []; for(let i = 0 ; i < n ; i++) { let _e0; _e0 = _buf_.ReadInt(); this.BandBuff.push(_e0);}}
-        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.OfflineData = []; for(let i = 0 ; i < n ; i++) { let _e0; _e0 = _buf_.ReadInt(); this.OfflineData.push(_e0);}}
-        this.TarotCoolTime = _buf_.ReadInt()
-        this.HeroMoveSpeed = _buf_.ReadInt()
-        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.Gratuity = []; for(let i = 0 ; i < n ; i++) { let _e0; _e0 = _buf_.ReadInt(); this.Gratuity.push(_e0);}}
-        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.SpecialCustomersCoolTime = []; for(let i = 0 ; i < n ; i++) { let _e0; _e0 = _buf_.ReadInt(); this.SpecialCustomersCoolTime.push(_e0);}}
-        this.InitialItem = _buf_.ReadString()
+    constructor(_json_: any) {
+        if (_json_.LeafletClickCnt === undefined) { throw new Error() }
+        this.LeafletClickCnt = _json_.LeafletClickCnt
+        if (_json_.LeafletCnt === undefined) { throw new Error() }
+        this.LeafletCnt = _json_.LeafletCnt
+        if (_json_.LeafletRecover === undefined) { throw new Error() }
+        this.LeafletRecover = _json_.LeafletRecover
+        if (_json_.BandBuff === undefined) { throw new Error() }
+        { this.BandBuff = []; for(let _ele0 of _json_.BandBuff) { let _e0; _e0 = _ele0; this.BandBuff.push(_e0);}}
+        if (_json_.OfflineData === undefined) { throw new Error() }
+        { this.OfflineData = []; for(let _ele0 of _json_.OfflineData) { let _e0; _e0 = _ele0; this.OfflineData.push(_e0);}}
+        if (_json_.TarotCoolTime === undefined) { throw new Error() }
+        this.TarotCoolTime = _json_.TarotCoolTime
+        if (_json_.HeroMoveSpeed === undefined) { throw new Error() }
+        this.HeroMoveSpeed = _json_.HeroMoveSpeed
+        if (_json_.Gratuity === undefined) { throw new Error() }
+        { this.Gratuity = []; for(let _ele0 of _json_.Gratuity) { let _e0; _e0 = _ele0; this.Gratuity.push(_e0);}}
+        if (_json_.SpecialCustomersCoolTime === undefined) { throw new Error() }
+        { this.SpecialCustomersCoolTime = []; for(let _ele0 of _json_.SpecialCustomersCoolTime) { let _e0; _e0 = _ele0; this.SpecialCustomersCoolTime.push(_e0);}}
+        if (_json_.InitialItem === undefined) { throw new Error() }
+        this.InitialItem = _json_.InitialItem
     }
 
     /**
@@ -122,29 +130,46 @@ export class TGlobalVar {
 
 export class TGuide {
 
-    constructor(_buf_: ByteBuf) {
-        this.ID = _buf_.ReadInt()
-        this.GuideID = _buf_.ReadInt()
-        this.StepId = _buf_.ReadInt()
-        this.UIName = _buf_.ReadString()
-        this.Delay = _buf_.ReadFloat()
-        this.FinishStepType = _buf_.ReadInt()
-        if(_buf_.ReadBool()) { this.HollowPos = new vector2(_buf_) } else { this.HollowPos = null; }
-        if(_buf_.ReadBool()) { this.HollowSize = new vector2(_buf_) } else { this.HollowSize = null; }
-        this.FingerDir = _buf_.ReadInt()
-        if(_buf_.ReadBool()) { this.TipPos = new vector2(_buf_) } else { this.TipPos = null; }
-        this.TipText = _buf_.ReadString()
-        this.FinishStepDelay = _buf_.ReadFloat()
-        { let n = Math.min(_buf_.ReadSize(), _buf_.Size); this.HollowAlign = []; for(let i = 0 ; i < n ; i++) { let _e0; _e0 = _buf_.ReadFloat(); this.HollowAlign.push(_e0);}}
-        this.HollowKeep = _buf_.ReadBool()
-        this.HollowAnimDur = _buf_.ReadFloat()
-        this.HollowType = _buf_.ReadInt()
-        this.HollowScale = _buf_.ReadFloat()
-        this.Opacity = _buf_.ReadInt()
-        this.RingScale = _buf_.ReadFloat()
-        if(_buf_.ReadBool()) { this.RingOffset = new vector2(_buf_) } else { this.RingOffset = null; }
-        if(_buf_.ReadBool()) { this.FingerOffset = new vector2(_buf_) } else { this.FingerOffset = null; }
-        this.Prefab = _buf_.ReadString()
+    constructor(_json_: any) {
+        if (_json_.ID === undefined) { throw new Error() }
+        this.ID = _json_.ID
+        if (_json_.GuideID === undefined) { throw new Error() }
+        this.GuideID = _json_.GuideID
+        if (_json_.StepId === undefined) { throw new Error() }
+        this.StepId = _json_.StepId
+        if (_json_.UIName === undefined) { throw new Error() }
+        this.UIName = _json_.UIName
+        if (_json_.Delay === undefined) { throw new Error() }
+        this.Delay = _json_.Delay
+        if (_json_.FinishStepType === undefined) { throw new Error() }
+        this.FinishStepType = _json_.FinishStepType
+        if(_json_.HollowPos != undefined) { this.HollowPos = new vector2(_json_.HollowPos) } else { this.HollowPos = undefined }
+        if(_json_.HollowSize != undefined) { this.HollowSize = new vector2(_json_.HollowSize) } else { this.HollowSize = undefined }
+        if (_json_.FingerDir === undefined) { throw new Error() }
+        this.FingerDir = _json_.FingerDir
+        if(_json_.TipPos != undefined) { this.TipPos = new vector2(_json_.TipPos) } else { this.TipPos = undefined }
+        if (_json_.TipText === undefined) { throw new Error() }
+        this.TipText = _json_.TipText
+        if (_json_.FinishStepDelay === undefined) { throw new Error() }
+        this.FinishStepDelay = _json_.FinishStepDelay
+        if (_json_.HollowAlign === undefined) { throw new Error() }
+        { this.HollowAlign = []; for(let _ele0 of _json_.HollowAlign) { let _e0; _e0 = _ele0; this.HollowAlign.push(_e0);}}
+        if (_json_.HollowKeep === undefined) { throw new Error() }
+        this.HollowKeep = _json_.HollowKeep
+        if (_json_.HollowAnimDur === undefined) { throw new Error() }
+        this.HollowAnimDur = _json_.HollowAnimDur
+        if (_json_.HollowType === undefined) { throw new Error() }
+        this.HollowType = _json_.HollowType
+        if (_json_.HollowScale === undefined) { throw new Error() }
+        this.HollowScale = _json_.HollowScale
+        if (_json_.Opacity === undefined) { throw new Error() }
+        this.Opacity = _json_.Opacity
+        if (_json_.RingScale === undefined) { throw new Error() }
+        this.RingScale = _json_.RingScale
+        if(_json_.RingOffset != undefined) { this.RingOffset = new vector2(_json_.RingOffset) } else { this.RingOffset = undefined }
+        if(_json_.FingerOffset != undefined) { this.FingerOffset = new vector2(_json_.FingerOffset) } else { this.FingerOffset = undefined }
+        if (_json_.Prefab === undefined) { throw new Error() }
+        this.Prefab = _json_.Prefab
     }
 
     /**
@@ -268,16 +293,25 @@ export class TGuide {
 
 export class TGuideOpen {
 
-    constructor(_buf_: ByteBuf) {
-        this.ID = _buf_.ReadInt()
-        this.GuideCondition = _buf_.ReadInt()
-        this.FuncOpenID = _buf_.ReadInt()
-        this.ItemRequire = _buf_.ReadString()
-        this.GiveItem = _buf_.ReadBool()
-        this.EmitOnce = _buf_.ReadBool()
-        this.Args1 = _buf_.ReadString()
-        this.Args2 = _buf_.ReadString()
-        this.Args3 = _buf_.ReadString()
+    constructor(_json_: any) {
+        if (_json_.ID === undefined) { throw new Error() }
+        this.ID = _json_.ID
+        if (_json_.GuideCondition === undefined) { throw new Error() }
+        this.GuideCondition = _json_.GuideCondition
+        if (_json_.FuncOpenID === undefined) { throw new Error() }
+        this.FuncOpenID = _json_.FuncOpenID
+        if (_json_.ItemRequire === undefined) { throw new Error() }
+        this.ItemRequire = _json_.ItemRequire
+        if (_json_.GiveItem === undefined) { throw new Error() }
+        this.GiveItem = _json_.GiveItem
+        if (_json_.EmitOnce === undefined) { throw new Error() }
+        this.EmitOnce = _json_.EmitOnce
+        if (_json_.Args1 === undefined) { throw new Error() }
+        this.Args1 = _json_.Args1
+        if (_json_.Args2 === undefined) { throw new Error() }
+        this.Args2 = _json_.Args2
+        if (_json_.Args3 === undefined) { throw new Error() }
+        this.Args3 = _json_.Args3
     }
 
     /**
@@ -336,11 +370,15 @@ export class TGuideOpen {
 
 export class TLocalization {
 
-    constructor(_buf_: ByteBuf) {
-        this.key = _buf_.ReadString()
-        this.sc = _buf_.ReadString()
-        this.tc = _buf_.ReadString()
-        this.en = _buf_.ReadString()
+    constructor(_json_: any) {
+        if (_json_.key === undefined) { throw new Error() }
+        this.key = _json_.key
+        if (_json_.sc === undefined) { throw new Error() }
+        this.sc = _json_.sc
+        if (_json_.tc === undefined) { throw new Error() }
+        this.tc = _json_.tc
+        if (_json_.en === undefined) { throw new Error() }
+        this.en = _json_.en
     }
 
     /**
@@ -374,13 +412,18 @@ export class TLocalization {
 
 export class TUnforcedGuide {
 
-    constructor(_buf_: ByteBuf) {
-        this.ID = _buf_.ReadInt()
-        this.GuideID = _buf_.ReadInt()
-        this.StepId = _buf_.ReadInt()
-        this.UIName = _buf_.ReadString()
-        this.NodePath = _buf_.ReadString()
-        if(_buf_.ReadBool()) { this.FingerOffset = new vector2(_buf_) } else { this.FingerOffset = null; }
+    constructor(_json_: any) {
+        if (_json_.ID === undefined) { throw new Error() }
+        this.ID = _json_.ID
+        if (_json_.GuideID === undefined) { throw new Error() }
+        this.GuideID = _json_.GuideID
+        if (_json_.StepId === undefined) { throw new Error() }
+        this.StepId = _json_.StepId
+        if (_json_.UIName === undefined) { throw new Error() }
+        this.UIName = _json_.UIName
+        if (_json_.NodePath === undefined) { throw new Error() }
+        this.NodePath = _json_.NodePath
+        if(_json_.FingerOffset != undefined) { this.FingerOffset = new vector2(_json_.FingerOffset) } else { this.FingerOffset = undefined }
     }
 
     /**
@@ -427,9 +470,11 @@ export class TUnforcedGuide {
  */
 export class vector2 {
 
-    constructor(_buf_: ByteBuf) {
-        this.x = _buf_.ReadFloat()
-        this.y = _buf_.ReadFloat()
+    constructor(_json_: any) {
+        if (_json_.x === undefined) { throw new Error() }
+        this.x = _json_.x
+        if (_json_.y === undefined) { throw new Error() }
+        this.y = _json_.y
     }
 
     /**
@@ -456,10 +501,13 @@ export class vector2 {
  */
 export class vector3 {
 
-    constructor(_buf_: ByteBuf) {
-        this.x = _buf_.ReadFloat()
-        this.y = _buf_.ReadFloat()
-        this.z = _buf_.ReadFloat()
+    constructor(_json_: any) {
+        if (_json_.x === undefined) { throw new Error() }
+        this.x = _json_.x
+        if (_json_.y === undefined) { throw new Error() }
+        this.y = _json_.y
+        if (_json_.z === undefined) { throw new Error() }
+        this.z = _json_.z
     }
 
     /**
@@ -490,9 +538,9 @@ export class vector3 {
 export class TbGlobalVar {
 
     private _data: TGlobalVar
-    constructor(_buf_: ByteBuf) {
-        if (_buf_.ReadInt() != 1) throw new Error('table mode=one, but size != 1')
-        this._data = new TGlobalVar(_buf_)
+    constructor(_json_: any) {
+        if (_json_.length != 1) throw new Error('table mode=one, but size != 1')
+        this._data = new TGlobalVar(_json_[0])
     }
 
     getData(): TGlobalVar { return this._data; }
@@ -538,7 +586,8 @@ export class TbGlobalVar {
      */
     get  InitialItem(): string { return this._data.InitialItem; }
 
-    resolve(tables:Tables) {
+    resolve(tables:Tables)
+    {
         this._data.resolve(tables)
     }
     
@@ -550,12 +599,12 @@ export class TbGlobalVar {
 export class TbGuide {
     private _dataMap: Map<number, TGuide>
     private _dataList: TGuide[]
-    constructor(_buf_: ByteBuf) {
+    constructor(_json_: any) {
         this._dataMap = new Map<number, TGuide>()
         this._dataList = []
-        for(let n = _buf_.ReadInt(); n > 0; n--) {
+        for(var _json2_ of _json_) {
             let _v: TGuide
-            _v = new TGuide(_buf_)
+            _v = new TGuide(_json2_)
             this._dataList.push(_v)
             this._dataMap.set(_v.ID, _v)
         }
@@ -564,9 +613,7 @@ export class TbGuide {
     getDataMap(): Map<number, TGuide> { return this._dataMap; }
     getDataList(): TGuide[] { return this._dataList; }
 
-    get(key: number): TGuide | undefined {
-        return this._dataMap.get(key); 
-    }
+    get(key: number): TGuide | undefined { return this._dataMap.get(key); }
 
     resolve(tables:Tables) {
         for(let  data of this._dataList)
@@ -583,12 +630,12 @@ export class TbGuide {
 export class TbUnforcedGuide {
     private _dataMap: Map<number, TUnforcedGuide>
     private _dataList: TUnforcedGuide[]
-    constructor(_buf_: ByteBuf) {
+    constructor(_json_: any) {
         this._dataMap = new Map<number, TUnforcedGuide>()
         this._dataList = []
-        for(let n = _buf_.ReadInt(); n > 0; n--) {
+        for(var _json2_ of _json_) {
             let _v: TUnforcedGuide
-            _v = new TUnforcedGuide(_buf_)
+            _v = new TUnforcedGuide(_json2_)
             this._dataList.push(_v)
             this._dataMap.set(_v.ID, _v)
         }
@@ -597,9 +644,7 @@ export class TbUnforcedGuide {
     getDataMap(): Map<number, TUnforcedGuide> { return this._dataMap; }
     getDataList(): TUnforcedGuide[] { return this._dataList; }
 
-    get(key: number): TUnforcedGuide | undefined {
-        return this._dataMap.get(key); 
-    }
+    get(key: number): TUnforcedGuide | undefined { return this._dataMap.get(key); }
 
     resolve(tables:Tables) {
         for(let  data of this._dataList)
@@ -616,12 +661,12 @@ export class TbUnforcedGuide {
 export class TbGuideOpen {
     private _dataMap: Map<number, TGuideOpen>
     private _dataList: TGuideOpen[]
-    constructor(_buf_: ByteBuf) {
+    constructor(_json_: any) {
         this._dataMap = new Map<number, TGuideOpen>()
         this._dataList = []
-        for(let n = _buf_.ReadInt(); n > 0; n--) {
+        for(var _json2_ of _json_) {
             let _v: TGuideOpen
-            _v = new TGuideOpen(_buf_)
+            _v = new TGuideOpen(_json2_)
             this._dataList.push(_v)
             this._dataMap.set(_v.ID, _v)
         }
@@ -630,9 +675,7 @@ export class TbGuideOpen {
     getDataMap(): Map<number, TGuideOpen> { return this._dataMap; }
     getDataList(): TGuideOpen[] { return this._dataList; }
 
-    get(key: number): TGuideOpen | undefined {
-        return this._dataMap.get(key); 
-    }
+    get(key: number): TGuideOpen | undefined { return this._dataMap.get(key); }
 
     resolve(tables:Tables) {
         for(let  data of this._dataList)
@@ -649,12 +692,12 @@ export class TbGuideOpen {
 export class TbLocalization {
     private _dataMap: Map<string, TLocalization>
     private _dataList: TLocalization[]
-    constructor(_buf_: ByteBuf) {
+    constructor(_json_: any) {
         this._dataMap = new Map<string, TLocalization>()
         this._dataList = []
-        for(let n = _buf_.ReadInt(); n > 0; n--) {
+        for(var _json2_ of _json_) {
             let _v: TLocalization
-            _v = new TLocalization(_buf_)
+            _v = new TLocalization(_json2_)
             this._dataList.push(_v)
             this._dataMap.set(_v.key, _v)
         }
@@ -663,9 +706,7 @@ export class TbLocalization {
     getDataMap(): Map<string, TLocalization> { return this._dataMap; }
     getDataList(): TLocalization[] { return this._dataList; }
 
-    get(key: string): TLocalization | undefined {
-        return this._dataMap.get(key); 
-    }
+    get(key: string): TLocalization | undefined { return this._dataMap.get(key); }
 
     resolve(tables:Tables) {
         for(let  data of this._dataList)
@@ -679,7 +720,7 @@ export class TbLocalization {
 
 
 
-type ByteBufLoader = (file: string) => ByteBuf
+type JsonLoader = (file: string) => any
 
 export class Tables {
     private _TbGlobalVar: TbGlobalVar
@@ -693,17 +734,7 @@ export class Tables {
     private _TbLocalization: TbLocalization
     get TbLocalization(): TbLocalization  { return this._TbLocalization;}
 
-    static getTableNames(): string[] {
-        let names: string[] = [];
-        names.push('tbglobalvar');
-        names.push('tbguide');
-        names.push('tbunforcedguide');
-        names.push('tbguideopen');
-        names.push('tblocalization');
-        return names;
-    }
-
-    constructor(loader: ByteBufLoader) {
+    constructor(loader: JsonLoader) {
         this._TbGlobalVar = new TbGlobalVar(loader('tbglobalvar'))
         this._TbGuide = new TbGuide(loader('tbguide'))
         this._TbUnforcedGuide = new TbUnforcedGuide(loader('tbunforcedguide'))
