@@ -129,7 +129,7 @@ export class ReferenceCollector extends Component {
             let key = data.key;
             if (text) text += "\n";
             let name = key[0].toLowerCase() + key.substring(1);
-            let line = `private get ${name}() { return this.rc.get("${key}",${this.getPropertyType(data.node)}); }`;
+            let line = `private get ${name}() { return this.rc.get("${key}", ${this.getPropertyType(data.node)}); }`;
             text += line;
         });
         Editor.Clipboard.write("text", text);
