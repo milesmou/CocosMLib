@@ -141,10 +141,13 @@ export class ReferenceCollector extends Component {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         //自定义组件
         if (node.getComponent("Switch")) return "Switch";
-        if (node.getComponent("MButton")) return "MButton";
-        if (node.getComponent("MToggle")) return "MToggle";
         if (node.getComponent("MSlider")) return "MSlider";
+        if (node.getComponent("MToggle")) return "MToggle";
+        if (node.getComponent("MButton")) return "MButton";
         //UI组件
+        if (node.getComponent("cc.Toggle")) return "Toggle";
+        if (node.getComponent("cc.Slider")) return "Slider";
+        if (node.getComponent("cc.Button")) return "Button";
         if (node.getComponent("cc.ProgressBar")) return "ProgressBar";
         if (node.getComponent("cc.ScrollView")) return "ScrollView";
         if (node.getComponent("cc.PageView")) return "PageView";
