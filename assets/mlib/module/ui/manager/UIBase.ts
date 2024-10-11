@@ -12,9 +12,9 @@ import { UIMgr } from "./UIMgr";
 @ccclass("UIBase")
 export class UIBase extends UIForm {
     private _uiName: string;
-    public get uiName(): string {
-        return this._uiName;
-    }
+    public get uiName(): string { return this._uiName; }
+    private _shortName: string;
+    public get shortName(): string { return this._shortName; }
 
     private _shadeNode: Node;
 
@@ -31,6 +31,7 @@ export class UIBase extends UIForm {
     public init(uiName: string) {
         if (this._uiName) return;
         this._uiName = uiName;
+        this._shortName = uiName.substring(uiName.lastIndexOf("/") + 1);
 
         if (this.showShade) this.initShade();
         if (this.autoHide) this.enableAutoHide();

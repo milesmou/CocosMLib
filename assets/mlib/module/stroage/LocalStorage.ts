@@ -9,7 +9,7 @@ export class LocalStorage {
      * @param stroageKey 键
      * @param defaultV 默认值
      */
-    public static getValue<T>(stroageKey: string, defaultV: T): T {
+    public static getValue<T = number>(stroageKey: string, defaultV: T): T {
         let value: any = sys.localStorage.getItem(stroageKey);
         if (!value) return defaultV;
         if (typeof defaultV === "number") {
@@ -44,4 +44,12 @@ export class LocalStorage {
         }
         sys.localStorage.setItem(stroageKey, String(value));
     }
+
+    /**
+     * 移除本地存储值
+     */
+    public static removeValue(stroageKey: string) {
+        sys.localStorage.removeItem(stroageKey);
+    }
+
 }

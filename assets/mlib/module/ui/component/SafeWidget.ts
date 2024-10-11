@@ -20,10 +20,14 @@ class SafeAreaGap {
 @disallowMultiple
 export class SafeWidget extends Component {
 
-    static safeAreaGap: SafeAreaGap;
+
+    private static _safeAreaGap: SafeAreaGap;
+    public static get safeAreaGap() {
+        if (!this._safeAreaGap) this._safeAreaGap = this.getSafeArea();
+        return this._safeAreaGap;
+    }
 
     protected onLoad() {
-        this.checkSafeArea();
         let safeAreaGap = SafeWidget.safeAreaGap;
         let widget = this.getComponent(Widget);
         if (!widget) return;
@@ -33,30 +37,33 @@ export class SafeWidget extends Component {
         if (widget.isAlignRight) widget.right += safeAreaGap.right;
     }
 
-    private checkSafeArea() {
-        if (!SafeWidget.safeAreaGap) {
-            let size = view.getVisibleSize();
-            let rect = sys.getSafeAreaRect();
-            let safeAreaGap = new SafeAreaGap();
-            safeAreaGap.left = rect.x;
-            safeAreaGap.bottom = rect.y;
-            safeAreaGap.right = size.width - rect.width - rect.x;
-            safeAreaGap.top = size.height - rect.height - rect.y;
-            if (PREVIEW) {//预览时模拟刘海
-                let min = Math.min(size.width, size.height);
-                let max = Math.max(size.width, size.height);
-                let ratio = max / min;
-                if (ratio > 1.8) {//全面屏手机
-                    safeAreaGap.top = 90 * (min / 1080);
-                }
+    private static getSafeArea() {
+        let safeAreaGap = new SafeAreaGap();
+        let size = view.getVisibleSize();
+        let rect = sys.getSafeAreaRect();
+
+        mLogger.info("SafeAreaRect:" + rect.toString());
+
+        safeAreaGap.left = rect.x;
+        safeAreaGap.bottom = rect.y;
+        safeAreaGap.right = size.width - rect.width - rect.x;
+        safeAreaGap.top = size.height - rect.height - rect.y;
+        if (PREVIEW) {//预览时模拟刘海
+            let min = Math.min(size.width, size.height);
+            let max = Math.max(size.width, size.height);
+            let ratio = max / min;
+            if (ratio > 1.8) {//全面屏手机
+                safeAreaGap.top = 90 * (min / 1080);
             }
-            if (size.width > size.height) {//横屏手机左右安全距离保持一致
-                let max = Math.max(safeAreaGap.left, safeAreaGap.right);
-                safeAreaGap.left = max;
-                safeAreaGap.right = max;
-            }
-            SafeWidget.safeAreaGap = safeAreaGap;
         }
+        if (size.width > size.height) {//横屏手机左右安全距离保持一致
+            let max = Math.max(safeAreaGap.left, safeAreaGap.right);
+            safeAreaGap.left = max;
+            safeAreaGap.right = max;
+        }
+        return safeAreaGap;
     }
+
+
 
 }

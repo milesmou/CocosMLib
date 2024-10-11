@@ -1,6 +1,4 @@
-import { TweenEasing } from "cc";
-import { tween } from "cc";
-import { Button, Camera, Component, EventHandler, Layers, Node, Prefab, ScrollView, Slider, Toggle, ToggleContainer, UITransform, Vec3, instantiate, misc, sp, v2 } from "cc";
+import { Button, Component, EventHandler, Layers, Node, Prefab, ScrollView, Slider, Toggle, ToggleContainer, TweenEasing, UITransform, Vec3, instantiate, misc, sp, tween, v2, v3, view } from "cc";
 
 export class CCUtils {
 
@@ -25,37 +23,34 @@ export class CCUtils {
         return null;
     }
 
-    /** 将node1当前的位置转化为node2本地坐标下的位置(UI节点) */
-    public static uiNodeCurPosToUINodePos(node1: Node, node2: Node,) {
-        return this.uiNodePosToUINodePos(node1.parent, node2, node1.position);
+    /** 
+     * 将node1本地坐标系的位置转化为node2本地坐标下的位置
+     */
+    public static uiNodePosToUINodePos(node1: Node, node2: Node, pos?: Vec3) {
+        if (!pos) pos = v3(0, 0);
+        let screenPos = node1.transform.convertToWorldSpaceAR(pos);
+        return node2.transform.convertToNodeSpaceAR(screenPos);
     }
 
-    /** 将node1本地坐标系的位置转化为node2本地坐标下的位置(UI节点) */
-    public static uiNodePosToUINodePos(node1: Node, node2: Node, vec: Vec3) {
-        let screenPos = node1.getComponent(UITransform).convertToWorldSpaceAR(vec);
-        return node2.getComponent(UITransform).convertToNodeSpaceAR(screenPos);
+    /** 将node本地坐标系的位置转化为屏幕坐标 */
+    public static uiNodePosToScreenPos(node: Node, pos?: Vec3) {
+        if (!pos) pos = v3(0, 0);
+        return node.transform.convertToWorldSpaceAR(pos);
     }
+
+    /** 将node本地坐标系的位置转化为屏幕中心为原点的坐标 */
+    public static uiNodePosToScreenCenterPos(node: Node, pos?: Vec3) {
+        let screenPos = this.uiNodePosToScreenPos(node, pos);
+        let size = view.getVisibleSize();
+        screenPos.x -= size.width / 2;
+        screenPos.y -= size.height / 2;
+        return screenPos;
+    }
+
 
     /** 屏幕位置转节点本地坐标下的位置(UI节点) */
     public static screenPosToUINodePos(screenPos: Vec3, node: Node) {
-        return node.getComponent(UITransform).convertToNodeSpaceAR(screenPos);
-    }
-
-    /** 获取非UI摄像机下的节点在屏幕中的坐标(屏幕中心为原点) */
-    public static getNodeScreenPosCenter(node: Node, camera: Camera) {
-        // let pos = node.convertToWorldSpaceAR(v2(0, 0));
-        // let cameraPos = camera.node.convertToWorldSpaceAR(v2(0, 0));
-        // pos.subSelf(cameraPos).mulSelf(camera.zoomRatio);
-        // return pos;
-    }
-
-    /** 获取非UI摄像机下的节点在屏幕中的坐标(屏幕左下角为原点) */
-    public static getNodeScreenPos(node: Node, camera: Camera) {
-        // let pos = this.getNodeScreenPosCenter(node, camera);
-        // let size = view.getVisibleSize();
-        // pos.x += size.width / 2;
-        // pos.y += size.height / 2;
-        // return pos;
+        return node.transform.convertToNodeSpaceAR(screenPos);
     }
 
 
@@ -146,7 +141,7 @@ export class CCUtils {
                 for (let iter = gen.next(); ; iter = gen.next()) {
 
                     if (!comp?.isValid) break;//组件销毁后停止加载
-                    if (timeMS != this.loadListTimeMS.get(content.uuid)) break;//已经再次加载 终止本次加载操作
+                    if (timeMS != this.loadListTimeMS.get(content.uuid)) break;//本次操作需要终止
 
                     if (iter == null || iter.done) {
                         this.loadListTimeMS.delete(content.uuid);

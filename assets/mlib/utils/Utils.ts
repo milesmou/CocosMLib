@@ -354,10 +354,6 @@ export class Utils {
         });
     }
 
-
-    // ==============================================================================================================================
-
-
     /** 从数组删除元素 */
     static delItemFromArray<T>(arr: T[], ...item: T[]) {
         if (arr.length > 0 && item.length > 0) {
@@ -384,4 +380,93 @@ export class Utils {
     static getNowTime() {
         return Math.round(new Date().getTime() / 1000);
     }
+
+    /**给我一个时间戳和需要的倒计时秒，我返回给你剩余的秒，正数就是还没完，拿着可以倒计时，负数就是时间已到 */
+    static getLevelTimeS(timeNum: number, coolTimes: number) {
+        let _leaveTimeS = Utils.getDurationSecond(timeNum);
+        let _finalTimeS = coolTimes - _leaveTimeS;
+        return _finalTimeS;
+    }
+
+    /**
+     * 将秒转换成：x天x时x分x秒 
+     * @param seconds 秒
+     * @returns 
+     */
+    static convertSecondsToDaysHours(seconds: number): string {
+        const days = Math.floor(seconds / (3600 * 24)); // 获取天数部分
+        seconds -= days * 3600 * 24; // 从原始秒数中去除已经计算过的天数
+        let timeStr: string = "";
+        if (days > 0) {
+            //大于1天，显示为：3天18时
+
+            // const dayStr = app.l10n.lang == ELanguageCode.English ? "day" : "天";
+            // const hourStr = app.l10n.getStringByKey("WndText_081");//小时
+            //现在还没多语言先不管
+            const dayStr = "天";
+            const hourStr = "时";
+            const hours = Math.floor(seconds / 3600); // 获取小时部分
+            seconds -= hours * 3600; // 从原始秒数中去除已经计算过的小时数
+            const minutes = Math.floor(seconds / 60); // 获取分钟部分
+            seconds -= minutes * 60; // 从原始秒数中去除已经计算过的分钟数
+            timeStr = `${days + dayStr}${hours + hourStr}`;
+        } else {
+            if (seconds >= 3600) {
+                //大于1小时，显示为：3时50分
+                const hourStr = "时";
+                const hours = Math.floor(seconds / 3600); // 获取小时部分
+                seconds -= hours * 3600; // 从原始秒数中去除已经计算过的小时数
+                const minutes = Math.floor(seconds / 60); // 获取分钟部分
+                const minStr = "分";
+                timeStr = `${hours + hourStr}${minutes + minStr}`;
+            } else {
+                //小于1小时的，显示位 53:32
+                timeStr = this.formatCountdown(seconds * 1000, "mm:ss");
+            }
+        }
+
+        return timeStr;
+    }
+
+    /**
+    * 将剩余时间(秒)转化为时分秒格式
+    * @param seconds 倒计时的时间
+    * @param format hh:时 mm:分 ss:秒
+    * @returns 格式化的字符串 xx小时xx分钟xx秒 返回 01时01分01秒
+    */
+    static formatCountdown2(seconds: number, format: string = "mm:ss") {
+        // const dayStr = app.l10n.lang == ELanguageCode.English ? "day" : "天";
+        // const hourStr = app.l10n.getStringByKey("WndText_081");//小时
+        // const minuteStr = app.l10n.getStringByKey("100045");//分钟
+        const hourStr = "时";//分钟
+        const minuteStr = "分";//分钟
+        const secondStr = "秒";//app.l10n.getStringByKey("100045");//秒
+        const days = Math.floor(seconds / (3600 * 24)); // 获取天数部分
+        seconds -= days * 3600 * 24; // 从原始秒数中去除已经计算过的天数
+        const hours = Math.floor(seconds / 3600); // 获取小时部分
+        seconds -= hours * 3600; // 从原始秒数中去除已经计算过的小时数
+        const minutes = Math.floor(seconds / 60); // 获取分钟部分
+        seconds -= minutes * 60; // 从原始秒数中去除已经计算过的分钟数
+        let lt10 = (v: number) => {
+            return v < 10 ? "0" + v : v.toString();
+        }
+        if (hours > 0) {
+            format = format.replace("hh", hours + hourStr);
+        } else {
+            format = format.replace("hh", "");
+        }
+        if (minutes > 0) {
+            format = format.replace("mm", minutes + minuteStr);
+        } else {
+            format = format.replace("mm", "");
+        }
+        if (seconds > 0) {
+            format = format.replace("ss", seconds + secondStr);
+        } else {
+            format = format.replace("ss", "");
+        }
+        format = format.replace(":", "");
+        return format;
+    }
+
 }

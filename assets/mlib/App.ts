@@ -39,7 +39,6 @@ interface IApp {
     tipMsg: typeof TipMsg;
 }
 
-
 /** 应用程序启动入口 */
 @ccclass('App')
 class App extends Component implements IApp {
@@ -53,13 +52,14 @@ class App extends Component implements IApp {
     public event = EventMgr;
     public pool = PoolMgr;
     public ui: UIMgr;
-    public l10n = L10nMgr;
     public audioMgr: AudioMgr;
+    public l10n = L10nMgr;
     public tipMsg = TipMsg;
+
 
     protected onLoad() {
         //@ts-ignore
-        globalThis.app = this;
+        globalThis["app"] = this;
         director.addPersistRootNode(this.node);
         this.setCanvasResolution();
 
@@ -75,11 +75,12 @@ class App extends Component implements IApp {
     }
 
     protected start() {
-        this.audioMgr = AudioMgr.Inst;
+        this.audioMgr = AudioMgr.Inst
         this.ui = UIMgr.Inst;
     }
 
     protected onDestroy(): void {
+        EventMgr.clear();
         PoolMgr.clear();
     }
 

@@ -32,7 +32,7 @@ game.on(Game.EVENT_RESTART, () => {
 });
 
 //@ts-ignore
-globalThis.createSingleton = createSingleton;
+globalThis["createSingleton"] = createSingleton;
 
 declare global {
     /** 创建单例并缓存,在引擎重启时会自动销毁(创建单例时会执行onInst方法) */

@@ -6,7 +6,7 @@ const { ccclass, property } = _decorator;
 @ccclass
 export default class NodeTag extends Component {
     @property({
-        displayName:"Tag"
+        displayName: "Tag"
     })
     private m_Tag = "";
 
@@ -26,7 +26,7 @@ export default class NodeTag extends Component {
 
     public static add(tag: string, node: Node) {
         if (NodeTag.map.has(tag)) {
-            mLogger.error(`${tag} Tag重复`, node);
+            mLogger.warn(`${tag} Tag重复`, node);
             return;
         }
         NodeTag.map.set(tag, node);
@@ -36,7 +36,11 @@ export default class NodeTag extends Component {
         NodeTag.map.delete(tag);
     }
 
-    public static getNodeByTag(tag: string) {
+    public static has(tag: string) {
+        return NodeTag.map.has(tag);
+    }
+
+    public static get(tag: string) {
         return NodeTag.map.get(tag);
     }
 

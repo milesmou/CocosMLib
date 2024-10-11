@@ -3,6 +3,8 @@ import { persistNode } from "../core/Decorator";
 
 const { ccclass, property } = _decorator;
 
+
+
 @persistNode
 @ccclass("NetworkTime")
 export class NetworkTime extends Component {
@@ -51,11 +53,11 @@ export class NetworkTime extends Component {
     }
 
     private async syncTime() {
-        if (await this.syncTime2()) return;
-        if (sys.isNative) {
-            if (await this.syncTime1()) return;
-            if (await this.syncTime3()) return;
-        }
+        // if (await this.syncTime2()) return;
+        // if (sys.isNative) {
+        //     if (await this.syncTime1()) return;
+        //     if (await this.syncTime3()) return;
+        // }
     }
 
     private setNetworkTimeMS(timeMS: number) {

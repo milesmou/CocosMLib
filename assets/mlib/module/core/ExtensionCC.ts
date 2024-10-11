@@ -1,6 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Component, Tween, TweenSystem, UITransform, Widget } from "cc";
+import { Component, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 //@ts-ignore
@@ -226,6 +226,11 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             }
         });
     }
+
+    Tween.prototype.finish = function () {
+        let finalAction: TweenAction = this['_finalAction'];
+        if (finalAction) finalAction.setDuration(0);
+    }
 }
 
 //CC中使用DOM的Node、Animation时进行提示
@@ -241,7 +246,7 @@ declare global {
 }
 
 //扩展CC中的一些类
-declare module "cc" {
+declare module 'cc' {
 
     interface Node {
         /** 
@@ -327,6 +332,13 @@ declare module "cc" {
          * 修改指定tag的所有缓动的速度缩放(已执行start方法的缓动才会生效)
          */
         function setTimeScaleByTag(tag: number, timeScale: number): void;
+    }
+
+    interface Tween<T> {
+        /** 
+         * 立即完成缓动(已经start并且非永久重复的才有效)
+         */
+        finish(): void;
     }
 
 }

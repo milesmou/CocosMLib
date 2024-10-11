@@ -21,13 +21,8 @@ export interface ResponseGmData {
     createTime: number;
 }
 
-
-/** 邮件数据存档格式 */
-export interface ResponseEmailData {
-    id: string;
-    content: string;
-    reward: string;
-    uid: string;
-    createTime: number;
-    expireTime: number;
+/** 玩家存档数据格式 */
+export interface ResponsePlayerGameData {
+    data: string;
+    updateTimeMS: number;
 }

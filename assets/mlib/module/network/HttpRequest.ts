@@ -78,7 +78,7 @@ export class HttpRequest {
     public static async requestObject(url: string, args: RequestArgs) {
         let text = await this.requestText(url, args);
         try {
-            return JSON.parse(text) as object;
+            return JSON.parse(text);
         } catch (error) {
             mLogger.error(error);
         }

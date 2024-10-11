@@ -226,3 +226,4 @@ export class TimerComponent extends Component {
         });
     }
 }
+

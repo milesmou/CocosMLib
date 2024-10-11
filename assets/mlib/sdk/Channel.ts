@@ -4,7 +4,7 @@ import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
 import { IReportEvent } from './IReportEvent';
-import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
+import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GetGameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SaveGameDataArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
 const { ccclass } = _decorator;
 
 @ccclass("Channel")
@@ -15,7 +15,6 @@ export class Channel {
 
     /** 设备震动开关 */
     public vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
-
 
 
     /** 初始化SDK */
@@ -44,10 +43,10 @@ export class Channel {
     }
 
     /** 获取玩家存档 */
-    public getGameData(args: GameDataArgs) {
+    public getGameData(args: GetGameDataArgs) {
         mLogger.debug("getGameData", args.userId);
         SDKCallback.getGameData = args;
-        MCloudDataSDK.getGameData(args.userId).then(v => {
+        MCloudDataSDK.getPlayerGameData(args.userId).then(v => {
             if (v) {
                 args.success && args.success(v);
             } else {
@@ -57,12 +56,12 @@ export class Channel {
     }
 
     /** 上传玩家存档 */
-    public uploadGameData(args: GameDataArgs) {
+    public uploadGameData(args: SaveGameDataArgs) {
         mLogger.debug("uploadGameData", args.userId);
         SDKCallback.uploadGameData = args;
-        MCloudDataSDK.saveGameData(args.userId, args.userGameData).then(v => {
+        MCloudDataSDK.savePlayerGameData(args.userId, args.gameData).then(v => {
             if (v) {
-                args.success && args.success(v);
+                args.success && args.success();
             } else {
                 args.fail && args.fail();
             }
@@ -137,7 +136,7 @@ export class Channel {
     }
 
     /** 使设备发生震动 */
-    public vibrate(duration?: "short" | "medium" | "long") {
+    public vibrate(duration?: "short" | "long") {
 
     }
 
@@ -183,4 +182,5 @@ export class Channel {
 
 
 }
+
 

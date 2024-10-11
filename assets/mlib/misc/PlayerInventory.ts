@@ -43,9 +43,10 @@ export class PlayerInventory {
 
 
     /** 获取奖励，添加到背包 */
-    public getReward(reawrds: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
-        let { multiple, tag } = args || {};
+    public getReward(reawrds: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any, isEmit?: boolean }) {
+        let { multiple, tag, isEmit } = args || {};
         multiple = multiple || 1;
+        isEmit = isEmit === undefined ? true : isEmit;
         if (!reawrds || reawrds.length == 0) return
         let items = this.formatItems(reawrds);
         items = this.postParseRewards(items, tag);
@@ -55,7 +56,7 @@ export class PlayerInventory {
                 this.addGameItem(item[0], item[1], item[2] * multiple);
                 this.onGetRewardItem(item[0], item[1], item[2] * multiple, tag);
             }
-            this.saveInventory();
+            this.saveInventory(isEmit);
         }
     }
 
@@ -78,7 +79,7 @@ export class PlayerInventory {
     public delCost(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
         let { multiple, tag } = args || {};
         multiple = multiple || 1;
-        if (!costs || costs.length == 0) return;
+        if (costs.length == 0) return;
         let items = this.formatItems(costs);
         for (let item of items) {
             item = this.postParseSingleItem(item, tag);
@@ -304,7 +305,7 @@ export class PlayerInventory {
     private readyMerge = false;
 
     /** 保存背包物品到本地 */
-    private saveInventory() {
+    private saveInventory(isEmit: boolean = true) {
         if (this._mergeInventoryItem && !this.readyMerge) {
             this.readyMerge = true;
             tween({}).delay(0.01).call(() => {
@@ -313,7 +314,9 @@ export class PlayerInventory {
             }).start();
         }
         this._gameSave.delaySave();
-        this._onInventoryChange && this._onInventoryChange();
+        if (isEmit) {
+            this._onInventoryChange && this._onInventoryChange();
+        }
     }
 
 }

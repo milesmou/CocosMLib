@@ -18,15 +18,13 @@ export enum EHotUpdateResult {
     Fail//更新失败
 }
 
-const HotUpdateSearchPaths = "HotUpdateSearchPaths";//保存热更搜索路径的KEY
-
 export class HotUpdate {
 
-    private constructor() { }
     private static inst: HotUpdate;
     public static get Inst() { return this.inst || (this.inst = new HotUpdate()) }
     private _logger = mLogger.new("HotUpdate")
     private _manifest: Asset = null;//本地project.manifest文件
+    private _version: string;//游戏主版本号 只有三位
     private _assetsMgr: native.AssetsManager;//native资源管理器
     private _updating = false; //更新中
     private _failCount = 3;//更新失败重试次数
@@ -34,15 +32,16 @@ export class HotUpdate {
     private _onDownloadProgress: (loaded: number, total: number) => void;
     private _onComplete: (code: EHotUpdateResult) => void;
 
-    private get storagePath() { return native.fileUtils.getWritablePath() + 'remote_asset'; }
+    private get storagePath() { return native.fileUtils.getWritablePath() + 'miles_remote_asset'; }
 
-    public start(manifest: Asset, onStateChange: (code: EHotUpdateState) => void, onDownloadProgress: (loaded: number, total: number) => void, onComplete: (code: EHotUpdateResult) => void) {
+    public start(manifest: Asset, version: string, onStateChange: (code: EHotUpdateState) => void, onDownloadProgress: (loaded: number, total: number) => void, onComplete: (code: EHotUpdateResult) => void) {
         if (!sys.isNative) {
             this._logger.warn("非原生环境");
             return;
         }
 
         this._manifest = manifest;
+        this._version = version;
         this._onStateChange = onStateChange;
         this._onDownloadProgress = onDownloadProgress;
         this._onComplete = onComplete;
@@ -51,22 +50,15 @@ export class HotUpdate {
 
         this._onStateChange(EHotUpdateState.CheckUpdate);
 
-        //整包更新 删除热更补丁缓存和搜索路径
-        if (mGameSetting.version == mGameSetting.mainVersion) {
-            native.fileUtils.removeDirectory(this.storagePath);
-            localStorage.removeItem(HotUpdateSearchPaths);
-        }
-
-        this._assetsMgr = new native.AssetsManager("", this.storagePath);
-        this._assetsMgr.setVersionCompareHandle(this.versionCompareHandle.bind(this));
+        this._assetsMgr = new native.AssetsManager("", this.storagePath, this.versionCompareHandle.bind(this));
         this._assetsMgr.setVerifyCallback(this.verifyHandle.bind(this));
         this.checkUpdate();
     }
 
     private versionCompareHandle(versionA: string, versionB: string) {
-        this._logger.print("客户端版本: " + versionA + ', 当前最新版本: ' + versionB);
+        this._logger.info("客户端版本: " + versionA + ', 当前最新版本: ' + versionB);
         if (versionA != versionB) return -1;
-        return 1;
+        return 0;
     }
 
     // Setup the verification callback, but we don't have md5 check function yet, so only print some message
@@ -102,8 +94,6 @@ export class HotUpdate {
             this.onUpdateComplete(EHotUpdateResult.ManifestError);
             return;
         }
-
-        this._logger.debug("检查更新 remoteVersionUrl", this._assetsMgr.getLocalManifest().getVersionFileUrl());
         this._assetsMgr.setEventCallback(this.checkUpdateCb.bind(this));
         this._assetsMgr.checkUpdate();
     }
@@ -111,7 +101,7 @@ export class HotUpdate {
     /** 下载更新文件 */
     private downloadFiles() {
         this._onStateChange(EHotUpdateState.DownloadFiles);
-        this._logger.debug("下载更新", this._assetsMgr.getRemoteManifest().getPackageUrl());
+        this._logger.debug("下载更新");
         if (!this._updating) {
             this._assetsMgr.setEventCallback(this.downloadFilesCb.bind(this));
             this._assetsMgr.update();
@@ -170,7 +160,6 @@ export class HotUpdate {
                 this._updating = false;
                 this._failCount--;
                 if (this._failCount >= 0) {
-                    this._logger.debug('重试');
                     this.downloadFiles();
                 } else {
                     this.onUpdateFail();
@@ -185,6 +174,9 @@ export class HotUpdate {
                 this._logger.error('更新出错 ERROR_DECOMPRESS', event.getMessage());
                 this.onUpdateFail();
                 break;
+
+
+
             default:
                 this._logger.debug("downloadFilesCb 未处理的情况", event.getEventCode(), event.getMessage());
         }
@@ -193,14 +185,18 @@ export class HotUpdate {
     private onUpdateComplete(code: EHotUpdateResult.UpToDate | EHotUpdateResult.Success | EHotUpdateResult.ManifestError) {
         this._onStateChange(EHotUpdateState.Finished);
         if (code == EHotUpdateResult.Success) {
+            //重命名main.js依赖的相关文件,去掉文件名中的MD5后缀,不然main.js中无法加载相关资源
+            this.renameSrcFiles();
             //追加脚本搜索路径
             let searchPaths = native.fileUtils.getSearchPaths();
             let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
             Array.prototype.unshift.apply(searchPaths, newPaths);
             this._logger.debug(`新增搜索路径 ${JSON.stringify(newPaths)}`);
+            this._logger.debug(`搜索路径 Key=${this._version}`);
             this._logger.debug(`搜索路径 Value=${JSON.stringify(searchPaths)}`);
             // !!!在main.js中添加脚本搜索路径，否则热更的脚本不会生效
-            localStorage.setItem(HotUpdateSearchPaths, JSON.stringify(searchPaths));
+            sys.localStorage.setItem(this._version, JSON.stringify(searchPaths));
+            native.fileUtils.setSearchPaths(searchPaths);
         }
         this._assetsMgr.setEventCallback(null);
         this._onComplete(code);
@@ -209,5 +205,25 @@ export class HotUpdate {
     private onUpdateFail() {
         this._assetsMgr.setEventCallback(null);
         this._onComplete(EHotUpdateResult.Fail);
+    }
+
+    private renameSrcFiles() {
+        let files = native.fileUtils.listFiles(this.storagePath + "/src");
+        files.forEach(v => {
+            if (!native.fileUtils.isDirectoryExist(v)) {//文件
+                let fileName = v.replace(native.fileUtils.getFileDir(v) + "/", "");
+                let ext = native.fileUtils.getFileExtension(v);
+                let newFileName = fileName.replace(ext, "");
+                if (fileName == "system.bundle") return;
+                let lastIndex = newFileName.lastIndexOf(".");
+                if (lastIndex > -1) {
+                    newFileName = newFileName.substring(0, lastIndex);
+                }
+                newFileName += ext;
+                let newFile = v.replace(fileName, newFileName);
+                native.fileUtils.renameFile(v, newFile);
+                this._logger.debug("rename", v, "-->", newFile)
+            }
+        });
     }
 }

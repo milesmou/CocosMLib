@@ -8,7 +8,7 @@ import { LocalStorage } from "./LocalStorage";
 /** 游戏数据存档基类 */
 export abstract class GameSave {
 
-    public abstract name: string;
+    public abstract readonly name: string;
     /** 存档描述(多存档时使用) */
     public desc = "";
     /** 存档时间最后一次保存时间(时间戳) */
@@ -109,13 +109,18 @@ export abstract class GameSave {
         return compress ? LZString.compressToUTF16(str) : str;
     }
 
+
     /** 替换本地存档 */
-    public replaceGameData(strData: string, isCompress = true) {
+    public replaceGameData(strData: string, isCompress = true, forceUseLocalData = false) {
         Tween.stopAllByTarget(this);
         if (strData && isCompress) strData = LZString.decompressFromUTF16(strData);
         LocalStorage.setValue(this.name, strData);
+        if (forceUseLocalData) LocalStorage.setValue(GameSave.forceUseLocalDataSaveKey, true);
         this._onReplaceGameData && this._onReplaceGameData();
     }
+
+    /** 强制使用本地存档临时缓存key */
+    private static readonly forceUseLocalDataSaveKey = "forceUseLocalData";
 
     /** 字典或数组集合的元素的key的后缀 */
     private static readonly collectionItemSuffix = "$item";
@@ -133,6 +138,11 @@ export abstract class GameSave {
             } catch (err) {
                 mLogger.error(err);
             }
+        }
+        if (LocalStorage.getValue(this.forceUseLocalDataSaveKey, false)) {
+            LocalStorage.removeValue(this.forceUseLocalDataSaveKey);
+            inst.time = Date.now();
+            inst.save();
         }
         return inst;
     }

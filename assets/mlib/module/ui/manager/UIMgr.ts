@@ -217,8 +217,8 @@ export class UIMgr extends Component {
         EventMgr.emit(mEventKey.OnUIHide, ui);
     }
 
-    public showResident(uiName: string) {
-        this.instNode(uiName, this._resident);
+    public async showResident(uiName: string) {
+        await this.instNode(uiName, this._resident);
     }
 
     public hideAll(...exclude: string[]) {

@@ -1,5 +1,6 @@
 import { native } from "cc";
 import { JSB } from "cc/env";
+import { ResponsePlayerGameData } from "./MResponse";
 
 /** 原生和JS交互的Key */
 export enum ENativeBridgeKey {
@@ -32,9 +33,9 @@ export class SDKCallback {
     /** 登录回调 */
     public static login: LoginArgs;
     /** 获取玩家存档回调 */
-    public static getGameData: GameDataArgs;
+    public static getGameData: GetGameDataArgs;
     /** 上传玩家存档回调 */
-    public static uploadGameData: GameDataArgs;
+    public static uploadGameData: SaveGameDataArgs;
     /** 准备请求激励视频回调 */
     public static onStartRewardedAd: StringCallback;
     /** 本次激励视频回调 */
@@ -42,7 +43,7 @@ export class SDKCallback {
     /** 默认激励视频回调,每次都会调用 */
     public static rewardedAdDefault: ShowRewardedAdArgs;
     /** 初始化内购回调 */
-    public static initInAppPurchase: NoneCallback;
+    public static initInAppPurchase: Action;
     /** 准备发起内购回调 */
     public static onStartInAppPurchase: StringCallback;
     /** 内购结果回调 */
@@ -146,31 +147,40 @@ export class MSDKWrapper {
 
 }
 
-type NoneCallback = () => void;
 type StringCallback = (str?: string) => void;
-type NumberCallback = (num?: number) => void;
-type AnyCallback = (arg?: any) => void;
 
 /** 发起登录请求参数 */
 export interface LoginArgs {
     /** 登录成功 */
-    success?: StringCallback;
+    success?: (uid: string) => void;
     /** 登录失败 */
-    fail?: StringCallback;
+    fail?: (errMsg: string) => void;
     /** 扩展参数 */
     extParam?: string;
 }
 
-/** 上传或下载存档参数 */
-export interface GameDataArgs {
+/** 下载存档参数 */
+export interface GetGameDataArgs {
     /** 用户id */
     userId: string;
     /** 成功 */
-    success?: AnyCallback;
+    success: (args: ResponsePlayerGameData) => void;
     /** 失败 */
-    fail?: NoneCallback;
-    /** 存档数据 上传专用 */
-    userGameData?: string;
+    fail?: (errMsg?: string) => void;
+    /** 扩展参数 */
+    extParam?: string;
+}
+
+/** 上传存档参数 */
+export interface SaveGameDataArgs {
+    /** 用户id */
+    userId: string;
+    /** 存档数据  */
+    gameData: string;
+    /** 成功 */
+    success?: () => void;
+    /** 失败 */
+    fail?: (errMsg?: string) => void;
     /** 扩展参数 */
     extParam?: string;
 }

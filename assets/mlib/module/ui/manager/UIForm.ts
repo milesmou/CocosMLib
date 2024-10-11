@@ -48,8 +48,10 @@ export abstract class UIForm extends UIComponent {
         tooltip: "自动为按钮绑定UI关闭事件"
     })
     closeBtn: MButton = null;
-
+    /** UI完整加载路径 */
     public abstract get uiName(): string;
+    /** UI名字 */
+    public abstract get shortName(): string;
     protected animation: Animation;
 
     public abstract get isAnimEnd(): boolean;

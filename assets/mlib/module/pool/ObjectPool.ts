@@ -31,11 +31,9 @@ export class ObjectPool<T extends object = object> {
     /** 向对象池放入一个对象 */
     public put(obj: T) {
         if (this._args.onPutObject) {
-            this._args.onPutObject(obj);
+            if (this._args.onPutObject(obj) === false) return;
         }
-        if (!this._args.canPutObject || this._args.canPutObject(obj)) {
-            this._list.push(obj);
-        }
+        this._list.push(obj);
     }
 
     /** 销毁对象池所有对象 */
