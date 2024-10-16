@@ -77,11 +77,13 @@ export class GuideMask extends Component {
         scale = scale || 1;
 
         let viewSize = view.getVisibleSize();
-        let touchSize = new Size(hollowSize.width * 0.85, hollowSize.height * 0.85);//缩小点击范围避免点到目标区域范围外
-        this._touchRect.x = hollowPos.x - touchSize.width / 2 + viewSize.width / 2;
-        this._touchRect.y = hollowPos.y - touchSize.height / 2 + viewSize.height / 2;
-        this._touchRect.width = touchSize.width;
-        this._touchRect.height = touchSize.height;
+        //缩小点击范围避免点到目标区域范围外
+        let touchWidth = hollowSize.width * 0.85;
+        let touchHeight = hollowSize.height * 0.85;
+        this._touchRect.x = hollowPos.x - touchWidth / 2 + viewSize.width / 2;
+        this._touchRect.y = hollowPos.y - touchHeight / 2 + viewSize.height / 2;
+        this._touchRect.width = touchWidth;
+        this._touchRect.height = touchHeight;
 
         this._isTweenHollow = true;
         let width = hollowSize.width * scale;
