@@ -77,10 +77,11 @@ export class GuideMask extends Component {
         scale = scale || 1;
 
         let viewSize = view.getVisibleSize();
-        this._touchRect.x = hollowPos.x - hollowSize.width / 2 + viewSize.width / 2;
-        this._touchRect.y = hollowPos.y - hollowSize.height / 2 + viewSize.height / 2;
-        this._touchRect.width = hollowSize.width;
-        this._touchRect.height = hollowSize.height;
+        let touchSize = new Size(hollowSize.width * 0.85, hollowSize.height * 0.85);//缩小点击范围避免点到目标区域范围外
+        this._touchRect.x = hollowPos.x - touchSize.width / 2 + viewSize.width / 2;
+        this._touchRect.y = hollowPos.y - touchSize.height / 2 + viewSize.height / 2;
+        this._touchRect.width = touchSize.width;
+        this._touchRect.height = touchSize.height;
 
         this._isTweenHollow = true;
         let width = hollowSize.width * scale;
@@ -138,7 +139,7 @@ export class GuideMask extends Component {
     }
 
     private onTouchEnd(evt: EventTouch) {
-        
+
         if (this._touchStartEvt && evt.getID() == this._touchStartEvt.getID()) {//在触摸开始时已完成点击事情 在此处冒泡触摸结束事件
             evt.setLocation(this._touchStartEvt.getLocationX(), this._touchStartEvt.getLocationY());
             evt.preventSwallow = true;

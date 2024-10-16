@@ -79,7 +79,7 @@ export class PlayerInventory {
     public delCost(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
         let { multiple, tag } = args || {};
         multiple = multiple || 1;
-        if (costs.length == 0) return;
+        if (!costs||costs.length == 0) return;
         let items = this.formatItems(costs);
         for (let item of items) {
             item = this.postParseSingleItem(item, tag);
@@ -118,7 +118,7 @@ export class PlayerInventory {
     public isCostEnough(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
         let { multiple, tag } = args || {};
         multiple = multiple || 1;
-        if (costs.length == 0) return true;
+        if (!costs||costs.length == 0) return;
         let items = this.formatItems(costs);
         for (let i = 0; i < items.length; i++) {
             var arr = items[i];
