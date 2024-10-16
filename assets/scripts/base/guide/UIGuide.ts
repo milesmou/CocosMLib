@@ -2,6 +2,7 @@ import { Button, EventTouch, Label, Node, Prefab, Size, Tween, UIOpacity, Vec3, 
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel } from '../../../mlib/module/logger/ELoggerLevel';
 import { SafeWidget } from '../../../mlib/module/ui/component/SafeWidget';
+import { MButton } from '../../../mlib/module/ui/extend/MButton';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
 import { UIConstant } from '../../gen/UIConstant';
@@ -29,7 +30,7 @@ export class UIGuide extends UIComponent {
 
     public static Inst: UIGuide;
 
-    private _logger = mLogger.new("Guide", ELoggerLevel.Debug);
+    private _logger = mLogger.new("Guide", ELoggerLevel.Info);
 
     private get mask() { return this.rc.get("Mask", GuideMask); }
     private get ring() { return this.rc.get("Ring", Node); }
@@ -37,6 +38,7 @@ export class UIGuide extends UIComponent {
     private get tip() { return this.rc.get("Tip", Node); }
     private get btnScreen() { return this.rc.get("BtnScreen", Node); }
     private get prefabParent() { return this.rc.get("PrefabParent", Node); }
+    private get skip() { return this.rc.get("Skip", Node); }
     private get debug() { return this.rc.get("Debug", Node); }
 
     /** 遮罩默认透明度 */
@@ -71,9 +73,22 @@ export class UIGuide extends UIComponent {
             this._logger.debug(`点击挖孔成功`);
             this.checkOver();
         });
+        // this.mask.onClickFail.addListener(() => {
+        //     this._logger.debug(`点击挖孔失败`);
+        //     this.skip.active = true;
+        // });
 
         if (this.debug.active) {
             this.enableDebug();
+        }
+    }
+
+    protected onClickButton(btnName: string, btn: MButton) {
+        switch (btnName) {
+            case "BtnSkip":
+                this._logger.debug(`点击跳过引导`);
+                this.guideOver();
+                break;
         }
     }
 
@@ -87,6 +102,7 @@ export class UIGuide extends UIComponent {
         this.finger.active = false;
         this.tip.active = false;
         this.btnScreen.active = false;
+        this.skip.active = false;
         this.destroyPrefab();
     }
 
@@ -102,7 +118,7 @@ export class UIGuide extends UIComponent {
         this._logger.debug("---------结束引导步骤", this._guideId, this.stepId);
         this._logger.debug();
         let data = this._guideData[this._dataIndex];
-        app.chan.reportEvent(mReportEvent.GuideStep, { k: data.ID });
+        app.chan.reportEvent(mReportEvent.GuideStep, { guideId: data.GuideID + "_" + data.StepId });
         if (this._dataIndex == this._guideData.length - 1) {
             this._logger.debug("结束引导" + this._guideId);
             this.guideOver();
@@ -110,6 +126,13 @@ export class UIGuide extends UIComponent {
         else {
             this._dataIndex++;
             this.showGuideStep();
+        }
+    }
+
+    /** 强制结束当前引导 */
+    public forceStopGuide() {
+        if (this._guideId) {
+            this.guideOver();
         }
     }
 
@@ -200,7 +223,8 @@ export class UIGuide extends UIComponent {
         if (!guide.HollowKeep) this.mask.reset();
         this.ring.active = false;
         this.finger.active = false;
-        this.btnScreen.active = false
+        this.btnScreen.active = false;
+        this.skip.active = false;
 
         this.setShadeOpacity(guide.Opacity < 0 ? 0 : (guide.Opacity || this._maskOpacity));
         if (!guide.TipText || guide.Delay > 0) this.tip.active = false;
@@ -278,6 +302,7 @@ export class UIGuide extends UIComponent {
         this.btnScreen.active = true
         this.btnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
         app.ui.blockTime = -1;
+        app.ui.blockTime = 0.35;
     }
 
     private delayFinishStep() {
@@ -316,6 +341,7 @@ export class UIGuide extends UIComponent {
             comp.init(this._guideId, this.stepId);
         }
         app.ui.blockTime = -1;
+        app.ui.blockTime = 0.35;
     }
 
     /** 销毁加载的预制件 */

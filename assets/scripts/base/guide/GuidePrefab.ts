@@ -5,7 +5,7 @@ export class GuidePrefab extends Component {
 
     public onClose: MEvent = new MEvent();
 
-    public init(guideId: number, stepIndex: number) {
+    public init(guideId: number, stepId: number) {
 
     }
 

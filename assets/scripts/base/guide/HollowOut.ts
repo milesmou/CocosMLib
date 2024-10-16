@@ -116,7 +116,7 @@ export class HollowOut extends Component {
         this._material.setProperty('center', this.getCenter(this._center));
         this._material.setProperty('width', this.getWidth(this._width));
         this._material.setProperty('height', this.getHeight(this._height));
-        this._material.setProperty('round', this.getRound(this._round));
+        this._material.setProperty('bRadius', this.getRound(this._round));
         this._material.setProperty('feather', this.getFeather(this._feather));
     }
 
@@ -137,7 +137,7 @@ export class HollowOut extends Component {
         this._material.setProperty('center', this.getCenter(this._center));
         this._material.setProperty('width', this.getWidth(this._radius * 2));
         this._material.setProperty('height', this.getHeight(this._radius * 2));
-        this._material.setProperty('round', this.getRound(this._radius));
+        this._material.setProperty('bRadius', this.getRound(this._radius));
         this._material.setProperty('feather', this.getFeather(this._feather));
     }
 

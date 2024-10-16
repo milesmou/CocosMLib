@@ -33,8 +33,12 @@ export class GuideMask extends Component {
     private _clickType = EClickType.None;//点击类型
     private _canClick = false;//是否可以点击挖孔区域
 
+    private _touchStartEvt: EventTouch;//在touchstart触发事件后 记录事件并向下传递touchend事件
+
     /** 点击挖孔成功 */
     public onClickSucc: MEvent = new MEvent();
+    /** 点击挖孔失败(已经点击成功了,但是还未跳到下一步,引导卡住) */
+    public onClickFail: MEvent = new MEvent();
 
     protected onLoad(): void {
         this.hollowOut = this.getComponent(HollowOut);
@@ -98,7 +102,7 @@ export class GuideMask extends Component {
 
         this.scheduleOnce(() => {
             this._isTweenHollow = false;
-        }, duration + 0.05);
+        }, duration + 0.25);
     }
 
     private stopTouchEvent(evt: EventTouch) {
@@ -121,9 +125,10 @@ export class GuideMask extends Component {
             this._isClickInTouchArea = true;
             evt.preventSwallow = true;
             evt.propagationStopped = false;
-            if (this._clickType == EClickType.PointerDown) {
+            if (this._clickType == EClickType.PointerDown) {//手指按下触发点击事件
                 this._canClick = false;
                 this.onClickSucc.dispatch();
+                this._touchStartEvt = evt;
             }
         } else {
             this._isClickInTouchArea = false;
@@ -133,14 +138,23 @@ export class GuideMask extends Component {
     }
 
     private onTouchEnd(evt: EventTouch) {
+        
+        if (this._touchStartEvt && evt.getID() == this._touchStartEvt.getID()) {//在触摸开始时已完成点击事情 在此处冒泡触摸结束事件
+            evt.setLocation(this._touchStartEvt.getLocationX(), this._touchStartEvt.getLocationY());
+            evt.preventSwallow = true;
+            evt.propagationStopped = false;
+            this._touchStartEvt = null;
+            return;
+        }
 
         if (this._isTweenHollow) return;//挖孔正在进行中
 
         if (!this._canClick) return;//已触发过点击事件
 
+        if (this._clickType != EClickType.PointerUp) return;//不是手指抬起触发点击事件
+
         let pos = evt.getUILocation();
         if (this._isClickInTouchArea && this.isInTouchArea(pos)) {
-            this._isClickInTouchArea = true;
             evt.preventSwallow = true;
             evt.propagationStopped = false;
             this._canClick = false;

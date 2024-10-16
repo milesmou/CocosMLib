@@ -20,7 +20,7 @@ CCEffect %{
         center:  { value: [0.5, 0.5], editor: { tooltip: '中心点 (左上角为原点)' } }
         width:  { value: 0.5, editor: { tooltip: '宽 (目标宽度 / 节点宽度)' } }
         height: { value: 0.5, editor: { tooltip: '高 (目标高度 / 节点宽度)' } }
-        round:  { value: 0.05, editor: { tooltip: '圆角半径 (目标半径 / 节点宽度)' } }
+        bRadius:  { value: 0.05, editor: { tooltip: '圆角半径 (目标半径 / 节点宽度)' } }
         feather:  { value: 0.005, editor: { tooltip: '边缘虚化宽度' } }
 }%
 
@@ -71,10 +71,6 @@ CCProgram sprite-fs %{
   #include <builtin/internal/embedded-alpha>
   #include <builtin/internal/alpha-test>
 
-  #if HHH
-
-  #endif
-
   in vec4 color;
 
   uniform Props {
@@ -82,7 +78,7 @@ CCProgram sprite-fs %{
     vec2 center;
     float width;
     float height;
-    float round;
+    float bRadius;
     float feather;
   };
 
@@ -117,25 +113,25 @@ CCProgram sprite-fs %{
     float minY = center.y - (height * ratio / 2.0);
     float maxY = center.y + (height * ratio / 2.0);
     if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
-      if (round == 0.0) discard; //没有圆角则直接丢弃
+      if (bRadius == 0.0) discard; //没有圆角则直接丢弃
       // 圆角处理
-      float roundY = round * ratio;
+      float roundY = bRadius * ratio;
       vec2 vertex;
-      if (x <= minX + round) {
+      if (x <= minX + bRadius) {
         if (y <= minY + roundY) {
-          vertex = vec2(minX + round, (minY + roundY) / ratio); // 左上角
+          vertex = vec2(minX + bRadius, (minY + roundY) / ratio); // 左上角
         } else if (y >= maxY - roundY) {
-          vertex = vec2(minX + round, (maxY - roundY) / ratio); // 左下角
+          vertex = vec2(minX + bRadius, (maxY - roundY) / ratio); // 左下角
         } else {
-          vertex = vec2(minX + round, y / ratio); // 左中
+          vertex = vec2(minX + bRadius, y / ratio); // 左中
         }
-      } else if (x >= maxX - round) {
+      } else if (x >= maxX - bRadius) {
         if (y <= minY + roundY){
-          vertex = vec2(maxX - round, (minY + roundY) / ratio); // 右上角
+          vertex = vec2(maxX - bRadius, (minY + roundY) / ratio); // 右上角
         } else if (y >= maxY - roundY) {
-          vertex = vec2(maxX - round, (maxY - roundY) / ratio); // 右下角
+          vertex = vec2(maxX - bRadius, (maxY - roundY) / ratio); // 右下角
         } else {
-          vertex = vec2(maxX - round, y / ratio); // 右中
+          vertex = vec2(maxX - bRadius, y / ratio); // 右中
         }
       } else if (y <= minY + roundY) {
         vertex = vec2(x, (minY + roundY) / ratio); // 上中
@@ -145,7 +141,7 @@ CCProgram sprite-fs %{
         discard; // 中间
       }
       float dis = distance(vec2(x, y / ratio), vertex);
-      color1.a = smoothstep(round - feather, round, dis) * color1.a;
+      color1.a = smoothstep(bRadius - feather, bRadius, dis) * color1.a;
     }
       color1.a *= o.a;
   #endif

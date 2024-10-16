@@ -25,9 +25,9 @@ export default class UnforcedGuide extends Component {
         UnforcedGuide.Inst = this;
         this.m_finger.removeFromParent();
         this.hide();
-        // App.event.on(mEventKey.OnUIHideBegin, this.hide, this);
+        // App.event.on(EventKey.OnUIHideBegin, this.hide, this);
         app.event.on(mEventKey.OnUIHide, this.check, this);
-        // App.event.on(mEventKey.OnUIShowBegin, this.hide, this);
+        // App.event.on(EventKey.OnUIShowBegin, this.hide, this);
         app.event.on(mEventKey.OnUIShow, this.check, this);
     }
 

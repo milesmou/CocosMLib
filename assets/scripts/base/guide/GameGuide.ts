@@ -70,6 +70,12 @@ export class GameGuide {
         }
     }
 
+    /** 结束当前引导 */
+    public finisheNowGuide() {
+        if (!UIGuide.Inst.nowGuide) return;
+        UIGuide.Inst.forceStopGuide();
+    }
+
 
 
     ///新手引导逻辑
@@ -123,9 +129,9 @@ export class GameGuide {
     }
 
     public async checkNewUser() {
-        let stageId = "1_1_1";
+        // let stageId = "1_1_1";
         // if (GameTool.isStageUnlock(stageId)) return false;
-        this._readyToGuide = true;
+        // this._readyToGuide = true;
         return true;
     }
 
