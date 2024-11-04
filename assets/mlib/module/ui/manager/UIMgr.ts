@@ -2,6 +2,7 @@ import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, _decora
 
 const { ccclass, property } = _decorator;
 
+import { EventKey } from '../../../../scripts/base/GameEnum';
 import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { AssetMgr } from '../../asset/AssetMgr';
@@ -14,6 +15,9 @@ import { UIStack } from './UIStack';
 @ccclass
 export class UIMgr extends Component {
     public static Inst: UIMgr;
+
+    @property({ tooltip: "弹窗遮罩透明度" })
+    public shadeOpacity = 200;
 
     private _camera: Camera;
     /** UI摄像机 */
@@ -63,7 +67,7 @@ export class UIMgr extends Component {
     /** UI参数缓存 方便可以在onLoad时手动拿到参数 */
     private _uiArgs: Map<string, object> = new Map();
 
-    onLoad() {
+    protected onLoad() {
         UIMgr.Inst = this;
         this.init();
     }
@@ -110,8 +114,8 @@ export class UIMgr extends Component {
         }
         this.checkShowUI(uiName, visible);
         this.blockTime = blockTime;
-        EventMgr.emit(mEventKey.OnUIInitBegin, uiName, visible);
-        this._uiArgs.set(uiName, args);
+        EventMgr.emit(EventKey.OnUIInitBegin, uiName, visible);
+        this._uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this._normal, visible, bottom, onProgress);
         if (!parent) {//主UI
             this._uiStack.add(ui, !visible || bottom)
@@ -123,11 +127,11 @@ export class UIMgr extends Component {
             let belowUI = this._uiStack[this._uiStack.length - 2];
             ui.onShowBegin();
             belowUI?.onPassive(EUIFormPassiveType.HideBegin, ui);
-            EventMgr.emit(mEventKey.OnUIShowBegin, ui);
+            EventMgr.emit(EventKey.OnUIShowBegin, ui);
             if (playAnim) await ui.playShowAnim();
             ui.onShow();
             belowUI?.onPassive(EUIFormPassiveType.Hide, ui);
-            EventMgr.emit(mEventKey.OnUIShow, ui);
+            EventMgr.emit(EventKey.OnUIShow, ui);
         } else {
             ui.onShowBegin();
             ui.onShow();
@@ -158,17 +162,17 @@ export class UIMgr extends Component {
                 let topUI = this._uiStack[this._uiStack.length - 1];
                 ui.onHideBegin();
                 topUI?.onPassive(EUIFormPassiveType.ShowBegin, ui);
-                EventMgr.emit(mEventKey.OnUIHideBegin, ui);
+                EventMgr.emit(EventKey.OnUIHideBegin, ui);
                 if (!fastHide) await ui.playHideAnim();
                 ui.onHide();
                 hideUI();
                 topUI?.onPassive(EUIFormPassiveType.Show, ui);
-                EventMgr.emit(mEventKey.OnUIHide, ui);
+                EventMgr.emit(EventKey.OnUIHide, ui);
             } else {//快速关闭非最上层UI 不播动画
-                EventMgr.emit(mEventKey.OnUIHideBegin, ui);
+                EventMgr.emit(EventKey.OnUIHideBegin, ui);
                 ui.onHide();
                 hideUI();
-                EventMgr.emit(mEventKey.OnUIHide, ui);
+                EventMgr.emit(EventKey.OnUIHide, ui);
             }
             return;
         }
@@ -179,17 +183,17 @@ export class UIMgr extends Component {
                 let topUI = this._subUIStack[this._subUIStack.length - 1];
                 ui.onHideBegin();
                 topUI?.onPassive(EUIFormPassiveType.ShowBegin, ui);
-                EventMgr.emit(mEventKey.OnUIHideBegin, ui);
+                EventMgr.emit(EventKey.OnUIHideBegin, ui);
                 if (!fastHide) await ui.playHideAnim();
                 ui.onHide();
                 hideUI();
                 topUI?.onPassive(EUIFormPassiveType.Show, ui);
-                EventMgr.emit(mEventKey.OnUIHide, ui);
+                EventMgr.emit(EventKey.OnUIHide, ui);
             } else {//快速关闭非最上层UI
-                EventMgr.emit(mEventKey.OnUIHideBegin, ui);
+                EventMgr.emit(EventKey.OnUIHideBegin, ui);
                 ui.onHide();
                 hideUI();
-                EventMgr.emit(mEventKey.OnUIHide, ui);
+                EventMgr.emit(EventKey.OnUIHide, ui);
             }
             return;
         }
@@ -202,7 +206,7 @@ export class UIMgr extends Component {
         this.blockTime = 0.2;
         let ui = await this.initUI(uiName, this._higher, visible, false, onProgress);
         ui.setArgs(args);
-        EventMgr.emit(mEventKey.OnUIShow, ui);
+        EventMgr.emit(EventKey.OnUIShow, ui);
         return ui;
     }
 
@@ -214,7 +218,7 @@ export class UIMgr extends Component {
             this._uiDict.delete(uiName);
         }
         else ui.node.active = false;
-        EventMgr.emit(mEventKey.OnUIHide, ui);
+        EventMgr.emit(EventKey.OnUIHide, ui);
     }
 
     public async showResident(uiName: string) {
@@ -339,7 +343,7 @@ export class UIMgr extends Component {
     public sendMessage(uiName: string, methodName: string, ...args: any[]) {
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) return -1;
-        let method: Function = (ui as any)[methodName];
+        let method: Function = ui[methodName];
         if (method && typeof method === "function") {
             method.apply(ui, args);
         } else {

@@ -1,4 +1,5 @@
 import { Component, UIOpacity, _decorator } from 'cc';
+import { EventKey } from '../../../../scripts/base/GameEnum';
 import { CESpecialNodeType } from '../../../../scripts/base/specialNode/ESpecialNodeType';
 import { SpecialNodeMgr } from '../../../../scripts/base/specialNode/SpecialNodeMgr';
 const { ccclass, property } = _decorator;
@@ -17,12 +18,12 @@ export class SpecialNode extends Component {
     reverse = false;
 
     protected onEnable() {
-        app.event.on(mEventKey.SpecialNodeChange, this.initVisible, this);
+        app.event.on(EventKey.gmBtnSatgeChaned, this.initVisible, this);
         this.initVisible();
     }
 
     protected onDisable() {
-        app.event.off(mEventKey.SpecialNodeChange, this.initVisible, this);
+        app.event.off(EventKey.gmBtnSatgeChaned, this.initVisible, this);
     }
 
     private initVisible() {

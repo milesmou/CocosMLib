@@ -104,7 +104,7 @@ export class AssetMgr {
     }
 
     /** 加载远程资源 */
-    public static loadRemoteAsset<T extends Asset>(url: string) {
+    public static loadRemoteAsset<T extends Asset>(url: string, ext?: string) {
         let p = new Promise<T>((resolve, reject) => {
             let casset = this.cache.get(url) as T;
             if (casset?.isValid) {
@@ -113,7 +113,7 @@ export class AssetMgr {
                 return;
             }
             this.loadingAsset.add(url);
-            assetManager.loadRemote<T>(url, { ext: url.substring(url.lastIndexOf(".")) }, (err, asset) => {
+            assetManager.loadRemote<T>(url, { ext: ext }, (err, asset) => {
                 this.loadingAsset.delete(url);
                 if (err) {
                     console.error(err);

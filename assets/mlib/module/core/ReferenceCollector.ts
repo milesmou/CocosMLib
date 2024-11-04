@@ -139,6 +139,10 @@ export class ReferenceCollector extends Component {
     /** 获取属性类型名字 */
     private getPropertyType(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
+        
+        //自定义脚本
+        let comp = node.getComponent('MComponent');
+        if (comp) return js.getClassName(comp);
         //自定义组件
         if (node.getComponent("Switch")) return "Switch";
         if (node.getComponent("MSlider")) return "MSlider";
@@ -158,9 +162,7 @@ export class ReferenceCollector extends Component {
         if (node.getComponent("cc.RichText")) return "RichText";
         if (node.getComponent("cc.ParticleSystem2D")) return "ParticleSystem2D";
         if (node.getComponent("sp.Skeleton")) return "sp.Skeleton";
-        //自定义脚本
-        let comp = node.getComponent('MComponent');
-        if (comp) return js.getClassName(comp);
+
         return "Node";
     }
     //#endregion

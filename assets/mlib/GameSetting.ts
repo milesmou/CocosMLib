@@ -22,6 +22,7 @@ class GameSetting extends Component {
     public readonly ConfigType = EGameConfigType;
 
     @property private _gameName: string = "";
+
     @property({
         displayName: "游戏名",
         tooltip: "名字会用来拼接CND地址，上报事件等"
@@ -138,8 +139,11 @@ class GameSetting extends Component {
     /** 远程配置地址 */
     public get gameConfigUrl() { return this._gameConfigUrl; }
     private _remoteResUrl: string;
-    /** 远程资源地址 */
+    private _commonRemoteResUrl: string;
+    /** 远程资源地址(渠道专用) */
     public get remoteResUrl() { return this._remoteResUrl; }
+    /** 远程资源地址(项目公用) */
+    public get commonRemoteResUrl() { return this._commonRemoteResUrl; }
 
 
     protected onLoad(): void {
@@ -147,8 +151,9 @@ class GameSetting extends Component {
         globalThis.mGameSetting = this;
         this._mainVersion = this.getMainVersion();
         this._gameCode = this._gameName + "_" + this.channel
+        this._commonRemoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
+        this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/Resources`;
         this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
-        this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
 
         if (EDITOR_NOT_IN_PREVIEW) return;
         director.addPersistRootNode(this.node);

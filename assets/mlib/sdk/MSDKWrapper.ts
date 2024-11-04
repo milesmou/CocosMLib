@@ -1,6 +1,6 @@
 import { native } from "cc";
 import { JSB } from "cc/env";
-import { ResponsePlayerGameData } from "./MResponse";
+import { RespPlayerGameData } from "./MResponse";
 
 /** 原生和JS交互的Key */
 export enum ENativeBridgeKey {
@@ -164,7 +164,7 @@ export interface GetGameDataArgs {
     /** 用户id */
     userId: string;
     /** 成功 */
-    success: (args: ResponsePlayerGameData) => void;
+    success: (args: RespPlayerGameData) => void;
     /** 失败 */
     fail?: (errMsg?: string) => void;
     /** 扩展参数 */

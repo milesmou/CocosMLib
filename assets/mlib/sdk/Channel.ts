@@ -112,21 +112,20 @@ export class Channel {
      * @param event 事件对象
      * @param args 事件参数
     */
-    public reportEvent(event: IReportEvent, args?: { [key: string]: any }) {
+    public reportEvent(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
         if (!event.enable || !event.name) return;
-        if (event.tag) return;//忽略需要特殊处理的事件
         let paramStr = args ? Object.values(args).join("|") : "";
         MCloudDataSDK.reportEvent(event.name, paramStr);
     }
 
     /** 上报事件 每天一次(本地存档卸载失效)*/
-    public reportEventDaily(event: IReportEvent, args?: { [key: string]: any }) {
-        if (this.isValidDailyEvent(event)) this.reportEvent(event, args,);
+    public reportEventDaily(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
+        if (this.isValidDailyEvent(event, tag)) this.reportEvent(event, args, tag);
     }
 
     /** 上报事件 终生一次(本地存档卸载失效)*/
-    public reportEventLifetime(event: IReportEvent, args?: { [key: string]: any }) {
-        if (this.isValidLifetimeEvent(event)) this.reportEvent(event, args);
+    public reportEventLifetime(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
+        if (this.isValidLifetimeEvent(event, tag)) this.reportEvent(event, args, tag);
     }
 
     /** 上报数值累加事件(仅用于自己的打点系统) */
@@ -140,15 +139,25 @@ export class Channel {
 
     }
 
+    /**
+    * 敏感词检测
+    * @param content 待检测内容
+    * @param callback 回调
+    */
+    public checkMessage(content: string, callback: (isPass: boolean) => void) {
+
+    }
+
+
     /** 额外的方法 用于一些特殊的处理 */
-    public extraMethod(arg0?: string, arg1?: string, arg2?: string, arg3?: string): void {
+    public extraMethod<T1 = any, T2 = any, T3 = any, T4 = any>(key?: string, arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4): void {
 
     }
 
     private eventCache = new StroageMap(mGameSetting.gameName + "_ReportEvent", 0, true);
 
-    protected getEventName(event: IReportEvent) {
-        let key = event.name
+    protected isValidDailyEvent(event: IReportEvent, tag?: string) {
+        let key = event.name + (tag ? `_${tag}` : "");
         let today = Utils.getDate();
         let i = this.eventCache.get(key);
         if (i < today) {
@@ -158,19 +167,8 @@ export class Channel {
         return false;
     }
 
-    protected isValidDailyEvent(event: IReportEvent) {
-        let key = event.name + (event.tag ? `_${event.tag}` : "");
-        let today = Utils.getDate();
-        let i = this.eventCache.get(key);
-        if (i < today) {
-            this.eventCache.set(key, today)
-            return true;
-        }
-        return false;
-    }
-
-    protected isValidLifetimeEvent(event: IReportEvent) {
-        let key = event.name + (event.tag ? `_${event.tag}` : "");
+    protected isValidLifetimeEvent(event: IReportEvent, tag?: string) {
+        let key = event.name + (tag ? `_${tag}` : "");
         let today = Utils.getDate();
         let i = this.eventCache.get(key);
         if (!i) {

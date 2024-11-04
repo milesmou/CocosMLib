@@ -1,7 +1,6 @@
 import { Tween, tween } from "cc";
 import { InventoryItemSO } from "../../misc/PlayerInventory";
 import { TaskItemSO } from "../../misc/PlayerTask";
-import { LZString } from "../../third/lzstring/LZString";
 import { Utils } from "../../utils/Utils";
 import { LocalStorage } from "./LocalStorage";
 
@@ -102,20 +101,37 @@ export abstract class GameSave {
         return GameSave.deserialize(inst);
     }
 
-    /** 获取存档序列化后的字符串 compress默认true */
-    public getSerializeStr(compress = true) {
+    /** 获取存档序列化后的字符串 */
+    public getSerializeStr() {
         this.time = Date.now();
-        let str = JSON.stringify(this);
-        return compress ? LZString.compressToUTF16(str) : str;
+        let str = GameSave.getSerializeStr(this);
+        return str;
     }
 
-
     /** 替换本地存档 */
-    public replaceGameData(strData: string, isCompress = true, forceUseLocalData = false) {
+    public replaceGameData(strData: string, forceUseLocalData = false) {
+        if (!strData) {
+            mLogger.warn("存档数据为空");
+            return;
+        }
         Tween.stopAllByTarget(this);
-        if (strData && isCompress) strData = LZString.decompressFromUTF16(strData);
-        LocalStorage.setValue(this.name, strData);
+        let decStrData: string = strData;
+        if (!strData.startsWith("{")) {
+            decStrData = LZString.decompressFromUTF16(strData);
+        }
+        if (!decStrData) {
+            mLogger.warn("存档解压失败!")
+            return;
+        }
+        LocalStorage.setValue(this.name, decStrData);
         if (forceUseLocalData) LocalStorage.setValue(GameSave.forceUseLocalDataSaveKey, true);
+        this._onReplaceGameData && this._onReplaceGameData();
+    }
+
+    /** 清除本地存档 */
+    public clearGameData() {
+        LocalStorage.removeValue(this.name);
+        LocalStorage.setValue(GameSave.forceUseLocalDataSaveKey, true);
         this._onReplaceGameData && this._onReplaceGameData();
     }
 
@@ -138,6 +154,8 @@ export abstract class GameSave {
             } catch (err) {
                 mLogger.error(err);
             }
+        } else {
+            mLogger.debug("无本地存档", name);
         }
         if (LocalStorage.getValue(this.forceUseLocalDataSaveKey, false)) {
             LocalStorage.removeValue(this.forceUseLocalDataSaveKey);
@@ -150,12 +168,17 @@ export abstract class GameSave {
     /** 将数据写入到本地存档中 */
     private static serialize<T extends GameSave>(inst: T) {
         let name = inst.name;
-        let jsonStr = JSON.stringify(inst, function (key, value) {
+        let jsonStr = this.getSerializeStr(inst);
+        LocalStorage.setValue(name, jsonStr);
+    }
+
+    /** 获取存档序列化后的字符串 */
+    private static getSerializeStr<T extends GameSave>(inst: T) {
+        return JSON.stringify(inst, function (key, value) {
             if (key.startsWith("__")) return;
             if (key.endsWith(this.collectionItemSuffix)) return;
             return value;
-        });
-        LocalStorage.setValue(name, jsonStr);
+        });;
     }
 
     /** 合并存档默认数据和本地数据 */

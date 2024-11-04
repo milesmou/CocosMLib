@@ -1,4 +1,4 @@
-/** 可以对key自动排序的Map(key为number类型) */
+/** 可以对key自动排序的Map (key为number类型) */
 export class SortedMap<T> {
 
     /** 存储并维护Key的顺序 */

@@ -1,4 +1,3 @@
-import { tween } from "cc";
 import { GameSave } from "../module/stroage/GameSave";
 
 /** 物品信息 物品类型,物品ID,物品数量 */
@@ -79,7 +78,7 @@ export class PlayerInventory {
     public delCost(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
         let { multiple, tag } = args || {};
         multiple = multiple || 1;
-        if (!costs||costs.length == 0) return;
+        if (!costs || costs.length == 0) return;
         let items = this.formatItems(costs);
         for (let item of items) {
             item = this.postParseSingleItem(item, tag);
@@ -118,7 +117,7 @@ export class PlayerInventory {
     public isCostEnough(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
         let { multiple, tag } = args || {};
         multiple = multiple || 1;
-        if (!costs||costs.length == 0) return;
+        if (!costs || costs.length == 0) return;
         let items = this.formatItems(costs);
         for (let i = 0; i < items.length; i++) {
             var arr = items[i];
@@ -301,23 +300,24 @@ export class PlayerInventory {
         }
     }
 
-
     private readyMerge = false;
 
     /** 保存背包物品到本地 */
     private saveInventory(isEmit: boolean = true) {
         if (this._mergeInventoryItem && !this.readyMerge) {
             this.readyMerge = true;
-            tween({}).delay(0.01).call(() => {
+            setTimeout(() => {
                 this.readyMerge = false;
                 this.mergeInventoryItem();
-            }).start();
+            }, 50);
         }
         this._gameSave.delaySave();
         if (isEmit) {
             this._onInventoryChange && this._onInventoryChange();
         }
     }
+
+
 
 }
 

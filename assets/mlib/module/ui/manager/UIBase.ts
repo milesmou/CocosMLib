@@ -1,6 +1,7 @@
 import { Animation, BlockInputEvents, Node, Sprite, UIOpacity, _decorator, color, tween } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
+import { EventKey } from "../../../../scripts/base/GameEnum";
 import { CCUtils } from "../../../utils/CCUtil";
 import { AssetComponent } from "../../asset/AssetComponent";
 import { EventMgr } from "../../event/EventMgr";
@@ -56,8 +57,9 @@ export class UIBase extends UIForm {
             let sp = imgNode.addComponent(Sprite);
             sp.sizeMode = Sprite.SizeMode.CUSTOM;
             sp.spriteFrame = UIMgr.Inst.defaultSprite;
-            sp.color = color(0, 0, 0, 150);
+            sp.color = color(0, 0, 0, UIMgr.Inst.shadeOpacity);
             imgNode.matchParent();
+
         }
     }
 
@@ -85,20 +87,20 @@ export class UIBase extends UIForm {
             if (this?.isValid) {
                 if (ui != this && ui.fullScreen && UIMgr.Inst.isUIBeCover(this) && UIMgr.Inst.isUIInStack(this)) this.setVisible(false);
             } else {
-                EventMgr.off(mEventKey.OnUIShow, listenToHide);
+                EventMgr.off(EventKey.OnUIShow, listenToHide);
             }
         }
-        EventMgr.on(mEventKey.OnUIShow, listenToHide);
+        EventMgr.on(EventKey.OnUIShow, listenToHide);
 
         let listenToShow = (ui: UIBase) => {
             if (this?.isValid) {
                 if (!UIMgr.Inst.isUIBeCover(this) && UIMgr.Inst.isUIInStack(this)) this.setVisible(true);
             }
             else {
-                EventMgr.off(mEventKey.OnUIHideBegin, listenToShow);
+                EventMgr.off(EventKey.OnUIHideBegin, listenToShow);
             }
         }
-        EventMgr.on(mEventKey.OnUIHideBegin, listenToShow);
+        EventMgr.on(EventKey.OnUIHideBegin, listenToShow);
     }
 
     public playShowAnim() {

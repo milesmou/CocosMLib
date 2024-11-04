@@ -6,19 +6,27 @@ export class Switch extends Component {
     @property
     checkIndex: number[] = [];
 
-    onLoad() {
+    protected onLoad() {
         this.updateContent();
     }
 
     /** 更新显示状态 */
     private updateContent() {
         this.node.children.forEach((v, i) => {
-            v.active = this.checkIndex.indexOf(i) > -1;
+            v.active = this.checkIndex.includes(i);
         });
     }
+
     /** 更新CheckNode */
-    updateCheck(...childIndex: number[]) {
+    public updateCheck(...childIndex: number[]) {
         this.checkIndex = childIndex;
         this.updateContent();
+    }
+
+    /** 通过节点名字更新显示的节点 */
+    public updateCheckByName(...names: string[]) {
+        this.node.children.forEach((v, i) => {
+            v.active = names.includes(v.name);
+        });
     }
 }

@@ -1,6 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Component, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
+import { Component, misc, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 //@ts-ignore
@@ -36,7 +36,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
-    Object.defineProperty(Node.prototype, "worldPositionX", {
+    Object.defineProperty(Node.prototype, "wpX", {
         get() {
             let self: Node = this;
             return self.worldPosition.x;
@@ -48,7 +48,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
-    Object.defineProperty(Node.prototype, "worldPositionY", {
+    Object.defineProperty(Node.prototype, "wpY", {
         get() {
             let self: Node = this;
             return self.worldPosition.y;
@@ -60,7 +60,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
-    Object.defineProperty(Node.prototype, "worldPositionZ", {
+    Object.defineProperty(Node.prototype, "wpZ", {
         get() {
             let self: Node = this;
             return self.worldPosition.z;
@@ -72,7 +72,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
-    Object.defineProperty(Node.prototype, "positionX", {
+    Object.defineProperty(Node.prototype, "lpX", {
         get() {
             let self: Node = this;
             return self.position.x;
@@ -84,7 +84,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
-    Object.defineProperty(Node.prototype, "positionY", {
+    Object.defineProperty(Node.prototype, "lpY", {
         get() {
             let self: Node = this;
             return self.position.y;
@@ -96,7 +96,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
-    Object.defineProperty(Node.prototype, "positionZ", {
+    Object.defineProperty(Node.prototype, "lpZ", {
         get() {
             let self: Node = this;
             return self.position.z;
@@ -165,19 +165,11 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
     }
 
     Component.prototype.getComponentInParent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef = true) {
-        let self: Component = this;
-        let node = includeSlef ? self.node : self.node.parent;
-        while (node?.isValid) {
-            let comp = node.getComponent(ctorOrClassName as any);
-            if (comp) return comp;
-            node = node.parent;
-        }
-        return null;
+        return this.node.getComponentInParent(ctorOrClassName as any, includeSlef);
     }
 
     Component.prototype.ensureComponent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string) {
-        let self: Component = this;
-        return self.node.ensureComponent(ctorOrClassName as any);
+        return this.node.ensureComponent(ctorOrClassName as any);
     }
 
     Animation.prototype.setSpeed = function (speed: number, name?: string) {
@@ -227,10 +219,30 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         });
     }
 
+    Object.defineProperty(Tween.prototype, "finalAction", {
+        get: function () {
+            return this['_finalAction'];
+        }
+    })
+
     Tween.prototype.finish = function () {
         let finalAction: TweenAction = this['_finalAction'];
-        if (finalAction) finalAction.setDuration(0);
+        if (finalAction) {
+            if (finalAction['_repeatForever']) return;
+            this.setTime(finalAction.getDuration());
+        }
     }
+
+    Tween.prototype.setTime = function (time: number) {
+        let finalAction: TweenAction = this['_finalAction'];
+        if (finalAction) {
+            let dur = finalAction.getDuration();
+            time = misc.clampf(time, 0, dur);
+            finalAction['_elapsed'] = time;
+        }
+    }
+
+
 }
 
 //CC中使用DOM的Node、Animation时进行提示
@@ -253,7 +265,7 @@ declare module 'cc' {
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
-        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T) | string, includeSlef?: boolean);
+        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T), includeSlef?: boolean);
         /** 
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
@@ -279,17 +291,17 @@ declare module 'cc' {
         /** 在子节点zIndex值改变时修改父节点此属性为true，表示需要更新子节点的SiblingIndex */
         childrenSiblingIndexDirty: boolean;
         /** 世界坐标X */
-        worldPositionX: number;
+        wpX: number;
         /** 世界坐标Y */
-        worldPositionY: number;
+        wpY: number;
         /** 世界坐标Z */
-        worldPositionZ: number;
+        wpZ: number;
         /** 本地坐标X */
-        positionX: number;
+        lpX: number;
         /** 本地坐标Y */
-        positionY: number;
+        lpY: number;
         /** 本地坐标Z */
-        positionZ: number;
+        lpZ: number;
     }
 
     interface Component {
@@ -335,10 +347,21 @@ declare module 'cc' {
     }
 
     interface Tween<T> {
+        /**
+         * 缓动开始后的动作对象
+         */
+        get finalAction(): TweenAction;
+
         /** 
          * 立即完成缓动(已经start并且非永久重复的才有效)
          */
         finish(): void;
+
+        /**
+         * 立即将缓动跳到指定时间(已经start的才有效)
+         * @param time [0,duration]
+         */
+        setTime(time: number): void;
     }
 
 }

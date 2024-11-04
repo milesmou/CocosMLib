@@ -68,9 +68,9 @@ export class ListEnhance extends Component {
             }
         }
 
-        if (!this._wPosition.strictEquals2f(this.node.worldPositionX, this.node.worldPositionY)) {
-            this._wPosition.x = this.node.worldPositionX;
-            this._wPosition.y = this.node.worldPositionY;
+        if (!this._wPosition.strictEquals2f(this.node.wpX, this.node.wpY)) {
+            this._wPosition.x = this.node.wpX;
+            this._wPosition.y = this.node.wpY;
             this.delayUpdateItemsVisible();
         }
     }
