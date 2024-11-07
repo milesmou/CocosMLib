@@ -2,7 +2,6 @@ import { BlockInputEvents, Camera, Component, Node, Prefab, SpriteFrame, _decora
 
 const { ccclass, property } = _decorator;
 
-import { EventKey } from '../../../../scripts/base/GameEnum';
 import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { AssetMgr } from '../../asset/AssetMgr';
@@ -114,7 +113,7 @@ export class UIMgr extends Component {
         }
         this.checkShowUI(uiName, visible);
         this.blockTime = blockTime;
-        EventMgr.emit(EventKey.OnUIInitBegin, uiName, visible);
+        EventMgr.emit(mEventKey.OnUIInitBegin, uiName, visible);
         this._uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this._normal, visible, bottom, onProgress);
         if (!parent) {//主UI
@@ -127,11 +126,11 @@ export class UIMgr extends Component {
             let belowUI = this._uiStack[this._uiStack.length - 2];
             ui.onShowBegin();
             belowUI?.onPassive(EUIFormPassiveType.HideBegin, ui);
-            EventMgr.emit(EventKey.OnUIShowBegin, ui);
+            EventMgr.emit(mEventKey.OnUIShowBegin, ui);
             if (playAnim) await ui.playShowAnim();
             ui.onShow();
             belowUI?.onPassive(EUIFormPassiveType.Hide, ui);
-            EventMgr.emit(EventKey.OnUIShow, ui);
+            EventMgr.emit(mEventKey.OnUIShow, ui);
         } else {
             ui.onShowBegin();
             ui.onShow();
@@ -162,17 +161,17 @@ export class UIMgr extends Component {
                 let topUI = this._uiStack[this._uiStack.length - 1];
                 ui.onHideBegin();
                 topUI?.onPassive(EUIFormPassiveType.ShowBegin, ui);
-                EventMgr.emit(EventKey.OnUIHideBegin, ui);
+                EventMgr.emit(mEventKey.OnUIHideBegin, ui);
                 if (!fastHide) await ui.playHideAnim();
                 ui.onHide();
                 hideUI();
                 topUI?.onPassive(EUIFormPassiveType.Show, ui);
-                EventMgr.emit(EventKey.OnUIHide, ui);
+                EventMgr.emit(mEventKey.OnUIHide, ui);
             } else {//快速关闭非最上层UI 不播动画
-                EventMgr.emit(EventKey.OnUIHideBegin, ui);
+                EventMgr.emit(mEventKey.OnUIHideBegin, ui);
                 ui.onHide();
                 hideUI();
-                EventMgr.emit(EventKey.OnUIHide, ui);
+                EventMgr.emit(mEventKey.OnUIHide, ui);
             }
             return;
         }
@@ -183,17 +182,17 @@ export class UIMgr extends Component {
                 let topUI = this._subUIStack[this._subUIStack.length - 1];
                 ui.onHideBegin();
                 topUI?.onPassive(EUIFormPassiveType.ShowBegin, ui);
-                EventMgr.emit(EventKey.OnUIHideBegin, ui);
+                EventMgr.emit(mEventKey.OnUIHideBegin, ui);
                 if (!fastHide) await ui.playHideAnim();
                 ui.onHide();
                 hideUI();
                 topUI?.onPassive(EUIFormPassiveType.Show, ui);
-                EventMgr.emit(EventKey.OnUIHide, ui);
+                EventMgr.emit(mEventKey.OnUIHide, ui);
             } else {//快速关闭非最上层UI
-                EventMgr.emit(EventKey.OnUIHideBegin, ui);
+                EventMgr.emit(mEventKey.OnUIHideBegin, ui);
                 ui.onHide();
                 hideUI();
-                EventMgr.emit(EventKey.OnUIHide, ui);
+                EventMgr.emit(mEventKey.OnUIHide, ui);
             }
             return;
         }
@@ -206,7 +205,7 @@ export class UIMgr extends Component {
         this.blockTime = 0.2;
         let ui = await this.initUI(uiName, this._higher, visible, false, onProgress);
         ui.setArgs(args);
-        EventMgr.emit(EventKey.OnUIShow, ui);
+        EventMgr.emit(mEventKey.OnUIShow, ui);
         return ui;
     }
 
@@ -218,7 +217,7 @@ export class UIMgr extends Component {
             this._uiDict.delete(uiName);
         }
         else ui.node.active = false;
-        EventMgr.emit(EventKey.OnUIHide, ui);
+        EventMgr.emit(mEventKey.OnUIHide, ui);
     }
 
     public async showResident(uiName: string) {

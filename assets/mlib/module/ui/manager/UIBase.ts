@@ -1,7 +1,6 @@
 import { Animation, BlockInputEvents, Node, Sprite, UIOpacity, _decorator, color, tween } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
-import { EventKey } from "../../../../scripts/base/GameEnum";
 import { CCUtils } from "../../../utils/CCUtil";
 import { AssetComponent } from "../../asset/AssetComponent";
 import { EventMgr } from "../../event/EventMgr";
@@ -87,20 +86,20 @@ export class UIBase extends UIForm {
             if (this?.isValid) {
                 if (ui != this && ui.fullScreen && UIMgr.Inst.isUIBeCover(this) && UIMgr.Inst.isUIInStack(this)) this.setVisible(false);
             } else {
-                EventMgr.off(EventKey.OnUIShow, listenToHide);
+                EventMgr.off(mEventKey.OnUIShow, listenToHide);
             }
         }
-        EventMgr.on(EventKey.OnUIShow, listenToHide);
+        EventMgr.on(mEventKey.OnUIShow, listenToHide);
 
         let listenToShow = (ui: UIBase) => {
             if (this?.isValid) {
                 if (!UIMgr.Inst.isUIBeCover(this) && UIMgr.Inst.isUIInStack(this)) this.setVisible(true);
             }
             else {
-                EventMgr.off(EventKey.OnUIHideBegin, listenToShow);
+                EventMgr.off(mEventKey.OnUIHideBegin, listenToShow);
             }
         }
-        EventMgr.on(EventKey.OnUIHideBegin, listenToShow);
+        EventMgr.on(mEventKey.OnUIHideBegin, listenToShow);
     }
 
     public playShowAnim() {

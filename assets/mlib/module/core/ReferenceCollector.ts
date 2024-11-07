@@ -148,7 +148,9 @@ export class ReferenceCollector extends Component {
         if (node.getComponent("MSlider")) return "MSlider";
         if (node.getComponent("MToggle")) return "MToggle";
         if (node.getComponent("MButton")) return "MButton";
+        if (node.getComponent("Dropdown")) return "Dropdown";
         //UI组件
+        if (node.getComponent("cc.EditBox")) return "EditBox";
         if (node.getComponent("cc.Toggle")) return "Toggle";
         if (node.getComponent("cc.Slider")) return "Slider";
         if (node.getComponent("cc.Button")) return "Button";

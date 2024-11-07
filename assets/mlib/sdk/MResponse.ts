@@ -6,7 +6,7 @@ export interface MResponse<T = any> {
 }
 
 /** 游戏数据存档格式 */
-export interface RespGameData {
+export interface RspGameData {
     uid: string;
     key: string;
     data: string;
@@ -14,7 +14,7 @@ export interface RespGameData {
 }
 
 /** GM数据存档格式 */
-export interface RespGmData {
+export interface RspGmData {
     id: string;
     data: string;
     commit: string;
@@ -22,7 +22,7 @@ export interface RespGmData {
 }
 
 /** 邮件数据 */
-export interface RespEmailData {
+export interface RspEmailData {
     /** 唯一id */
     id: string;
     /** 发送者 */
@@ -39,8 +39,24 @@ export interface RespEmailData {
     expireTime: number;
 }
 
+/** 公告数据 */
+export interface RspAnnouncementData {
+    /** 唯一id */
+    id: string;
+    /** 自动展示 */
+    autoShow: boolean;
+    /** 主题 */
+    subject: string;
+    /** 内容 */
+    body: string;
+    /** 附带奖励 */
+    attachment: string;
+    /** 发件时间 */
+    createTime: number;
+}
+
 /** 玩家存档数据格式 */
-export interface RespPlayerGameData {
+export interface RspPlayerGameData {
     data: string;
     updateTimeMS: number;
 }

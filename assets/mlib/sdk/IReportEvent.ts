@@ -21,7 +21,6 @@ export function eventObject(name: string, eventName: Record<string, string>, ena
 export function eventObject(name: string, arg1?: boolean | Record<string, string>, arg2?: boolean): IReportEvent {
     let eventName: Record<string, string>;
     let enable: boolean;
-    let tag: string;
 
     //arg1的判断
     if (typeof arg1 === "boolean") enable = arg1;

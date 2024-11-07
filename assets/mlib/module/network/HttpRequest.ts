@@ -1,6 +1,7 @@
 
 interface RequestArgs {
     method: "GET" | "POST";
+    header?: Record<string, string>;
     contentType?: "application/json" | "application/x-www-form-urlencoded";
     data?: any;
     timeout?: number;
@@ -19,7 +20,7 @@ export function JsonToUrlEncode(jsonObj: { [key: string]: any }) {
 export class HttpRequest {
 
     public static async request(url: string, args: RequestArgs) {
-        let { method, contentType, data, timeout } = args;
+        let { method, header, contentType, data, timeout } = args;
         method = method || "GET";
         timeout = timeout || 5000;
         let p = new Promise<XMLHttpRequest>((resolve, reject) => {
@@ -48,6 +49,11 @@ export class HttpRequest {
                 }
             }
             xhr.open(method, url, true);
+            if (header) {
+                for (const key in header) {
+                    xhr.setRequestHeader(key, header[key]);
+                }
+            }
             if (data) {//有携带数据 设置Content-Type
                 contentType = contentType || "application/json";
                 if (data instanceof ArrayBuffer) {

@@ -1,16 +1,16 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { MResponse, RespEmailData, RespGameData, RespGmData, RespPlayerGameData } from "./MResponse";
+import { MResponse, RspPlayerGameData, RspAnnouncementData, RspEmailData, RspGameData, RspGmData } from "./MResponse";
 
 export class MCloudDataSDK {
 
 
     private static readonly Host = "https://zq.zqygame.com/gweb";
 
-    private static readonly GameDataUrl = `${MCloudDataSDK.Host}/gamedata`;
-    private static readonly GmDataUrl = `${MCloudDataSDK.Host}/gmdata`;
-    private static readonly EmailUrl = `${MCloudDataSDK.Host}/email`;
-    private static readonly EventUrl = `${MCloudDataSDK.Host}/gameevent/reportevt`;
+    private static readonly GameDataUrl = `${this.Host}/gamedata`;
+    private static readonly GmDataUrl = `${this.Host}/gmdata`;
+    private static readonly EmailUrl = `${this.Host}/email`;
+    private static readonly EventUrl = `${this.Host}/gameevent/reportevt`;
 
     /** 用户数据云存档保存Key */
     private static readonly playerGameDataCloudSaveKey = "UserGameData";
@@ -45,7 +45,7 @@ export class MCloudDataSDK {
             "uid": uid,
             "key": key
         }
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse<RespGameData>;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse<RspGameData>;
         return result;
     }
 
@@ -56,7 +56,7 @@ export class MCloudDataSDK {
 
     /** 获取玩家存档数据 */
     public static async getPlayerGameData(uid: string) {
-        let result: RespPlayerGameData = { updateTimeMS: 0, data: null };
+        let result: RspPlayerGameData = { updateTimeMS: 0, data: null };
         let res = await this.getGameData(uid, this.playerGameDataCloudSaveKey);
         if (res.code == 0 && res.data) {
             result.updateTimeMS = res.data.updateTime * 1000;
@@ -86,7 +86,7 @@ export class MCloudDataSDK {
     /** 获取所有的GM存档 */
     public static async getGmDatas() {
         let url = this.GmDataUrl + `/${mGameSetting.gameName}/get_gmdatas`;
-        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RespGmData[]>;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspGmData[]>;
         if (result?.code == 0) {
             return result.data;
         } else {
@@ -98,7 +98,19 @@ export class MCloudDataSDK {
     /** 获取玩家所有的邮件 */
     public static async getEmails(uid: string) {
         let url = this.EmailUrl + `/${mGameSetting.gameCode}/get_emails?uid=${uid}`;
-        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RespEmailData[]>;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspEmailData[]>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    /** 获取最新公告 */
+    public static async getAnnouncement() {
+        let url = this.Host + `/announcement/${mGameSetting.gameCode}/get_announcement`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspAnnouncementData>;
         if (result?.code == 0) {
             return result.data;
         } else {
