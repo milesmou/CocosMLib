@@ -39,7 +39,7 @@ export class Channel {
             sys.localStorage.setItem("userId", userId);
         }
         SDKCallback.login = args;
-        MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId, "user");
+        MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId);
     }
 
     /** 获取玩家存档 */

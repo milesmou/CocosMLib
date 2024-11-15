@@ -22,7 +22,7 @@ export interface RspGmData {
 }
 
 /** 邮件数据 */
-export interface RspEmailData {
+export interface RspEmail {
     /** 唯一id */
     id: string;
     /** 发送者 */
@@ -40,19 +40,31 @@ export interface RspEmailData {
 }
 
 /** 公告数据 */
-export interface RspAnnouncementData {
+export interface RspAnnouncement {
     /** 唯一id */
     id: string;
-    /** 自动展示 */
+    /**是否启用 */
+    enable: boolean,
+    /**是否进游戏自动弹出公告 */
     autoShow: boolean;
-    /** 主题 */
+    /**标题 */
     subject: string;
-    /** 内容 */
+    /**正文 */
     body: string;
-    /** 附带奖励 */
+    /**奖励 */
     attachment: string;
-    /** 发件时间 */
-    createTime: number;
+    /** 创建时间 */
+    createTime?: number;
+}
+
+/** 排行榜数据 */
+export interface Leaderboard {
+    /** 用户id */
+    uid: string;
+    /** 用户名 */
+    uname?: string;
+    /** 分数 */
+    score: number;
 }
 
 /** 玩家存档数据格式 */

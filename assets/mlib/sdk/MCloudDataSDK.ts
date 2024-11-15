@@ -1,6 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { MResponse, RspPlayerGameData, RspAnnouncementData, RspEmailData, RspGameData, RspGmData } from "./MResponse";
+import { Leaderboard, MResponse, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData } from "./MResponse";
 
 export class MCloudDataSDK {
 
@@ -65,6 +65,75 @@ export class MCloudDataSDK {
         return result;
     }
 
+
+
+    /** 获取玩家所有的邮件 */
+    public static async getEmails(uid: string) {
+        let url = this.EmailUrl + `/${mGameSetting.gameCode}/get_emails?uid=${uid}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspEmail[]>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    /** 获取最新公告 */
+    public static async getAnnouncement() {
+        let url = this.Host + `/announcement/${mGameSetting.gameCode}/get_announcement`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspAnnouncement>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    /** 更新排行榜分数 */
+    public static async updateLeaderboard(leaderboardName: string, leaderboard: Leaderboard) {
+        let url = this.Host + `/leaderboard/${mGameSetting.gameCode}/update_leaderboard?leaderboardName=${leaderboardName}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: leaderboard }) as MResponse;
+        if (result?.code == 0) {
+            return true;
+        } else {
+            mLogger.error(result);
+            return false;
+        }
+    }
+
+    /** 获取排行榜 */
+    public static async getLeaderboards(leaderboardName: string, count: number) {
+        let url = this.Host + `/leaderboard/${mGameSetting.gameCode}/get_leaderboards?leaderboardName=${leaderboardName}&count=${count}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<Leaderboard[]>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    /** 兑换码校验 (code: 0成功 -1失败不存在 501未到兑换时间 502已过期) (data: 兑换成功后的奖励) */
+    public static async verifyRedeemcode(redeemCode: string) {
+        let url = this.Host + `/redeemcode/${mGameSetting.gameCode}/verify_redeemcode?redeemCode=${redeemCode}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<string>;
+        return result;
+    }
+
+    /** 上报事件 */
+    public static reportEvent(eventName: string, paramStr = "", num = 0) {
+        eventName = PREVIEW ? "00_" + eventName : eventName;
+        let body = {
+            gameCode: mGameSetting.gameCode,
+            eventName: eventName,
+            param: paramStr,
+            sum: num
+        };
+        HttpRequest.requestText(this.EventUrl, { method: "POST", data: body });
+    }
+
     /** 上传GM存档 */
     public static async saveGmData(data: string, commit: string) {
         let url = this.GmDataUrl + `/${mGameSetting.gameName}/save_gmdata`;
@@ -93,42 +162,6 @@ export class MCloudDataSDK {
             mLogger.error(result);
             return null;
         }
-    }
-
-    /** 获取玩家所有的邮件 */
-    public static async getEmails(uid: string) {
-        let url = this.EmailUrl + `/${mGameSetting.gameCode}/get_emails?uid=${uid}`;
-        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspEmailData[]>;
-        if (result?.code == 0) {
-            return result.data;
-        } else {
-            mLogger.error(result);
-            return null;
-        }
-    }
-
-    /** 获取最新公告 */
-    public static async getAnnouncement() {
-        let url = this.Host + `/announcement/${mGameSetting.gameCode}/get_announcement`;
-        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspAnnouncementData>;
-        if (result?.code == 0) {
-            return result.data;
-        } else {
-            mLogger.error(result);
-            return null;
-        }
-    }
-
-    /** 上报事件 */
-    public static reportEvent(eventName: string, paramStr = "", num = 0) {
-        eventName = PREVIEW ? "00_" + eventName : eventName;
-        let body = {
-            gameCode: mGameSetting.gameCode,
-            eventName: eventName,
-            param: paramStr,
-            sum: num
-        };
-        HttpRequest.requestText(this.EventUrl, { method: "POST", data: body });
     }
 
 }

@@ -105,7 +105,7 @@ export abstract class GameSave {
     public getSerializeStr() {
         this.time = Date.now();
         let str = GameSave.getSerializeStr(this);
-        return str;
+        return LZString.compressToBase64(str);
     }
 
     /** 替换本地存档 */
@@ -117,7 +117,7 @@ export abstract class GameSave {
         Tween.stopAllByTarget(this);
         let decStrData: string = strData;
         if (!strData.startsWith("{")) {
-            decStrData = LZString.decompressFromUTF16(strData);
+            decStrData = LZString.decompressFromBase64(strData);
         }
         if (!decStrData) {
             mLogger.warn("存档解压失败!")
@@ -140,6 +140,8 @@ export abstract class GameSave {
 
     /** 字典或数组集合的元素的key的后缀 */
     private static readonly collectionItemSuffix = "$item";
+
+    
 
     /** 从本地缓存读取存档 */
     public static deserialize<T extends GameSave>(inst: T): T {
