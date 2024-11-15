@@ -1,3 +1,4 @@
+import { Component, director } from "cc";
 
 interface RequestArgs {
     method: "GET" | "POST";
@@ -101,33 +102,32 @@ export class HttpRequest {
 
 
     /**
-     * 重复请求地址
+     * 请求地址直到成功或超时
      * @param url 请求地址
      * @param predicate 判断是否中断请求 true请求成功中断请求 false请求失败继续请求
-     * @param repeat 重复请求次数
-     * @param interval 请求间隔时间 单位:秒
-     * @returns 
+     * @param duration 请求最多持续时间 单位:秒 (失败后0.5秒后会再次请求)
      */
-    public static async requestRepeat(url: string, predicate: (string) => boolean, repeat: number, interval: number, args: RequestArgs): Promise<string> {
-        repeat -= 1;
-        let now = Date.now();
-        let nextReqTimeMS = now + interval * 1000;
-        let result = await this.requestText(url, args);
-        let now1 = Date.now();
-        if (predicate(result)) {
-            return result;
-        }
-        else if (repeat > 0) {
-            if (now1 >= nextReqTimeMS) {
-                return await this.requestRepeat(url, predicate, repeat, interval, args);
+    public static async requestUntil(url: string, predicate: (res: string) => boolean, duration: number, args: RequestArgs): Promise<string> {
+        let endTimeMS = Date.now() + duration * 1000;
+        while (true) {
+            director.getScene()
+            let result = await this.requestText(url, args);
+            if (predicate(result)) {//请求成功
+                return result;
+            } else if (Date.now() > endTimeMS) {//请求超时
+                return null;
+            } else {//失败继续
+                await this.delay(0.5);
             }
-            else {
-                // await TimeMgr.Inst.delay((nextReqTimeMS - now1) / 1000);
-                return await this.requestRepeat(url, predicate, repeat, interval, args);
-            }
-        } else {
-            return result;
         }
+    }
+
+    private static delay(dur: number) {
+        let comp = director.getScene().getComponentInChildren(Component);
+        let p = new Promise((resolve) => {
+            comp.scheduleOnce(resolve, dur)
+        });
+        return p;
     }
 }
 

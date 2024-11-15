@@ -75,7 +75,7 @@ export class MSDKWrapper {
         let key = ENativeBridgeKey[strKey];
         switch (key) {
             case ENativeBridgeKey.Login:
-                this.onLogin(arg1, arg2);
+                this.onLogin(arg1, arg2, arg3);
                 break;
             case ENativeBridgeKey.RequestIAP:
                 this.onInAppPurchase(arg1, arg2);
@@ -95,14 +95,14 @@ export class MSDKWrapper {
 
 
     /** 登录回调处理 */
-    private static onLogin(strCode: string, arg: string) {
+    private static onLogin(strCode: string, arg1: string, arg2: string) {
         let code: ELoginResult = parseInt(strCode);
         switch (code) {
             case ELoginResult.Success:
-                SDKCallback.login?.success && SDKCallback.login.success(arg);
+                SDKCallback.login?.success && SDKCallback.login.success({ id: arg1, name: arg2 });
                 break;
             case ELoginResult.Fail:
-                SDKCallback.login?.fail && SDKCallback.login.fail(arg);
+                SDKCallback.login?.fail && SDKCallback.login.fail(arg1);
                 break;
         }
     }
@@ -149,10 +149,18 @@ export class MSDKWrapper {
 
 type StringCallback = (str?: string) => void;
 
+/** 用户信息 */
+export interface UserInfo {
+    /** 用户id */
+    id: string;
+    /** 用户名字 */
+    name?: string;
+}
+
 /** 发起登录请求参数 */
 export interface LoginArgs {
     /** 登录成功 */
-    success?: (uid: string) => void;
+    success?: (user: UserInfo) => void;
     /** 登录失败 */
     fail?: (errMsg: string) => void;
     /** 扩展参数 */
@@ -216,7 +224,7 @@ export interface RequestIAPArgs {
     /** 是否订阅 */
     isSub?: boolean;
     /** 扩展参数 */
-    extParam?: string;
+    extParam?: any;
 }
 
 export enum ELoginResult {

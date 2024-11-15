@@ -4,13 +4,12 @@ import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
-import { MResponse, ResponseGameData } from '../../../mlib/sdk/MResponse';
 import { UnionProgress } from '../../../mlib/utils/UnionProgress';
 import { UIConstant } from '../../gen/UIConstant';
 import { GameData } from '../GameData';
-import { GameGuide } from '../guide/GameGuide';
 import { GameInit } from '../GameInit';
 import GameTable from '../GameTable';
+import { GameGuide } from '../guide/GameGuide';
 import { ILanguage, LoadingText } from './LoadingText';
 const { ccclass, property } = _decorator;
 
@@ -66,6 +65,7 @@ export class Loading extends UIComponent {
                 if (mGameSetting.manifest) {
                     HotUpdate.Inst.start(
                         mGameSetting.manifest,
+                        mGameSetting.mainVersion,
                         this.onUpdateStateChange.bind(this),
                         this.onUpdateDownloadProgress.bind(this),
                         this.onUpdateComplete.bind(this)
@@ -84,9 +84,9 @@ export class Loading extends UIComponent {
         mLogger.info("开始登录");
 
         app.chan.login({
-            success: uid => {
-                mLogger.debug("登录成功", uid);
-                app.chan.userId = uid;
+            success: user => {
+                mLogger.debug("登录成功", user.id);
+                app.chan.user = user;
                 this.syncGameData();
             },
             fail: reason => {
@@ -100,14 +100,13 @@ export class Loading extends UIComponent {
         this.loadRes();
         return;
         app.chan.getGameData({
-            userId: app.chan.userId,
-            success: (obj: MResponse) => {
-                mLogger.debug("获取数据成功", obj);
-                if (obj.code == 100 && obj.data) {
-                    let cData = obj.data as ResponseGameData;
-                    if (cData.updateTime * 1000 > GameData.Inst.time) {
+            userId: app.chan.user.id,
+            success: args => {
+                mLogger.debug("获取数据成功", args);
+                if (args.data) {
+                    if (args.updateTimeMS > GameData.Inst.time) {
                         mLogger.debug("使用云存档");
-                        GameData.Inst.replaceGameData(cData.data);
+                        GameData.Inst.replaceGameData(args.data);
                     } else {
                         mLogger.debug("使用本地存档");
                     }
@@ -117,7 +116,6 @@ export class Loading extends UIComponent {
                 this.loadRes();
             },
             fail: () => {
-                mLogger.error("获取数据失败");
                 this.loadRes();
             },
         })
@@ -234,7 +232,7 @@ export class Loading extends UIComponent {
      * 热更新结果
      */
     private onUpdateComplete(code: EHotUpdateResult) {
-        mLogger.print("HotUpdate ResultCode = ", EHotUpdateResult[code]);
+        mLogger.debug("HotUpdate ResultCode = ", EHotUpdateResult[code]);
         if (code == EHotUpdateResult.Success) {
             game.restart();
         } else if (code == EHotUpdateResult.Fail) {

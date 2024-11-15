@@ -4,14 +4,14 @@ import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
 import { IReportEvent } from './IReportEvent';
-import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GetGameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SaveGameDataArgs, SDKCallback, ShowRewardedAdArgs } from './MSDKWrapper';
+import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GetGameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SaveGameDataArgs, SDKCallback, ShowRewardedAdArgs, UserInfo } from './MSDKWrapper';
 const { ccclass } = _decorator;
 
 @ccclass("Channel")
 export class Channel {
 
-    /** 用户id */
-    public userId: string;
+    /** 用户信息 包含用户id和名字*/
+    public user: UserInfo = { id: "", name: "" };
 
     /** 设备震动开关 */
     public vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
@@ -39,7 +39,7 @@ export class Channel {
             sys.localStorage.setItem("userId", userId);
         }
         SDKCallback.login = args;
-        MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId);
+        MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId, "user");
     }
 
     /** 获取玩家存档 */
