@@ -148,10 +148,14 @@ export class Channel {
 
     }
 
-
     /** 额外的方法 用于一些特殊的处理 */
-    public extraMethod<T1 = any, T2 = any, T3 = any, T4 = any>(key?: string, arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4): void {
+    public extraMethod<R = any, T1 = any, T2 = any, T3 = any, T4 = any>(key?: string, arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4): R {
+        return;
+    }
 
+    /** 额外的方法 用于一些特殊的处理 异步接口*/
+    public async extraMethodAsync<R = any, T1 = any, T2 = any, T3 = any, T4 = any>(key?: string, arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4): Promise<R> {
+        return;
     }
 
     private eventCache = new StroageMap(mGameSetting.gameName + "_ReportEvent", 0, true);

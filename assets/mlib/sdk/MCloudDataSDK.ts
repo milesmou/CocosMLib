@@ -1,6 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { Leaderboard, MResponse, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData } from "./MResponse";
+import { Leaderboard, MResponse, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspWxMsgSecCheck } from "./MResponse";
 
 export class MCloudDataSDK {
 
@@ -120,6 +120,18 @@ export class MCloudDataSDK {
         let url = this.Host + `/redeemcode/${mGameSetting.gameCode}/verify_redeemcode?redeemCode=${redeemCode}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<string>;
         return result;
+    }
+
+    /** 微信小游戏敏感词检测 */
+    public static async weChatGameMsgSecCheck(reqData: ReqWxMsgSecCheck) {
+        let url = this.Host + `/wechatgame/msg_sec_check?gameCode=${mGameSetting.gameCode}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse<RspWxMsgSecCheck>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
     }
 
     /** 上报事件 */

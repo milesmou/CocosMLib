@@ -217,6 +217,8 @@ export interface RequestIAPArgs {
     productId: string;
     /** 价格 */
     price?: number;
+    /** 数量 */
+    num?: number;
     /** 产品名字 */
     name?: string;
     /** 产品描述 */
