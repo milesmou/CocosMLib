@@ -22,6 +22,12 @@ export class AssetMgr {
         return this.loadingAsset ? this.loadingAsset.size : 0;
     }
 
+    public static async loadBundle(bundleName: string, opts?: { version?: string, onProgress?: Progress }) {
+        let onProgress = opts?.onProgress;
+        await BundleMgr.Inst.loadBundle(bundleName, opts?.version);
+        onProgress && onProgress(1, 1);
+    }
+
     public static async loadBundles(bundleNames?: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: Progress }) {
         if (!bundleNames) {
             bundleNames = BundleConstant;

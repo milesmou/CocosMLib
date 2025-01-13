@@ -1,5 +1,6 @@
 import { Node, find } from "cc";
 import { ParseItemTool } from "../../../mlib/misc/PlayerInventory";
+import { GameTool } from "../../game/GameTool";
 import { UIConstant } from "../../gen/UIConstant";
 import { TUnforcedGuide } from "../../gen/table/schema";
 import { GameData } from "../GameData";
@@ -23,6 +24,8 @@ export enum EGuideCondition {
     OpenUIPanel = 1,
     /** 战斗成功回到主界面 */
     FightSuccBackHUD = 2,
+    /** 进入或回到主界面 */
+    BackHUD = 3,
 }
 
 /**
@@ -124,15 +127,24 @@ export class GameGuide {
 
     /** 刚进游戏 检查是否出发新手引导 */
     public async checkShowGuide() {
-        if (await this.checkNewUser()) return;
+        if (await this.checkMap2Guide()) return;
 
     }
 
-    public async checkNewUser() {
-        // let stageId = "1_1_1";
-        // if (GameTool.isStageUnlock(stageId)) return false;
-        // this._readyToGuide = true;
+    private async checkNewUser() {
+        let stageId = "1_1_1";
+        if (GameTool.isStageUnlock(stageId)) return false;
+        this._readyToGuide = true;
         return true;
+    }
+
+    private async checkMap2Guide() {
+        if (GameTool.needMapGuide(2)) {
+            this._readyToGuide = true;
+            GameGuide.Inst.guideCondition(EGuideCondition.BackHUD, "NewMap", "2");
+            return true;
+        }
+        return false;
     }
 
     /** 检查引导是否满足触发条件 */

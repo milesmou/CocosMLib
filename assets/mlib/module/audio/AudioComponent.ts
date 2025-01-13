@@ -136,6 +136,7 @@ export class AudioComponent extends Component {
      * @param deRef 默认为false 是否在音效结束时释引用次数-1
      */
     public async playEffect(location: string, volumeScale = 1, args: { loop?: boolean, deRef?: boolean, onStart?: (audio: AudioSource) => void, onFinished?: () => void } = {}) {
+        if (!location) return;
         let { loop, deRef, onStart, onFinished } = args;
         let clip: AudioClip;
         if (deRef) {

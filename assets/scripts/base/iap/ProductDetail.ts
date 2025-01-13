@@ -14,11 +14,8 @@ export class ProductDetail {
     /** 是否订阅商品 */
     public isSub: boolean;
 
-    /** 价格描述(包含货币符号和金额) */
+    /** 价格 */
     public formattedPrice: string;
-
-    /** 货币代码(ISO) */
-    public currencyCode: string;
 
     public static fromProductId(productId: string) {
         if (!this.productDetailMap) return null;

@@ -16,11 +16,11 @@ export class GMListener extends Component {
 
     private onKeyDown(e: EventKeyboard) {
         let code = e.keyCode;
-        console.log("onKeyDown", code);
+        mLogger.debug("onKeyDown", code);
     }
     private onMouseDown(e: EventMouse) {
         let code = e.getButton()
-        console.log("onMouseDown", code);
+        mLogger.debug("onMouseDown", code);
 
         if (code == 1) {//按下鼠标滚轮
             this.openGMPannel();

@@ -25,6 +25,11 @@ export class GuideMask extends Component {
     @property(HollowOut)
     private hollowOut: HollowOut = null;
 
+    private _logger = mLogger.new("GuideMask", mLogger.ELogLevel.Warn);
+
+    /** 触摸区域调试节点 */
+    private _touchAreaDebug: Node;
+
     /** 触摸响应区域(世界坐标系) */
     private _touchRect: Rect = new Rect();
 
@@ -41,6 +46,7 @@ export class GuideMask extends Component {
     public onClickFail: MEvent = new MEvent();
 
     protected onLoad(): void {
+        this._touchAreaDebug = this.node.getChildByName("TouchArea");
         this.hollowOut = this.getComponent(HollowOut);
         this.reset();
     }
@@ -73,6 +79,9 @@ export class GuideMask extends Component {
         this._clickType = clickType;
         this._canClick = clickType != EClickType.None;
 
+        this._logger.debug("clickType", clickType, Date.now());
+        this._logger.debug("canClick", this._canClick, Date.now());
+
         let pos = v2(hollowPos.x, hollowPos.y);
         scale = scale || 1;
 
@@ -84,6 +93,8 @@ export class GuideMask extends Component {
         this._touchRect.y = hollowPos.y - touchHeight / 2 + viewSize.height / 2;
         this._touchRect.width = touchWidth;
         this._touchRect.height = touchHeight;
+
+        this.updateTouchAreaDebugNode(hollowPos, touchWidth, touchHeight);
 
         this._isTweenHollow = true;
         let width = hollowSize.width * scale;
@@ -108,6 +119,14 @@ export class GuideMask extends Component {
         }, duration + 0.25);
     }
 
+    private updateTouchAreaDebugNode(pos: Vec3, width: number, height: number) {
+        if (this._touchAreaDebug?.active) {
+            this._touchAreaDebug.setPosition(pos.x, pos.y, 0);
+            this._touchAreaDebug.transform.width = width;
+            this._touchAreaDebug.transform.height = height;
+        }
+    }
+
     private stopTouchEvent(evt: EventTouch) {
         evt.preventSwallow = false;
         evt.propagationStopped = true;
@@ -123,8 +142,11 @@ export class GuideMask extends Component {
 
         if (!this._canClick) return;//已触发过点击事件
 
+        this._isClickInTouchArea = false;
+
         let pos = evt.getUILocation();
         if (this.isInTouchArea(pos)) {
+            this._logger.debug("TouchStart In", Date.now());
             this._isClickInTouchArea = true;
             evt.preventSwallow = true;
             evt.propagationStopped = false;
@@ -132,9 +154,9 @@ export class GuideMask extends Component {
                 this._canClick = false;
                 this.onClickSucc.dispatch();
                 this._touchStartEvt = evt;
+                this._logger.debug("TouchStart Succ", Date.now());
             }
         } else {
-            this._isClickInTouchArea = false;
             evt.preventSwallow = false;
             evt.propagationStopped = true;
         }
@@ -147,6 +169,7 @@ export class GuideMask extends Component {
             evt.preventSwallow = true;
             evt.propagationStopped = false;
             this._touchStartEvt = null;
+            this._logger.debug("Emit TouchEnd Evt", Date.now());
             return;
         }
 
@@ -162,11 +185,13 @@ export class GuideMask extends Component {
             evt.propagationStopped = false;
             this._canClick = false;
             this.onClickSucc.dispatch();
+            this._logger.debug("TouchEnd Succ", Date.now());
         } else {
             evt.preventSwallow = false;
             evt.propagationStopped = true;
         }
 
+        this._isClickInTouchArea = false;
     }
 
 }

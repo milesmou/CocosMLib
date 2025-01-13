@@ -116,6 +116,7 @@ export class UIMgr extends Component {
         EventMgr.emit(mEventKey.OnUIInitBegin, uiName, visible);
         this._uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this._normal, visible, bottom, onProgress);
+        if (!ui) return;
         if (!parent) {//主UI
             this._uiStack.add(ui, !visible || bottom)
         } else {//子UI
@@ -239,6 +240,7 @@ export class UIMgr extends Component {
             } else {
                 this._loadingUI.add(uiName);
                 let node = await this.instNode(uiName, parent, onProgress);
+                if (!node) return;
                 ui = node.getComponent(UIComponent) as UIForm;
                 ui.init(uiName);
                 this._uiDict.set(uiName, ui);
@@ -267,6 +269,7 @@ export class UIMgr extends Component {
 
     private async instNode(uiName: string, parent: Node, onProgress?: Progress): Promise<Node> {
         let prefab = await AssetMgr.loadAsset(uiName, Prefab, onProgress);
+        if (!prefab) return;
         let uiObj = instantiate(prefab);
         uiObj.parent = parent;
         uiObj.matchParent(true);

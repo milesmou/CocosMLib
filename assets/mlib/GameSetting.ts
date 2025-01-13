@@ -18,11 +18,14 @@ const LogLevel = Enum({
 @ccclass('GameSetting')
 @executeInEditMode
 class GameSetting extends Component {
+
+    @property
+    protected _scriptName: string = "GameSetting";
+
     /** 配置文件类型 */
     public readonly ConfigType = EGameConfigType;
 
     @property private _gameName: string = "";
-
     @property({
         displayName: "游戏名",
         tooltip: "名字会用来拼接CND地址，上报事件等"
@@ -41,7 +44,7 @@ class GameSetting extends Component {
     @property private _version = "1.0.0";
     @property({
         displayName: "版本",
-        tooltip: "整包使用3位版本号(x.x.x),补丁包使用4位版本号(x.x.x.x)\n与远程资源相关的都只会使用前3位版本号"
+        tooltip: "使用3位版本号(x.x.x),补丁包使用4位版本号(x.x.x.x)\n与远程资源相关的都只会使用前3位版本号"
     })
     public get version() { return this._version; }
     private set version(val: string) { this._version = val.trim(); this.saveGameSetting(); }
@@ -84,6 +87,8 @@ class GameSetting extends Component {
         if (!val) this.manifest = null;
     }
 
+
+
     @property private _manifest: Asset = null;
     @property({
         type: Asset,
@@ -94,14 +99,16 @@ class GameSetting extends Component {
     public get manifest() { return this._manifest; }
     private set manifest(val: Asset) { this._manifest = val; }
 
+    @integer
+    private _frameRate = 0;
     @property({
         displayName: "帧率",
         slide: true,
         range: [0, 120],
         tooltip: "帧率限制,0表示不限制帧率"
     })
-    @integer
-    private m_FrameRate = 0;
+    public get frameRate() { return this._frameRate; }
+    private set frameRate(val: number) { this._frameRate = val; }
 
     @property private _skipGuide = false;
     @property({
@@ -119,12 +126,14 @@ class GameSetting extends Component {
     public get nodeEvent() { return this._nodeEvent; }
     private set nodeEvent(val: boolean) { this._nodeEvent = val; }
 
+    @property private _logLevel = LogLevel.Auto;
     @property({
         type: LogLevel,
         displayName: "日志级别",
         tooltip: "默认为Auto,编辑器预览时日志级别为Debug,发布后日志级别为Info"
     })
-    private m_LogLevel = LogLevel.Auto;
+    public get logLevel() { return this._logLevel; }
+    private set logLevel(val: number) { this._logLevel = val; }
 
 
     /**  渠道名字 */
@@ -155,7 +164,10 @@ class GameSetting extends Component {
         this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/Resources`;
         this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
 
-        if (EDITOR_NOT_IN_PREVIEW) return;
+        if (EDITOR_NOT_IN_PREVIEW) {
+            this.saveGameSetting();
+            return;
+        }
         director.addPersistRootNode(this.node);
         this.setFrameRate();
         this.setLogLevel();
@@ -163,20 +175,20 @@ class GameSetting extends Component {
     }
 
     private setFrameRate() {
-        if (this.m_FrameRate > 0) {
-            game.frameRate = this.m_FrameRate;
+        if (this.frameRate > 0) {
+            game.frameRate = this.frameRate;
         }
     }
 
     private setLogLevel() {
-        if (this.m_LogLevel == LogLevel.Auto) {
+        if (this.logLevel == LogLevel.Auto) {
             if (PREVIEW) {
                 mLogger.setLevel(LogLevel.Debug);
             } else {
                 mLogger.setLevel(LogLevel.Info);
             }
         } else {
-            mLogger.setLevel(this.m_LogLevel);
+            mLogger.setLevel(this.logLevel);
         }
     }
 
@@ -207,21 +219,23 @@ class GameSetting extends Component {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let gameSetting = {
             /** 游戏名 */
-            gameName: this._gameName,
+            gameName: this.gameName,
             /** 渠道名 */
             channel: this.channel,
             /** 版本号(全) */
-            version: this._version,
+            version: this.version,
             /** 主版本号(只有3位 X.X.X) */
             mainVersion: this.mainVersion,
             /** CDN地址 */
-            cdnUrl: this._cdnUrl,
+            cdnUrl: this.cdnUrl,
             /** 热更开关 */
             hotupdate: this.hotupdate,
             /** 热更资源地址 */
-            hotupdateServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this.mainVersion}/ResPkg`,
+            hotupdateServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/${this.mainVersion}/ResPkg`,
             /** 小游戏资源地址 */
-            minigameServer: `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._version}/ResPkg/`,
+            minigameServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/${this.version}/ResPkg/`,
+            /** 小游戏远程资源OSS上传目录 */
+            minigameOSSUploadDir: `${this.gameName}/Channel/${this.channel}/${this.version}/ResPkg/`
         };
         Editor.Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
     }

@@ -1,6 +1,6 @@
 import CryptoJS from "crypto-es";
 /** 加密解密工具类 依赖三方库(crypto-es) */
-export class EncryptUtil {
+export class CryptoUtil {
     private static secretKey = "0a980xjfap80szrz";//密钥必须是16位，且避免使用保留字符
 
     /** AES加密字符串并返回16进制字符串 */

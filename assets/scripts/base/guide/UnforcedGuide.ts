@@ -2,6 +2,7 @@ import { Component, Node, _decorator, instantiate, v3 } from "cc";
 import { UIConstant } from "../../gen/UIConstant";
 import { TUnforcedGuide } from "../../gen/table/schema";
 import { GameData } from "../GameData";
+import { EventKey } from "../GameEnum";
 import { GameGuide } from "./GameGuide";
 import GameTable from "../GameTable";
 
@@ -26,9 +27,9 @@ export default class UnforcedGuide extends Component {
         this.m_finger.removeFromParent();
         this.hide();
         // App.event.on(EventKey.OnUIHideBegin, this.hide, this);
-        app.event.on(mEventKey.OnUIHide, this.check, this);
+        app.event.on(EventKey.OnUIHide, this.check, this);
         // App.event.on(EventKey.OnUIShowBegin, this.hide, this);
-        app.event.on(mEventKey.OnUIShow, this.check, this);
+        app.event.on(EventKey.OnUIShow, this.check, this);
     }
 
     protected start(): void {

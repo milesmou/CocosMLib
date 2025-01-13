@@ -33,6 +33,8 @@ export interface RspEmail {
     body: string;
     /** 附带奖励 */
     attachment: string;
+    /** 扩展参数 */
+    extParam: string;
     /** 发件时间 */
     createTime: number;
     /** 到期时间 */
@@ -93,6 +95,47 @@ export interface RspWxMsgSecCheck {
         label: number
     }
 }
+
+/** 微信登录响应数据 */
+export interface RsqWxLogin {
+    /** 用户唯一标识 */
+    openid: string;
+    /** 会话密钥 过期时间不固定 */
+    session_key: string;
+    /** 用户在开放平台的唯一标识符，若当前小程序已绑定到微信开放平台账号下会返回，详见 UnionID 机制说明 */
+    unionid: number;
+}
+
+/** 微信敏感数据解密请求数据 */
+export interface ReqWXBizData {
+    /**  
+     * 会话密钥 必须是未过期才行，可用wx.checkSession接口校验
+     * 
+     * 非必传，和code二选一
+     */
+    session_key?: string;
+    /**
+     * 通过 wx.login 接口获得临时登录凭证，调用次接口可能会使之前的session_key失效
+     * 
+     * 非必传，和session_key二选一
+     */
+    code?: string;
+    /** 使用 sha1( rawData + sessionkey ) 得到字符串，用于校验用户信息 */
+    signature: string;
+    /** 包括 GameClubData 在内的加密数据，详见加密数据解密算法 */
+    encryptedData: string;
+    /** 加密算法的初始向量 */
+    iv: string;
+}
+
+/** 微信敏感数据解密响应数据 */
+export interface RspWXBizData {
+    /** 会话密钥 过期时间不固定 */
+    session_key: string;
+    /** 解密后的原数据 */
+    rawData: number;
+}
+
 
 /** 玩家存档数据格式 */
 export interface RspPlayerGameData {

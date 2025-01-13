@@ -6,7 +6,7 @@ export class TimeDuration {
     private static startTimeMS: Map<string, number> = new Map();
 
     /** 脚本加载时自动执行 */
-    private static init = (() => {
+    protected static init = (() => {
         game.on(Game.EVENT_RESTART, () => {
             this.startTimeMS.clear();
         });
@@ -29,4 +29,16 @@ export class TimeDuration {
         let start = this.startTimeMS.get(key);
         return Date.now() - start;
     }
+
+    /** 结束指定Key的计时，并打印时长 */
+    public static timeEndLog(key: string) {
+        if (!this.startTimeMS.has(key)) {
+            console.error("Key不存在", key);
+            return 0;
+        }
+        let start = this.startTimeMS.get(key);
+        let dur = Date.now() - start;
+        mLogger.debug(`${key}: ${dur}毫秒`)
+    }
+
 }

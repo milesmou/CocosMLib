@@ -108,6 +108,56 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     })
 
+    Node.prototype.getChildsByName = function (name: string) {
+        let self: Node = this;
+        let result: Node[] = [];
+        for (const child of self.children) {
+            if (child.name == name) result.push(child);
+        }
+        return result;
+    }
+
+    Node.prototype.findNode = function (name: string) {
+        let self: Node = this;
+        let list: Node[] = self.children;
+        let list2: Node[];
+
+        while (list.length > 0) {
+            list2 = [];
+            for (const child of list) {
+                if (child.name == name) {
+                    return child;
+                } else if (child.children.length > 0) {
+                    list2.push(...child.children);
+                }
+            }
+            list = list2;
+        }
+        return undefined;
+    }
+
+    Node.prototype.findNodes = function (name: string) {
+        let self: Node = this;
+        let result: Node[] = [];
+        let list: Node[] = self.children;
+        let list2: Node[];
+
+        while (list.length > 0) {
+            list2 = [];
+            for (const child of list) {
+                if (child.name == name) {
+                    result.push(child);
+                }
+                if (child.children.length > 0) {
+                    list2.push(...child.children);
+                }
+            }
+            list = list2;
+        }
+        return result;
+    }
+
+
     Node.prototype.getComponentInParent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef = true) {
         let self: Node = this;
         let node = includeSlef ? self : self.parent;
@@ -261,6 +311,18 @@ declare global {
 declare module 'cc' {
 
     interface Node {
+        /**
+         * 通过名称获取节点的子节点
+         */
+        getChildsByName(name: string): Node[];
+        /**
+         * 通过名字在当前节点下任意层级查找节点(广度优先查找)
+         */
+        findNode(name: string): Node;
+        /**
+         * 通过名字在当前节点下任意层级查找节点(广度优先查找)
+         */
+        findNodes(name: string): Node[];
         /** 
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true

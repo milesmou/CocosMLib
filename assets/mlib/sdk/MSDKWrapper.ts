@@ -57,7 +57,7 @@ const ParamSeparator = "<-_->";
 export class MSDKWrapper {
 
     /** 脚本加载时自动执行 */
-    private static init = (() => {
+    protected static init = (() => {
         if (!JSB) return;
         native.bridge.onNative = (key: string, args?: string) => {
             let [arg1, arg2, arg3, arg4] = args.split(ParamSeparator);
@@ -65,7 +65,7 @@ export class MSDKWrapper {
         }
     })();
 
-    /** 非原生环境触发回调 */
+    /** 手动触发回调 */
     public static call(key: ENativeBridgeKey, arg1?: string, arg2?: string, arg3?: string, arg4?: string) {
         this.onNativeCall(ENativeBridgeKey[key], arg1, arg2, arg3, arg4);
     }

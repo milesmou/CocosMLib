@@ -1,5 +1,4 @@
 import { _decorator, Animation } from "cc";
-import { MEvent } from "../../event/MEvent";
 import { MButton } from "../extend/MButton";
 import { EUIFormAnim } from "./EUIFormAnim";
 import { EUIFormPassiveType } from "./EUIFormPassiveType";
@@ -55,7 +54,6 @@ export abstract class UIForm extends UIComponent {
     protected animation: Animation;
 
     public abstract get isAnimEnd(): boolean;
-    public onAnimEnd: MEvent = new MEvent();
 
     protected visible: boolean;
     protected args: any = null;

@@ -1,7 +1,14 @@
 import { L10nMgr } from "../../mlib/module/l10n/L10nMgr";
+import { MButton } from "../../mlib/module/ui/extend/MButton";
+import { MToggle } from "../../mlib/module/ui/extend/MToggle";
 import { UIMgr } from "../../mlib/module/ui/manager/UIMgr";
+import { otherConfigTool } from "../game/otherConfigTool";
 import { UIConstant } from "../gen/UIConstant";
+import { InstallationModel } from "../ui/guanka/InstallationModel";
+import { StageModel } from "../ui/guanka/StageModel";
+import { BattleShare } from "../ui/wegame/BattleShare";
 import { GameDataPost } from "./GameDataPost";
+import { GamePopUp } from "./GamePopUp";
 import { GameRedDot } from "./GameRedDot";
 import { ShopUtil } from "./iap/ShopUtil";
 
@@ -23,5 +30,17 @@ export class GameInit {
         await UIMgr.Inst.showResident(UIConstant.UIGuide);
         ShopUtil.init();
         app.chan.initIAP();
+        MButton.DefaultClickAudio = "audio/ButtonClick";
+        MToggle.DefaultClickAudio = "audio/ButtonClick";
+        StageModel.Inst.init();
+        InstallationModel.Inst.init();
+        BattleShare.Inst.init();
+        //加载服务器上otherConfig配置，公告Q群啥的
+        otherConfigTool.loadOtherConfigData();
+    }
+
+    /** 进入主界面后的初始化 */
+    public static async initAfterEnterHUD() {
+        GamePopUp.Inst.checkPopUp();
     }
 }

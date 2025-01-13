@@ -213,9 +213,9 @@ export class CCUtils {
 
     /** 设置spine各动画之间的融合时间 */
     public static setSpineCommonMix(spine: sp.Skeleton, dur: number) {
-        if (!spine) return;
-        let anims: any[] = spine["_skeleton"]["data"]["animations"];
-        if (anims?.length) {
+        if (!spine?.isValid) return;
+        let anims = spine.skeletonData.getRuntimeData().animations;
+        if (anims?.length > 0) {
             for (let i = 0; i < anims.length - 1; i++) {
                 for (let j = i + 1; j < anims.length; j++) {
                     spine.setMix(anims[i].name, anims[j].name, dur);
@@ -225,12 +225,22 @@ export class CCUtils {
         }
     }
 
-    /** 计算两个点之间的距离 */
-    public static calculationDis(localPos: Vec3, tarPos: Vec3) {
-        let dx = localPos.x - tarPos.x;
-        let dy = localPos.y - tarPos.y;
-        let dis = Math.sqrt(dx * dx + dy * dy);
-        return dis;
+    /** 设置spine骨骼的显示隐藏(会影响该骨骼以及它所有的子骨骼) */
+    public static setSpineBoneVisible(spine: sp.Skeleton, boneName: string, visible: boolean) {
+        if (!spine?.isValid) return;
+        let bone = spine.findBone(boneName);
+        if (bone) {
+            bone.active = visible;
+            this.setBoneChildsVisible(bone, visible);
+        }
+    }
+
+    private static setBoneChildsVisible(bone: sp.spine.Bone, visible: boolean) {
+        if (!bone || bone.children.length == 0) return;
+        for (const child of bone.children) {
+            child.active = visible;
+            if (child.children.length > 0) this.setBoneChildsVisible(child, visible);
+        }
     }
 
 }

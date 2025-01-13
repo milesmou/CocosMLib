@@ -107,7 +107,6 @@ export class UIBase extends UIForm {
         let p = new Promise<void>((resovle, reject) => {
             let callback = () => {
                 this._isAnimEnd = true;
-                this.onAnimEnd.dispatch();
                 resovle();
             };
             if (Boolean(this.action & EUIFormAnim.OPEN)) {
@@ -142,7 +141,6 @@ export class UIBase extends UIForm {
         let p = new Promise<void>((resovle, reject) => {
             let callback = () => {
                 this._isAnimEnd = true;
-                this.onAnimEnd.dispatch();
                 resovle();
             };
             if (Boolean(this.action & EUIFormAnim.CLOSE)) {

@@ -5,6 +5,7 @@ import { SafeWidget } from '../../../mlib/module/ui/component/SafeWidget';
 import { MButton } from '../../../mlib/module/ui/extend/MButton';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
+import { GameTool } from '../../game/GameTool';
 import { UIConstant } from '../../gen/UIConstant';
 import { TGuide, vector2 } from '../../gen/table/schema';
 import GameTable from '../GameTable';
@@ -30,7 +31,7 @@ export class UIGuide extends UIComponent {
 
     public static Inst: UIGuide;
 
-    private _logger = mLogger.new("Guide", ELoggerLevel.Info);
+    private _logger = mLogger.new("Guide", ELoggerLevel.Debug);
 
     private get mask() { return this.rc.get("Mask", GuideMask); }
     private get ring() { return this.rc.get("Ring", Node); }
@@ -119,6 +120,13 @@ export class UIGuide extends UIComponent {
         this._logger.debug();
         let data = this._guideData[this._dataIndex];
         app.chan.reportEvent(mReportEvent.GuideStep, { guideId: data.GuideID + "_" + data.StepId });
+        //数数打点
+        app.chan.reportEvent(mReportEvent.GuideStep, { GuideStep_Id: data.GuideID + "_" + data.StepId }, "SS");
+        mLogger.debug("----------打点顺序整理KIN--------------" + "7新手引导停留" + data.GuideID + "_" + data.StepId);
+        // 广点通打点
+        if (GameTool.isZQYMiniGame) {
+            GameSdk.BI.reportZqyWxInvestSdk('onTutorialFinish');
+        }
         if (this._dataIndex == this._guideData.length - 1) {
             this._logger.debug("结束引导" + this._guideId);
             this.guideOver();
@@ -256,35 +264,19 @@ export class UIGuide extends UIComponent {
         let p = new Promise<UIForm>((resovle, reject) => {
             this._logger.debug(`IsTopUI=${app.ui.isTopUI(uiName)}`);
 
-            let checkUI = () => {
-                this._logger.debug(`${uiName} 已被打开`);
-                this._logger.debug(`isAnimEnd=${app.ui.getUI(uiName).isAnimEnd}`);
-                let ui = app.ui.getUI(uiName);
-                if (app.ui.getUI(uiName).isAnimEnd) {
-                    resovle(ui);
-                } else {
-                    ui.onAnimEnd.addListener(() => {
+            let checkUIShow = () => {
+                if (app.ui.isTopUI(uiName)) {
+                    let ui = app.ui.getUI(uiName);
+                    if (ui.isAnimEnd) {
+                        this._logger.debug(`${uiName} 已被打开`);
                         resovle(ui);
-                    }, this, true);
-                }
-            }
-
-            if (app.ui.isTopUI(uiName)) {//UI已打开
-                checkUI();
-            }
-            else //等待UI被打开
-            {
-                this._logger.debug(`${uiName} 等待被打开`);
-                let func = ui => {
-                    if (app.ui.isTopUI(uiName)) {
-                        app.event.off(mEventKey.OnUIShow, func);
-                        app.event.off(mEventKey.OnUIHide, func);
-                        checkUI();
+                        return;
                     }
-                };
-                app.event.on(mEventKey.OnUIShow, func);
-                app.event.on(mEventKey.OnUIHide, func);
+                }
+                this._logger.debug(`${uiName} 等待被打开`);
+                this.scheduleOnce(() => { checkUIShow(); }, 0.15);
             }
+            checkUIShow();
         });
         return p;
     }

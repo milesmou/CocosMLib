@@ -10,8 +10,6 @@ export abstract class GameSave {
     public abstract readonly name: string;
     /** 存档描述(多存档时使用) */
     public desc = "";
-    /** 存档时间最后一次保存时间(时间戳) */
-    public time = 0;
     /** 准备延迟存档,忽略其它存档请求 */
     private _readySave = false;
     /** 自增uid */
@@ -81,15 +79,15 @@ export abstract class GameSave {
 
     /** 立即存档 */
     public save() {
-        this.time = Date.now();
         GameSave.serialize(this);
+        GameSave.updateSaveTime();
     }
 
     /** 延迟存档 */
     public delaySave() {
         if (!this._readySave) {
             this._readySave = true;
-            tween(this).delay(0.01).call(() => {
+            tween(this).delay(0.05).call(() => {
                 this._readySave = false;
                 this.save();
             }).start();
@@ -103,13 +101,12 @@ export abstract class GameSave {
 
     /** 获取存档序列化后的字符串 */
     public getSerializeStr() {
-        this.time = Date.now();
         let str = GameSave.getSerializeStr(this);
         return LZString.compressToBase64(str);
     }
 
     /** 替换本地存档 */
-    public replaceGameData(strData: string, forceUseLocalData = false) {
+    public replaceGameData(strData: string) {
         if (!strData) {
             mLogger.warn("存档数据为空");
             return;
@@ -124,24 +121,31 @@ export abstract class GameSave {
             return;
         }
         LocalStorage.setValue(this.name, decStrData);
-        if (forceUseLocalData) LocalStorage.setValue(GameSave.forceUseLocalDataSaveKey, true);
+        GameSave.updateSaveTime();
         this._onReplaceGameData && this._onReplaceGameData();
     }
 
     /** 清除本地存档 */
     public clearGameData() {
         LocalStorage.removeValue(this.name);
-        LocalStorage.setValue(GameSave.forceUseLocalDataSaveKey, true);
+        GameSave.updateSaveTime();
         this._onReplaceGameData && this._onReplaceGameData();
     }
-
-    /** 强制使用本地存档临时缓存key */
-    private static readonly forceUseLocalDataSaveKey = "forceUseLocalData";
 
     /** 字典或数组集合的元素的key的后缀 */
     private static readonly collectionItemSuffix = "$item";
 
-    
+    /** 获取存档时间 毫秒 */
+    public static getSaveTime() {
+        let key = mGameSetting.gameName + "_SaveDataTimeMS";
+        return LocalStorage.getValue(key, 0);
+    }
+
+    /** 更新存档时间 */
+    public static updateSaveTime() {
+        let key = mGameSetting.gameName + "_SaveDataTimeMS";
+        LocalStorage.setValue(key, Date.now());
+    }
 
     /** 从本地缓存读取存档 */
     public static deserialize<T extends GameSave>(inst: T): T {
@@ -158,11 +162,6 @@ export abstract class GameSave {
             }
         } else {
             mLogger.debug("无本地存档", name);
-        }
-        if (LocalStorage.getValue(this.forceUseLocalDataSaveKey, false)) {
-            LocalStorage.removeValue(this.forceUseLocalDataSaveKey);
-            inst.time = Date.now();
-            inst.save();
         }
         return inst;
     }

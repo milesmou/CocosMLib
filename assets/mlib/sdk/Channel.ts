@@ -16,6 +16,8 @@ export class Channel {
     /** 设备震动开关 */
     public vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
 
+    /** 是否非正式版 */
+    public get isTrial() { return false; }
 
     /** 初始化SDK */
     public initSDK() {

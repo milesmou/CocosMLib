@@ -32,7 +32,7 @@ export class HotUpdate {
     private _onDownloadProgress: (loaded: number, total: number) => void;
     private _onComplete: (code: EHotUpdateResult) => void;
 
-    private get storagePath() { return native.fileUtils.getWritablePath() + 'miles_remote_asset'; }
+    private get storagePath() { return native.fileUtils.getWritablePath() + 'patch_asset'; }
 
     public start(manifest: Asset, version: string, onStateChange: (code: EHotUpdateState) => void, onDownloadProgress: (loaded: number, total: number) => void, onComplete: (code: EHotUpdateResult) => void) {
         if (!sys.isNative) {
@@ -174,9 +174,6 @@ export class HotUpdate {
                 this._logger.error('更新出错 ERROR_DECOMPRESS', event.getMessage());
                 this.onUpdateFail();
                 break;
-
-
-
             default:
                 this._logger.debug("downloadFilesCb 未处理的情况", event.getEventCode(), event.getMessage());
         }
@@ -185,8 +182,6 @@ export class HotUpdate {
     private onUpdateComplete(code: EHotUpdateResult.UpToDate | EHotUpdateResult.Success | EHotUpdateResult.ManifestError) {
         this._onStateChange(EHotUpdateState.Finished);
         if (code == EHotUpdateResult.Success) {
-            //重命名main.js依赖的相关文件,去掉文件名中的MD5后缀,不然main.js中无法加载相关资源
-            this.renameSrcFiles();
             //追加脚本搜索路径
             let searchPaths = native.fileUtils.getSearchPaths();
             let newPaths = this._assetsMgr.getLocalManifest().getSearchPaths();
@@ -207,23 +202,4 @@ export class HotUpdate {
         this._onComplete(EHotUpdateResult.Fail);
     }
 
-    private renameSrcFiles() {
-        let files = native.fileUtils.listFiles(this.storagePath + "/src");
-        files.forEach(v => {
-            if (!native.fileUtils.isDirectoryExist(v)) {//文件
-                let fileName = v.replace(native.fileUtils.getFileDir(v) + "/", "");
-                let ext = native.fileUtils.getFileExtension(v);
-                let newFileName = fileName.replace(ext, "");
-                if (fileName == "system.bundle") return;
-                let lastIndex = newFileName.lastIndexOf(".");
-                if (lastIndex > -1) {
-                    newFileName = newFileName.substring(0, lastIndex);
-                }
-                newFileName += ext;
-                let newFile = v.replace(fileName, newFileName);
-                native.fileUtils.renameFile(v, newFile);
-                this._logger.debug("rename", v, "-->", newFile)
-            }
-        });
-    }
 }

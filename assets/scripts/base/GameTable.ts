@@ -45,7 +45,7 @@ export default class GameTable {
     }
 
     private _guideGroup: Map<number, TGuide[]>;
-    public get guideGroup() { return this._guideGroup || (this._guideGroup = GameTable.Table.TbGuide.getDataList().groupBy(v => v.GuideID,)); }
+    public get guideGroup() { return this._guideGroup || (this._guideGroup = GameTable.Table.TbGuide.getDataList().groupBy<number>(v => v.GuideID,)); }
 
     //引导
     public getGuideGroup(guideId: number) {

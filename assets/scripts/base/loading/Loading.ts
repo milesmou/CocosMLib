@@ -58,13 +58,14 @@ export class Loading extends UIComponent {
         }
     }
 
-    /** 版本更新检测 */
+   /** 版本更新检测 */
     private async checkVersion() {
         if (!PREVIEW) {
             if (mGameSetting.hotupdate && mGameConfig.rg && sys.isNative) {
-                if (mGameSetting.manifest) {
+                let manifest = await AssetMgr.loadAsset("project", Asset);
+                if (manifest) {
                     HotUpdate.Inst.start(
-                        mGameSetting.manifest,
+                        manifest,
                         mGameSetting.mainVersion,
                         this.onUpdateStateChange.bind(this),
                         this.onUpdateDownloadProgress.bind(this),
@@ -79,15 +80,16 @@ export class Loading extends UIComponent {
         this.login();
     }
 
-    /** 登录 */
+     /** 登录 */
     private login() {
-        mLogger.info("开始登录");
-
         app.chan.login({
             success: user => {
-                mLogger.debug("登录成功", user.id);
+                mLogger.debug("登录成功", user);
                 app.chan.user = user;
+                this.uuidLb.string = "UUID：" + user.id;
                 this.syncGameData();
+
+              
             },
             fail: reason => {
                 mLogger.error("登录失败", reason);
@@ -97,14 +99,16 @@ export class Loading extends UIComponent {
 
     /** 同步玩家数据 */
     private syncGameData() {
-        this.loadRes();
-        return;
+        // this.loadRes();
+        // return;
         app.chan.getGameData({
             userId: app.chan.user.id,
             success: args => {
-                mLogger.debug("获取数据成功", args);
+                let localSaveTime = GameData.getSaveTime();
+                mLogger.debug("获取数据成功", args, localSaveTime);
                 if (args.data) {
-                    if (args.updateTimeMS > GameData.Inst.time) {
+                    mLogger.debug(`存档时间 云端:${new Date(args.updateTimeMS).toLocaleString()} 本地:${new Date(localSaveTime).toLocaleString()}`);
+                    if (args.updateTimeMS > localSaveTime) {
                         mLogger.debug("使用云存档");
                         GameData.Inst.replaceGameData(args.data);
                     } else {
@@ -156,14 +160,15 @@ export class Loading extends UIComponent {
         await app.timer.dealy(0.15);
 
         this.node.destroy();
-
+	//初始化游戏内容
+        await GameInit.initAfterEnterHUD();	
     }
 
     private async restart() {
 
     }
 
-    /** 
+     /** 
      * 设置加载界面提示文字并重置进度条
      */
     private setTips(obj: ILanguage) {
@@ -173,11 +178,9 @@ export class Loading extends UIComponent {
         }
         if (this.progressBar) {
             this.progressBar.progress = 0;
-            this.onProgress(0, 1);
         }
         this.startFakeProgress(0);
     }
-
     /** 更新进度 */
     private onProgress(loaded: number, total: number) {
         if (this.progressBar) {
@@ -232,7 +235,7 @@ export class Loading extends UIComponent {
      * 热更新结果
      */
     private onUpdateComplete(code: EHotUpdateResult) {
-        mLogger.debug("HotUpdate ResultCode = ", EHotUpdateResult[code]);
+        mLogger.info("HotUpdate ResultCode = ", EHotUpdateResult[code]);
         if (code == EHotUpdateResult.Success) {
             game.restart();
         } else if (code == EHotUpdateResult.Fail) {
@@ -247,6 +250,7 @@ export class Loading extends UIComponent {
             this.login()
         }
     }
+
 
 
     /** 从LoadingText获取多语言文本 */

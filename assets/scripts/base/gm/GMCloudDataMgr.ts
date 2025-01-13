@@ -52,7 +52,7 @@ export class GMCloudDataMgr extends UIComponent {
         let data = GameData.Inst.getSerializeStr();
 
         MCloudDataSDK.saveGmData(data, desc).then(v => {
-            if (v && v.code == 0) {
+            if (v.code == 0) {
                 app.tipMsg.showToast("存档保存成功");
             } else {
                 app.tipMsg.showToast("存档保存失败");
@@ -73,11 +73,10 @@ export class GMCloudDataMgr extends UIComponent {
 
     /**显示列表中的所有存档 */
     private renderScrollView() {
-        MCloudDataSDK.getGmDatas().then(v => {
-            if (v) {
-                console.log("获取所有存档成功");
-                let list = v;
-                list = list.reverse();
+        MCloudDataSDK.getGmDatas().then(data => {
+            if (data) {
+                mLogger.debug("获取所有存档成功");
+                let list = data.reverse();
                 CCUtils.loadList(this._scrollView.content, list, (data, item) => {
                     item.getComponent(GMCloudDataItem).initData(data, this.onClickDelKey.bind(this, data), this.onClickReadKey.bind(this, data));
                 });
@@ -95,7 +94,7 @@ export class GMCloudDataMgr extends UIComponent {
             {
                 type: 2,
                 cbOk: () => {
-                    GameData.Inst.replaceGameData("");
+                    GameData.Inst.clearGameData();
                     game.restart();
                 }
             });

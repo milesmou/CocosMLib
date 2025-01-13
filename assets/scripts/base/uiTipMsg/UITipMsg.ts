@@ -79,7 +79,7 @@ export class UITipMsg extends UIComponent {
                 let node = instantiate(this._toastItem);
                 toastItem.node = node
                 toastItem.content = node.getComponentInChildren(Label);
-                toastItem.uiOpacity = node.getComponentInChildren(UIOpacity);
+                toastItem.uiOpacity = node.ensureComponent(UIOpacity);
                 return toastItem;
             },
             onPutObject: obj => {
@@ -97,7 +97,7 @@ export class UITipMsg extends UIComponent {
      * @param content 提示内容
      */
     showTip(content: string) {
-        let uiOpacity = this._singleTip.getComponent(UIOpacity)!;
+        let uiOpacity = this._singleTip.ensureComponent(UIOpacity)!;
         this._singleTip.getComponentInChildren(Label).string = content;
         Tween.stopAllByTarget(uiOpacity);
         uiOpacity.opacity = 255;

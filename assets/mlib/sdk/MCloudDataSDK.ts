@@ -1,6 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { Leaderboard, MResponse, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspWxMsgSecCheck } from "./MResponse";
+import { Leaderboard, MResponse, ReqWXBizData, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspWXBizData, RspWxMsgSecCheck, RsqWxLogin } from "./MResponse";
 
 export class MCloudDataSDK {
 
@@ -123,9 +123,38 @@ export class MCloudDataSDK {
     }
 
     /** 微信小游戏敏感词检测 */
-    public static async weChatGameMsgSecCheck(reqData: ReqWxMsgSecCheck) {
+    public static async wxMsgSecCheck(reqData: ReqWxMsgSecCheck) {
         let url = this.Host + `/wechatgame/msg_sec_check?gameCode=${mGameSetting.gameCode}`;
         let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse<RspWxMsgSecCheck>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    /** 
+     * 微信小游戏登录
+     * @param code wx.login获取的code
+     */
+    public static async wxLogin(code: string) {
+        let url = this.Host + `/wechatgame/login?gameCode=${mGameSetting.gameCode}&code=${code}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RsqWxLogin>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    /** 
+     * 微信小游戏解密敏感数据
+     */
+    public static async wxDecryptBizdata(reqData: ReqWXBizData) {
+        let url = this.Host + `/wechatgame/decrypt_bizdata?gameCode=${mGameSetting.gameCode}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse<RspWXBizData>;
         if (result?.code == 0) {
             return result.data;
         } else {
