@@ -1,3 +1,4 @@
+import { BYTEDANCE } from "cc/env";
 import { L10nMgr } from "../../mlib/module/l10n/L10nMgr";
 import { MButton } from "../../mlib/module/ui/extend/MButton";
 import { MToggle } from "../../mlib/module/ui/extend/MToggle";
@@ -41,6 +42,14 @@ export class GameInit {
 
     /** 进入主界面后的初始化 */
     public static async initAfterEnterHUD() {
+        if (BYTEDANCE) {
+            tt.reportScene({ sceneId: 7001 });
+            let info = tt.getLaunchOptionsSync();
+            if (info.scene && (info.scene as string).endsWith("3041")) {
+                let feed_game_scene = info.query?.feed_game_scene;
+                mLogger.info("推荐流直出场景", feed_game_scene);
+            }
+        }
         GamePopUp.Inst.checkPopUp();
     }
 }

@@ -40,8 +40,9 @@ export class SafeWidget extends Component {
     private static getSafeArea() {
         let safeAreaGap = new SafeAreaGap();
         let size = view.getVisibleSize();
-        let rect = sys.getSafeAreaRect();
+        let rect = app.chan.getSafeAreaRect();
 
+        mLogger.info("ViewRect:" + size.toString());
         mLogger.info("SafeAreaRect:" + rect.toString());
 
         safeAreaGap.left = rect.x;

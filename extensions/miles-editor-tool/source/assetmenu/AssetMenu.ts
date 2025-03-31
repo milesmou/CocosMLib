@@ -1,4 +1,4 @@
-import { AssetInfo } from "@cocos/creator-types/editor/packages/asset-db/@types/public";
+import { AssetInfo } from "../../@cocos/creator-types/editor/packages/asset-db/@types/public";
 import { MenuExecute } from "./MenuExecute";
 
 

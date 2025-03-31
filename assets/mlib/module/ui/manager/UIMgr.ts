@@ -6,6 +6,7 @@ import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { AssetMgr } from '../../asset/AssetMgr';
 import { EventMgr } from '../../event/EventMgr';
+import { EUIFormClose } from './EUIFormClose';
 import { EUIFormPassiveType } from './EUIFormPassiveType';
 import { UIComponent } from './UIComponent';
 import { UIForm } from './UIForm';
@@ -28,8 +29,10 @@ export class UIMgr extends Component {
     private _higher: Node;
     /** 常驻在最上层的UI界面(如提示信息、引导)不参与UI堆栈 */
     private _resident: Node;
-    /** 拦截所有触摸事件的节点 */
+    /** 拦截所有触摸事件的节点(手动管理) */
     private _blockInput: Node
+    /** 拦截所有触摸事件的节点(定时自动管理) */
+    private _blockInputTime: Node
 
     /** 正在加载过程中的UI */
     private _loadingUI: Set<string> = new Set();
@@ -53,8 +56,11 @@ export class UIMgr extends Component {
         return this._uiStack[this._uiStack.length - 1];
     }
 
+    /** 拦截所有触摸事件的节点(手动显示隐藏) */
+    public get block() { return this._blockInput; }
+
     private _blockTime = 0;
-    /** 描屏蔽用户输入事件时间(秒),小于0表示立即停止屏蔽事件述 */
+    /** 描屏蔽用户输入事件时间(秒),小于0表示立即停止屏蔽触摸事件 */
     public set blockTime(value: number) {
         if (value > this._blockTime) this._blockTime = value;
         if (value <= 0) this._blockTime = 0.1;
@@ -87,6 +93,12 @@ export class UIMgr extends Component {
         this._blockInput.addComponent(BlockInputEvents);
         this._blockInput.parent = this.node;
         this._blockInput.matchParent();
+        this._blockInput.active = false;
+        //创建拦截所有触摸事件的节点
+        this._blockInputTime = CCUtils.createUINode("BlockInputTime");
+        this._blockInputTime.addComponent(BlockInputEvents);
+        this._blockInputTime.parent = this.node;
+        this._blockInputTime.matchParent();
         //加载默认的单色精灵帧
         AssetMgr.loadAsset("DefaultSprite", SpriteFrame).then(sp => {
             this._defaultSprite = sp;
@@ -101,8 +113,7 @@ export class UIMgr extends Component {
         args?: any, blockTime?: number, parent?: Node, playAnim?: boolean,
         visible?: boolean, bottom?: boolean, onProgress?: Progress
     }): Promise<T> {
-        let { args, blockTime, parent, playAnim, visible, bottom, onProgress } = obj || {};
-        blockTime = blockTime === undefined ? 0.2 : blockTime;
+        let { args, parent, playAnim, visible, bottom, onProgress } = obj || {};
         playAnim = playAnim === undefined ? true : playAnim;
         visible = visible === undefined ? true : visible;
         bottom = bottom === undefined ? false : bottom;
@@ -111,8 +122,8 @@ export class UIMgr extends Component {
         } else {//子UI
             this._subUINameStack.add(uiName, !visible || bottom)
         }
+        this.blockTime = 0.1;
         this.checkShowUI(uiName, visible);
-        this.blockTime = blockTime;
         EventMgr.emit(mEventKey.OnUIInitBegin, uiName, visible);
         this._uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this._normal, visible, bottom, onProgress);
@@ -146,10 +157,10 @@ export class UIMgr extends Component {
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) return;
         let hideUI = () => {
-            if (ui.destroyNode) {
+            if (ui.whenClose > EUIFormClose.NONE) {
                 ui.node.destroy();
                 this._uiDict.delete(uiName);
-                AssetMgr.decRef(uiName);
+                if (ui.whenClose == EUIFormClose.DestroyAndRelease) AssetMgr.decRef(uiName);
             }
             else {
                 ui.node.active = false;
@@ -235,6 +246,7 @@ export class UIMgr extends Component {
     private async initUI(uiName: string, parent: Node, visible = true, bottom = false, onProgress?: Progress): Promise<UIForm> {
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) {
+            if (visible) this._blockInput.active = true;
             if (this._loadingUI.has(uiName)) {
                 ui = await this.waitUILoad(uiName);
             } else {
@@ -246,6 +258,7 @@ export class UIMgr extends Component {
                 this._uiDict.set(uiName, ui);
                 this._loadingUI.delete(uiName);
             }
+            if (visible) this._blockInput.active = false;
         }
         ui.node.active = true;
         ui.setVisible(visible);
@@ -315,9 +328,24 @@ export class UIMgr extends Component {
         }
     }
 
-    /* UI是否在显示的UI栈中 */
-    public isUIInStack(ui: UIForm) {
-        return this._uiStack.indexOf(ui) > -1;
+    /**
+     * UI是否在显示的UI栈中
+     */
+    public isUIInStack(uiName: string);
+    public isUIInStack(ui: UIForm);
+    public isUIInStack(ui: string | UIForm) {
+        if (typeof ui === "string") return this._uiNameStack.indexOf(ui) > -1;
+        else return this._uiStack.indexOf(ui) > -1;
+    }
+
+    /**
+     * 子UI是否在显示的UI栈中
+     */
+    public isSubUIInStack(uiName: string);
+    public isSubUIInStack(ui: UIForm);
+    public isSubUIInStack(ui: string | UIForm) {
+        if (typeof ui === "string") return this._subUINameStack.indexOf(ui) > -1;
+        else return this._subUIStack.indexOf(ui) > -1;
     }
 
     /* UI是否被其它全屏UI覆盖 */
@@ -368,6 +396,6 @@ export class UIMgr extends Component {
 
     protected update(dt: number) {
         if (this._blockTime > 0) this._blockTime -= dt;
-        this._blockInput.active = this._blockTime > 0;
+        this._blockInputTime.active = this._blockTime > 0;
     }
 }

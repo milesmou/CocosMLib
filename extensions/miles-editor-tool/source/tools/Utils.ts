@@ -88,6 +88,8 @@ export class Utils {
         return files;
     }
 
+
+
     /** 获取指定目录下所有目录 */
     public static getAllDirs(dir: string, filter?: (dir: string) => boolean, topDirOnly = false) {
         dir = this.toAbsolutePath(dir);
@@ -109,6 +111,34 @@ export class Utils {
             }
         });
         return dirs;
+    }
+
+    /** 查找指定目录下的一个文件 */
+    public static findFile(dir: string, filter?: (file: string) => boolean, topDirOnly = false) {
+        dir = this.toAbsolutePath(dir);
+        let filePath = null;
+        if (!fs.existsSync(dir)) return filePath;
+        let walkSync = (currentDir: string, callback: (filePath: string) => boolean) => {
+            let dirents = fs.readdirSync(currentDir, { withFileTypes: true });
+            for (const dirent of dirents) {
+                let p = path.join(currentDir, dirent.name);
+                if (dirent.isFile()) {
+                    if (callback(p)) break;
+                } else if (dirent.isDirectory()) {
+                    if (topDirOnly) return;
+                    walkSync(p, callback);
+                }
+            }
+        };
+        walkSync(dir, file => {
+            if (file.endsWith(".meta")) return false;
+            if (!filter || filter(file)) {
+                filePath = this.toUniSeparator(file);
+                return true;
+            }
+            return false;
+        });
+        return filePath;
     }
 
     /** 根据文件路径找到追加了Md5值的实际文件路径 */
@@ -158,7 +188,7 @@ export class Utils {
             let p = filePath.replace(ext, "");
             let reg = new RegExp(/.+\.[A-Za-z0-9]{5}/);
             if (!reg.test(p)) {
-                let md5 = crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex');
+                let md5 = crypto.createHash('md5').update(fs.readFileSync(filePath) as any).digest('hex');
                 let shortMd5 = md5.substring(0, 6);
                 let newFilePath = p + "." + shortMd5 + ext;
                 fs.renameSync(filePath, newFilePath);

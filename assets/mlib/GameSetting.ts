@@ -1,4 +1,4 @@
-import { _decorator, Asset, Component, director, Enum, Event, game, Node } from 'cc';
+import { _decorator, Asset, Component, director, Enum, Event, game, Node, Sprite } from 'cc';
 import { EDITOR_NOT_IN_PREVIEW, PREVIEW } from 'cc/env';
 import { EChannel } from '../scripts/base/publish/EChannel';
 import { ELanguage } from './module/l10n/ELanguage';
@@ -56,6 +56,14 @@ class GameSetting extends Component {
     })
     public get cdnUrl() { return this._cdnUrl; }
     private set cdnUrl(val: string) { this._cdnUrl = val; this.saveGameSetting(); }
+
+    @property private _serverUrl = "";
+    @property({
+        displayName: "Server",
+        tooltip: "项目的常用的服务端功能地址"
+    })
+    public get serverUrl() { return this._serverUrl; }
+    private set serverUrl(val: string) { this._serverUrl = val; }
 
     @property private _languageId = ELanguage.SimplifiedChinese;
     @property({
@@ -172,6 +180,7 @@ class GameSetting extends Component {
         this.setFrameRate();
         this.setLogLevel();
         this.enableNodeEvent();
+        this.catchUpdateUVsError();
     }
 
     private setFrameRate() {
@@ -210,6 +219,19 @@ class GameSetting extends Component {
                     console.log("[NodeEvent]", event.type, self.getPath());
                     this._eventProcessor.dispatchEvent(event);
                 }
+            }
+        }
+    }
+
+    /** 捕获由于资源释放引起的updateUVs问题 */
+    private catchUpdateUVsError() {
+        Sprite.prototype['_updateUVs'] = function () {
+            try {
+                if (this._assembler) {
+                    this._assembler.updateUVs!(this);
+                }
+            } catch (e) {
+                mLogger.error(`updateUVs报错 NodeName:${this.node.name} NodePath:${this.node.getPath()}`);
             }
         }
     }

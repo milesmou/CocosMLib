@@ -1,7 +1,7 @@
-import { AssetInfo } from "@cocos/creator-types/editor/packages/asset-db/@types/public";
-import { Utils } from "../tools/Utils";
 import path from "path";
+import { AssetInfo } from "../../@cocos/creator-types/editor/packages/asset-db/@types/public";
 import { Logger } from "../tools/Logger";
+import { Utils } from "../tools/Utils";
 
 export class MenuExecute {
     public static copyLoadLocation(assetInfo: AssetInfo) {

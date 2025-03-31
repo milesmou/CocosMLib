@@ -3,8 +3,8 @@
     "package_version": 2,
     "name": "miles-editor-tool",
     "version": "1.0.0",
-    "description": "MILES的一些编辑器扩展",
-    "author": "MILES",
+    "description": "Miles的一些编辑器扩展",
+    "author": "Miles",
     "editor": ">=3.8.0",
     "main": "./dist/Main.js",
     "contributions": {
@@ -36,49 +36,36 @@
                 ]
             },
             "loadExcel": {
-                "public": false,
                 "methods": [
                     "loadExcel"
                 ]
             },
             "genConst": {
-                "public": false,
                 "methods": [
                     "genConst"
                 ]
             },
             "replaceComponent": {
-                "public": false,
                 "methods": [
                     "replaceComponent"
                 ]
             },
             "closeTexCompress": {
-                "public": false,
                 "methods": [
                     "closeTexCompress"
                 ]
             },
             "setTexCompress": {
-                "public": false,
                 "methods": [
                     "setTexCompress"
                 ]
             },
             "genHotUpdateRes": {
-                "public": false,
                 "methods": [
                     "genHotUpdateRes"
                 ]
             },
-            "openLogFile": {
-                "public": false,
-                "methods": [
-                    "openLogFile"
-                ]
-            },
             "test": {
-                "public": false,
                 "methods": [
                     "test"
                 ]
@@ -88,49 +75,36 @@
             {
                 "path": "MTools",
                 "label": "导表",
-                "icon": "./static/icon.png",
                 "message": "loadExcel"
             },
             {
                 "path": "MTools",
                 "label": "生成常量",
-                "icon": "./static/icon.png",
                 "message": "genConst"
             },
             {
                 "path": "MTools/场景操作",
                 "label": "替换组件",
-                "icon": "./static/icon.png",
                 "message": "replaceComponent"
             },
             {
                 "path": "MTools/纹理压缩",
                 "label": "关闭纹理压缩",
-                "icon": "./static/icon.png",
                 "message": "closeTexCompress"
             },
             {
                 "path": "MTools/纹理压缩",
                 "label": "设置纹理压缩方案",
-                "icon": "./static/icon.png",
                 "message": "setTexCompress"
             },
             {
                 "path": "MTools/热更",
                 "label": "生成热更资源",
-                "icon": "./static/icon.png",
                 "message": "genHotUpdateRes"
             },
             {
                 "path": "MTools",
-                "label": "打开日志",
-                "icon": "./static/icon.png",
-                "message": "openLogFile"
-            },
-            {
-                "path": "MTools",
                 "label": "测试",
-                "icon": "./static/icon.png",
                 "message": "test"
             }
         ],
@@ -148,11 +122,13 @@
         ]
     },
     "devDependencies": {
+        "@types/ali-oss": "^6.16.11",
+        "@types/fs-extra": "^11.0.4",
         "@types/node": "^16.0.1",
-        "typescript": "^4.3.4",
-        "@types/fs-extra": "^11.0.4"
+        "typescript": "^4.3.4"
     },
     "dependencies": {
+        "ali-oss": "^6.22.0",
         "fs-extra": "^11.2.0"
     },
     "scripts": {

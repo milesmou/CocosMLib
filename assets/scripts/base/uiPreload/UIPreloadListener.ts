@@ -41,6 +41,7 @@ export class UIPreloadListener extends Component {
         let uiName = this._waitList.shift();
         AssetMgr.preloadAsset(uiName, Prefab).then(() => {
             if (!this.isValid) return;
+            mLogger.debug("预加载UI成功:" + uiName)
             this._loadedList.push(uiName);
             this._isLoading = false;
             this.preload();

@@ -94,8 +94,8 @@ export class GMCloudDataMgr extends UIComponent {
             {
                 type: 2,
                 cbOk: () => {
-                    GameData.Inst.clearGameData();
-                    game.restart();
+                    GameData.clearGameData();
+                    app.chan.restartGame();
                 }
             });
     }
@@ -126,8 +126,8 @@ export class GMCloudDataMgr extends UIComponent {
             type: 2,
             cbOk: () => {
                 try {
-                    GameData.Inst.replaceGameData(data.data);
-                    game.restart();
+                    GameData.replaceGameData(data.data);
+                    app.chan.restartGame();
                 } catch (e) {
                     console.error(e);
                 }

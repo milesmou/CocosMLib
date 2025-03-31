@@ -1,9 +1,9 @@
 export class MainJsCode {
     static insertCode = `(function () {
         if (typeof window.jsb === 'object') {
-            var hotUpdateSearchPaths = localStorage.getItem('HotUpdateSearchPaths');
-            if (hotUpdateSearchPaths) {
-                var paths = JSON.parse(hotUpdateSearchPaths);
+            var patchSearchPaths = localStorage.getItem('%version%');
+            if (patchSearchPaths) {
+                var paths = JSON.parse(patchSearchPaths);
                 jsb.fileUtils.setSearchPaths(paths);
     
                 var fileList = [];

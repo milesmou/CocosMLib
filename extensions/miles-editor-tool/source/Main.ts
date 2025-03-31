@@ -1,5 +1,6 @@
 import { HotUpdate } from "./builder/postbuild/HotUpdate";
 import { CmdExecute } from "./CmdExecute";
+import { EventMain } from "./EventMain";
 import { SceneConnect } from "./scene/SceneConnect";
 
 
@@ -16,9 +17,8 @@ export const methods: { [key: string]: (...any: any) => any } = {
     closeTexCompress: CmdExecute.closeTexCompress.bind(CmdExecute),
     setTexCompress: CmdExecute.setTexCompress.bind(CmdExecute),
     genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
-    openLogFile: CmdExecute.openLogFile.bind(CmdExecute),
     //场景操作命令 除了在此处还需在SceneMain中注册
-    replaceComponent: SceneConnect.send.bind(this, "replaceComponent"),
+    replaceComponent: SceneConnect.send.bind(SceneConnect, "replaceComponent"),
     //测试
     test: CmdExecute.test.bind(CmdExecute),
 };
@@ -27,13 +27,15 @@ export const methods: { [key: string]: (...any: any) => any } = {
  * @en Hooks triggered after extension loading is complete
  * @zh 扩展加载完成后触发的钩子
  */
-export function load() { }
+export function load() {
+    EventMain.registerEvent();
+}
 
 /**
  * @en Hooks triggered after extension uninstallation is complete
  * @zh 扩展卸载完成后触发的钩子
  */
-export function unload() { }
-
-
+export function unload() {
+    EventMain.unegisterEvent();
+}
 

@@ -6,29 +6,38 @@ import { ReferenceCollector } from "./ReferenceCollector";
 
 const { ccclass } = _decorator;
 
+/** 避免rc报错的一个对象 */
+const rc = { get(key: string) { }, getNode(key: string) { } };
+
 @ccclass("MComponent")
 export class MComponent extends Component {
 
     private _timer: TimerComponent;
     protected get timer() {
+        if (!this.isValid) return;
         if (!this.node.parent) console.error("父节点不存在!");
         if (!this._timer) this._timer = this.getComponentInParent(TimerComponent) || app.timer;
         return this._timer;
     }
     private _asset: AssetComponent;
     protected get asset() {
+        if (!this.isValid) return;
         if (!this.node.parent) console.error("父节点不存在!");
         if (!this._asset) this._asset = this.getComponentInParent(AssetComponent) || app.asset;
         return this._asset;
     }
     private _audio: AudioComponent;
     protected get audio() {
+        if (!this.isValid) return;
         if (!this.node.parent) console.error("父节点不存在!");
         if (!this._audio) this._audio = this.getComponentInParent(AudioComponent) || app.audio;
         return this._audio;
     }
     private _rc: ReferenceCollector;
-    protected get rc() { return this._rc || (this._rc = this.getComponent(ReferenceCollector)); }
+    protected get rc(): ReferenceCollector {
+        if (!this.isValid) return rc as any;
+        return this._rc || (this._rc = this.getComponent(ReferenceCollector));
+    }
 
     /** 调用自身节点上所有MComponent中的methodName方法 */
     public sendMessage(methodName: string, ...args: any[]) {

@@ -1,6 +1,7 @@
 import { _decorator, Animation } from "cc";
 import { MButton } from "../extend/MButton";
 import { EUIFormAnim } from "./EUIFormAnim";
+import { EUIFormClose } from "./EUIFormClose";
 import { EUIFormPassiveType } from "./EUIFormPassiveType";
 import { UIComponent } from "./UIComponent";
 
@@ -9,10 +10,11 @@ const { property, ccclass, requireComponent } = _decorator;
 @ccclass("UIForm")
 export abstract class UIForm extends UIComponent {
     @property({
-        displayName: "销毁",
-        tooltip: "UI关闭时销毁"
+        type: EUIFormClose,
+        displayName: "关闭时",
+        tooltip: "关闭界面时的处理 NONE:不做任何处理 Destroy:销毁界面节点 DestroyAndRelease:销毁界面节点并释放预制体资源"
     })
-    destroyNode = false;
+    whenClose = EUIFormClose.Destroy;
     @property({
         displayName: "遮罩",
         tooltip: "是否在UI下层显示半透明遮罩"
@@ -28,13 +30,11 @@ export abstract class UIForm extends UIComponent {
         tooltip: "被全屏UI覆盖时,是否隐藏界面,降低DC"
     })
     autoHide = false;
-
     @property({
         displayName: "阻塞输入事件",
         tooltip: "是否阻塞所有的输入事件向下层传递"
     })
     blockInputEvent = true;
-
     @property({
         type: EUIFormAnim,
         displayName: "动画",

@@ -1,20 +1,21 @@
 import fs from "fs-extra";
 import path from "path";
 import { Config } from "./tools/Config";
-import { Constant } from "./tools/Constant";
 import { Logger } from "./tools/Logger";
 import { Utils } from "./tools/Utils";
 
 export class CmdExecute {
 
     /** 功能测试 */
-    public static test() {
-        console.log("测试");
-        let dir = path.dirname(Constant.LogFilePath);
-        let basename = path.basename(Constant.LogFilePath);
-        Logger.debug(dir)
-        Logger.debug(basename)
-        Utils.exeCMD(dir, basename);
+    public static async test(...args: any[]) {
+        // console.log("test",args.join(" "));
+        let v = await Editor.Dialog.info(`是否上传文件到OSS?`, {
+            title: "上传远程资源",
+            detail: "[上传远程资源]",
+            default: 2,
+            buttons: ['取消', '取消1', '确认',]
+        })
+        console.log(v);
     }
 
 
@@ -29,10 +30,10 @@ export class CmdExecute {
         let batPath = "gen_code.bat";
         let tsDir = Utils.ProjectPath + "/assets/scripts/gen/table";
         fs.ensureDirSync(tsDir);
-        Logger.debug(workDir)
+        Logger.info(workDir)
         Utils.exeCMD(workDir, batPath,
             msg => {
-                Logger.debug(msg);
+                Logger.info(msg);
             }
         ).then(code => {
             if (!code) {
@@ -54,7 +55,7 @@ export class CmdExecute {
 
     /** 生成一些常量 */
     public static genConst() {
-        //生成Bundles.json
+        //生成Bundles.ts
         {
             let bundlesDir = Utils.ProjectPath + "/assets/bundles";
             let outFile = Utils.ProjectPath + "/assets/scripts/gen/BundleConstant.ts";
@@ -174,17 +175,12 @@ export class CmdExecute {
         }
     }
 
-    public static openLogFile() {
-        if (fs.existsSync(Constant.LogFilePath)) {
-            let dir = path.dirname(Constant.LogFilePath);
-            let basename = path.basename(Constant.LogFilePath);
-            Utils.exeCMD(dir, basename);
-        } else {
-            console.log("暂无日志");
-        }
+    //切换配置开关
+    public static setSwitch(key: string, desc: string) {
+        let value = !Config.get(key, false);
+        Config.set(key, value)
+        console.log(`${desc || key}: ${value ? "开" : "关"}`);
     }
-
-
 
 
 }

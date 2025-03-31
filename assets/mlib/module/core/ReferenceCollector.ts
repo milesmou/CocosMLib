@@ -65,7 +65,7 @@ export class ReferenceCollector extends Component {
     public get<T extends Component>(key: string, type: new (...args: any[]) => T): T;
     public get(key: string, type: any): any {
         let node = this._nodeMap.get(key);
-        if (node) {
+        if (node?.isValid) {
             if (type as any === Node) {
                 return node;
             } else {
@@ -139,7 +139,7 @@ export class ReferenceCollector extends Component {
     /** 获取属性类型名字 */
     private getPropertyType(node: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
-        
+
         //自定义脚本
         let comp = node.getComponent('MComponent');
         if (comp) return js.getClassName(comp);

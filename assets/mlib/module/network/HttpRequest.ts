@@ -8,16 +8,6 @@ interface RequestArgs {
     timeout?: number;
 }
 
-/** 将Json对象转化为Url编码格式 */
-export function JsonToUrlEncode(jsonObj: { [key: string]: any }) {
-    let arr: string[] = []
-    for (const key in jsonObj) {
-        arr.push(key + "=" + jsonObj[key]);
-    }
-    return arr.join("&");
-}
-
-
 export class HttpRequest {
 
     public static async request(url: string, args: RequestArgs) {
@@ -64,7 +54,7 @@ export class HttpRequest {
                         if (typeof data === "object") data = JSON.stringify(data);
                         else data = data.toString();
                     } else if (contentType == "application/x-www-form-urlencoded") {
-                        if (typeof data === "object") data = JsonToUrlEncode(data);
+                        if (typeof data === "object") data = this.jsonToUrlEncode(data);
                         else data = data.toString();
                     }
                     xhr.setRequestHeader("Content-Type", contentType);
@@ -110,7 +100,6 @@ export class HttpRequest {
     public static async requestUntil(url: string, predicate: (res: string) => boolean, duration: number, args: RequestArgs): Promise<string> {
         let endTimeMS = Date.now() + duration * 1000;
         while (true) {
-            director.getScene()
             let result = await this.requestText(url, args);
             if (predicate(result)) {//请求成功
                 return result;
@@ -120,6 +109,17 @@ export class HttpRequest {
                 await this.delay(0.5);
             }
         }
+    }
+
+    /** 将Json对象转化为Url编码格式 例:将{a:1,b:2}转化为a=1&b=2 */
+    public static jsonToUrlEncode(jsonObj: { [key: string]: any }, sortKeys = true) {
+        let arr: string[] = [];
+        let keys = Object.keys(jsonObj).sort();
+        if (sortKeys) keys.sort();
+        for (const key of keys) {
+            arr.push(key + "=" + jsonObj[key]);
+        }
+        return arr.join("&");
     }
 
     private static delay(dur: number) {

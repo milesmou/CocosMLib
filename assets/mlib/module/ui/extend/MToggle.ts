@@ -36,7 +36,7 @@ export class MToggle extends Toggle {
     /** 上一次是否被选中 */
     private _lastIsChecked: boolean;
 
-    private _onValueChange: MEvent<Toggle> = new MEvent<Toggle>();
+    private _onValueChange: MEvent<MToggle> = new MEvent<MToggle>();
     public get onValueChange() { return this._onValueChange; }
 
     private get clickAudio() {

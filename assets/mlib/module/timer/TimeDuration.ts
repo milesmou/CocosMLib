@@ -27,6 +27,7 @@ export class TimeDuration {
             return 0;
         }
         let start = this.startTimeMS.get(key);
+        this.startTimeMS.delete(key);
         return Date.now() - start;
     }
 
@@ -37,6 +38,7 @@ export class TimeDuration {
             return 0;
         }
         let start = this.startTimeMS.get(key);
+        this.startTimeMS.delete(key);
         let dur = Date.now() - start;
         mLogger.debug(`${key}: ${dur}毫秒`)
     }

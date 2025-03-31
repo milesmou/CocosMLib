@@ -59,6 +59,7 @@ export class MSDKWrapper {
     /** 脚本加载时自动执行 */
     protected static init = (() => {
         if (!JSB) return;
+        if (!native?.bridge) return;
         native.bridge.onNative = (key: string, args?: string) => {
             let [arg1, arg2, arg3, arg4] = args.split(ParamSeparator);
             this.onNativeCall(key, arg1, arg2, arg3, arg4);

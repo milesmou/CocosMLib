@@ -88,25 +88,12 @@ export class AssetMgr {
             return;
         }
 
-        let progress: number[] = [];
-        let onProgress2 = function (index: number) {
-            return function (finished: number, total: number) {
-                progress[index] = finished / total;
-                let totalProgress = 0;
-                for (const v of progress) {
-                    totalProgress += (v || 0);
-                }
-                onProgress && onProgress(totalProgress, list.length);
-            }
-        }
-
-        let result: T[] = [];
+        let promises: Promise<T>[] = []
         for (let i = 0; i < list.length; i++) {
             const assetInfo = list[i];
-            let asset = await this.loadAsset(assetInfo.path, type, onProgress2(i));
-            result.push(asset);
+            promises.push(this.loadAsset(assetInfo.path, type));
         }
-        return result;
+        return await PromiseAll(promises, onProgress);
     }
 
     /** 加载远程资源 */

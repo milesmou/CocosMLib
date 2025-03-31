@@ -3,6 +3,28 @@
 import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 
 if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
+
+    //@ts-ignore
+    globalThis.PromiseAll = function <T>(promises: Promise<T>[], progress?: Progress) {
+        return new Promise((resolve, reject) => {
+            let results: T[] = [];
+            let completedCount = 0;
+            if (promises.length === 0) {
+                resolve(results);
+            }
+            promises.forEach((promise, index) => {
+                Promise.resolve(promise).then(value => {
+                    results[index] = value;
+                    completedCount++;
+                    progress && progress(completedCount, promises.length);
+                    if (completedCount == promises.length) {
+                        resolve(results);
+                    }
+                }).catch(reject);
+            });
+        });
+    }
+
     Object.defineProperty(Array.prototype, "first", {
         get: function () {
             let self: any[] = this;
@@ -214,6 +236,9 @@ declare global {
     /** 无返回值的方法声明 */
     type Action<T1 = undefined, T2 = undefined, T3 = undefined, T4 = undefined, T5 = undefined> = (arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4, arg5?: T5) => void;
 
+    /** 建立一个所有异步操作都完成的异步操作 */
+    const PromiseAll: <T>(promises: Promise<T>[], progress?: Progress) => Promise<T[]>;
+
     interface Number {
         /** 
          * 保留指定小数位数(丢弃多余的小数位数)
@@ -325,4 +350,6 @@ declare global {
          */
         toArray(): T[];
     }
+
+
 }

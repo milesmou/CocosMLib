@@ -10,15 +10,16 @@ export class AssetComponent extends Component {
     private _cache: Map<string, Asset> = new Map();
 
     protected onDestroy() {
-        this.decRefCount();
+        // this.decRefCount();
     }
 
     private decRefCount() {
         this._cache.forEach((v, k) => {
             if (v?.isValid) {
-                AssetMgr.decRef(k, 1);
+                AssetMgr.decRef(k);
             }
         });
+        this._cache.clear();
     }
 
     public async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress): Promise<T> {
@@ -26,8 +27,8 @@ export class AssetComponent extends Component {
         let asset = this._cache.get(cacheKey);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadAsset(location, type, onProgress);
-        if (!this.isValid) {
-            AssetMgr.decRef(cacheKey);
+        if (!this.isValid) {//资源未加载完,界面已被销毁
+            // AssetMgr.decRef(cacheKey);  可能引起渲染失败卡死
             return null;
         }
         if (asset?.isValid) this._cache.set(cacheKey, asset);
@@ -38,8 +39,8 @@ export class AssetComponent extends Component {
         let asset = this._cache.get(url);
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset(url);
-        if (!this.isValid) {
-            AssetMgr.decRef(url);
+        if (!this.isValid) {//资源未加载完,界面已被销毁
+            // AssetMgr.decRef(url); 可能引起渲染失败卡死
             return null;
         }
         if (asset?.isValid) this._cache.set(url, asset);
@@ -49,7 +50,7 @@ export class AssetComponent extends Component {
     public async loadRemoteSpriteFrame(url: string) {
         let img = await this.loadRemoteAsset<ImageAsset>(url);
         if (img) {
-            return SpriteFrame.createWithImage(img as ImageAsset);
+            return SpriteFrame.createWithImage(img);
         }
         return null;
     }

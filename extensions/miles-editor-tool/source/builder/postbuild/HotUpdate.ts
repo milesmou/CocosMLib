@@ -1,12 +1,14 @@
 
-import { IBuildResult, IBuildTaskOption } from "@cocos/creator-types/editor/packages/builder/@types/public";
 import fs from "fs-extra";
 import path from "path";
-import { Logger } from "../../tools/Logger";
+import { IBuildResult, IBuildTaskOption } from "../../../@cocos/creator-types/editor/packages/builder/@types";
 import { Utils } from "../../tools/Utils";
+import { BuildLogger } from "../BuildLogger";
 import { HotUpdateConfig } from "./HotUpdateConfig";
 import { MainJsCode } from "./MainJsCode";
 import { VersionGenerator } from "./VersionGenerator";
+
+const tag = "[HotUpdate]";
 
 /** 原生平台检查构建配置和修改main.js */
 export class HotUpdate {
@@ -19,16 +21,16 @@ export class HotUpdate {
         let dataDir = path.join(result.dest, 'data');
 
         if (options.md5Cache) {
-            Logger.error("启用热更时应当关闭MD5缓存")
+            BuildLogger.error(tag, "启用热更时应当关闭MD5缓存");
         }
 
         //修改main.js 中的搜索路径
         let mainjs = path.join(dataDir, 'main.js');
         if (fs.existsSync(mainjs)) {
             let content = fs.readFileSync(mainjs, { encoding: "utf8" });
-            content = MainJsCode.insertCode + "\n" + content;
+            content = MainJsCode.insertCode.replace("%version%", HotUpdateConfig.mainVersion) + "\n" + content;
             fs.writeFileSync(mainjs, content, { encoding: "utf8" });
-            Logger.info("修改热更搜索路径完成");
+            BuildLogger.info(tag, "修改搜索路径完成");
         }
     }
 
@@ -36,7 +38,7 @@ export class HotUpdate {
     public static replaceManifest(options: IBuildTaskOption, result: IBuildResult) {
         let oldManifest = Utils.ProjectPath + "/assets/project.manifest";
         if (!fs.existsSync(oldManifest)) {
-            Logger.warn("assets/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
+            BuildLogger.warn(tag, "assets/project.manifest文件不存在,请导入文件后重新打包,如不需要热更请忽略");
             return;
         }
         let fileUuid = fs.readJSONSync(oldManifest + ".meta")?.uuid;
@@ -52,12 +54,12 @@ export class HotUpdate {
             })[0];
             if (oldManifest) {
                 fs.copyFileSync(newManifest, oldManifest);
-                Logger.info(`替换热更资源清单文件成功`, path.basename(oldManifest));
+                BuildLogger.info(tag, `替换热更资源清单文件成功`, path.basename(oldManifest));
             } else {
-                Logger.error(`替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
+                BuildLogger.error(tag, `替换热更资源清单文件失败 未在构建的工程中找到清单文件`);
             }
         } else {
-            Logger.error(`替换热更资源清单文件失败`);
+            BuildLogger.error(tag, `替换热更资源清单文件失败`);
         }
     }
 
@@ -75,12 +77,12 @@ export class HotUpdate {
                 fs.copySync(data + '/jsb-adapter', dest + "/jsb-adapter");
                 fs.copySync(dest + '/project.manifest', Utils.ProjectPath + "/assets/project.manifest");
                 Utils.refreshAsset(Utils.ProjectPath + "/assets/project.manifest");
-                Logger.info(`生成热更资源完成 ${dest}`);
+                BuildLogger.info(`生成热更资源完成 ${dest}`);
             } else {
-                Logger.error(`生成热更资源失败`);
+                BuildLogger.error(`生成热更资源失败`);
             }
         } catch (e) {
-            Logger.error(`生成热更资源失败 ${e}`);
+            BuildLogger.error(`生成热更资源失败 ${e}`);
         }
 
     }
@@ -94,23 +96,23 @@ export class HotUpdate {
         let url = HotUpdateConfig.url;
         let version = HotUpdateConfig.version;
         if (!url || !version) {
-            Logger.warn(`热更配置不正确,若需要使用热更,请先检查热更配置`);
+            BuildLogger.warn(`热更配置不正确,若需要使用热更,请先检查热更配置`);
         }
         if (!buildPath) {
-            Logger.info(`请先构建一次Native工程 再生成热更资源`);
+            BuildLogger.info(`请先构建一次Native工程 再生成热更资源`);
             return false;
         }
         let data = Utils.toUniSeparator(path.join(buildPath, 'data'));
         if (!normalBuild) {
-            Logger.info(`url=${url}`)
-            Logger.info(`version=${version}`)
-            Logger.info(`data=${data}`)
-            Logger.info(`dest=${dest}`)
+            BuildLogger.info(`url=${url}`)
+            BuildLogger.info(`version=${version}`)
+            BuildLogger.info(`data=${data}`)
+            BuildLogger.info(`dest=${dest}`)
         }
         try {
             VersionGenerator.gen(url, version, data, dest);
         } catch (e) {
-            Logger.error(e);
+            BuildLogger.error(e);
             return false;
         }
         return true;

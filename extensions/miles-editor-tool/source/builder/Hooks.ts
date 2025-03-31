@@ -1,52 +1,56 @@
-import { BuildHook, IBuildResult, IBuildTaskOption } from "@cocos/creator-types/editor/packages/builder/@types/public";
-import { BuildTemplate } from './postbuild/BuildTemplate';
+import { BuildHook, IBuildResult, IBuildTaskOption } from '../../@cocos/creator-types/editor/packages/builder/@types';
+import { Config } from "../tools/Config";
+import { Utils } from '../tools/Utils';
+import { BuildLogger } from './BuildLogger';
+import { BuildConfig } from './postbuild/BuildConfig';
 import { HotUpdate } from './postbuild/HotUpdate';
 import { Minigame } from './postbuild/Minigame';
-import { Config } from "../tools/Config";
-import { Logger } from '../tools/Logger';
-import { Utils } from '../tools/Utils';
 
+const tag = "[Build]";
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    Logger.info("build options", JSON.stringify(options));
-    Logger.info("onBeforeBuild");
 };
 
 export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    Logger.info('onBeforeCompressSettings');
 };
 
 export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    Logger.info('onAfterCompressSettings');
 };
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
-    Logger.info("onAfterBuild");
-    BuildTemplate.copy(options, result);
+    BuildLogger.info(tag, "后处理开始");
+    BuildConfig.execute(options, result);
     if (Utils.isNative(options.platform)) {
         /** 是否启用热更 */
         let hotupdateEnable = Config.get("gameSetting.hotupdate", false);
-        Logger.info('hotupdateEnable', hotupdateEnable);
+        BuildLogger.info(tag, 'hotupdateEnable', hotupdateEnable);
         if (hotupdateEnable) {
             HotUpdate.modifyJsFile(options, result);
             HotUpdate.replaceManifest(options, result);
         }
     }
-    Minigame.modifyServer(options, result);
+    if (Utils.isMinigame(options.platform)) {
+        if (!options.md5Cache) {
+            BuildLogger.warn(tag, "小游戏建议开启Md5Cache");
+        }
+        await Minigame.modifyServer(options, result);
+        await Minigame.uploadToAliOss(options, result);
+    }
+    BuildLogger.info(tag, "后处理结束");
 };
 
 export const onError: BuildHook.onError = async function (options, result) {
     // Todo some thing
-    Logger.info("run onError");
 };
 
 export const onBeforeMake: BuildHook.onBeforeMake = async function (root, options) {
-    Logger.info(`onBeforeMake: root: ${root}, options: ${options}`);
+    // Todo some thing
 };
 
 export const onAfterMake: BuildHook.onAfterMake = async function (root, options) {
-    Logger.info(`onAfterMake: root: ${root}, options: ${options}`);
+    // Todo some thing
 };
+

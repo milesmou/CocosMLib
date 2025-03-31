@@ -4,13 +4,10 @@ import { Leaderboard, MResponse, ReqWXBizData, ReqWxMsgSecCheck, RspAnnouncement
 
 export class MCloudDataSDK {
 
-
-    private static readonly Host = "https://zq.zqygame.com/gweb";
-
-    private static readonly GameDataUrl = `${this.Host}/gamedata`;
-    private static readonly GmDataUrl = `${this.Host}/gmdata`;
-    private static readonly EmailUrl = `${this.Host}/email`;
-    private static readonly EventUrl = `${this.Host}/gameevent/reportevt`;
+    private static get GameDataUrl() { return `${mGameSetting.serverUrl}/gamedata`; }
+    private static get GmDataUrl() { return `${mGameSetting.serverUrl}/gmdata`; }
+    private static get EmailUrl() { return `${mGameSetting.serverUrl}/email`; }
+    private static get EventUrl() { return `${mGameSetting.serverUrl}/gameevent/reportevt`; }
 
     /** 用户数据云存档保存Key */
     private static readonly playerGameDataCloudSaveKey = "UserGameData";
@@ -81,7 +78,7 @@ export class MCloudDataSDK {
 
     /** 获取最新公告 */
     public static async getAnnouncement() {
-        let url = this.Host + `/announcement/${mGameSetting.gameCode}/get_announcement`;
+        let url = mGameSetting.serverUrl + `/announcement/${mGameSetting.gameCode}/get_announcement`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspAnnouncement>;
         if (result?.code == 0) {
             return result.data;
@@ -93,7 +90,7 @@ export class MCloudDataSDK {
 
     /** 更新排行榜分数 */
     public static async updateLeaderboard(leaderboardName: string, leaderboard: Leaderboard) {
-        let url = this.Host + `/leaderboard/${mGameSetting.gameCode}/update_leaderboard?leaderboardName=${leaderboardName}`;
+        let url = mGameSetting.serverUrl + `/leaderboard/${mGameSetting.gameCode}/update_leaderboard?leaderboardName=${leaderboardName}`;
         let result = await HttpRequest.requestObject(url, { method: "POST", data: leaderboard }) as MResponse;
         if (result?.code == 0) {
             return true;
@@ -105,7 +102,7 @@ export class MCloudDataSDK {
 
     /** 获取排行榜 */
     public static async getLeaderboards(leaderboardName: string, count: number) {
-        let url = this.Host + `/leaderboard/${mGameSetting.gameCode}/get_leaderboards?leaderboardName=${leaderboardName}&count=${count}`;
+        let url = mGameSetting.serverUrl + `/leaderboard/${mGameSetting.gameCode}/get_leaderboards?leaderboardName=${leaderboardName}&count=${count}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<Leaderboard[]>;
         if (result?.code == 0) {
             return result.data;
@@ -117,14 +114,14 @@ export class MCloudDataSDK {
 
     /** 兑换码校验 (code: 0成功 -1失败不存在 501未到兑换时间 502已过期) (data: 兑换成功后的奖励) */
     public static async verifyRedeemcode(redeemCode: string) {
-        let url = this.Host + `/redeemcode/${mGameSetting.gameCode}/verify_redeemcode?redeemCode=${redeemCode}`;
+        let url = mGameSetting.serverUrl + `/redeemcode/${mGameSetting.gameCode}/verify_redeemcode?redeemCode=${redeemCode}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<string>;
         return result;
     }
 
     /** 微信小游戏敏感词检测 */
     public static async wxMsgSecCheck(reqData: ReqWxMsgSecCheck) {
-        let url = this.Host + `/wechatgame/msg_sec_check?gameCode=${mGameSetting.gameCode}`;
+        let url = mGameSetting.serverUrl + `/wechatgame/msg_sec_check?gameCode=${mGameSetting.gameCode}`;
         let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse<RspWxMsgSecCheck>;
         if (result?.code == 0) {
             return result.data;
@@ -139,7 +136,7 @@ export class MCloudDataSDK {
      * @param code wx.login获取的code
      */
     public static async wxLogin(code: string) {
-        let url = this.Host + `/wechatgame/login?gameCode=${mGameSetting.gameCode}&code=${code}`;
+        let url = mGameSetting.serverUrl + `/wechatgame/login?gameCode=${mGameSetting.gameCode}&code=${code}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RsqWxLogin>;
         if (result?.code == 0) {
             return result.data;
@@ -153,7 +150,7 @@ export class MCloudDataSDK {
      * 微信小游戏解密敏感数据
      */
     public static async wxDecryptBizdata(reqData: ReqWXBizData) {
-        let url = this.Host + `/wechatgame/decrypt_bizdata?gameCode=${mGameSetting.gameCode}`;
+        let url = mGameSetting.serverUrl + `/wechatgame/decrypt_bizdata?gameCode=${mGameSetting.gameCode}`;
         let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse<RspWXBizData>;
         if (result?.code == 0) {
             return result.data;

@@ -31,7 +31,7 @@ export class UIGuide extends UIComponent {
 
     public static Inst: UIGuide;
 
-    private _logger = mLogger.new("Guide", ELoggerLevel.Debug);
+    private _logger = mLogger.new("Guide", ELoggerLevel.Info);
 
     private get mask() { return this.rc.get("Mask", GuideMask); }
     private get ring() { return this.rc.get("Ring", Node); }
@@ -122,9 +122,9 @@ export class UIGuide extends UIComponent {
         app.chan.reportEvent(mReportEvent.GuideStep, { guideId: data.GuideID + "_" + data.StepId });
         //数数打点
         app.chan.reportEvent(mReportEvent.GuideStep, { GuideStep_Id: data.GuideID + "_" + data.StepId }, "SS");
-        mLogger.debug("----------打点顺序整理KIN--------------" + "7新手引导停留" + data.GuideID + "_" + data.StepId);
+        mLogger.debug("----------新玩家登陆流程KIN--------------" + "17过了新手引导" + data.GuideID + "_" + data.StepId);
         // 广点通打点
-        if (GameTool.isZQYMiniGame) {
+        if (GameTool.isWXZQYMiniGame) {
             GameSdk.BI.reportZqyWxInvestSdk('onTutorialFinish');
         }
         if (this._dataIndex == this._guideData.length - 1) {
@@ -223,6 +223,9 @@ export class UIGuide extends UIComponent {
         }
         this._logger.debug();
         this._logger.debug("---------开始引导步骤", this._guideId, this.stepId);
+        //开始引导SS打点
+        app.chan.reportEvent(mReportEvent.GuideStepEnter, { GuideStep_Id: this._guideId + "_" + this.stepId }, "SS");
+        mLogger.debug("----------新玩家登陆流程KIN--------------" + "17显示新手引导" + this._guideId + "_" + this.stepId);
         let guide = this._guideData[this._dataIndex];
 
         app.ui.blockTime = 99999;
@@ -322,6 +325,7 @@ export class UIGuide extends UIComponent {
         this._logger.debug("加载预制体", guide.Prefab);
 
         if (!prefabNode?.isValid) {
+            this.prefabParent.active = true;
             let prefab = await AssetMgr.loadAsset("prefab/guide/" + guide.Prefab, Prefab);
             prefabNode = instantiate(prefab);
             prefabNode.parent = this.prefabParent;
@@ -343,6 +347,7 @@ export class UIGuide extends UIComponent {
             this.prefabParent.destroyAllChildren();
             AssetMgr.decRef("prefab/guide/" + nodeName);
         }
+        this.prefabParent.active = false;
     }
 
 

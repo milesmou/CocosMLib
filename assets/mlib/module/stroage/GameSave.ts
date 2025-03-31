@@ -4,12 +4,10 @@ import { TaskItemSO } from "../../misc/PlayerTask";
 import { Utils } from "../../utils/Utils";
 import { LocalStorage } from "./LocalStorage";
 
-/** 游戏数据存档基类 */
+
+/** 游戏数据存档基类(存档的Key使用游戏名字) */
 export abstract class GameSave {
 
-    public abstract readonly name: string;
-    /** 存档描述(多存档时使用) */
-    public desc = "";
     /** 准备延迟存档,忽略其它存档请求 */
     private _readySave = false;
     /** 自增uid */
@@ -18,8 +16,6 @@ export abstract class GameSave {
     private _createDate = 0;
     /** 上一次重置每日数据日期 */
     private _date = 0;
-    /** 替换本地存档时的处理 */
-    private _onReplaceGameData: () => void;
 
     /** 自增且唯一的UID */
     public get newUid() {
@@ -50,11 +46,6 @@ export abstract class GameSave {
 
     /** 标记存档 */
     public flag: { [key: string]: string } = {};
-
-
-    public constructor(onReplaceGameData: () => void) {
-        this._onReplaceGameData = onReplaceGameData;
-    }
 
     /**
      * 初始化
@@ -87,7 +78,7 @@ export abstract class GameSave {
     public delaySave() {
         if (!this._readySave) {
             this._readySave = true;
-            tween(this).delay(0.05).call(() => {
+            tween(GameSave).delay(0.05).call(() => {
                 this._readySave = false;
                 this.save();
             }).start();
@@ -105,13 +96,16 @@ export abstract class GameSave {
         return LZString.compressToBase64(str);
     }
 
+    /** 字典或数组集合的元素的key的后缀 */
+    private static readonly collectionItemSuffix = "$item";
+
     /** 替换本地存档 */
-    public replaceGameData(strData: string) {
+    public static replaceGameData(strData: string) {
         if (!strData) {
             mLogger.warn("存档数据为空");
             return;
         }
-        Tween.stopAllByTarget(this);
+        Tween.stopAllByTarget(GameSave);
         let decStrData: string = strData;
         if (!strData.startsWith("{")) {
             decStrData = LZString.decompressFromBase64(strData);
@@ -120,20 +114,15 @@ export abstract class GameSave {
             mLogger.warn("存档解压失败!")
             return;
         }
-        LocalStorage.setValue(this.name, decStrData);
+        LocalStorage.setValue(mGameSetting.gameName, decStrData);
         GameSave.updateSaveTime();
-        this._onReplaceGameData && this._onReplaceGameData();
     }
 
     /** 清除本地存档 */
-    public clearGameData() {
-        LocalStorage.removeValue(this.name);
+    public static clearGameData() {
+        LocalStorage.removeValue(mGameSetting.gameName);
         GameSave.updateSaveTime();
-        this._onReplaceGameData && this._onReplaceGameData();
     }
-
-    /** 字典或数组集合的元素的key的后缀 */
-    private static readonly collectionItemSuffix = "$item";
 
     /** 获取存档时间 毫秒 */
     public static getSaveTime() {
@@ -151,7 +140,7 @@ export abstract class GameSave {
     public static deserialize<T extends GameSave>(inst: T): T {
         Reflect.defineProperty(inst, "name", { enumerable: false });
         Reflect.defineProperty(inst, "_readySave", { enumerable: false });
-        let name = inst.name;
+        let name = mGameSetting.gameName;
         let jsonStr = LocalStorage.getValue(name, "");
         if (jsonStr) {
             try {
@@ -168,14 +157,14 @@ export abstract class GameSave {
 
     /** 将数据写入到本地存档中 */
     private static serialize<T extends GameSave>(inst: T) {
-        let name = inst.name;
+        let name = mGameSetting.gameName;
         let jsonStr = this.getSerializeStr(inst);
         LocalStorage.setValue(name, jsonStr);
     }
 
     /** 获取存档序列化后的字符串 */
     private static getSerializeStr<T extends GameSave>(inst: T) {
-        return JSON.stringify(inst, function (key, value) {
+        return JSON.stringify(inst, (key, value) => {
             if (key.startsWith("__")) return;
             if (key.endsWith(this.collectionItemSuffix)) return;
             return value;

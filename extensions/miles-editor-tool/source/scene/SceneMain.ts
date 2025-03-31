@@ -59,7 +59,6 @@ function sceneconnectListener(event: WatchEventType, filename: string) {
                 }
             }
             fs.writeJSONSync(Constant.SceneConnectFilePath, {});
-
         } catch (e) {
             Logger.error(e);
         }

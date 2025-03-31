@@ -1,3 +1,4 @@
+import { sys } from "cc";
 import { ELoggerLevel } from "./ELoggerLevel";
 
 const globalTag = "MLogger";
@@ -27,10 +28,17 @@ class MLogger {
 
     public static setLevel(level: ELoggerLevel) {
         globalLevel = level;
-        this.debug = level > ELoggerLevel.Debug ? none : console.log.bind(console, `%c[${globalTag} Debug]`, debugStyle);
-        this.info = level > ELoggerLevel.Info ? none : console.log.bind(console, `%c[${globalTag} Info]`, infoStyle);
-        this.warn = level > ELoggerLevel.Warn ? none : console.warn.bind(console, `%c[${globalTag} Warn]`, warnStyle);
-        this.error = level > ELoggerLevel.Error ? none : console.error.bind(console, `%c[${globalTag} Error]`, errorStyle);
+        if (sys.isBrowser) {
+            this.debug = level > ELoggerLevel.Debug ? none : console.log.bind(console, `%c[${globalTag} Debug]`, debugStyle);
+            this.info = level > ELoggerLevel.Info ? none : console.log.bind(console, `%c[${globalTag} Info]`, infoStyle);
+            this.warn = level > ELoggerLevel.Warn ? none : console.warn.bind(console, `%c[${globalTag} Warn]`, warnStyle);
+            this.error = level > ELoggerLevel.Error ? none : console.error.bind(console, `%c[${globalTag} Error]`, errorStyle);
+        } else {
+            this.debug = level > ELoggerLevel.Debug ? none : console.log.bind(console, `[${globalTag} Debug]`);
+            this.info = level > ELoggerLevel.Info ? none : console.log.bind(console, `[${globalTag} Info]`);
+            this.warn = level > ELoggerLevel.Warn ? none : console.warn.bind(console, `[${globalTag} Warn]`,);
+            this.error = level > ELoggerLevel.Error ? none : console.error.bind(console, `[${globalTag} Error]`);
+        }
     }
 
     public static debug: (...data) => void;

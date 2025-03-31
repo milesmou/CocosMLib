@@ -1,4 +1,4 @@
-import { _decorator, sys } from 'cc';
+import { _decorator, game, sys } from 'cc';
 import { StroageMap } from '../module/stroage/StroageMap';
 import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
@@ -16,8 +16,24 @@ export class Channel {
     /** 设备震动开关 */
     public vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
 
-    /** 是否非正式版 */
-    public get isTrial() { return false; }
+    protected mEnv: "dev" | "trial" | "release" = null;
+
+    /** 获取运行环境 */
+    public get env(): "dev" | "trial" | "release" {
+        return "dev";
+    }
+
+    /**
+     * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。
+     */
+    public getSafeAreaRect() {
+        return sys.getSafeAreaRect();
+    }
+
+    /** 重启游戏 */
+    public restartGame() {
+        game.restart();
+    }
 
     /** 初始化SDK */
     public initSDK() {
@@ -89,7 +105,7 @@ export class Channel {
     }
 
     /** 分享 */
-    public share(...args: any[]) {
+    public shareAppMessage(opts?: { args?: any[], success?: () => void, fail?: () => void }) {
 
     }
 
@@ -147,6 +163,66 @@ export class Channel {
     * @param callback 回调
     */
     public checkMessage(content: string, callback: (isPass: boolean) => void) {
+
+    }
+
+    /** 设置系统剪贴板内容 */
+    public setClipboard(data: string, success?: () => void, fail?: (errMsg: string) => void) {
+        if (!sys.isBrowser) return;
+        let fn = () => {
+            // 复制结果
+            let copyResult = true;
+            // 创建一个input元素
+            //@ts-ignore
+            let inputDom = document.createElement('textarea');
+            // 设置为只读 防止移动端手机上弹出软键盘  
+            inputDom.setAttribute('readonly', 'readonly');
+            // 给input元素赋值
+            inputDom.value = data;
+            // 将创建的input添加到body
+            //@ts-ignore
+            document.body.appendChild(inputDom);
+            // 选中input元素的内容
+            inputDom.select();
+            // 执行浏览器复制命令
+            // 复制命令会将当前选中的内容复制到剪切板中（这里就是创建的input标签中的内容）
+            // Input要在正常的编辑状态下原生复制方法才会生效
+            //@ts-ignore
+            const result = document.execCommand('copy');
+            // 判断是否复制成功
+            if (result) {
+                success && success();
+            }
+            else {
+                // mLogger.debug('复制失败');
+                fail && fail("fail");
+                copyResult = false;
+            }
+            // 复制操作后再将构造的标签 移除
+            //@ts-ignore
+            document.body.removeChild(inputDom);
+            // 返回复制操作的最终结果
+            return copyResult;
+        };
+        // 复制结果
+        let copyResult = true;
+        // 判断是否支持clipboard方式
+        if (window.navigator.clipboard) {
+            // 利用clipboard将文本写入剪贴板（这是一个异步promise）
+            window.navigator.clipboard.writeText(data).then((res) => {
+                success && success();
+                return copyResult;
+            }).catch((err) => {
+                fn();
+            });
+        }
+        else {
+            fn();
+        }
+    }
+
+    /** 获取系统剪贴板内容 */
+    public getClipboard(success: (data: string) => void, fail?: (errMsg: string) => void) {
 
     }
 

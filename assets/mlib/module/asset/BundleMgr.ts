@@ -32,14 +32,12 @@ export class BundleMgr {
         let bundleVers = opts && opts.bundleVers;
         let onProgress = opts && opts.onProgress;
 
-        let bundles: AssetManager.Bundle[] = [];
+        let promises: Promise<AssetManager.Bundle>[] = [];
         for (let i = 0; i < bundleNames.length; i++) {
             let bundleName = bundleNames[i];
-            let bundle = await this.loadBundle(bundleName, bundleVers && bundleVers[bundleName]);
-            bundles.push(bundle);
-            onProgress && onProgress(i + 1, bundleNames.length);
+            promises.push(this.loadBundle(bundleName, bundleVers && bundleVers[bundleName]));
         }
-        return bundles;
+        return PromiseAll(promises, onProgress);
     }
 
     private getAssetKey<T extends Asset>(location: string, type: new (...args: any[]) => T) {

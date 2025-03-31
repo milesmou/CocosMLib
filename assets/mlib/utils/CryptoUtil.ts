@@ -4,9 +4,9 @@ export class CryptoUtil {
     private static secretKey = "0a980xjfap80szrz";//密钥必须是16位，且避免使用保留字符
 
     /** AES加密字符串并返回16进制字符串 */
-    public static AesEncryptHex(str: string, secretKey?: string) {
+    public static AesEncryptHex(message: string, secretKey?: string) {
         let key = CryptoJS.enc.Utf8.parse(secretKey || this.secretKey);
-        let encryptedData = CryptoJS.AES.encrypt(str, key, {
+        let encryptedData = CryptoJS.AES.encrypt(message, key, {
             mode: CryptoJS.mode.ECB,
             padding: CryptoJS.pad.Pkcs7
         });
@@ -14,9 +14,9 @@ export class CryptoUtil {
     }
 
     /** AES解密16进制字符串 */
-    public static AesDecryptHex(str: string, secretKey?: string) {
+    public static AesDecryptHex(message: string, secretKey?: string) {
         let key = CryptoJS.enc.Utf8.parse(secretKey || this.secretKey);
-        let encryptedHexStr = CryptoJS.enc.Hex.parse(str);
+        let encryptedHexStr = CryptoJS.enc.Hex.parse(message);
         let encryptedBase64Str = CryptoJS.enc.Base64.stringify(encryptedHexStr);
         let decryptedData = CryptoJS.AES.decrypt(encryptedBase64Str, key, {
             mode: CryptoJS.mode.ECB,
@@ -25,4 +25,7 @@ export class CryptoUtil {
         return decryptedData.toString(CryptoJS.enc.Utf8);
     }
 
+    public static SHA256Hmac(message: string, secretKey: string) {
+        return CryptoJS.HmacSHA256(message, secretKey).toString(CryptoJS.enc.Hex);
+    }
 }
