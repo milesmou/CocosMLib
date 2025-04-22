@@ -49,6 +49,7 @@ export class TimerComponent extends Component {
     public pause() {
         this._pause = true;
         this.refresh();
+
     }
 
     public resume() {
@@ -61,10 +62,10 @@ export class TimerComponent extends Component {
      * 
      * 添加到统一管理后，请通过返回值的setSelfTimeScale方法调整自身速度
      */
-    public add<T>(target: Tween<T>): TimerTween<T>;
+    public add<T extends object = any>(target: Tween<T>): TimerTween<T>;
     public add(target: Animation): TimerAnimation;
     public add(target: sp.Skeleton): TimerSpine;
-    public add<T>(target: Tween<T> | Animation | sp.Skeleton) {
+    public add<T extends object = any>(target: Tween<T> | Animation | sp.Skeleton) {
         if (!target) return;
         let timerObject: TimerObject;
         if (target instanceof Tween) {
@@ -86,7 +87,7 @@ export class TimerComponent extends Component {
     /** 
      * 移除对象 还原为播放速度
      */
-    public deleteByTarget<T>(obj: Tween<T> | Animation | sp.Skeleton) {
+    public deleteByTarget<T extends object = any>(obj: Tween<T> | Animation | sp.Skeleton) {
         if (!obj) return;
         for (const timerObj of this._timerObjs) {
             if (timerObj.target == obj) {
@@ -220,7 +221,7 @@ export class TimerComponent extends Component {
             v.totalDt += realDt;
             v.onRatio && v.onRatio(v.totalDt / v.delay);
             if (v.totalDt >= v.delay) {
-                v.callback(v.totalDt);
+                v.callback.call(v.thisObj, v.totalDt);
                 this._onceSchedules.delete(v);
             }
         });

@@ -22,13 +22,14 @@ export class UnionProgress {
     }
 
     /** 获取一个加载项的进度回调方法 */
-    public getOnProgress(key: string) {
+    public getOnProgress(key: string, debug = false) {
         return (loaded: number, total: number) => {
             this._loadProgress.set(key, loaded / total);
             let totalProgress = 0;
             for (const v of this._loadProgress.values()) {
                 totalProgress += (v || 0);
             }
+            if (debug) mLogger.debug(`${key}:${loaded}/${total}`)
             this._onProgress(totalProgress, this._loadItemNum);
         }
     }
