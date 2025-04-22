@@ -35,6 +35,7 @@ export class ReferenceCollector extends Component {
     private get nodes() { return this._nodes; }
     private set nodes(val: CollectorNodeData[]) { this._nodes = val; }
 
+    private _isInitNodeMap = false;
     private _nodeMap: Map<string, Node> = new Map();
 
     protected onLoad(): void {
@@ -46,6 +47,8 @@ export class ReferenceCollector extends Component {
     }
 
     private initNodeMap() {
+        if (this._isInitNodeMap) return;
+        this._isInitNodeMap = true;
         this._nodeMap.clear();
         for (const collectorNodeData of this.nodes) {
             let key = collectorNodeData.key.trim();
@@ -58,12 +61,14 @@ export class ReferenceCollector extends Component {
     }
 
     public getNode(key: string) {
+        if (this._nodeMap.size == 0) this.initNodeMap();
         return this._nodeMap.get(key);
     }
 
     public get(key: string, type: typeof Node): Node;
     public get<T extends Component>(key: string, type: new (...args: any[]) => T): T;
     public get(key: string, type: any): any {
+        if (this._nodeMap.size == 0) this.initNodeMap();
         let node = this._nodeMap.get(key);
         if (node?.isValid) {
             if (type as any === Node) {
