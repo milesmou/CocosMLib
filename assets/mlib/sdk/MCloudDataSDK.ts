@@ -5,6 +5,7 @@ import { Leaderboard, MResponse, ReqWXBizData, ReqWxMsgSecCheck, RspAnnouncement
 export class MCloudDataSDK {
 
     private static get GameDataUrl() { return `${mGameSetting.serverUrl}/gamedata`; }
+    private static get PurchaseUrl() { return `${mGameSetting.serverUrl}/purchase`; }
     private static get GmDataUrl() { return `${mGameSetting.serverUrl}/gmdata`; }
     private static get EmailUrl() { return `${mGameSetting.serverUrl}/email`; }
     private static get EventUrl() { return `${mGameSetting.serverUrl}/gameevent/reportevt`; }
@@ -62,7 +63,31 @@ export class MCloudDataSDK {
         return result;
     }
 
+    /** 查询支付订单是否存在 */
+    public static async queryOrder(uid: string, gameOrderId: string) {
+        let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/queryorder?uid=${uid}&gameOrderId=${gameOrderId}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<boolean>;
+        return result?.data;
+    }
 
+    /** 查询所有未完成的订单(返回商品id数组) */
+    public static async queryUnfinishedOrder(uid: string) {
+        let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/queryunfinishedorder?uid=${uid}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<string[]>;
+        if (result?.code == 0) {
+            return result.data;
+        }
+        return null;
+    }
+
+    /** 
+     * 完成指定未完成的订单
+     * @param productIds 多个商品id通过|隔开 all表示完成所有未完成订单
+     */
+    public static async finishOrder(uid: string, productIds: string) {
+        let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/finishorder?uid=${uid}&productIds=${productIds}`;
+        await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
+    }
 
     /** 获取玩家所有的邮件 */
     public static async getEmails(uid: string) {

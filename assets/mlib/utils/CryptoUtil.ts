@@ -25,7 +25,13 @@ export class CryptoUtil {
         return decryptedData.toString(CryptoJS.enc.Utf8);
     }
 
+    /** SHA256加密并返回16进制字符串 */
     public static SHA256Hmac(message: string, secretKey: string) {
         return CryptoJS.HmacSHA256(message, secretKey).toString(CryptoJS.enc.Hex);
+    }
+
+    /** 获取字符串的MD5值 */
+    public static MD5(message: string) {
+        return CryptoJS.MD5(message).toString(CryptoJS.enc.Hex);
     }
 }
