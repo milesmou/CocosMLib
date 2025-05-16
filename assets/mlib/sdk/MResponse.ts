@@ -81,8 +81,22 @@ export interface ReqWxMsgSecCheck {
     content: string;
 }
 
-/** 敏感词检测响应数据 */
-export interface RspWxMsgSecCheck {
+/** 头像检测请求数据 */
+export interface ReqWxMediaSecCheck {
+    /** 为避免其它地方获取的accessToken失效,可以选择复用 */
+    accessToken?: string;
+    /**  用户的openid（用户需在近两小时访问过小程序） */
+    openid: string;
+    /** 场景枚举值:1 资料;2 评论;3 论坛;4 社交日志;5 聊天 */
+    scene: number;
+    /** 需检测的图片 url，支持图片格式包括 jpg, jepg, png 等 */
+    media_url: string;
+    /** 媒体类型: 固定填 2 图片 */
+    media_type: number;
+}
+
+/** 微信安全检测响应数据 */
+export interface RspWxSecCheck {
     /** 错误码 0:成功 */ //其它参考https://developers.weixin.qq.com/minigame/dev/api-backend/open-api/sec-check/security.msgSecCheck.html#method-http
     errcode: number;
     /** 错误信息 */
@@ -90,7 +104,7 @@ export interface RspWxMsgSecCheck {
     /** 综合结果 */
     result: {
         /** 有risky(拦截)、pass(通过)、review(可疑)三种值 */
-        suggest: string,
+        suggest: "risky" | "pass" | "review",
         /** 命中标签枚举值:100正常;10001营销广告;20001时政;20002色情;20003辱骂;20006违法犯罪;20012低俗;21000其他 */
         label: number
     }

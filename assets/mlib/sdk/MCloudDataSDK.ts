@@ -1,6 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { Leaderboard, MResponse, ReqWXBizData, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspWXBizData, RspWxMsgSecCheck, RsqWxLogin } from "./MResponse";
+import { Leaderboard, MResponse, ReqWXBizData, ReqWxMediaSecCheck, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspWXBizData, RspWxSecCheck, RsqWxLogin } from "./MResponse";
 
 export class MCloudDataSDK {
 
@@ -147,7 +147,19 @@ export class MCloudDataSDK {
     /** 微信小游戏敏感词检测 */
     public static async wxMsgSecCheck(reqData: ReqWxMsgSecCheck) {
         let url = mGameSetting.serverUrl + `/wechatgame/msg_sec_check?gameCode=${mGameSetting.gameCode}`;
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse<RspWxMsgSecCheck>;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse<RspWxSecCheck>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    /** 微信小游戏图片检测 */
+    public static async wxMediaSecCheck(reqData: ReqWxMediaSecCheck) {
+        let url = mGameSetting.serverUrl + `/wechatgame/media_sec_check?gameCode=${mGameSetting.gameCode}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse<RspWxSecCheck>;
         if (result?.code == 0) {
             return result.data;
         } else {

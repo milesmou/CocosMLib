@@ -162,7 +162,17 @@ export class Channel {
     * @param content 待检测内容
     * @param callback 回调
     */
-    public checkMessage(content: string, callback: (isPass: boolean) => void) {
+    public checkMsgSec(content: string, callback: (isPass: boolean) => void) {
+
+    }
+
+    /**
+    * 敏感图片检测
+    * @param mediaUrl 需检测的图片url
+    * @param mediaType 媒体类型
+    * @param callback 回调
+    */
+    public checkMediaSec(content: { mediaUrl: string, mediaType?: number }, callback: (isPass: boolean) => void) {
 
     }
 
