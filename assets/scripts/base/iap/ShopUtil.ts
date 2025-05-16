@@ -1,6 +1,5 @@
 import { EIAPResult, SDKCallback } from "../../../mlib/sdk/MSDKWrapper";
 import { ProductDetail } from "./ProductDetail";
-// import UIWait from "../ui/UIWait";
 
 
 
@@ -9,9 +8,10 @@ export class ShopUtil {
 
     private static isInit;
 
-    public static init() {
+    /** 脚本加载时自动执行 */
+    protected static init = (() => {
         SDKCallback.initInAppPurchase = this.initPurchase.bind(this);
-    }
+    })();
 
     /** 请在合适的时机调用，可能会有延迟到账的商品 */
     private static initPurchase() {
