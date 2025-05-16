@@ -1,6 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { Leaderboard, MResponse, ReqWXBizData, ReqWxMediaSecCheck, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspWXBizData, RspWxSecCheck, RsqWxLogin } from "./MResponse";
+import { Leaderboard, MResponse, ReqWXBizData, ReqWxMediaSecCheck, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspUnusedOrderInfo, RspWXBizData, RspWxSecCheck, RsqWxLogin } from "./MResponse";
 
 export class MCloudDataSDK {
 
@@ -73,7 +73,7 @@ export class MCloudDataSDK {
     /** 查询所有未完成的订单(返回商品id数组) */
     public static async queryUnfinishedOrder(uid: string) {
         let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/queryunfinishedorder?uid=${uid}`;
-        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<string[]>;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspUnusedOrderInfo[]>;
         if (result?.code == 0) {
             return result.data;
         }
@@ -82,10 +82,10 @@ export class MCloudDataSDK {
 
     /** 
      * 完成指定未完成的订单
-     * @param productIds 多个商品id通过|隔开 all表示完成所有未完成订单
+     * @param gameOrderIds 多个订单id通过|隔开 all表示完成所有未完成订单
      */
-    public static async finishOrder(uid: string, productIds: string) {
-        let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/finishorder?uid=${uid}&productIds=${productIds}`;
+    public static async finishOrder(uid: string, gameOrderIds: string) {
+        let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/finishorder?uid=${uid}&gameOrderIds=${gameOrderIds}`;
         await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
     }
 

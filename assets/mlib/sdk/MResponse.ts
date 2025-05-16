@@ -21,6 +21,14 @@ export interface RspGmData {
     createTime: number;
 }
 
+/** 内购未完成订单信息 */
+export interface RspUnusedOrderInfo {
+    /** 游戏自定义订单id */
+    gameOrderId: string;
+    /** 商品id */
+    productId: string;
+}
+
 /** 邮件数据 */
 export interface RspEmail {
     /** 唯一id */
