@@ -5,7 +5,7 @@ import { Leaderboard, MResponse, ReqWXBizData, ReqWxMediaSecCheck, ReqWxMsgSecCh
 export class MCloudDataSDK {
 
     private static get GameDataUrl() { return `${mGameSetting.serverUrl}/gamedata`; }
-    private static get PurchaseUrl() { return `${mGameSetting.serverUrl}/purchase`; }
+    private static get PurchaseUrl() { return `${mGameSetting.serverUrl}/${mGameSetting.gameCode}/purchase`; }
     private static get GmDataUrl() { return `${mGameSetting.serverUrl}/gmdata`; }
     private static get EmailUrl() { return `${mGameSetting.serverUrl}/email`; }
     private static get EventUrl() { return `${mGameSetting.serverUrl}/gameevent/reportevt`; }
@@ -65,14 +65,14 @@ export class MCloudDataSDK {
 
     /** 查询支付订单是否存在 */
     public static async queryOrder(uid: string, gameOrderId: string) {
-        let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/queryorder?uid=${uid}&gameOrderId=${gameOrderId}`;
+        let url = this.PurchaseUrl + `/queryorder?uid=${uid}&gameOrderId=${gameOrderId}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<boolean>;
         return result?.data;
     }
 
     /** 查询所有未完成的订单(返回商品id数组) */
-    public static async queryUnfinishedOrder(uid: string) {
-        let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/queryunfinishedorder?uid=${uid}`;
+    public static async queryUnusedOrder(uid: string) {
+        let url = this.PurchaseUrl + `/queryunusedorder?uid=${uid}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspUnusedOrderInfo[]>;
         if (result?.code == 0) {
             return result.data;
@@ -82,11 +82,12 @@ export class MCloudDataSDK {
 
     /** 
      * 完成指定未完成的订单
-     * @param gameOrderIds 多个订单id通过|隔开 all表示完成所有未完成订单
+     * @param gameOrderId 订单id 填all表示完成所有未完成订单
      */
-    public static async finishOrder(uid: string, gameOrderIds: string) {
-        let url = this.PurchaseUrl + `/${mGameSetting.gameCode}/finishorder?uid=${uid}&gameOrderIds=${gameOrderIds}`;
-        await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
+    public static async finishOrder(uid: string, gameOrderId: string) {
+        let url = this.PurchaseUrl + `/finishorder?uid=${uid}&gameOrderId=${gameOrderId}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
+        return result?.code == 0;
     }
 
     /** 获取玩家所有的邮件 */
