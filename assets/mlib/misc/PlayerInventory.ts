@@ -42,12 +42,12 @@ export class PlayerInventory {
 
 
     /** 获取奖励，添加到背包 */
-    public getReward(reawrds: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any, isEmit?: boolean }) {
+    public getReward(rewards: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any, isEmit?: boolean }) {
         let { multiple, tag, isEmit } = args || {};
         multiple = multiple || 1;
         isEmit = isEmit === undefined ? true : isEmit;
-        if (!reawrds || reawrds.length == 0) return
-        let items = this.formatItems(reawrds);
+        if (!rewards || rewards.length == 0) return
+        let items = this.formatItems(rewards);
         items = this.postParseRewards(items, tag);
         if (items.length > 0) {
             for (let item of items) {
@@ -60,13 +60,13 @@ export class PlayerInventory {
     }
 
     /**可重写 解析配置的奖励 部分奖励需要特殊处理(如掉落池之类) */
-    protected postParseRewards(reawrds: ItemInfo[], tag?: any) {
-        return reawrds;
+    protected postParseRewards(rewards: ItemInfo[], tag?: any) {
+        return rewards;
     }
 
     /**可重写 最后解析物品，在获得奖励、计算数量是否足够、消耗物品时会调用 */
-    protected postParseSingleItem(reawrd: ItemInfo, tag?: any) {
-        return reawrd;
+    protected postParseSingleItem(item: ItemInfo, tag?: any) {
+        return item;
     }
 
     /**可重写 重写该方法处理获取奖励的提示信息 */
