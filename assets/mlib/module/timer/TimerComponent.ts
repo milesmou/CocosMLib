@@ -175,6 +175,7 @@ export class TimerComponent extends Component {
     public unscheduleAllCallbacks() { }
     public unscheduleAllCallbacksM() {
         this._schedules.clear();
+        this._onceSchedules.clear();
     }
 
     public hasCallback(callback: (dt: number) => void, thisObj: object): boolean {
