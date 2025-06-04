@@ -1,4 +1,4 @@
-import { Component, Widget, _decorator, sys, view } from "cc";
+import { Component, Widget, _decorator, view } from "cc";
 import { PREVIEW } from "cc/env";
 
 const { ccclass, requireComponent, executionOrder, disallowMultiple } = _decorator;
@@ -54,7 +54,11 @@ export class SafeWidget extends Component {
             let max = Math.max(size.width, size.height);
             let ratio = max / min;
             if (ratio > 1.8) {//全面屏手机
-                safeAreaGap.top = 90 * (min / 1080);
+                if (size.width > size.height) {//横屏
+                    safeAreaGap.left = 90 * (min / 1080);
+                } else {//竖屏
+                    safeAreaGap.top = 90 * (min / 1080);
+                }
             }
         }
         if (size.width > size.height) {//横屏手机左右安全距离保持一致

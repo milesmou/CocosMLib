@@ -5,6 +5,7 @@ interface CallbackOpt { success?: () => void, fail?: () => void, complete?: () =
 /** 抖音小游戏API声明 */
 declare namespace tt {
 
+    export function setKeepScreenOn(opts?: any): boolean;
     export function canIUse(func: string): boolean;
     export function getSystemInfoSync(): SystemInfo;
     export function getEnvInfoSync(): EnvInfo;
@@ -16,6 +17,8 @@ declare namespace tt {
     export function vibrateLong(opts?: any);
     export function reportScene(opts?: any);
     export function requestSubscribeMessage(opts?: any);
+    export function requestFeedSubscribe(opts?: any);
+    export function checkFeedSubscribeStatus(opts?: any);
     /** 显示当前小游戏页面的转发按钮。转发按钮位于小游戏页面右上角的“更多”中。*/
     export function showShareMenu(opts?: { success?: (errMsg: string) => void, fail?: (errMsg: string) => void, complete?: () => void });
     /** 调用该API可以跳转到某个小游戏入口场景，目前仅支持跳转「侧边栏」场景 */

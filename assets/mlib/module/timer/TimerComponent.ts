@@ -11,7 +11,6 @@ interface ScheduleValue {
     thisObj: object;
     interval: number;
     delay: number;
-    repeat: number;
     totalDt: number;
 }
 
@@ -130,10 +129,9 @@ export class TimerComponent extends Component {
      * @deprecated 请使用scheduleM替代此方法
      */
     public schedule(callback: any, interval?: number, repeat?: number, delay?: number) { }
-    public scheduleM(callback: (dt: number) => void, thisObj: object, interval = 0, repeat = -1, execImmediate = true) {
+    public scheduleM(callback: (dt: number) => void, thisObj: object, interval = 0, delay = 0) {
         let value: ScheduleValue = {
-            callback: callback, thisObj: thisObj, interval: interval, repeat: repeat > 0 ? repeat : macro.REPEAT_FOREVER,
-            delay: execImmediate ? 0 : interval, totalDt: 0
+            callback: callback, thisObj: thisObj, interval: interval, delay: delay, totalDt: 0
         };
         this._schedules.add(value);
     }
@@ -142,7 +140,7 @@ export class TimerComponent extends Component {
      * @deprecated 请使用scheduleOnceM替代此方法
      */
     public scheduleOnce(callback: any, delay?: number) { }
-    public scheduleOnceM(callback: () => void, thisObj: object, delay?: number, onRatio?: (ratio: number) => void) {
+    public scheduleOnceM(callback: () => void, thisObj: object, delay = 0, onRatio?: (ratio: number) => void) {
         onRatio && onRatio(0);
         let value: OnceScheduleValue = {
             callback: callback, thisObj: thisObj, delay: delay || 0, onRatio: onRatio, totalDt: 0
@@ -212,9 +210,7 @@ export class TimerComponent extends Component {
             if (v.delay <= 0) {
                 v.callback.call(v.thisObj, v.totalDt);
                 v.delay = v.interval;
-                v.repeat -= 1;
                 v.totalDt = 0;
-                if (v.repeat <= 0) this._schedules.delete(v);
             }
         });
         //OnceScheduler

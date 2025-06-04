@@ -1,6 +1,6 @@
 import { PREVIEW } from "cc/env";
 import { HttpRequest } from "../module/network/HttpRequest";
-import { Leaderboard, MResponse, ReqWXBizData, ReqWxMediaSecCheck, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspUnusedOrderInfo, RspWXBizData, RspWxSecCheck, RsqWxLogin } from "./MResponse";
+import { Leaderboard, MResponse, ReqDYSceneCheck, ReqWXBizData, ReqWxMediaSecCheck, ReqWxMsgSecCheck, RspAnnouncement, RspEmail, RspGameData, RspGmData, RspPlayerGameData, RspUnusedOrderInfo, RspWXBizData, RspWxSecCheck, RsqWxLogin } from "./MResponse";
 
 export class MCloudDataSDK {
 
@@ -145,6 +145,50 @@ export class MCloudDataSDK {
         return result;
     }
 
+    /** 上报事件 */
+    public static reportEvent(eventName: string, paramStr = "", num = 0) {
+        eventName = PREVIEW ? "00_" + eventName : eventName;
+        let body = {
+            gameCode: mGameSetting.gameCode,
+            eventName: eventName,
+            param: paramStr,
+            sum: num
+        };
+        HttpRequest.requestText(this.EventUrl, { method: "POST", data: body });
+    }
+
+    /** 上传GM存档 */
+    public static async saveGmData(data: string, commit: string) {
+        let url = this.GmDataUrl + `/${mGameSetting.gameName}/save_gmdata`;
+        let body = {
+            "data": data,
+            "commit": commit,
+        }
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse;
+        return result;
+    }
+
+    /** 删除GM存档 */
+    public static async delGmData(id: string) {
+        let url = this.GmDataUrl + `/${mGameSetting.gameName}/del_gmdata/${id}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
+        return result;
+    }
+
+    /** 获取所有的GM存档 */
+    public static async getGmDatas() {
+        let url = this.GmDataUrl + `/${mGameSetting.gameName}/get_gmdatas`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspGmData[]>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    //#region 微信小游戏接口
+
     /** 微信小游戏敏感词检测 */
     public static async wxMsgSecCheck(reqData: ReqWxMsgSecCheck) {
         let url = mGameSetting.serverUrl + `/wechatgame/msg_sec_check?gameCode=${mGameSetting.gameCode}`;
@@ -198,46 +242,38 @@ export class MCloudDataSDK {
         }
     }
 
-    /** 上报事件 */
-    public static reportEvent(eventName: string, paramStr = "", num = 0) {
-        eventName = PREVIEW ? "00_" + eventName : eventName;
-        let body = {
-            gameCode: mGameSetting.gameCode,
-            eventName: eventName,
-            param: paramStr,
-            sum: num
-        };
-        HttpRequest.requestText(this.EventUrl, { method: "POST", data: body });
-    }
+    //#endregion
 
-    /** 上传GM存档 */
-    public static async saveGmData(data: string, commit: string) {
-        let url = this.GmDataUrl + `/${mGameSetting.gameName}/save_gmdata`;
-        let body = {
-            "data": data,
-            "commit": commit,
-        }
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: body }) as MResponse;
-        return result;
-    }
 
-    /** 删除GM存档 */
-    public static async delGmData(id: string) {
-        let url = this.GmDataUrl + `/${mGameSetting.gameName}/del_gmdata/${id}`;
-        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
-        return result;
-    }
+    //#region 抖音小游戏接口
 
-    /** 获取所有的GM存档 */
-    public static async getGmDatas() {
-        let url = this.GmDataUrl + `/${mGameSetting.gameName}/get_gmdatas`;
-        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspGmData[]>;
+    /** 
+     * 抖音小游戏添加场景值检测
+     */
+    public static async dyAddSceneCheck(reqData: ReqDYSceneCheck) {
+        let url = mGameSetting.serverUrl + `/douyingame/${mGameSetting.gameCode}/add_scene_check`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData }) as MResponse;
         if (result?.code == 0) {
-            return result.data;
+            return true;
         } else {
             mLogger.error(result);
-            return null;
+            return false;
         }
     }
+
+    public static async dyDelSceneCheck(openId: string) {
+        let url = mGameSetting.serverUrl + `/douyingame/${mGameSetting.gameCode}/del_scene_check?openId=${openId}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;
+        if (result?.code == 0) {
+            return true;
+        } else {
+            mLogger.error(result);
+            return false;
+        }
+    }
+
+    //#endregion
+
+
 
 }

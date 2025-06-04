@@ -164,3 +164,11 @@ export interface RspPlayerGameData {
     data: string;
     updateTimeMS: number;
 }
+
+/** 抖音添加场景检查值 */
+export interface ReqDYSceneCheck {
+    /** 玩家id */
+    openId: string;
+    /** 生效时间戳(秒) */
+    effectiveTimeS: number;
+}
