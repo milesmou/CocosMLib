@@ -5,7 +5,6 @@ import { SafeWidget } from '../../../mlib/module/ui/component/SafeWidget';
 import { MButton } from '../../../mlib/module/ui/extend/MButton';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
-import { GameTool } from '../../game/GameTool';
 import { UIConstant } from '../../gen/UIConstant';
 import { TGuide, vector2 } from '../../gen/table/schema';
 import GameTable from '../GameTable';
@@ -124,7 +123,7 @@ export class UIGuide extends UIComponent {
         app.chan.reportEvent(mReportEvent.GuideStep, { GuideStep_Id: data.GuideID + "_" + data.StepId }, "SS");
         mLogger.debug("----------新玩家登陆流程KIN--------------" + "17过了新手引导" + data.GuideID + "_" + data.StepId);
         // 广点通打点
-        if (GameTool.isWXZQYMiniGame) {
+        if (isWechat) {
             GameSdk.BI.reportZqyWxInvestSdk('onTutorialFinish');
         }
         if (this._dataIndex == this._guideData.length - 1) {
