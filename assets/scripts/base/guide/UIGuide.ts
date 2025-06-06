@@ -147,19 +147,21 @@ export class UIGuide extends UIComponent {
      * 开始引导
      * onStep:每一步引导回调
      * onManualStep:手动开始引导步骤回调
+     * startIndex:从第几步开始，默认0从第一步开始引导
      */
     public startGuide(guideId: number, args?: {
         onStep?: (stepId: number) => void,
         onManualStep?: (stepId: number) => void
         onEnded?: () => void,
+        startIndex?: number,
     }) {
-        let { onStep, onManualStep, onEnded } = args || {};
+        let { onStep, onManualStep, onEnded, startIndex } = args || {};
         if (this._guideId != 0) {
             this._logger.warn("正在进引导: " + this._guideId + " 想要开始引导: " + guideId);
             return;
         }
         this._guideId = guideId;
-        this._dataIndex = 0;
+        this._dataIndex = startIndex || 0;
         this._guideData = GameTable.Inst.getGuideGroup(guideId);
         if (this._guideData?.length > 0) {
             app.event.emit(mEventKey.OnGuideStart, this._guideId);

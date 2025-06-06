@@ -55,7 +55,7 @@ export class ReferenceCollector extends Component {
             if (!this._nodeMap.has(key)) {
                 this._nodeMap.set(key, collectorNodeData.node);
             } else {
-                console.error("[MLogger Error]", this.node.name, "引用的节点名字重复 Key=" + key);
+                console.error(`[MLogger Error] ${this.node.name} 引用的节点名字重复 Key=${key} Path=${collectorNodeData.node.getPath()}`);
             }
         }
     }
@@ -103,20 +103,15 @@ export class ReferenceCollector extends Component {
     private getValidNode(root: Node) {
         if (!EDITOR_NOT_IN_PREVIEW) return;
         let arr: Node[] = [];
-        let checkArr = [];
+        let checkArr: Node[] = [];
         checkArr.push(root);
         while (checkArr.length > 0) {
             let v = checkArr.shift();
+            if (v.getComponent(ReferenceCollector) != this) continue;
             arr.push(...v.children.filter(v => this.isNodeValid(v)));
-            checkArr.push(...v.children.filter(v => this.isNodeChildrenValid(v)));
+            checkArr.push(...v.children);
         }
         return arr;
-    }
-
-    private isNodeChildrenValid(node: Node) {
-        if (!EDITOR_NOT_IN_PREVIEW) return;
-        if (node.getComponent(ReferenceCollector)) return false;
-        return true;
     }
 
     private isNodeValid(node: Node) {
