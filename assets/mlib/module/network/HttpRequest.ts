@@ -97,10 +97,30 @@ export class HttpRequest {
      * @param predicate 判断是否中断请求 true请求成功中断请求 false请求失败继续请求
      * @param duration 请求最多持续时间 单位:秒 (失败后0.5秒后会再次请求)
      */
-    public static async requestUntil(url: string, predicate: (res: string) => boolean, duration: number, args: RequestArgs): Promise<string> {
+    public static async requestTextUntil(url: string, predicate: (res: string) => boolean, duration: number, args: RequestArgs): Promise<string> {
         let endTimeMS = Date.now() + duration * 1000;
         while (true) {
             let result = await this.requestText(url, args);
+            if (predicate(result)) {//请求成功
+                return result;
+            } else if (Date.now() > endTimeMS) {//请求超时
+                return null;
+            } else {//失败继续
+                await this.delay(0.5);
+            }
+        }
+    }
+
+    /**
+    * 请求地址直到成功或超时
+    * @param url 请求地址
+    * @param predicate 判断是否中断请求 true请求成功中断请求 false请求失败继续请求
+    * @param duration 请求最多持续时间 单位:秒 (失败后0.5秒后会再次请求)
+    */
+    public static async requesObjectUntil<T extends object>(url: string, predicate: (res: T) => boolean, duration: number, args: RequestArgs): Promise<T> {
+        let endTimeMS = Date.now() + duration * 1000;
+        while (true) {
+            let result = await this.requestObject(url, args) as T;
             if (predicate(result)) {//请求成功
                 return result;
             } else if (Date.now() > endTimeMS) {//请求超时
