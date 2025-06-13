@@ -28,6 +28,12 @@ export class AssetMgr {
         onProgress && onProgress(1, 1);
     }
 
+    /** 卸载Bundle并释放所有资源 */
+    public static async unloadBundle(bundleName: string) {
+        BundleMgr.Inst.unloadBundle(bundleName);
+    }
+
+
     public static async loadBundles(bundleNames?: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: Progress }) {
         if (!bundleNames) {
             bundleNames = BundleConstant;

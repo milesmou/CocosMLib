@@ -27,6 +27,21 @@ export class BundleMgr {
         return p;
     }
 
+    /** 卸载Bundle并释放所有资源 */
+    public async unloadBundle(bundleName: string) {
+        let bundle = assetManager.bundles.get(bundleName);
+        if (bundle) {
+            bundle.releaseAll();
+            assetManager.removeBundle(bundle);
+            for (const kv of this._address) {
+                let [key, value] = kv;
+                if (value == bundleName) this._address.delete(key);
+            }
+        } else {
+            console.warn(`bundle不存在 ${bundleName}`);
+        }
+    }
+
     /** 加载多个Bundle */
     public async loadBundles(bundleNames: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: (loaded: number, total: number) => void }) {
         let bundleVers = opts && opts.bundleVers;

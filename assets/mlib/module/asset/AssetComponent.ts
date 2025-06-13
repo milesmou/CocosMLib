@@ -25,7 +25,10 @@ export class AssetComponent extends Component {
     public async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress): Promise<T> {
         let cacheKey = AssetMgr.parseLocation(location, type);
         let asset = this._cache.get(cacheKey);
-        if (asset?.isValid) return asset as T;
+        if (asset?.isValid) {
+            onProgress && onProgress(1, 1);
+            return asset as T;
+        }
         asset = await AssetMgr.loadAsset(location, type, onProgress);
         if (!this.isValid) {//资源未加载完,界面已被销毁
             // AssetMgr.decRef(cacheKey);  可能引起渲染失败卡死
@@ -63,6 +66,10 @@ export class AssetComponent extends Component {
     public async loadSprite(sprite: Sprite, location: string) {
         if (!sprite?.isValid) {
             console.error("Sprite无效 " + location);
+            return;
+        }
+        if (!location) {
+            sprite.spriteFrame = null;
             return;
         }
         let spFrame: SpriteFrame;
