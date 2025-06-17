@@ -11,6 +11,8 @@ class GameConfig {
     public static gm = false;
     /** 打点 */
     public static event = true;
+    /** ios支付开关 */
+    public static iosPay = true;
 
     /** 远程bundle名字:版本 */
     public static bundleVers: Map<string, string> = new Map();
@@ -26,6 +28,7 @@ class GameConfig {
                 else if (line.startsWith("SH=")) this.sh = this.convertBool(line.replace("SH=", ""));
                 else if (line.startsWith("GM=")) this.gm = this.convertBool(line.replace("GM=", ""));
                 else if (line.startsWith("Event=")) this.event = this.convertBool(line.replace("Event=", ""));
+                else if (line.startsWith("IOSPay=")) this.iosPay = this.convertBool(line.replace("IOSPay=", ""));
             }
         }
 

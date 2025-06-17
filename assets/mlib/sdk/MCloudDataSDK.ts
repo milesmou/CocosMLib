@@ -79,10 +79,20 @@ export class MCloudDataSDK {
 
     }
 
-    /** 查询所有未完成的订单(返回商品id数组) */
+    /** 查询未完成的订单 返回订单数组(包含游戏自定义订单id和商品id) */
     public static async queryUnusedOrder(uid: string) {
         let url = this.PurchaseUrl + `/queryunusedorder?uid=${uid}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<RspUnusedOrderInfo[]>;
+        if (result?.code == 0) {
+            return result.data;
+        }
+        return null;
+    }
+
+    /** 查询已完成的订单(返回商品id数组) */
+    public static async queryUsedOrder(uid: string) {
+        let url = this.PurchaseUrl + `/queryusedorder?uid=${uid}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<string[]>;
         if (result?.code == 0) {
             return result.data;
         }
@@ -269,6 +279,9 @@ export class MCloudDataSDK {
         }
     }
 
+    /** 
+     * 抖音小游戏删除场景值检测
+     */
     public static async dyDelSceneCheck(openId: string) {
         let url = mGameSetting.serverUrl + `/douyingame/${mGameSetting.gameCode}/del_scene_check?openId=${openId}`;
         let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse;

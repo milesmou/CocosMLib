@@ -161,6 +161,8 @@ class GameSetting extends Component {
     public get remoteResUrl() { return this._remoteResUrl; }
     /** 远程资源地址(项目公用) */
     public get commonRemoteResUrl() { return this._commonRemoteResUrl; }
+    /** 配置文件是否读取服务器的远程配置 */
+    public get isRemoteGameConfig() {return this._gameConfigType == EGameConfigType.Remote}
 
 
     protected onLoad(): void {

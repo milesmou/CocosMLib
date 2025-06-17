@@ -72,6 +72,7 @@ class App extends Component implements IApp {
 
         mLogger.info(`GameSetting Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version} Language=${L10nMgr.lang}`);
         mLogger.info(`SDKSetting ${mSdkSetting.getPrintInfo()}`);
+        mLogger.info(`配置文件是否读取服务器： ${mGameSetting.isRemoteGameConfig}`);
     }
 
     protected start() {
