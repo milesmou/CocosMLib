@@ -305,6 +305,9 @@ declare global {
      * @deprecated TMD这是DOM的Animation,不要使用它
      */
     interface Animation { }
+
+    /** 游戏当前允许环境 */
+    type GameEnv = "develop" | "trial" | "release";
 }
 
 //扩展CC中的一些类

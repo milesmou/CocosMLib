@@ -4,24 +4,17 @@ import { StroageValue } from '../module/stroage/StroageValue';
 import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
 import { IReportEvent } from './IReportEvent';
-import { EIAPResult, ELoginResult, ENativeBridgeKey, EReawrdedAdResult, GetGameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SaveGameDataArgs, SDKCallback, ShowRewardedAdArgs, UserInfo } from './MSDKWrapper';
+import { EIAPResult, ENativeBridgeKey, GetGameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SaveGameDataArgs, SDKCallback, ShowRewardedAdArgs, UserInfo } from './MSDKWrapper';
 const { ccclass } = _decorator;
 
 @ccclass("Channel")
 export class Channel {
 
     /** 用户信息 包含用户id和名字*/
-    public user: UserInfo = { id: "", name: "" };
+    public user: UserInfo = { uid: "", name: "" };
 
     /** 设备震动开关 */
     public vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
-
-    protected mEnv: "dev" | "trial" | "release" = null;
-
-    /** 获取运行环境 */
-    public get env(): "dev" | "trial" | "release" {
-        return "dev";
-    }
 
     /**
      * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。
@@ -57,7 +50,7 @@ export class Channel {
             sys.localStorage.setItem("userId", userId);
         }
         SDKCallback.login = args;
-        MSDKWrapper.call(ENativeBridgeKey.Login, ELoginResult.Success.toString(), userId);
+        MSDKWrapper.loginSuccess({ uid: userId, name: "游客" });
     }
 
     /** 获取玩家存档 */
@@ -89,9 +82,9 @@ export class Channel {
     /** 展示激励视频广告 */
     public showRewardedAd(args: ShowRewardedAdArgs) {
         SDKCallback.rewardedAd = args;
-        SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(args.extParam);
-        MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Show.toString());//测试直接成功
-        MSDKWrapper.call(ENativeBridgeKey.ShowRewardedVideo, EReawrdedAdResult.Success.toString());//测试直接成功
+        MSDKWrapper.rewardedAdStart();//开始请求广告
+        MSDKWrapper.rewardedAdShow();//测试直接成功
+        MSDKWrapper.rewardedAdSuccess();//测试直接成功
     }
 
     /** 展示插屏广告 */

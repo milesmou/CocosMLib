@@ -2,7 +2,13 @@ import { Node, size, view } from "cc";
 
 /** 快手平台工具类 */
 class KuaiShouTools {
+
     public readonly sysInfo: WechatMinigame.SystemInfo;
+    
+    public get env(): GameEnv {
+        let env = ks.getAccountInfoSync().miniProgram.envVersion;
+        return env;
+    }
 
     public constructor() {
         this.sysInfo = wx.getSystemInfoSync();

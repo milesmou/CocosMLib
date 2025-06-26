@@ -1,20 +1,22 @@
 import { _decorator, Component, Enum } from "cc";
-import { PREVIEW } from "cc/env";
 
 const { ccclass, property } = _decorator;
 
-const TDMode = Enum({
-    AUTO: 0,
-    NORMAL: 1,
-    DEBUG: 2,
-    DEBUG_ONLY: 3,
+const ESDKMode = Enum({
+    Auto: 0,
+    Debug: 1,
+    Release: 2
 })
 
-const TDModeStr = {
-    [TDMode.NORMAL]: "normal",
-    [TDMode.DEBUG]: "debug",
-    [TDMode.DEBUG_ONLY]: "debugOnly",
+const IsDebugMode = (mode: number) => {
+    if (mode == ESDKMode.Auto) {
+        return app.env != "release";
+    } else {
+        return mode == ESDKMode.Debug;
+    }
 }
+
+const SDKModeTip = "Auto:只有发布后且app.env='release'为Release模式，其它情况均为Debug模式";
 
 /** SDK参数配置 */
 @ccclass("SDKSetting")
@@ -23,33 +25,13 @@ class SDKSetting extends Component {
     @property
     protected _scriptName: string = "SDKSetting";
 
-    @property private _tdId = "";
-    @property({ displayName: "数数ID" })
-    public get tdId() { return this._tdId; }
-    private set tdId(value: string) { this._tdId = value; }
-
-    @property private _tdUrl = "";
-    @property({ displayName: "数数Url" })
-    public get tdUrl() { return this._tdUrl; }
-    private set tdUrl(value: string) { this._tdUrl = value; }
-
     @property
-    private _tdMode = TDMode.AUTO;
-    @property({ displayName: "数数模式", type: TDMode, tooltip: "AUTO:编辑器预览DEBUG_ONLY模式,打包后NORMAL模式" })
-    public get tdMode() { return this._tdMode; }
-    private set tdMode(value: number) { this._tdMode = value; }
+    private _xtMode = ESDKMode.Auto;
+    @property({ type: ESDKMode, displayName: "玄通模式", tooltip: SDKModeTip })
+    public get xtMode() { return this._xtMode; }
+    private set xtMode(value: number) { this._xtMode = value; }
 
-    public get tdModeStr() {
-        if (this._tdMode == TDMode.AUTO) {
-            return PREVIEW ? TDModeStr[TDMode.DEBUG_ONLY] : TDModeStr[TDMode.NORMAL];
-        }
-        return TDModeStr[this._tdMode];
-    }
-
-    @property private _tdLog = false;
-    @property({ displayName: "数数日志" })
-    public get tdLog() { return this._tdLog; }
-    private set tdLog(value: boolean) { this._tdLog = value; }
+    public get xtDebugMode() { return IsDebugMode(this._xtMode); }
 
     protected onLoad(): void {
         //@ts-ignore
@@ -57,7 +39,7 @@ class SDKSetting extends Component {
     }
 
     public getPrintInfo() {
-        return `数数模式:${this.tdModeStr}`;
+        return `玄通测试模式:${this.xtDebugMode}`;
     }
 
 }

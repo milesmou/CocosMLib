@@ -3,6 +3,11 @@ import { math, Node, size, sys, view } from "cc";
 class ZFBTools {
     public readonly sysInfo: zfb.SystemInfo;
 
+    public get env(): GameEnv {
+        let env = zfb.getAccountInfoSync().miniProgram.envVersion;
+        return env;
+    }
+
     public constructor() {
         this.sysInfo = zfb.getSystemInfoSync();
         console.log("SystemInfo", this.sysInfo);

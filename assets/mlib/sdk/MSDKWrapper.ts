@@ -1,5 +1,6 @@
 import { native } from "cc";
 import { JSB } from "cc/env";
+import { MProductDetail } from "./MProductDetail";
 import { RspPlayerGameData } from "./MResponse";
 
 /** 原生和JS交互的Key */
@@ -48,6 +49,8 @@ export class SDKCallback {
     public static onStartInAppPurchase: StringCallback;
     /** 内购结果回调 */
     public static inAppPurchase: (code: EIAPResult, arg: string) => void;
+    /** 内购结果回调 */
+    public static purchase: PurchaseCallbacks;
 }
 
 /** 与原生交互时的参数分隔符 */
@@ -76,7 +79,7 @@ export class MSDKWrapper {
         let key = ENativeBridgeKey[strKey];
         switch (key) {
             case ENativeBridgeKey.Login:
-                this.onLogin(arg1, arg2, arg3);
+                this.onLoginResult(arg1, arg2, arg3);
                 break;
             case ENativeBridgeKey.RequestIAP:
                 this.onInAppPurchase(arg1, arg2);
@@ -96,16 +99,26 @@ export class MSDKWrapper {
 
 
     /** 登录回调处理 */
-    private static onLogin(strCode: string, arg1: string, arg2: string) {
+    private static onLoginResult(strCode: string, arg1: string, arg2: string) {
         let code: ELoginResult = parseInt(strCode);
         switch (code) {
             case ELoginResult.Success:
-                SDKCallback.login?.success && SDKCallback.login.success({ id: arg1, name: arg2 });
+                this.loginSuccess({ uid: arg1, name: arg2 });
                 break;
             case ELoginResult.Fail:
-                SDKCallback.login?.fail && SDKCallback.login.fail(arg1);
+                this.loginFail(arg1);
                 break;
         }
+    }
+
+    /** 登录成功 */
+    public static loginSuccess(user: UserInfo) {
+        SDKCallback.login?.success && SDKCallback.login.success(user);
+    }
+
+    /** 登录失败 */
+    public static loginFail(errMsg: string) {
+        SDKCallback.login?.fail && SDKCallback.login.fail(errMsg);
     }
 
     /** 内购回调 */
@@ -117,33 +130,74 @@ export class MSDKWrapper {
     /** 看视频广告回调 */
     private static onShowRewardedAd(strCode: string) {
         let code = parseInt(strCode);
-        let key = SDKCallback.rewardedAd?.extParam;
         switch (code) {
             case EReawrdedAdResult.Success:
-                SDKCallback.rewardedAd?.success && SDKCallback.rewardedAd.success(key);
-                SDKCallback.rewardedAdDefault?.success && SDKCallback.rewardedAdDefault.success(key);
+                this.rewardedAdSuccess();
                 break;
             case EReawrdedAdResult.Fail:
-                SDKCallback.rewardedAd?.fail && SDKCallback.rewardedAd.fail(key);
-                SDKCallback.rewardedAdDefault?.fail && SDKCallback.rewardedAdDefault.fail(key);
+                this.rewardedAdFail();
                 break;
             case EReawrdedAdResult.Show:
-                SDKCallback.rewardedAd?.show && SDKCallback.rewardedAd.show(key);
-                SDKCallback.rewardedAdDefault?.show && SDKCallback.rewardedAdDefault.show(key);
+                this.rewardedAdShow();
                 break;
             case EReawrdedAdResult.Close:
-                SDKCallback.rewardedAd?.close && SDKCallback.rewardedAd.close(key);
-                SDKCallback.rewardedAdDefault?.close && SDKCallback.rewardedAdDefault.close(key);
+                this.rewardedAdClose();
                 break;
             case EReawrdedAdResult.Click:
-                SDKCallback.rewardedAd?.click && SDKCallback.rewardedAd.click(key);
-                SDKCallback.rewardedAdDefault?.click && SDKCallback.rewardedAdDefault.click(key);
+                this.rewardedAdClick();
                 break;
             case EReawrdedAdResult.Error:
-                SDKCallback.rewardedAd?.error && SDKCallback.rewardedAd.error(key);
-                SDKCallback.rewardedAdDefault?.error && SDKCallback.rewardedAdDefault.error(key);
+                this.rewardedAdError();
                 break;
         }
+    }
+
+    /** 视频广告播成功且获取奖励 */
+    public static rewardedAdSuccess() {
+        let key = SDKCallback.rewardedAd?.extParam;
+        SDKCallback.rewardedAd?.success && SDKCallback.rewardedAd.success(key);
+        SDKCallback.rewardedAdDefault?.success && SDKCallback.rewardedAdDefault.success(key);
+    }
+
+    /** 视频广告播成功但未获取奖励 */
+    public static rewardedAdFail() {
+        let key = SDKCallback.rewardedAd?.extParam;
+        SDKCallback.rewardedAd?.fail && SDKCallback.rewardedAd.fail(key);
+        SDKCallback.rewardedAdDefault?.fail && SDKCallback.rewardedAdDefault.fail(key);
+    }
+
+    /** 开始请求视频广告 */
+    public static rewardedAdStart() {
+        let key = SDKCallback.rewardedAd?.extParam;
+        SDKCallback.onStartRewardedAd && SDKCallback.onStartRewardedAd(key);
+    }
+
+    /** 视频广告展示 */
+    public static rewardedAdShow() {
+        let key = SDKCallback.rewardedAd?.extParam;
+        SDKCallback.rewardedAd?.show && SDKCallback.rewardedAd.show(key);
+        SDKCallback.rewardedAdDefault?.show && SDKCallback.rewardedAdDefault.show(key);
+    }
+
+    /** 视频广告关闭 */
+    public static rewardedAdClose() {
+        let key = SDKCallback.rewardedAd?.extParam;
+        SDKCallback.rewardedAd?.close && SDKCallback.rewardedAd.close(key);
+        SDKCallback.rewardedAdDefault?.close && SDKCallback.rewardedAdDefault.close(key);
+    }
+
+    /** 视频广告点击 */
+    public static rewardedAdClick() {
+        let key = SDKCallback.rewardedAd?.extParam;
+        SDKCallback.rewardedAd?.click && SDKCallback.rewardedAd.click(key);
+        SDKCallback.rewardedAdDefault?.click && SDKCallback.rewardedAdDefault.click(key);
+    }
+
+    /** 视频广告加载或展示出错 */
+    public static rewardedAdError() {
+        let key = SDKCallback.rewardedAd?.extParam;
+        SDKCallback.rewardedAd?.error && SDKCallback.rewardedAd.error(key);
+        SDKCallback.rewardedAdDefault?.error && SDKCallback.rewardedAdDefault.error(key);
     }
 
 }
@@ -153,7 +207,7 @@ type StringCallback = (str?: string) => void;
 /** 用户信息 */
 export interface UserInfo {
     /** 用户id */
-    id: string;
+    uid: string;
     /** 用户名字 */
     name?: string;
 }
@@ -210,6 +264,26 @@ export interface ShowRewardedAdArgs {
     error?: StringCallback;
     /** 扩展参数 */
     extParam?: string;
+}
+
+/** 内购回调方法 */
+export interface PurchaseCallbacks {
+    /** 支付环境错误 */
+    noEnv: (productId: string) => void,
+    /** 商品不存在 */
+    noProduct: (productId: string) => void,
+    /** 支付成功 */
+    success: (productId: string) => void,
+    /** 延时到账 补单成功 */
+    delaySuccess: (productId: string) => void,
+    /** 支付失败 */
+    fail: (productId: string) => void,
+    /** 订单验证失败 可能延时到账 */
+    verifyFail: (productId: string) => void,
+    /** 获取商品详情结果 useTable:使用数据表中的商品信息 */
+    productDetail: (products: MProductDetail[], useTable?: boolean) => void,
+    /** 开始发起内购 */
+    start: (productId: string) => void,
 }
 
 /** 发起内购请求参数 */

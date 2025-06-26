@@ -1,8 +1,15 @@
 import { Node, size, sys, view } from "cc";
-import { WECHAT } from "cc/env";
 
 class WechatTools {
     public readonly sysInfo: WechatMinigame.SystemInfo;
+
+    public get env(): GameEnv {
+        //微信正式版的envVersion好像也是develop，所以只在开发工具上返回develop，上传的非体验版包都视为正式版
+        if (this.sysInfo.platform == "devtools") return "develop";
+        let env = wx.getAccountInfoSync().miniProgram.envVersion;
+        if (env == "trial") return env;
+        return "release";
+    }
 
     public constructor() {
         this.sysInfo = wx.getSystemInfoSync();
@@ -37,15 +44,15 @@ class WechatTools {
     }
 }
 
- //@ts-ignore
- let isKS = typeof KSGameGlobal != 'undefined';
- //@ts-ignore
- globalThis.isWechat = sys.platform == sys.Platform.WECHAT_GAME && !isKS;
- if (isWechat) {
-     let wxTools = new WechatTools();
-     //@ts-ignore
-     globalThis.wxTools = wxTools;
- }
+//@ts-ignore
+let isKS = typeof KSGameGlobal != 'undefined';
+//@ts-ignore
+globalThis.isWechat = sys.platform == sys.Platform.WECHAT_GAME && !isKS;
+if (isWechat) {
+    let wxTools = new WechatTools();
+    //@ts-ignore
+    globalThis.wxTools = wxTools;
+}
 
 declare global {
     /** 是否微信渠道 */

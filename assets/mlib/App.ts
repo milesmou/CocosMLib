@@ -15,34 +15,37 @@ import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 
 interface IApp {
+    /** 游戏运行环境 */
+    readonly env: GameEnv;
     /** 渠道能力实例 */
-    chan: Channel;
+    readonly chan: Channel;
     /** 时间管理组件 */
-    timer: TimerComponent;
+    readonly timer: TimerComponent;
     /** 音频播放组件 */
-    audio: AudioComponent;
+    readonly audio: AudioComponent;
     /** 资源加载组件 */
-    asset: AssetComponent;
+    readonly asset: AssetComponent;
     /** 本地存储 */
-    stroage: typeof LocalStorage;
+    readonly stroage: typeof LocalStorage;
     /** 全局事件 */
-    event: typeof EventMgr;
+    readonly event: typeof EventMgr;
     /** 全局对象池 */
-    pool: typeof PoolMgr;
+    readonly pool: typeof PoolMgr;
     /** UI管理 */
-    ui: UIMgr;
+    readonly ui: UIMgr;
     /** 音频播放组件管理类 */
-    audioMgr: AudioMgr;
+    readonly audioMgr: AudioMgr;
     /** 多语言 */
-    l10n: typeof L10nMgr;
+    readonly l10n: typeof L10nMgr;
     /** 提示信息 */
-    tipMsg: typeof TipMsg;
+    readonly tipMsg: typeof TipMsg;
 }
 
 /** 应用程序启动入口 */
 @ccclass('App')
 class App extends Component implements IApp {
 
+    public env: GameEnv;
     public chan: Channel;
 
     public timer: TimerComponent;
@@ -57,6 +60,7 @@ class App extends Component implements IApp {
     public tipMsg = TipMsg;
 
 
+
     protected onLoad() {
         //@ts-ignore
         globalThis["app"] = this;
@@ -68,6 +72,7 @@ class App extends Component implements IApp {
         this.audio = this.addComponent(AudioComponent);
         this.audio.setKey("App");
 
+        this.env = Publish.getGameEnv();
         this.chan = Publish.getChannelInstance();
 
         mLogger.info(`GameSetting Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version} Language=${L10nMgr.lang}`);

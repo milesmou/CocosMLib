@@ -4,6 +4,13 @@ import { Node, size, sys, view } from "cc";
 class DouYinTools {
     public readonly sysInfo: tt.SystemInfo;
 
+    public get env(): GameEnv {
+        let env = tt.getEnvInfoSync().microapp.envType;
+        if (env == "production") return "release";
+        else if (env == "development") return "trial";
+        return "develop";
+    }
+
     public constructor() {
         this.sysInfo = tt.getSystemInfoSync();
         console.log("SystemInfo", this.sysInfo);
