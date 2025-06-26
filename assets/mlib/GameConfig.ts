@@ -9,11 +9,16 @@ class GameConfig {
     public static sh = false;
     /** GM工具 */
     public static gm = false;
-    /** 其它配置 */
+    /** 其它基础配置 */
     public static bcfgs: Record<string, boolean> = {};
 
+    //远程bundle版本配置
     /** 远程bundle名字:版本 */
     public static bundleVers: Record<string, string> = {};
+
+    //其它的一些配置
+    /** 其它配置 */
+    public static others: Record<string, string> = {};
 
     public static deserialize(content: string) {
         let iniData = this.getTxtData(content);
@@ -30,7 +35,7 @@ class GameConfig {
                     if (arr.length == 2) {
                         this.bcfgs[arr[0]] = this.convertBool(arr[1]);
                     } else {
-                        console.warn("错误的配置:" + line);
+                        console.warn("[base] 错误的配置:" + line);
                     }
                 }
             }
@@ -43,38 +48,27 @@ class GameConfig {
                 if (arr.length == 2) {
                     this.bundleVers[arr[0]] = arr[1];
                 } else {
-                    console.warn("错误的配置:" + line);
+                    console.warn("[bundle] 错误的配置:" + line);
+                }
+            }
+        }
+
+        if (iniData.has("other")) {
+            let lines = iniData.get("other");
+            for (const line of lines) {
+                let arr = line.split("=");
+                if (arr.length == 2) {
+                    this.others[arr[0]] = arr[1];
+                } else {
+                    console.warn("[other] 错误的配置:" + line);
                 }
             }
         }
     }
 
-
-    private static getTagIndexMap(tags: string[]): Map<string, number> {
-        let tagMap = new Map<string, number>();
-        for (let i = 0; i < tags.length; i++) {
-            tagMap.set(tags[i], i);
-        }
-
-        return tagMap;
-    }
-
-    private static convertString(value: string) {
-        return value.trim();
-    }
-
     private static convertBool(value: string) {
         value = value.trim();
         return value == "1" || value.toUpperCase() == "TRUE";
-    }
-
-    private static convertNumber(value: string) {
-        value = value.trim();
-        let result = parseFloat(value)
-        if (isNaN(result)) {
-            result = 0;
-        }
-        return result;
     }
 
     private static getTxtData(content: string): Map<string, string[]> {

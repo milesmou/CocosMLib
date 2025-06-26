@@ -9,7 +9,7 @@ import { BuildLogger } from "../BuildLogger";
 interface InsertCode {
     file: string;
     line: number;
-    content: string;
+    content: string | string[];
 }
 
 interface ReplaceValue {
@@ -80,7 +80,12 @@ export class BuildConfig {
                 continue;
             }
 
-            let codeArr = d.content.split("\n");
+            let codeArr: string[];
+            if (typeof d.content === "string") {
+                codeArr = d.content.split("\n");
+            } else {
+                codeArr = d.content;
+            }
             let destContent = fs.readFileSync(destFile, { encoding: "utf8" });
             let destArr = destContent.split("\r\n");
             if (destArr.length < 2) {
