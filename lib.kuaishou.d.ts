@@ -6,6 +6,7 @@ interface CallbackOpt { success?: () => void, fail?: () => void, complete?: () =
 declare namespace ks {
     export const SDKVersion: string;
     export function login(opt?: CallbackOpt);
+    export function getAccountInfoSync(): any;
     export function getSystemInfoSync(opt?: CallbackOpt): SystemInfo;
     export function getLaunchOptionsSync();
     export function vibrateShort(opt?: any);

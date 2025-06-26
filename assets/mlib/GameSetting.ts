@@ -81,7 +81,7 @@ class GameSetting extends Component {
     })
     public get gameConfigType() { return this._gameConfigType; }
     private set gameConfigType(val: number) { this._gameConfigType = val; }
-
+    public get gameConfigTypeStr() { return EGameConfigType[this._gameConfigType]; }
 
     @property private _hotupdate = true;
     @property({
@@ -161,9 +161,6 @@ class GameSetting extends Component {
     public get remoteResUrl() { return this._remoteResUrl; }
     /** 远程资源地址(项目公用) */
     public get commonRemoteResUrl() { return this._commonRemoteResUrl; }
-    /** 配置文件是否读取服务器的远程配置 */
-    public get isRemoteGameConfig() {return this._gameConfigType == EGameConfigType.Remote}
-
 
     protected onLoad(): void {
         //@ts-ignore

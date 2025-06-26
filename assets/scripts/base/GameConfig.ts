@@ -9,13 +9,11 @@ class GameConfig {
     public static sh = false;
     /** GM工具 */
     public static gm = false;
-    /** 打点 */
-    public static event = true;
-    /** ios支付开关 */
-    public static iosPay = true;
+    /** 其它配置 */
+    public static bcfgs: Record<string, boolean> = {};
 
     /** 远程bundle名字:版本 */
-    public static bundleVers: Map<string, string> = new Map();
+    public static bundleVers: Record<string, string> = {};
 
     public static deserialize(content: string) {
         let iniData = this.getTxtData(content);
@@ -27,8 +25,14 @@ class GameConfig {
                 else if (line.startsWith("RG=")) this.rg = this.convertBool(line.replace("RG=", ""));
                 else if (line.startsWith("SH=")) this.sh = this.convertBool(line.replace("SH=", ""));
                 else if (line.startsWith("GM=")) this.gm = this.convertBool(line.replace("GM=", ""));
-                else if (line.startsWith("Event=")) this.event = this.convertBool(line.replace("Event=", ""));
-                else if (line.startsWith("IOSPay=")) this.iosPay = this.convertBool(line.replace("IOSPay=", ""));
+                else {
+                    let arr = line.split("=");
+                    if (arr.length == 2) {
+                        this.bcfgs[arr[0]] = this.convertBool(arr[1]);
+                    } else {
+                        console.warn("错误的配置:" + line);
+                    }
+                }
             }
         }
 
@@ -37,7 +41,9 @@ class GameConfig {
             for (const line of lines) {
                 let arr = line.split("=");
                 if (arr.length == 2) {
-                    this.bundleVers.set(arr[0], arr[1]);
+                    this.bundleVers[arr[0]] = arr[1];
+                } else {
+                    console.warn("错误的配置:" + line);
                 }
             }
         }
