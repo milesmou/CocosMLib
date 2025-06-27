@@ -41,8 +41,15 @@ export class AssetMgr {
         await BundleMgr.Inst.loadBundles(bundleNames, opts);
     }
 
+    /** 已加载的Bundle中是否存在指定资源 */
     public static isAssetExists<T extends Asset>(location: string, type: new (...args: any[]) => T) {
         return BundleMgr.Inst.isAssetExists(this.parseLocation(location, type), type);
+    }
+
+    /** 资源是否已加载成功 */
+    public static isAssetLoaded<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+        let casset = this.cache.get(this.parseLocation(location, type)) as T;
+        return casset?.isValid;
     }
 
     public static parseLocation<T extends Asset>(location: string, type: (new (...args: any[]) => T) | T) {
@@ -185,21 +192,27 @@ export class AssetMgr {
         return p;
     }
 
-
     /** 
-     * 预加载资源 (只会下载资源到本地 不会加载到内存中)
+     * 预加载资源(下载资源并加载到内存中,实际调用的是CC的load接口)
      */
-    public static preloadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: ((finished: number, total: number, item: AssetManager.RequestItem) => void)) {
+    public static preloadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress) {
         location = this.parseLocation(location, type);
-        let p = new Promise<AssetManager.RequestItem[]>((resolve, reject) => {
+        let p = new Promise<void>((resolve, reject) => {
+            let casset = this.cache.get(location) as T;
+            if (casset?.isValid) {
+                onProgress && onProgress(1, 1);
+                resolve();
+                return;
+            }
             let bundle = BundleMgr.Inst.getAssetLocatedBundle(location, type);
-            bundle.preload(location, type, onProgress, (err, items) => {
+            bundle.load(location, type, onProgress, (err, asset) => {
                 if (err) {
                     console.error(err);
-                    resolve(null);
+                    resolve();
                 }
                 else {
-                    resolve(items);
+                    this.cache.set(location, asset);
+                    resolve();
                 }
             });
         })

@@ -5,6 +5,8 @@ class DouYinTools {
     public readonly sysInfo: tt.SystemInfo;
 
     public get env(): GameEnv {
+        ///开发工具和预览标记为develop，测试版标记为trial
+        if (this.sysInfo.platform == "devtools") return "develop";
         let env = tt.getEnvInfoSync().microapp.envType;
         if (env == "production") return "release";
         else if (env == "development") return "trial";

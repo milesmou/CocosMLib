@@ -4,7 +4,7 @@ class WechatTools {
     public readonly sysInfo: WechatMinigame.SystemInfo;
 
     public get env(): GameEnv {
-        //微信正式版的envVersion好像也是develop，所以只在开发工具上返回develop，上传的非体验版包都视为正式版
+        ///微信正式版的envVersion好像也是develop，所以只在开发工具上返回develop，上传的非体验版包都视为正式版
         if (this.sysInfo.platform == "devtools") return "develop";
         let env = wx.getAccountInfoSync().miniProgram.envVersion;
         if (env == "trial") return env;

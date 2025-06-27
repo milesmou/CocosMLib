@@ -95,8 +95,6 @@ class GameSetting extends Component {
         if (!val) this.manifest = null;
     }
 
-
-
     @property private _manifest: Asset = null;
     @property({
         type: Asset,
