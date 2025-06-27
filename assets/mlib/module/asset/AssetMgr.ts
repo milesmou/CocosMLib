@@ -219,7 +219,10 @@ export class AssetMgr {
         return p;
     }
 
-    /** 预加载场景 (只会下载场景资源到本地 不会加载到内存中) */
+    /** 
+     * 预加载场景 (只会下载场景资源到本地 不会加载到内存中)
+     * @param location 由bundle名字和场景名字组成 bundleName/SceneName
+     */
     public preloadScene(location: string, onProgress?: (finished: number, total: number, item: AssetManager.RequestItem) => void) {
         let p = new Promise<void>((resolve, reject) => {
             let [bundleName, sceneName] = location.split("/");
