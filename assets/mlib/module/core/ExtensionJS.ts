@@ -227,6 +227,15 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         });
         return array;
     }
+
+    Date.nowS = function () {
+        return Math.floor(Date.now() / 1000);
+    }
+
+    Date.prototype.getTimeS = function () {
+        let self: Date = this;
+        return Math.floor(self.getTime() / 1000);
+    }
 }
 
 declare global {
@@ -351,5 +360,14 @@ declare global {
         toArray(): T[];
     }
 
+    interface DateConstructor {
+        /** 返回当前时间的秒级时间戳 */
+        nowS(): number;
+    }
+
+    interface Date {
+        /** 返回时间对象的秒级时间戳 */
+        getTimeS(): number;
+    }
 
 }

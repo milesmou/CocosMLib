@@ -28,11 +28,10 @@ export class AssetMgr {
         onProgress && onProgress(1, 1);
     }
 
-    /** 卸载Bundle并释放所有资源 */
-    public static async unloadBundle(bundleName: string) {
-        BundleMgr.Inst.unloadBundle(bundleName);
+    /** 卸载Bundle releaseAll:是否释放所有资源,默认false */
+    public static async unloadBundle(bundleName: string, releaseAll = false) {
+        BundleMgr.Inst.unloadBundle(bundleName, releaseAll);
     }
-
 
     public static async loadBundles(bundleNames?: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: Progress }) {
         if (!bundleNames) {
@@ -43,7 +42,7 @@ export class AssetMgr {
     }
 
     public static isAssetExists<T extends Asset>(location: string, type: new (...args: any[]) => T) {
-        return BundleMgr.Inst.isAssetExists(location, type);
+        return BundleMgr.Inst.isAssetExists(this.parseLocation(location, type), type);
     }
 
     public static parseLocation<T extends Asset>(location: string, type: (new (...args: any[]) => T) | T) {

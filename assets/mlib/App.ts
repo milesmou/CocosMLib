@@ -19,6 +19,9 @@ interface IApp {
     readonly env: GameEnv;
     /** 渠道能力实例 */
     readonly chan: Channel;
+    /** 版本详细信息 */
+    readonly verDetail: string;
+
     /** 时间管理组件 */
     readonly timer: TimerComponent;
     /** 音频播放组件 */
@@ -39,6 +42,7 @@ interface IApp {
     readonly l10n: typeof L10nMgr;
     /** 提示信息 */
     readonly tipMsg: typeof TipMsg;
+
 }
 
 /** 应用程序启动入口 */
@@ -47,6 +51,7 @@ class App extends Component implements IApp {
 
     public env: GameEnv;
     public chan: Channel;
+    public verDetail: string;
 
     public timer: TimerComponent;
     public audio: AudioComponent;
@@ -74,6 +79,7 @@ class App extends Component implements IApp {
 
         this.env = Publish.getGameEnv();
         this.chan = Publish.getChannelInstance();
+        this.verDetail = mGameSetting.channel + "_" + mGameSetting.version + "_" + this.env.upperFirst();
 
         mLogger.info(`GameSetting Env=${this.env} Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version}`);
         mLogger.info(`GameSetting ConfigType=${mGameSetting.gameConfigTypeStr} Language=${L10nMgr.lang}`);

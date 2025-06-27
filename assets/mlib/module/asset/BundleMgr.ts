@@ -27,16 +27,16 @@ export class BundleMgr {
         return p;
     }
 
-    /** 卸载Bundle并释放所有资源 */
-    public async unloadBundle(bundleName: string) {
+    /** 卸载Bundle releaseAll:是否释放所有资源 */
+    public unloadBundle(bundleName: string, releaseAll: boolean) {
         let bundle = assetManager.bundles.get(bundleName);
         if (bundle) {
-            bundle.releaseAll();
             assetManager.removeBundle(bundle);
             for (const kv of this._address) {
                 let [key, value] = kv;
                 if (value == bundleName) this._address.delete(key);
             }
+            if (releaseAll) bundle.releaseAll();
         } else {
             console.warn(`bundle不存在 ${bundleName}`);
         }
