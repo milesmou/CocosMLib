@@ -11,15 +11,14 @@
         "strictPropertyInitialization": false,
         "types": [
             "minigame-api-typings", //微信小游戏API
-            "./extensions/miles-editor-tool/node_modules/@cocos/creator-types/editor", //Cocos编辑器API
-        ]
+        ],
     },
     "exclude": [
+        "extensions",
         "node_modules",
         "library",
         "local",
         "build",
         "settings",
-        "extensions"
     ]
 }

@@ -262,6 +262,8 @@ class GameSetting extends Component {
 
 
 declare global {
+    /** 防止使用编辑器接口报错(仅在编辑器环境可用) */
+    const Editor: any;
     /** 游戏的配置 */
     const mGameSetting: GameSetting;
 }

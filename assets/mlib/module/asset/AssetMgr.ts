@@ -12,10 +12,10 @@ export class AssetMgr {
 
     /** 正在加载的资源(非预加载) */
     private static loadingAsset: Set<string> = new Set();
-
-    private static get cache() {
-        return AssetCache.Inst.cache;
-    }
+    /** 已加载完成的资源 */
+    private static get loadedAsset() { return AssetCache.Inst.loadedAsset; }
+    /** 预加载完成的资源 */
+    private static get preloadedAsset() { return AssetCache.Inst.preloadedAsset; }
 
     /** 当前正在加载的资源数量(非预加载) */
     public static get loadingCount() {
@@ -46,10 +46,16 @@ export class AssetMgr {
         return BundleMgr.Inst.isAssetExists(this.parseLocation(location, type), type);
     }
 
-    /** 资源是否已加载成功 */
+    /** 资源是否已经加载成功 */
     public static isAssetLoaded<T extends Asset>(location: string, type: new (...args: any[]) => T) {
-        let casset = this.cache.get(this.parseLocation(location, type)) as T;
+        let casset = this.loadedAsset.get(this.parseLocation(location, type)) as T;
         return casset?.isValid;
+
+    }
+
+    /** 资源是否已经预加载成功 (使用loadAsset加载成功资源也算预加载成功) */
+    public static isAssetPreloaded<T extends Asset>(location: string, type: new (...args: any[]) => T) {
+        return this.isAssetLoaded(location, type) || this.preloadedAsset.has(this.parseLocation(location, type));
     }
 
     public static parseLocation<T extends Asset>(location: string, type: (new (...args: any[]) => T) | T) {
@@ -66,7 +72,7 @@ export class AssetMgr {
     public static loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress) {
         location = this.parseLocation(location, type);
         let p = new Promise<T>((resolve, reject) => {
-            let casset = this.cache.get(location) as T;
+            let casset = this.loadedAsset.get(location) as T;
             if (casset?.isValid) {
                 casset.addRef();
                 onProgress && onProgress(1, 1);
@@ -83,7 +89,7 @@ export class AssetMgr {
                 }
                 else {
                     asset.addRef();
-                    this.cache.set(location, asset);
+                    this.loadedAsset.set(location, asset);
                     resolve(asset);
                 }
             });
@@ -111,7 +117,7 @@ export class AssetMgr {
     /** 加载远程资源 */
     public static loadRemoteAsset<T extends Asset>(url: string, ext?: string) {
         let p = new Promise<T>((resolve, reject) => {
-            let casset = this.cache.get(url) as T;
+            let casset = this.loadedAsset.get(url) as T;
             if (casset?.isValid) {
                 casset.addRef();
                 resolve(casset);
@@ -125,7 +131,7 @@ export class AssetMgr {
                     resolve(null);
                 }
                 else {
-                    this.cache.set(url, asset);
+                    this.loadedAsset.set(url, asset);
                     asset.addRef();
                     resolve(asset);
                 }
@@ -136,7 +142,7 @@ export class AssetMgr {
 
     /** 加载远程的图片精灵 */
     public static async loadRemoteSpriteFrame(url: string) {
-        let casset = this.cache.get(url);
+        let casset = this.loadedAsset.get(url);
         if (casset?.isValid) {
             return casset as SpriteFrame;
         }
@@ -144,7 +150,7 @@ export class AssetMgr {
         if (img) {
             let spFrame = SpriteFrame.createWithImage(img);
             spFrame.addRef();
-            this.cache.set(url, spFrame);
+            this.loadedAsset.set(url, spFrame);
             return spFrame;
         }
         return null;
@@ -193,27 +199,19 @@ export class AssetMgr {
     }
 
     /** 
-     * 预加载资源(下载资源并加载到内存中,实际调用的是CC的load接口)
+     * 预加载资源 (只会下载资源到本地 不会加载到内存中)
      */
     public static preloadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress) {
         location = this.parseLocation(location, type);
         let p = new Promise<void>((resolve, reject) => {
-            let casset = this.cache.get(location) as T;
-            if (casset?.isValid) {
-                onProgress && onProgress(1, 1);
-                resolve();
-                return;
-            }
             let bundle = BundleMgr.Inst.getAssetLocatedBundle(location, type);
-            bundle.load(location, type, onProgress, (err, asset) => {
+            bundle.preload(location, type, onProgress, (err, asset) => {
                 if (err) {
                     console.error(err);
-                    resolve();
+                } else {
+                    this.preloadedAsset.add(location);
                 }
-                else {
-                    this.cache.set(location, asset);
-                    resolve();
-                }
+                resolve();
             });
         })
         return p;
@@ -271,7 +269,7 @@ export class AssetMgr {
 
     /** 让资源引用计数增加 */
     public static addRef(location: string, decCount = 1) {
-        let asset = this.cache.get(location);
+        let asset = this.loadedAsset.get(location);
         if (asset?.isValid) {
             for (let i = 0; i < decCount; i++) {
                 asset.addRef();
@@ -285,7 +283,7 @@ export class AssetMgr {
      * 让资源引用计数减少 (注意精灵和纹理需要使用完整路径)
      */
     public static decRef(location: string, decCount = 1) {
-        let asset = this.cache.get(location);
+        let asset = this.loadedAsset.get(location);
         if (asset?.isValid) {
             if (decCount < 0) {
                 asset.destroy();

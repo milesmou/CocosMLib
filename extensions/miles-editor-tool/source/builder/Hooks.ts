@@ -3,6 +3,7 @@ import { Config } from "../tools/Config";
 import { Utils } from '../tools/Utils';
 import { BuildLogger } from './BuildLogger';
 import { BuildConfig } from './postbuild/BuildConfig';
+import { BuildNative } from './postbuild/BuildNative';
 import { HotUpdate } from './postbuild/HotUpdate';
 import { Minigame } from './postbuild/Minigame';
 
@@ -24,6 +25,7 @@ export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBu
     BuildLogger.info(tag, "后处理开始");
     BuildConfig.execute(options, result);
     if (Utils.isNative(options.platform)) {
+        BuildNative.execute(options, result);
         /** 是否启用热更 */
         let hotupdateEnable = Config.get("gameSetting.hotupdate", false);
         BuildLogger.info(tag, 'hotupdateEnable', hotupdateEnable);

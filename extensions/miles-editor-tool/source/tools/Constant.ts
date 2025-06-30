@@ -1,8 +1,10 @@
 export class Constant {
-    /** 构建模板的根目录名 */
+    /** 构建配置的根目录名 */
     public static BuildConfigDirName = "buildConfig";
     /** 构建模板的根目录名 */
     public static BuildTemplateDirName = "template";
+    /** 原生构建模块的根目录名 */
+    public static BuildNativeDirName = "buildNative";
     /** 保存插件配置的文件路径 */
     public static ConfigFilePath = Editor.Project.path + "/settings/miles-editor-config.json";
     /** 和Scene操作脚本的通信文件 */
