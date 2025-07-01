@@ -9,6 +9,7 @@ class ZFBTools {
     }
 
     public constructor() {
+        this.checkUpdate();
         this.sysInfo = zfb.getSystemInfoSync();
         console.log("SystemInfo", this.sysInfo);
     }
@@ -55,6 +56,24 @@ class ZFBTools {
         result.height = nodeRect.width * scale;
 
         return result;
+    }
+
+    /**
+     * 开启版本更新检测
+     */
+    private checkUpdate() {
+        let updateManager = zfb.getUpdateManager();
+        updateManager.onUpdateReady(() => {
+            zfb.confirm({
+                title: "更新提示",
+                content: "新版本已准备好，是否重启应用？",
+                success: res => {
+                    if (res.confirm) {
+                        updateManager.applyUpdate();
+                    }
+                }
+            })
+        })
     }
 }
 

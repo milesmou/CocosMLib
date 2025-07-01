@@ -14,6 +14,7 @@ class DouYinTools {
     }
 
     public constructor() {
+        this.checkUpdate();
         this.sysInfo = tt.getSystemInfoSync();
         console.log("SystemInfo", this.sysInfo);
     }
@@ -48,6 +49,24 @@ class DouYinTools {
         result.height = nodeRect.width * scale;
 
         return result;
+    }
+
+    /**
+     * 开启版本更新检测
+     */
+    private checkUpdate() {
+        let updateManager = tt.getUpdateManager();
+        updateManager.onUpdateReady(() => {
+            tt.showModal({
+                title: "更新提示",
+                content: "新版本已准备好，是否重启应用？",
+                success: res => {
+                    if (res.confirm) {
+                        updateManager.applyUpdate();
+                    }
+                }
+            })
+        })
     }
 }
 

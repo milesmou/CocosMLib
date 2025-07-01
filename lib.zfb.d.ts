@@ -10,6 +10,7 @@ declare namespace zfb {
     export function getAccountInfoSync(opt?: CallbackOpt): AccountInfo;
     export function getWindowInfo(opt?: CallbackOpt): WindowInfo;
     export function getLaunchOptionsSync();
+    export function getUpdateManager();
     export function vibrateShort(opt?: any);
     export function vibrateLong(opt?: any);
     export function requestSubscribeMessage(opt?: any);

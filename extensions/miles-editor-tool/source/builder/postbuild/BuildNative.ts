@@ -18,7 +18,6 @@ export class BuildNative {
     }
 
     private static copyNativeModule(options: IBuildTaskOption, result: IBuildResult) {
-
         let moduleDir = `${Utils.ProjectPath}/${Constant.BuildNativeDirName}/${options.taskName}`;
         if (!fs.existsSync(moduleDir)) {//
             let oDir1 = `${Utils.ProjectPath}/native/engine/common`;
@@ -34,26 +33,27 @@ export class BuildNative {
     /** 修改原生工程，使其引用拷贝后的模块 */
     private static modifyNativeProject(options: IBuildTaskOption, result: IBuildResult) {
         BuildLogger.info(tag, `modifyNativeProject ${options.platform}`);
-        switch (options.platform) {
-            case "android":
-                this.modifyAndroidProjectCfg(options, result);
-                break;
+        let files = this.getModifyFiles(options, result);
+        if (files?.length > 0) {
+            let nativeDir = `${Constant.BuildNativeDirName}/${options.taskName}/${options.platform}`;
+            for (const file of files) {
+                BuildLogger.info(tag, `modifyFile ${file}`);
+                let content = fs.readFileSync(file, 'utf8');
+                let regex = new RegExp("native/engine/" + options.platform, "g");
+                fs.writeFileSync(file, content.replace(regex, nativeDir), "utf8");
+            }
         }
     }
 
-    private static modifyAndroidProjectCfg(options: IBuildTaskOption, result: IBuildResult) {
-        let nativeDir = `${Utils.ProjectPath}/${Constant.BuildNativeDirName}/${options.taskName}/${options.platform}`;
-        let filePath = `${Utils.toUniSeparator(result.dest)}/proj/gradle.properties`;
-        let content = fs.readFileSync(filePath, 'utf8');
-        let lines = content.split("\r\n");
-        if (lines.length < 2) content.split("\n");
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            if (line.startsWith("NATIVE_DIR=")) {
-                lines[i] = "NATIVE_DIR=" + nativeDir;
-                break;
-            }
+    private static getModifyFiles(options: IBuildTaskOption, result: IBuildResult) {
+        switch (options.platform) {
+            case "android":
+                return [`${Utils.toUniSeparator(result.dest)}/proj/gradle.properties`];
+            case "ios":
+                return [`${Utils.toUniSeparator(result.dest)}/proj/newcooking.xcodeproj/project.pbxproj`];
+            default:
+                BuildLogger.info(tag, `未处理的平台`, options.platform);
         }
-        fs.writeFileSync(filePath, lines.join("\n"), "utf8");
+        return null;
     }
 }

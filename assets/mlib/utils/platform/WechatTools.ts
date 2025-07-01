@@ -12,6 +12,7 @@ class WechatTools {
     }
 
     public constructor() {
+        this.checkUpdate();
         this.sysInfo = wx.getSystemInfoSync();
         console.log("SystemInfo", this.sysInfo);
     }
@@ -41,6 +42,24 @@ class WechatTools {
         result.height = nodeRect.width * scale;
 
         return result;
+    }
+
+    /**
+     * 开启版本更新检测
+     */
+    private checkUpdate() {
+        let updateManager = wx.getUpdateManager();
+        updateManager.onUpdateReady(() => {
+            wx.showModal({
+                title: "更新提示",
+                content: "新版本已准备好，是否重启应用？",
+                success: res => {
+                    if (res.confirm) {
+                        updateManager.applyUpdate();
+                    }
+                }
+            })
+        })
     }
 }
 

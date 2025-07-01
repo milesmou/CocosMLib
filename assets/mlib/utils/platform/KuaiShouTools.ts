@@ -4,13 +4,14 @@ import { Node, size, view } from "cc";
 class KuaiShouTools {
 
     public readonly sysInfo: WechatMinigame.SystemInfo;
-    
+
     public get env(): GameEnv {
         let env = ks.getAccountInfoSync().miniProgram.envVersion;
         return env;
     }
 
     public constructor() {
+        this.checkUpdate();
         this.sysInfo = wx.getSystemInfoSync();
         console.log("SystemInfo", this.sysInfo);
     }
@@ -40,6 +41,24 @@ class KuaiShouTools {
         result.height = nodeRect.width * scale;
 
         return result;
+    }
+
+    /**
+     * 开启版本更新检测
+     */
+    private checkUpdate() {
+        let updateManager = ks.getUpdateManager();
+        updateManager.onUpdateReady(() => {
+            ks.showModal({
+                title: "更新提示",
+                content: "新版本已准备好，是否重启应用？",
+                success: res => {
+                    if (res.confirm) {
+                        updateManager.applyUpdate();
+                    }
+                }
+            })
+        })
     }
 }
 

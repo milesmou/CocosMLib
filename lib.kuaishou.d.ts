@@ -9,6 +9,7 @@ declare namespace ks {
     export function getAccountInfoSync(): any;
     export function getSystemInfoSync(opt?: CallbackOpt): SystemInfo;
     export function getLaunchOptionsSync();
+    export function getUpdateManager();
     export function vibrateShort(opt?: any);
     export function vibrateLong(opt?: any);
     export function requestSubscribeMessage(opt?: any);
