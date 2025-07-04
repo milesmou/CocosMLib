@@ -40,8 +40,6 @@ export interface IInternalVerificationRule {
     message: string;
 }
 
-
-
 export type IDisplayOptions = Record<string, IConfigItem>;
 
 export type ArrayItem = {
@@ -112,7 +110,6 @@ export namespace AssetHandlers {
         tasks: { src: string; dest: string; quality: number | IPVRQuality | IASTCQuality | IETCQuality; format: ITextureCompressType }[],
     ) => Promise<void>;
 }
-
 
 // ui-panel 注册数据
 export interface PanelInfo {

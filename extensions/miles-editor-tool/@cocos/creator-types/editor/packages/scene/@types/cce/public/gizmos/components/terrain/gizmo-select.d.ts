@@ -2,7 +2,7 @@ import { Terrain } from 'cc';
 import { TerrainEditor } from './terrain-editor';
 import { eTerrainEditorMode } from './terrain-editor-mode';
 import { ISceneKeyboardEvent } from '../../../../../../@types/private';
-import type { IControlMouseEvent } from '../../utils/defines';
+import type { GizmoMouseEvent } from '../../utils/defines';
 import { SelectGizmo } from '../base';
 interface IBrush {
     radius: number;
@@ -16,7 +16,6 @@ interface ITerrainInfo {
     blockCount: number[];
 }
 declare class TerrainGizmo extends SelectGizmo<Terrain> {
-    private _controller;
     private _editor;
     private _isEditorInit;
     private _isShiftDown;
@@ -35,13 +34,8 @@ declare class TerrainGizmo extends SelectGizmo<Terrain> {
     set isTerrainChange(isChange: boolean);
     onShow(): void;
     onHide(): void;
-    createController(): void;
-    onControllerMouseDown(event: IControlMouseEvent): void;
+    onEditorCameraMoved(): void;
     reportRushModeAndPaintModeUsedCount(): void;
-    onControllerMouseMove(event: IControlMouseEvent): void;
-    onControllerMouseUp(event: IControlMouseEvent | null): void;
-    onControllerHoverOut(): void;
-    updateControllerData(): void;
     initEditor(): void;
     addLayerByUuid(uuid: string): Promise<unknown>;
     setSculptBrush(uuid: string): Promise<unknown>;
@@ -69,15 +63,16 @@ declare class TerrainGizmo extends SelectGizmo<Terrain> {
         } | null;
         layers: any[];
     };
-    protected alignQuadShape(): void;
-    onTargetUpdate(): void;
-    onNodeChanged(): void;
     emitNodeChange(): void;
     onKeyDown(event: ISceneKeyboardEvent): void;
     onKeyUp(event: ISceneKeyboardEvent): void;
     onUpdate(deltaTime: number): void;
     onCameraControlModeChanged(mode: number): void;
     updateTerrainAsset(): void;
+    onControllerMouseDown(event: GizmoMouseEvent): void;
+    onControllerMouseMove(event: GizmoMouseEvent): void;
+    onControllerMouseUp(event: GizmoMouseEvent): void;
+    onControllerHoverOut(): void;
 }
 export default TerrainGizmo;
 //# sourceMappingURL=gizmo-select.d.ts.map

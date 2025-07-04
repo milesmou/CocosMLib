@@ -1,5 +1,5 @@
 import { Color, Node, Quat, Vec2, Vec3 } from 'cc';
-import type { IControlMouseEvent, IHandleData } from '../utils/defines';
+import type { GizmoMouseEvent, IHandleData } from '../utils/defines';
 declare class ControllerBase {
     get transformToolData(): import("../manager/transform-tool").TransformToolData;
     get updated(): boolean;
@@ -7,11 +7,11 @@ declare class ControllerBase {
     shape: Node;
     /** 如果 controller 锁死将不再响应拖拽 */
     isLock: boolean;
-    onControllerMouseDown?(event: IControlMouseEvent): void;
-    onControllerMouseMove?(event: IControlMouseEvent): void;
-    onControllerMouseUp?(event: IControlMouseEvent): void;
-    onControllerHoverIn?(event: IControlMouseEvent): void;
-    onControllerHoverOut?(event: IControlMouseEvent): void;
+    onControllerMouseDown?(event: GizmoMouseEvent): void;
+    onControllerMouseMove?(event: GizmoMouseEvent): void;
+    onControllerMouseUp?(event: GizmoMouseEvent): void;
+    onControllerHoverIn?(event: GizmoMouseEvent): void;
+    onControllerHoverOut?(event: GizmoMouseEvent): void;
     get isMouseDown(): boolean;
     protected _updated: boolean;
     protected _scale: Vec3;
@@ -60,7 +60,16 @@ declare class ControllerBase {
     initHandle(node: Node, handleName: string): IHandleData;
     removeHandle(handleName: string): void;
     setHandleColor(handleName: string, color: Color, opacity?: number): void;
-    resetHandleColor(): void;
+    resetHandleColor(event?: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
+    /**
+     * 重置指定 handle 的颜色与透明度
+     * @param key
+     * @param hoverInNodeMap
+     * @private
+     */
+    private resetHandleColorByKey;
     registerMouseEvents(node: Node, controlName: string): void;
     unregisterMouseEvent(node: Node, controlName: string): void;
     setPosition(value: Readonly<Vec3>): void;
@@ -92,12 +101,12 @@ declare class ControllerBase {
     onDimensionChanged(): void;
     onScale2DChanged(): void;
     onCameraOrthoHeightChanged(): void;
-    protected onMouseDown?(event: IControlMouseEvent): boolean | void;
-    protected onMouseMove?(event: IControlMouseEvent): boolean | void;
-    protected onMouseUp?(event: IControlMouseEvent): boolean | void;
-    protected onMouseLeave?(event: IControlMouseEvent): void;
-    protected onHoverIn?(event: IControlMouseEvent): void;
-    protected onHoverOut?(event: IControlMouseEvent): void;
+    protected onMouseDown?(event: GizmoMouseEvent): boolean | void;
+    protected onMouseMove?(event: GizmoMouseEvent): boolean | void;
+    protected onMouseUp?(event: GizmoMouseEvent): boolean | void;
+    protected onMouseLeave?(event: GizmoMouseEvent): void;
+    protected onHoverIn?(event: GizmoMouseEvent): void;
+    protected onHoverOut?(event: GizmoMouseEvent): void;
     protected onShow?(): void;
     protected onHide?(): void;
 }

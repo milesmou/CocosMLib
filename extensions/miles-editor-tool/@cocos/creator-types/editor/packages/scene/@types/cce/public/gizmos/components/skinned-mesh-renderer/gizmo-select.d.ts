@@ -1,12 +1,10 @@
 import { SkinningModelComponent } from 'cc';
-import LightProbeEditModeListener from '../../utils/light-probe-edit-mode-listener';
 import { SelectGizmo } from '../base';
 import LightProbeTetrahedronController from '../light-probe-group/controller-light-probe-tetrahedron';
-declare class SkinningModelComponentGizmo extends SelectGizmo<SkinningModelComponent> implements LightProbeEditModeListener {
+declare class SkinningModelComponentGizmo extends SelectGizmo<SkinningModelComponent> {
     private _controller;
     tetrahedronController: LightProbeTetrahedronController;
     init(): void;
-    lightProbeInfoChanged(): void;
     onShow(): void;
     onHide(): void;
     createController(): void;

@@ -11,6 +11,7 @@ declare class ModeBase implements IOperationMode {
     constructor(cameraCtrl: CameraController2D, modeName: CameraMoveMode);
     enter(): Promise<void>;
     exit(): Promise<void>;
+    onMouseDBlDown(event: ISceneMouseEvent): boolean;
     onMouseDown(event: ISceneMouseEvent): boolean;
     onMouseMove(event: ISceneMouseEvent): boolean;
     onMouseUp(event: ISceneMouseEvent): boolean;

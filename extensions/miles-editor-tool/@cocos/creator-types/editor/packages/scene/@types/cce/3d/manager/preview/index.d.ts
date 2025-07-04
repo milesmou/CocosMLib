@@ -6,6 +6,8 @@ import { SkeletonPreview } from '../skeleton-preview';
 import { MotionPreview } from '../animation-graph-preview/motion';
 import { TransitionPreview } from '../animation-graph-preview/transition';
 import { PreviewBase } from './preview-base';
+import { PrefabPreview } from './prefab-preview';
+import { SpinePreview } from './spine-preview';
 export declare class PreviewManager {
     _previewMgrMap: Map<string, PreviewBase>;
     scenePreview: import("./scene-preview").ScenePreview;
@@ -16,6 +18,8 @@ export declare class PreviewManager {
     skeletonPreview: SkeletonPreview;
     motionPreview: MotionPreview;
     transitionPreview: TransitionPreview;
+    prefabPreview: PrefabPreview;
+    spinePreview: SpinePreview;
     _electronIPC: any;
     init(): void;
     private initPreview;

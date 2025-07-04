@@ -2,6 +2,7 @@
 import * as AssetDb from './../packages/asset-db/@types/protected/message';
 import * as Builder from './../packages/builder/@types/protected/message';
 import * as Engine from './../packages/engine/@types/protected/message';
+import * as Preview from './../packages/preview/@types/protected/message';
 
 declare global {
     interface EditorMessageContent {
@@ -18,6 +19,7 @@ declare global {
         'asset-db': AssetDb.message;
         'builder': Builder.message;
         'engine': Engine.message;
+        'preview': Preview.message;
 
     }
 }

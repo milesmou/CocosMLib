@@ -19,6 +19,7 @@ interface ICustomBuildScriptParam extends IBuildScriptParam {
 export interface ITaskOption extends IInternalBuildOptions {
     packages: ITaskOptionPackages;
     buildScriptParam: ICustomBuildScriptParam;
+    cocosParams: CocosParams<Object>;
 }
 
 export interface IOptions {

@@ -24,7 +24,9 @@ export declare class TerrainEditor {
     getCurrentLayer(): number;
     update(dTime: number, isShiftDown: boolean): void;
     onMouseDown(x: number, y: number): void;
-    onMouseUp(x?: number, y?: number): void;
+    onMouseUp(): void;
     onMouseMove(x: number, y: number): void;
+    onHoverOut(): void;
+    updateBlockDepthOffset(): void;
 }
 //# sourceMappingURL=terrain-editor.d.ts.map

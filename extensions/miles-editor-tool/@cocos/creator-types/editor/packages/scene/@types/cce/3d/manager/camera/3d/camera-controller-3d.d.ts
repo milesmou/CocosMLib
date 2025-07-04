@@ -21,9 +21,6 @@ export interface ICameraController3DEvent {
  */
 export declare function smoothMouseWheelScale(delta: number): number;
 declare class CameraController3D extends CameraControllerBase {
-    on<E extends keyof ICameraController3DEvent>(event: E, callback: ICameraController3DEvent[E]): this;
-    once<E extends keyof ICameraController3DEvent>(event: E, callback: ICameraController3DEvent[E]): this;
-    emit<E extends keyof ICameraController3DEvent>(event: E, ...parameters: Parameters<ICameraController3DEvent[E]>): boolean;
     private v3a;
     private v3b;
     private v3c;
@@ -44,6 +41,8 @@ declare class CameraController3D extends CameraControllerBase {
     private _curRot;
     private _curEye;
     private _lineColor;
+    private lastMouseWheelDeltaY;
+    private maxMouseWheelDeltaY;
     private _modeFSM;
     private _idleMode;
     private _orbitMode;
@@ -84,6 +83,7 @@ declare class CameraController3D extends CameraControllerBase {
     scale(delta: number): void;
     smoothScale(delta: number): number;
     lastFocusNodeUUID: string[];
+    private focusByNode;
     /**
      * 焦点转向某个节点
      * 如果传入 nodes，则转向这些节点
@@ -93,9 +93,16 @@ declare class CameraController3D extends CameraControllerBase {
      * @param immediate
      */
     focus(nodeUuids?: string[] | null, editorCameraInfo?: EditorCameraInfo, immediate?: boolean): void;
+    /**
+     * 聚焦指定坐标（一般是通过射线返回指定坐标）
+     * @param hitPoint
+     * @param immediate
+     */
+    focusByXY(hitPoint: Vec3, immediate?: boolean): void;
     alignNodeToSceneView(nodeUuids: string[]): Promise<void>;
     private alignCameraOrthoHeightToNode;
     alignSceneViewToNode(nodeUuids: string[]): void;
+    onMouseDBlDown(event: ISceneMouseEvent): boolean;
     onMouseDown(event: ISceneMouseEvent): boolean;
     onMouseMove(event: ISceneMouseEvent): boolean;
     onMouseUp(event: ISceneMouseEvent): boolean;

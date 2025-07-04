@@ -1,13 +1,14 @@
 import { IVec3Like, Node, physics, Vec3 } from 'cc';
 import { ISceneKeyboardEvent } from '../../../../../@types/private';
 import { IRaycastResult } from '../../../utils/raycast';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 import PositionController from './position-controller';
 import GizmoEventListener from '../utils/gizmo-event-listener';
 import TransformGizmo from './transform-base';
 declare class PositionGizmo extends TransformGizmo {
     protected _controller: PositionController;
     disableUndo: boolean;
+    disableSnap: boolean;
     private readonly _nodesWorldPosList;
     private _snapMode;
     private _snapMouseDown;
@@ -27,16 +28,16 @@ declare class PositionGizmo extends TransformGizmo {
     set controller(val: PositionController);
     addMouseEventListener(listener: GizmoEventListener): string;
     removeMouseEventListener(id: string): void;
-    checkLock(event: IControlMouseEvent): void;
-    onControllerMouseDown(event: IControlMouseEvent): void;
-    onControllerMouseMove(event: IControlMouseEvent): void;
-    onControllerMouseUp(event: IControlMouseEvent): void;
-    onKeyDown(event: ISceneKeyboardEvent): boolean | undefined;
+    checkLock(event: GizmoMouseEvent): void;
+    onControllerMouseDown(event: GizmoMouseEvent): void;
+    onControllerMouseMove(event: GizmoMouseEvent): void;
+    onControllerMouseUp(event: GizmoMouseEvent): void;
+    onKeyDown(event: ISceneKeyboardEvent): undefined | false | true;
     onKeyUp(event: ISceneKeyboardEvent): boolean;
     applySnapIncrement(out: Vec3 | undefined, snapStep: IVec3Like, controllerName: string): Vec3;
     /** 获取某一轴向应用了单位捕捉增量的值 */
     applySnapIncrementForAxis(out: Vec3 | undefined, deltaPosOfAxis: Readonly<Vec3>, snapStep: IVec3Like, axis: 'x' | 'y' | 'z'): Vec3;
-    updateDataFromController(event: IControlMouseEvent): void;
+    updateDataFromController(event: GizmoMouseEvent): void;
     updateControllerTransform(force?: boolean): void;
     /**
      *
@@ -55,13 +56,13 @@ declare class PositionGizmo extends TransformGizmo {
      * @param pos 节点待添加的偏移量
      * @param event
      */
-    updateSnapPosition(pos: Vec3, event: IControlMouseEvent): void;
+    updateSnapPosition(pos: Vec3, event: GizmoMouseEvent): true | undefined;
     /**
      * 顶点吸附模式下，左键没按下时，鼠标移动可以修改想要拖动的顶点
      * @param event
      */
-    updateVertexPos(event: IControlMouseEvent): void;
-    onVertexSnapMove(event: IControlMouseEvent): false | undefined;
+    updateVertexPos(event: GizmoMouseEvent): void;
+    onVertexSnapMove(event: GizmoMouseEvent): boolean | undefined;
     /**
      * 修改gizmo的位置
      * @param pos 新的位置
@@ -76,8 +77,7 @@ declare class PositionGizmo extends TransformGizmo {
     /**
      * 获取非target中的节点(吸附时需要排除自身)
      * @param resultNodes 射线检测结果，有两种1.无处理的结果 2.整理成nodeArray
-     * @param isNodeArray 是否时node Array
-     * @returns result resultnodes中符合条件的元素
+     * @returns result nodes 中符合条件的元素
      */
     getNodeExcludeTarget(resultNodes: Node[]): Node | null;
     getNodeExcludeTarget(resultNodes: IRaycastResult[]): IRaycastResult | null;

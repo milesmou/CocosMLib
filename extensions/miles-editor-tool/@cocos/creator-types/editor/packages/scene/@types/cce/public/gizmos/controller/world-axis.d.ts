@@ -1,6 +1,6 @@
 import { Node, Vec3, Camera, Color, Texture2D } from 'cc';
 import ControllerBase from './base';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class WorldAxisController extends ControllerBase {
     private _defaultSize;
     private _sceneGizmoCamera;
@@ -13,9 +13,11 @@ declare class WorldAxisController extends ControllerBase {
     setTexture(node: Node, texture: Texture2D | null): void;
     setTextureByUUID(node: Node, uuid: string): void;
     createAxisText(axis: string, uuid: string, color: Color): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     onEditorCameraMoved(): void;
     onCameraProjectionChanged(projection: number): void;
 }

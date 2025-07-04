@@ -58,7 +58,7 @@ export interface IBuildOptionBase {
     platform: Platform;
     scenes: IBuildSceneItem[];
     skipCompressTexture: boolean;
-    sourceMaps: boolean;
+    sourceMaps: boolean | 'inline';
     experimentalEraseModules: boolean;
     bundleCommonChunk: boolean;
 
@@ -66,6 +66,8 @@ export interface IBuildOptionBase {
     // 构建后的游戏文件夹生成的路径
     buildPath: string;
     debug: boolean;
+    mangleProperties: boolean;
+    inlineEnum: boolean;
     inlineSpriteFrames: boolean;
     md5Cache: boolean;
 
@@ -88,7 +90,9 @@ export interface IBuildOptionBase {
     flags?: Record<string, boolean>;
     customLayers: { name: string, value: number }[];
     sortingLayers: { id: number, name: string, value: number }[];
-    macroConfig?: Record<string, any>
+    macroConfig?: Record<string, any>;
+    // 是否使用自定义管线，如与其他模块配置不匹配将会以当前选项为准
+    customPipeline?: boolean;
 
     // 是否使用自定义插屏选项
     useSplashScreen?: boolean;
@@ -102,7 +106,6 @@ export interface IBuildOptionBase {
 
     buildMode?: 'normal' | 'bundle' | 'script';
 }
-
 
 export interface BundleFilterConfig {
     range: 'include' | 'exclude';
@@ -174,10 +177,10 @@ export interface IBuildTaskOption extends IBuildOptionBase {
             physics?: 'inherit-project-setting' | string;
             'physics-2d'?: 'inherit-project-setting' | string;
             'gfx-webgl2'?: 'inherit-project-setting' | 'on' | 'off';
-            [key: string]: 'inherit-project-setting' | string;
+            [key?: string]: string;
         };
     };
-    nativeCodeBundleMode:  'wasm' | 'asmjs' | 'both';
+    nativeCodeBundleMode: 'wasm' | 'asmjs' | 'both';
     wasmCompressionMode?: 'brotli';
 }
 
@@ -210,7 +213,7 @@ export interface ISplashBackgroundColor {
     x: number;
     y: number;
     z: number;
-    w: number ;
+    w: number;
 }
 
 export interface ICustomJointTextureLayout {
@@ -263,7 +266,7 @@ export interface IBuildSystemJsOption {
     dest: string;
     platform: string;
     debug: boolean;
-    sourceMaps: boolean;
+    sourceMaps: boolean | 'inline';
     hotModuleReload?: boolean;
 }
 
@@ -286,6 +289,7 @@ export type Platform =
     | 'oppo-mini-game'
     | 'vivo-mini-game'
     | 'huawei-quick-game'
+    | 'migu-mini-game'
     | 'alipay-mini-game'
     | 'taobao-creative-app'
     | 'taobao-mini-game'
@@ -294,8 +298,9 @@ export type Platform =
     | 'linux'
     // | 'ios-app-clip'
     | 'android'
+    | 'google-play'
     | 'ohos'
-    | 'openharmony'
+    | 'harmonyos-next'
     | 'windows'
     | 'xiaomi-quick-game'
     | 'baidu-mini-game'
@@ -325,6 +330,7 @@ export type Platform =
     | 'xr-nreal'
     | 'xr-inmo'
     | 'xr-lenovo'
+    | 'android-hmi'
     ;
 export type BundleCompressionType = 'none' | 'merge_dep' | 'merge_all_json' | 'subpackage' | 'zip';
 

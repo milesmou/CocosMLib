@@ -1,10 +1,9 @@
 import { Node, Vec3 } from 'cc';
-import type { IControlMouseEvent } from '../../utils/defines';
-import LightProbeEditModeListener from '../../utils/light-probe-edit-mode-listener';
+import type { GizmoMouseEvent } from '../../utils/defines';
 import BoxController from '../../controller/box';
 import type LightProbeGizmo from './gizmo-select';
 import type { LightProbePositionGizmo } from './gizmo-select';
-export default class LightProbeBoundingBoxController extends BoxController implements LightProbeEditModeListener {
+export default class LightProbeBoundingBoxController extends BoxController {
     gizmo: LightProbeGizmo;
     _editable: boolean;
     private _boundingBoxScale;
@@ -20,7 +19,7 @@ export default class LightProbeBoundingBoxController extends BoxController imple
     constructor(rootNode: Node, gizmo: LightProbeGizmo);
     show(): void;
     recordStartPosition(): void;
-    updateDataFromBBController(event: IControlMouseEvent): void;
+    updateDataFromBBController(event: GizmoMouseEvent): void;
     onShow(): void;
     onHide(): void;
     getBoundingBoxCenter(): Vec3;

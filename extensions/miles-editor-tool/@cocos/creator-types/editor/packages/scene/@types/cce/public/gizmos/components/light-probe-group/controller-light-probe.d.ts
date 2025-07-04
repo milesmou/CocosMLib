@@ -1,7 +1,6 @@
 import ControllerBase from '../../controller/base';
 import { Color, MeshRenderer, Node, Vec3 } from 'cc';
-import type { IControlMouseEvent } from '../../utils/defines';
-import LightProbeEditModeListener from '../../utils/light-probe-edit-mode-listener';
+import type { GizmoMouseEvent } from '../../utils/defines';
 import GizmoOperationEventListener from '../../utils/gizmo-operation-event-listener';
 import { ISceneMouseEvent } from '../../../../../../@types/private';
 import SimpleSet from '../../utils/set-util';
@@ -12,7 +11,7 @@ export type NodeProbe = {
     probe: Vec3;
     meshRenderer: MeshRenderer | null;
 };
-export default class LightProbeController extends ControllerBase implements LightProbeEditModeListener, GizmoOperationEventListener {
+export default class LightProbeController extends ControllerBase implements GizmoOperationEventListener {
     gizmo: LightProbeGizmo;
     static ProbeColor: Color;
     static SelectedProbeColor: Color;
@@ -71,9 +70,9 @@ export default class LightProbeController extends ControllerBase implements Ligh
     updateNodeTransformInfo(node: Node): void;
     protected onShow(): void;
     protected onHide(): void;
-    protected onMouseDown(event: IControlMouseEvent): void;
-    protected onMouseMove(event: IControlMouseEvent): void;
-    protected onMouseUp(event: IControlMouseEvent): void;
+    protected onMouseDown(event: GizmoMouseEvent): void;
+    protected onMouseMove(event: GizmoMouseEvent): void;
+    protected onMouseUp(event: GizmoMouseEvent): void;
     get currentSelectedProbes(): NodeProbe[];
     selectProbe(names: Iterable<string>): void;
     unselectProbe(names: Iterable<string>): void;

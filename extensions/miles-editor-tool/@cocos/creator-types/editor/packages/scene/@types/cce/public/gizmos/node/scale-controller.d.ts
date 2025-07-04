@@ -1,5 +1,5 @@
 import ControllerBase from '../controller/base';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 import { Node, Vec3, Color, Vec2 } from 'cc';
 declare class ScaleController extends ControllerBase {
     private _deltaScale;
@@ -23,12 +23,14 @@ declare class ScaleController extends ControllerBase {
     onAxisSliderMove(axisName: string, deltaDist: number): void;
     getAlignAxisDeltaScale(axisName: string, curMouseDeltaPos: Vec2): Vec3;
     getAllAxisDeltaScale(axisName: string, moveDelta: Vec2): Vec3;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     getDeltaScale(): Vec3;
     onShow(): void;
     onHide(): void;

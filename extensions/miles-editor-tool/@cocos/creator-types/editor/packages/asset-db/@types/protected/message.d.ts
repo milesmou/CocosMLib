@@ -100,6 +100,13 @@ export interface message extends publicMessage {
         result: AssetDBOptions,
     },
     /**
+     * 查询当前所有数据库信息
+     */
+    'query-db-infos': {
+        params: [],
+        result: AssetDBOptions[],
+    },
+    /**
      * 查询所有的数据库名称列表
      */
     'query-db-list': {
@@ -167,7 +174,7 @@ export interface message extends publicMessage {
     },
     'new-asset': {
         params: [options: CreateAssetOptions],
-        result: AssetInfo;
+        result: AssetInfo | null;
     },
     /**
      * 执行资源处理器内定义的自定义消息操作

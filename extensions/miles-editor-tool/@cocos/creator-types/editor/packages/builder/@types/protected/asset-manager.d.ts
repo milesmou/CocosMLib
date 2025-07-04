@@ -1,5 +1,6 @@
-import { UUID } from '../public';
-import { IInternalBuildOptions, IAssetInfo, IBuildSceneItem } from './options';
+import { IAsset } from '../../../asset-db/@types/protected';
+import { IBuildSceneItem, UUID } from '../public';
+import { IInternalBuildOptions, IAssetInfo } from './options';
 
 // ********************************* asset-manager *********************************
 
@@ -20,6 +21,7 @@ export class BuilderAssetCache {
     clearAsset: (uuid: string) => void;
     removeAsset: (uuid: string) => void;
     getMeta: (uuid: string) => Promise<any>;
+    getAssetInfo: (uuid: string) => IAssetInfo;
     addMeta: (uuid: string, meta: any) => void;
     getDependUuids: (uuid: string) => Promise<readonly string[]>;
     getDependUuidsDeep: (uuid: string) => Promise<readonly string[]>;
@@ -75,7 +77,6 @@ export interface IAssetGroupOptions {
 }
 
 export type IGroupType = 'json' | 'script' | 'asset';
-
 
 export type IUpdateType = 'asset-change' | 'asset-add' | 'asset-delete';
 export interface IUpdateInfo {

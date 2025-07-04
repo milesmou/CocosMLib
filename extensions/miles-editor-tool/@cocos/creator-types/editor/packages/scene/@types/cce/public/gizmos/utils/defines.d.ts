@@ -69,20 +69,6 @@ export interface IAddLineToNodeOptions extends IAddMeshToNodeOption {
 export interface IRectangleControllerOption {
     needAnchor?: boolean;
 }
-export interface IControlMouseEvent {
-    x: number;
-    y: number;
-    altKey: boolean;
-    metaKey: boolean;
-    ctrlKey: boolean;
-    shiftKey: boolean;
-    moveDeltaX: number;
-    moveDeltaY: number;
-    hitPoint: Vec3;
-    node: Node;
-    handleName: string;
-    customData?: any;
-}
 export interface IHandleData {
     name: string;
     topNode: Node;
@@ -96,4 +82,6 @@ export interface IHandleData {
     panPlane: Node | null;
     customData: any;
 }
+import type { GizmoMouseEvent } from '../gizmo-operation';
+export { GizmoMouseEvent, };
 //# sourceMappingURL=defines.d.ts.map

@@ -25,7 +25,7 @@ export declare class NodeUtils {
     /**
      *
      * @param node
-     * @param flag
+     * @param comps
      * @returns
      */
     hasComponent(node: Node, comps: string[]): boolean;
@@ -53,8 +53,35 @@ export declare class NodeUtils {
     isPartOfNode(testNode: Node, rootNode: Node): boolean;
     isEditorNode(node: Node): boolean;
     private _getRangeFromParticleComp;
+    /**
+     * 默认在场景物体选择中只排除对SceneGizmo（右上角的坐标轴）的射线检测
+     * 传入引擎的坐标系
+     * @param camera
+     * @param x
+     * @param y
+     * @param mask
+     * @returns
+     */
     getRaycastResultNodes(camera: renderer.scene.Camera, x: number, y: number, mask?: number): Node[];
+    /**
+     * 获取射线检测结果
+     * 传入引擎的坐标系
+     * @param camera
+     * @param x
+     * @param y
+     * @param mask
+     * @returns
+     */
     getRaycastResults(camera: renderer.scene.Camera, x: number, y: number, mask?: number): import("./raycast").IRaycastResult[];
+    /**
+     * 获取射线检测结果
+     * 传入引擎的坐标系
+     * @param camera
+     * @param x
+     * @param y
+     * @param mask
+     * @returns
+     */
     getRaycastResultsForSnap(camera: renderer.scene.Camera, x: number, y: number, mask?: number): import("./raycast").IRaycastResult[];
     private _collectNodesForRegion;
     isNodeInRegion(node: Node, camera: renderer.scene.Camera, left: number, right: number, top: number, bottom: number): boolean;

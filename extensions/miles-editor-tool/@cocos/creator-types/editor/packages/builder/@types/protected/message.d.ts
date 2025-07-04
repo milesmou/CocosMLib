@@ -1,19 +1,15 @@
 import { IBundleConfig, ISettings } from '../public/build-result';
-import { IBuildTaskItemJSON, Platform } from '../public/options';
+import { IBuildTaskItemJSON, IBuildTaskOption, Platform } from '../public/options';
 import { IPackOptions, PreviewPackResult } from './texture-packer';
-
+import { IPreviewSettingsResult } from './options';
 export interface message extends EditorMessageMap {
     'open-devtools': {
         params: [],
         result: void,
     },
     'generate-preview-setting': {
-        params: [options: IBuildTaskOption],
-        result: {
-            settings: ISettings;
-            script2library: Record<string, string>;
-            bundleConfigs: IBundleConfig[];
-        },
+        params: [options: Optional<IBuildTaskOption>],
+        result: IPreviewSettingsResult,
     },
     'query-tasks-info': {
         params: [options?: { type: 'build' | 'bundle' }],
@@ -35,17 +31,17 @@ export interface message extends EditorMessageMap {
      * @param {object} pacUuid
      */
     'preview-pac': {
-        params: [pacUuid: string, options?: IPackOptions],
+        params: [pacUuid: string, options?: Optional<IPackOptions>],
         result: PreviewPackResult | null,
     },
 
     'add-task': {
-        params: [options: IBuildTaskOption, shouldWait?: boolean],
+        params: [options: Optional<IBuildTaskOption>, shouldWait?: boolean],
         result: TaskAddResult | BuildExitCode,
     },
     'preview-bundle-config': {
         params: [config: CustomBundleConfigItem],
-        result: Record<string, { compressionType: BundleCompressionType, isRemote: boolean} >,
+        result: Record<string, { compressionType: BundleCompressionType, isRemote: boolean }>,
     },
     'query-platform-config': {
         params: [],

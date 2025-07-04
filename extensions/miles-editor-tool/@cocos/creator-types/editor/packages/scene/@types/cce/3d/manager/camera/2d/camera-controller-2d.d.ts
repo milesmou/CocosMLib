@@ -43,6 +43,7 @@ declare class CameraController2D extends CameraControllerBase {
     fitSize(srcWidth: number, srcHeight: number, destWidth: number, destHeight: number): number[];
     getSizeScale(newWidth: number, newHeight: number, oldWidth: number, oldHeight: number): number;
     scale(delta: number, offsetX: number, offsetY: number): void;
+    onMouseDBlDown(event: ISceneMouseEvent): boolean;
     onMouseDown(event: ISceneMouseEvent): boolean;
     onMouseMove(event: ISceneMouseEvent): boolean;
     onMouseUp(event: ISceneMouseEvent): boolean;

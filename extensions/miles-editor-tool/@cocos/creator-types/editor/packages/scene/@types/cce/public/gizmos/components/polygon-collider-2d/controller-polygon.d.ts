@@ -1,5 +1,5 @@
 import { Node, Vec3, Color } from 'cc';
-import type { IControlMouseEvent, IHandleData } from '../../utils/defines';
+import type { GizmoMouseEvent, IHandleData } from '../../utils/defines';
 import EditableController from '../../controller/editable';
 import type PolygonCollider2DGizmo from './gizmo-select';
 declare enum PolygonHandleType {
@@ -48,11 +48,15 @@ declare class PolygonController extends EditableController {
     createLineHandle(startPos: Vec3, endPos: Vec3, index: number): IHandleData;
     _updateLinesHandle(): void;
     _updateEditHandle(handleName: string): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent<{
+        index: number;
+    }>): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     getHitPoint(): Vec3 | null;
     getHandleData(): IPolygonHandleData;
 }

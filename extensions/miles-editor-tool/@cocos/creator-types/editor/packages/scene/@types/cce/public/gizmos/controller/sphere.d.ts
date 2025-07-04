@@ -1,6 +1,6 @@
 import { Node, Vec3, Color, MeshRenderer } from 'cc';
 import EditableController from './editable';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class SphereController extends EditableController {
     private _center;
     private _radius;
@@ -23,10 +23,10 @@ declare class SphereController extends EditableController {
     updateShape(): void;
     updateArcMesh(model: MeshRenderer, center: Vec3, normal: Vec3, from: Vec3, radian: number, radius: number): void;
     onEditorCameraMoved(): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
     getDeltaRadius(): number;
     getControlDir(): Vec3;
 }

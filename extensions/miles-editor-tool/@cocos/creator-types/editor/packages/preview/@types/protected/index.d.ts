@@ -10,7 +10,7 @@ export interface IHookConfig {
     hook: string;
 }
 export interface IGenerateSettingsOptions {
-    type: IPreviewType;
+    type?: IPreviewType;
     startScene?: string;
     platform?: Platform;
 }

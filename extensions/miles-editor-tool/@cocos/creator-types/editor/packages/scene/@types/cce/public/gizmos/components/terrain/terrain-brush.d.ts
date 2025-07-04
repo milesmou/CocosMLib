@@ -8,6 +8,8 @@ export declare class TerrainEdModifierKeyState {
     siftPressed: boolean;
 }
 export declare class TerrainBrush {
+    static updateBrushDepthOffset(cameraDistanceFactor: number): void;
+    static updateBrushDepthOffsetToMaterial(material: Material | null): void;
     material: Material | null;
     position: Vec3;
     radius: number;

@@ -2,6 +2,7 @@ export interface message extends EditorMessageMap {
     'open': {
         params: [
             panel: 'default' | 'build-bundle',
+            options?: any,
         ],
         result: void,
     },

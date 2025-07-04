@@ -14,6 +14,7 @@ export declare class TerrainEditorSculpt extends TerrainEditorMode {
     setBrushImage(tex: Texture2D | null): void;
     setSculptBrushRotation(rotate: number): void;
     onUpdate(terrain: Terrain, dtime: number, isShiftDown: boolean): void;
+    forceUpdate(): void;
     onUpdateBrushPosition(terrain: Terrain, pos: Vec3): void;
     onMouseDown(terrain: Terrain): void;
     onMouseUp(): void;

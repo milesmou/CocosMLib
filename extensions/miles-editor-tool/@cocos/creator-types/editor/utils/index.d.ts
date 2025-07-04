@@ -4,6 +4,13 @@ import * as NodeJSPath from 'path';
 export namespace Utils {
     export namespace File {
         /**
+         * 检查文件在指定文件夹中是否存在，如果存在则通过追加数字后缀的方式生成一个唯一的文件名。
+         * @param targetFolder 
+         * @param fileName 
+         */
+        export function resolveFileNameConflict(targetFolder: string, fileName: string): string;
+
+        /**
          * 初始化一个可用的文件名
          * Initializes a available filename
          * 返回可用名称的文件路径

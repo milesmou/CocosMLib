@@ -1,9 +1,9 @@
-import type { IControlMouseEvent } from './defines';
+import type { GizmoMouseEvent } from './defines';
 export default interface GizmoEventListener {
-    onControllerMouseDown?(event: IControlMouseEvent): void;
-    onControllerMouseMove?(event: IControlMouseEvent): void;
-    onControllerMouseUp?(event: IControlMouseEvent): void;
-    onControllerHoverIn?(event: IControlMouseEvent): void;
-    onControllerHoverOut?(event: IControlMouseEvent): void;
+    onControllerMouseDown?(event: GizmoMouseEvent): void;
+    onControllerMouseMove?(event: GizmoMouseEvent): void;
+    onControllerMouseUp?(event: GizmoMouseEvent): void;
+    onControllerHoverIn?(event: GizmoMouseEvent): void;
+    onControllerHoverOut?(event: GizmoMouseEvent): void;
 }
 //# sourceMappingURL=gizmo-event-listener.d.ts.map

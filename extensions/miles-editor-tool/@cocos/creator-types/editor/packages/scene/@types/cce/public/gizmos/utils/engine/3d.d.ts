@@ -9,8 +9,14 @@ declare module 'cc' {
     }
 }
 import { Camera, Color, Component, geometry, gfx, IVec3Like, Light, math, MeshRenderer, ModelComponent, Node, primitives, Material, Mesh, Layers, physics } from 'cc';
+import { IRaycastResult } from '../../../../utils/raycast';
 import type { IAddMeshToNodeOption, ICreateMeshOption, IMeshPrimitive, DynamicMeshPrimitive } from '../defines';
 import EngineInterface from './engine-interface';
+export declare const ray: geometry.Ray;
+export declare class RaycastResults extends Array<IRaycastResult> {
+    ray: geometry.Ray;
+    constructor(ray: geometry.Ray);
+}
 export declare enum HighlightFace {
     NONE = 0,
     UP = 1,
@@ -43,9 +49,19 @@ export declare class Engine3D implements EngineInterface {
     setNodeOpacity(node: Node, opacity: number): void;
     getNodeOpacity(node: Node): number;
     setMaterialProperty(node: Node, propName: string, value: any): void;
-    getRaycastResults(rootNode: Node, x: number, y: number, distance?: number, excludeMask?: number): any;
-    getRaycastResultsByNodes(nodes: Node[], x: number, y: number, distance: number | undefined, forSnap: boolean, excludeMask?: number): any;
-    raycast(scene: any, camera: any, layer: any, x: number, y: number, distance?: number, excludeMask?: number): any;
+    /**
+     * 返回射线检测查到的数据
+     *   需要注意，这里返回的对象，可能会在对象池里复用，最终会导致数据变化
+     * @param rootNode
+     * @param x
+     * @param y
+     * @param distance
+     * @param excludeMask
+     * @returns
+     */
+    getRaycastResults(rootNode: Node, x: number, y: number, distance?: number, excludeMask?: number): RaycastResults;
+    getRaycastResultsByNodes(nodes: Node[], x: number, y: number, distance: number | undefined, forSnap: boolean, excludeMask?: number): RaycastResults;
+    raycast(scene: any, camera: any, layer: any, x: number, y: number, distance?: number, excludeMask?: number): RaycastResults | null;
     raycastAllColliders(camera: any, x: number, y: number): physics.PhysicsRayResult[] & {
         ray?: geometry.Ray;
     };

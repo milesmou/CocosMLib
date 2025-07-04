@@ -1,5 +1,5 @@
 import ControllerBase from '../controller/base';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 import { Node, Quat, Vec3, Color } from 'cc';
 declare class RotationController extends ControllerBase {
     private _deltaRotation;
@@ -33,16 +33,18 @@ declare class RotationController extends ControllerBase {
     initShape(): void;
     isHitOnAxisArrow(hitNode: Node, axisName: string): boolean;
     isInCutoffBack(axisName: string, x: number, y: number): boolean;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
     /**
      * 重置所有 handle 的节点的可见性
      */
     protected resetAllHandelNodes(): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     setNodesOpacity(nodes: Node[], opacity: number): void;
     getDeltaRotation(): Quat;
     getDeltaAngle(): number;

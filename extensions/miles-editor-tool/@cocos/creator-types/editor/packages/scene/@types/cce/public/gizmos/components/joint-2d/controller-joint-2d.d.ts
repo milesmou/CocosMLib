@@ -1,6 +1,6 @@
 import { Color, Node, Vec3 } from 'cc';
 import EditableController from '../../controller/editable';
-import type { IControlMouseEvent } from '../../utils/defines';
+import type { GizmoMouseEvent } from '../../utils/defines';
 declare enum Joint2DControllerType {
     Revolute = 0,
     Distance = 1,
@@ -27,12 +27,14 @@ declare class Joint2DController extends EditableController {
     initShape(): void;
     _updateEditHandle(handleName: string): void;
     updatePosition(center: Vec3, anchor: Vec3): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     getDeltaPos(): Vec3;
 }
 export { Joint2DController, Joint2DControllerType };

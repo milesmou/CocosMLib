@@ -1,6 +1,6 @@
 import { Node, Vec3, Vec2, Color } from 'cc';
 import EditableController from '../controller/editable';
-import type { IRectangleControllerOption, IControlMouseEvent } from '../utils/defines';
+import type { IRectangleControllerOption, GizmoMouseEvent } from '../utils/defines';
 declare enum RectHandleType {
     None = "none",
     TopLeft = "tl",
@@ -49,12 +49,14 @@ declare class RectangleController extends EditableController {
     _updateEditHandle(axisName: keyof AxisDir): void;
     initShape(): void;
     updateSize(center: Readonly<Vec3>, size: Vec2): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     onHide(): void;
     getDeltaSize(): Vec3;
     getCurHandleType(): RectHandleType;

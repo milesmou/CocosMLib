@@ -165,7 +165,8 @@ export declare class GeneralSceneFacade implements ISceneFacadeState {
     assetDelete(uuid: string, info: any): void;
     assetRefresh(uuid: string): void;
     gizmoRefreshConfig(): Promise<void>;
-    queryGizmoToolName(): Promise<string>;
+    queryGizmoToolName(): string;
+    queryGizmoViewMode(): string;
     queryGizmoPivot(): Promise<string>;
     queryGizmoCoordinate(): Promise<string>;
     queryIs2D(): Promise<boolean>;
@@ -173,6 +174,7 @@ export declare class GeneralSceneFacade implements ISceneFacadeState {
     queryIconGizmoSize(): number;
     updateInnerTetrahedron(): void;
     setTransformToolName(name: TransformToolDataToolNameType): Promise<void>;
+    queryIsViewMode(): boolean;
     setPivot(name: TransformToolDataPivotType): Promise<void>;
     setCoordinate(type: TransformToolDataCoordinateType): Promise<void>;
     setIs2D(value: boolean): Promise<void>;

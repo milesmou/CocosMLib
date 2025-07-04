@@ -26,6 +26,7 @@ declare abstract class CameraControllerBase extends EventEmitter {
     alignNodeToSceneView(nodes: string[]): void;
     alignSceneViewToNode(nodes: string[]): void;
     abstract isMoving(): boolean;
+    onMouseDBlDown(event: any): void;
     onMouseDown(event: any): void;
     onMouseMove(event: any): void;
     onMouseUp(event: any): void;

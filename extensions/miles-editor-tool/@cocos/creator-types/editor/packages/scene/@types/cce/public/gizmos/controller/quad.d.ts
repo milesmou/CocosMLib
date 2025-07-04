@@ -1,6 +1,6 @@
 import { Node, Color } from 'cc';
 import ControllerBase from './base';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class QuadController extends ControllerBase {
     protected _quadNode: Node | null;
     private _defaultSize;
@@ -10,10 +10,10 @@ declare class QuadController extends ControllerBase {
     get hoverColor(): Color;
     set hoverColor(value: Color);
     initShape(opts?: any): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
     onHoverOut(): void;
     onEditorCameraMoved(): void;
     onShow(): void;

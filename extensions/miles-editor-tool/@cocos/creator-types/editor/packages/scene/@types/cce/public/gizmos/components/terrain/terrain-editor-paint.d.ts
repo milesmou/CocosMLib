@@ -19,6 +19,7 @@ export declare class TerrainEditorPaint extends TerrainEditorMode {
     onUpdateBrushPosition(terrain: Terrain, pos: Vec3): void;
     onMouseDown(terrain: Terrain): void;
     onMouseUp(): void;
+    forceUpdate(): void;
     onDeactivate(): void;
     private _updateWeight;
 }

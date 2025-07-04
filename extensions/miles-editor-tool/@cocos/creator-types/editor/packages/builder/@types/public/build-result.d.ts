@@ -39,6 +39,7 @@ export interface ISettings {
         renderMode?: number;
         // effect.bin
         effectSettingsPath?: string;
+        customPipeline?: boolean;
     };
     assets: {
         server: string;
@@ -121,7 +122,7 @@ export interface IBuildPaths {
     remote: string; // remote 目录
     bundleScripts: string // bundle 的脚本，某些平台无法下载脚本，则将远程包中的脚本移到本地
     applicationJS: string; // application.js 的生成地址
-    compileConfig?: string; // cocos.compile.config.json
+    compileConfig: string; // cocos.compile.config.json
     importMap: string; // import-map 文件地址
     engineMeta: string; // 引擎构建结果的 meta 文件路径
 

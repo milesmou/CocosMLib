@@ -2,11 +2,11 @@
 export * from '@cocos/creator-types/editor/packages/builder/@types/protected';
 
 import { IInternalBuildOptions, InternalBuildResult } from '@cocos/creator-types/editor/packages/builder/@types/protected';
-import { IOptions as INativeOption } from '@cocos/creator-types/editor/packages/native';
+import { ITaskOption as INativeTaskOption, IOption as INativeOption } from '../../native/@types/index';
 
 export type IOrientation = 'landscape' | 'portrait';
 
-export interface ITaskOption extends IInternalBuildOptions {
+export interface ITaskOption extends INativeTaskOption {
     packages: {
         'android': IOptions;
         native: INativeOption;

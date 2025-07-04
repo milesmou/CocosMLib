@@ -36,7 +36,7 @@ declare class InteractivePreview extends PreviewBase {
     private _curRot;
     private _forward;
     protected perfectCameraView(boundary: geometry.AABB | null | undefined): void;
-    protected getFitDistance(boundary: geometry.AABB | null | undefined): number;
+    protected getFitDistance(center: Vec3, maxRange: number): number;
     flipWheelDirection: boolean;
     disableMouseWheel: boolean;
     disableRotate: boolean;

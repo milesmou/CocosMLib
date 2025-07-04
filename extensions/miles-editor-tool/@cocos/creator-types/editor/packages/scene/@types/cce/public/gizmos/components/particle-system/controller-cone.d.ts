@@ -1,5 +1,5 @@
 import { Node, Vec3, Color } from 'cc';
-import type { IControlMouseEvent } from '../../utils/defines';
+import type { GizmoMouseEvent } from '../../utils/defines';
 import EditableController from '../../controller/editable';
 declare class ParticleSystemConeController extends EditableController {
     private _oriDir;
@@ -30,10 +30,10 @@ declare class ParticleSystemConeController extends EditableController {
     initShape(): void;
     getConeLineData(): import("../../utils/defines").IMeshPrimitive;
     updateSize(center: Vec3, radius: number, height: number, bottomRadius: number): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
     getDeltaRadius(): number;
     getDeltaHeight(): number;
     getDeltaBottomRadius(): number;

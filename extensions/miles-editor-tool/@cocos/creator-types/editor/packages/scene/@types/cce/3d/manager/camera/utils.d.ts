@@ -1,7 +1,9 @@
+/// <reference types="node" />
 import { Color, MeshRenderer, Node, Component } from 'cc';
 import EditorCameraComponent from './editor-camera-components';
 interface CreateHTMLOptions {
     rootID: string;
+    hidden: boolean;
     innerHTML: string;
     imgInfos?: {
         src: string;
@@ -9,25 +11,21 @@ interface CreateHTMLOptions {
     }[];
 }
 declare class Utils {
-    protected $cameraMoveInfo: HTMLDivElement;
-    protected $snapInfoEN: HTMLImageElement;
-    protected $snapInfoZH: HTMLImageElement;
-    protected $snapInfoRoot: HTMLDivElement;
-    protected _createHtml(options: Omit<CreateHTMLOptions, 'imgInfos'>): {
-        root: HTMLDivElement;
-    };
-    protected _createHtml(options: Required<CreateHTMLOptions>): {
-        imgs: HTMLImageElement[];
-        root: HTMLDivElement;
-    };
-    constructor();
-    protected updateSnapInfoUI(): void;
+    protected $wanderSpeedTips: HTMLElement | null;
+    protected $cameraMoveInfo: HTMLDivElement | null;
+    protected $snapInfoRoot: HTMLDivElement | null;
+    protected _createHtml(options: CreateHTMLOptions): HTMLDivElement;
+    updateWanderShortcutUI(): void;
+    updateSnapShortcutUI(): void;
     showSnapTip(): void;
     hideSnapTip(): void;
     /** 展示场景漫游的提示 */
     showCameraMoveTip(): void;
     /** 隐藏场景漫游的提示 */
     hideCameraMoveTip(): void;
+    /** 显示漫游速度的提示 **/
+    clearTimeID: NodeJS.Timeout | number;
+    showCameraWanderSpeed(speedScale: number, speed: number): void;
     updateVBAttr(comp: MeshRenderer | null, attr: string, data: number[]): void;
     updateIB(comp: MeshRenderer | null, data: number[]): void;
     /**

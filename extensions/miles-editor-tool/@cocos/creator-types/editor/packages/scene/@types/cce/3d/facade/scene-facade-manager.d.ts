@@ -136,7 +136,9 @@ declare class SceneFacadeManager implements ISceneFacade {
     assetRefresh(uuid: string): void;
     releaseAsset(asset: string): void;
     gizmoRefreshConfig(): Promise<void>;
-    queryGizmoToolName(): Promise<string>;
+    queryGizmoToolName(): string;
+    queryIsViewMode(): boolean;
+    queryGizmoViewMode(): string;
     queryGizmoPivot(): Promise<string>;
     queryGizmoCoordinate(): Promise<string>;
     queryIs2D(): Promise<boolean>;

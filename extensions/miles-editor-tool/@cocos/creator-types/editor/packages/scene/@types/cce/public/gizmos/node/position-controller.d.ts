@@ -1,6 +1,6 @@
 import { Vec3, Node, Color, Vec2 } from 'cc';
 import ControllerBase from '../controller/base';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class PositionController extends ControllerBase {
     private _deltaPosition;
     private _mouseDownPos;
@@ -28,17 +28,19 @@ declare class PositionController extends ControllerBase {
     getDeltaPositionOfAxis(out: Vec3 | undefined, name: 'x' | 'y' | 'z'): Vec3;
     /** 获取偏移值 */
     getDeltaPosition(): Vec3;
-    onMouseDown(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
     getPanPlane(axisName: string): Node | null;
     static isXYZ(controllerName: string): controllerName is 'x' | 'y' | 'z';
     static isPlane(controllerName: string): controllerName is 'xy' | 'yz' | 'xz';
     getAlignAxisDeltaPosition(axisName: string, curMouseDeltaPos: Vec2): any;
     getPositionOnPanPlane(hitPos: Vec3, x: number, y: number, panPlane: Node): boolean;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     onShow(): void;
     onHide(): void;
     isSnapping(): boolean;

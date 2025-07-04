@@ -11,25 +11,27 @@ import {
     IBuildUtils,
     IBuild,
     ITaskState,
+    PanelInfo,
+    BundleCompressionType,
+    IConsoleType,
 } from '../public';
 import { BuilderAssetCache } from './asset-manager';
-import { InternalBuildResult } from './build-result';
-import { IInternalBuildOptions, IConsoleType } from './options';
-import { ITextureCompressPlatform, ITextureCompressType } from '../public/texture-compress';
-import { BundleCompressionType } from './bundle-config';
+import { IBundle, InternalBuildResult, ScriptBuilder, IBundleManager } from './build-result';
+import { IInternalBuildOptions, IInternalBundleBuildOptions } from './options';
 import { ImportMap } from './import-map';
 import { IImportMapOptions, IPlatformType } from './options';
 
 export interface IQuickSpawnOption {
     cwd?: string;
     env?: any;
-    
+
     downGradeWaring?: boolean; // 将会转为 log 打印，默认为 false
     downGradeLog?: boolean; // 将会转为 debug 打印，默认为 true
     downGradeError?: boolean; // 将会转为警告，默认为 false
     ignoreLog?: boolean; // 忽略 log 信息
     ignoreError?: boolean; // 忽略错误信息
     prefix?: string; // log 输出前缀
+    shell?: boolean;//windows 是否使用 shell 运行 spawn
 }
 
 export interface IInternalBuildUtils extends IBuildUtils {
@@ -70,7 +72,6 @@ export interface IInternalBuild extends IBuild {
     ScriptBuilder: typeof ScriptBuilder;
 }
 
-
 export type IProcessingFunc = (process: number, message: string, state?: ITaskState) => void;
 export interface IBuildManager {
     taskManager: any;
@@ -108,13 +109,6 @@ export interface IBuildPanel {
     };
 }
 
-/**
- * 构建内置的脚本编译模块，后续会开放更多的接口，供平台使用
- */
-export declare class ScriptBuilder {
-    static outputImportMap(importMap: ImportMap, options: IImportMapOptions): Promise<void>;
-}
-
 export interface IBuildWorkerPluginInfo {
     assetHandlers?: string;
     // 注册到各个平台的钩子函数
@@ -148,27 +142,44 @@ export type IPluginHookName =
 // | 'run';
 
 export type IPluginHook = Record<IPluginHookName, IInternalBaseHooks>;
-export interface IInternalHook {
-    throwError?: boolean; // 插件注入的钩子函数，在执行失败时是否直接退出构建流程
-    title?: string; // 插件任务整体 title，支持 i18n 写法
+export namespace IInternalHook {
+    export type throwError = boolean; // 插件注入的钩子函数，在执行失败时是否直接退出构建流程
+    export type title = string; // 插件任务整体 title，支持 i18n 写法
 
     // ------------------ 钩子函数 --------------------------
-    onBeforeBuild?: IInternalBaseHooks;
-    onBeforeInit?: IInternalBaseHooks;
-    onAfterInit?: IInternalBaseHooks;
-    onBeforeBuildAssets?: IInternalBaseHooks;
-    onAfterBuildAssets?: IInternalBaseHooks;
-    onBeforeCompressSettings?: IInternalBaseHooks;
-    onAfterCompressSettings?: IInternalBaseHooks;
-    onAfterBuild?: IInternalBaseHooks;
-    onBeforeCopyBuildTemplate?: IInternalBaseHooks;
-    onAfterCopyBuildTemplate?: IInternalBaseHooks;
+    export type onBeforeBuild = IInternalBaseHooks;
+    export type onBeforeInit = IInternalBaseHooks;
+    export type onAfterInit = IInternalBaseHooks;
+    export type onBeforeBuildAssets = IInternalBaseHooks;
+    export type onAfterBuildAssets = IInternalBaseHooks;
+    export type onBeforeCompressSettings = IInternalBaseHooks;
+    export type onAfterCompressSettings = IInternalBaseHooks;
+    export type onAfterBuild = IInternalBaseHooks;
+    export type onBeforeCopyBuildTemplate = IInternalBaseHooks;
+    export type onAfterCopyBuildTemplate = IInternalBaseHooks;
+
+    // ----------------- bundle 构建流程的钩子函数 ----------
+    export type onBeforeBundleInit = IInternalBundleBaseHooks;
+    export type onAfterBundleInit = IInternalBundleBaseHooks;
+    export type onBeforeBundleDataTask = IInternalBundleBaseHooks;
+    export type onAfterBundleDataTask = IInternalBundleBaseHooks;
+    export type onBeforeBundleBuildTask = IInternalBundleBaseHooks;
+    export type onAfterBundleBuildTask = IInternalBundleBaseHooks;
 
     // ------------------ 其他操作函数 ---------------------
+    export type onBeforeRun = IInternalStageTaskHooks;
     // 内置插件才有可能触发这个函数
-    run?: (dest: string, options: IBuildTaskOption) => Promise<boolean>;
+    export type run = IInternalStageTaskHooks;
+    export type onAfterRun = IInternalStageTaskHooks;
+
+    export type onBeforeMake = IInternalStageTaskHooks;
     // 内置插件才有可能触发这个函数
-    compile?: (dest: string, options: IBuildTaskOption) => boolean;
+    export type make = IInternalStageTaskHooks;
+    export type onAfterMake = IInternalStageTaskHooks;
+}
+
+export interface PlatformPackageOptions {
+    [packageName: string]: Record<string, any>;
 }
 
 export type IInternalBaseHooks = (
@@ -177,6 +188,20 @@ export type IInternalBaseHooks = (
     cache: BuilderAssetCache,
     ...args: any[]
 ) => void;
+
+export type IInternalStageTaskHooks = {
+    this: IBuildStageTask;
+    root: string;
+    options: IInternalBuildOptions;
+}
+
+export type IInternalBundleBaseHooks = (
+    this: IBundleManager,
+    options: IInternalBundleBuildOptions,
+    bundles: IBundle[],
+    cache: BuilderAssetCache,
+) => void;
+
 export interface IBuildTask {
     handle: (options: IInternalBuildOptions, result: InternalBuildResult, cache: BuilderAssetCache, settings?: ISettings) => {};
     title: string;
@@ -192,8 +217,6 @@ export type OverwriteCommonOption =
     | 'sourceMaps'
     | 'experimentalEraseModules'
     | 'buildStageGroup';
-
-
 
 export interface ICustomBuildStageItem {
     name: string; // 阶段唯一名称，同平台不允许重名

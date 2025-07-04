@@ -1,6 +1,6 @@
 import { Node } from 'cc';
 import EditableController from './editable';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class FrustumController extends EditableController {
     private _aspect;
     private _near;
@@ -25,10 +25,10 @@ declare class FrustumController extends EditableController {
     _updateEditHandle(axisName: string): void;
     initShape(): void;
     updateSize(camProj: number, orthoHeight: number, fov: number, aspect: number, near: number, far: number, fovAxis: number): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
     getDeltaWidth(): number;
     getDeltaHeight(): number;
     getDeltaDistance(): number;

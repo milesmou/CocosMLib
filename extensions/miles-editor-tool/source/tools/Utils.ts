@@ -2,6 +2,7 @@ import child_process from "child_process";
 import crypto from "crypto";
 import fs from "fs-extra";
 import path from "path";
+import { Platform } from "../../@cocos/creator-types/editor/packages/builder/@types";
 import { Logger } from "./Logger";
 export class Utils {
 
@@ -12,26 +13,35 @@ export class Utils {
     }
 
     /** 是否原生平台 */
-    public static isNative(platform: string) {
+    public static isNative(platform: Platform) {
         switch (platform) {
             case "windows":
             case "mac":
             case "linux":
             case "android":
             case "ios":
+            case "ohos":
+            case "harmonyos-next":
                 return true;
         }
         return false;
     }
 
     /** 是否小游戏平台 */
-    public static isMinigame(platform: string) {
+    public static isMinigame(platform: Platform) {
         switch (platform) {
             case "wechatgame":
+            case "wechatprogram":
+            case "oppo-mini-game":
+            case "vivo-mini-game":
+            case "huawei-quick-game":
+            case "migu-mini-game":
             case "alipay-mini-game":
-            case "bytedance-mini-game":
-            case "baidu-mini-game":
             case "taobao-creative-app":
+            case "taobao-mini-game":
+            case "xiaomi-quick-game":
+            case "baidu-mini-game":
+            case "bytedance-mini-game":
                 return true;
         }
         return false;

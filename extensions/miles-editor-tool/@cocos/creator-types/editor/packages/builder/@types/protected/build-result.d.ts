@@ -1,7 +1,9 @@
-import { BundleCompressionType, IAssetPathInfo, IBuildPaths, IBuildTaskOption, IBundleConfig, IJsonPathInfo, ISettings, UUID, IBuildSceneItem, ITextureCompressType, ITextureCompressFormatType } from '../public';
-import { IAssetInfo, BuilderAssetCache } from './asset-manager';
-import { ImportMapWithImports } from './import-map';
-import { IInternalBuildOptions } from '../protect';
+import { IAsset } from '../../../asset-db/@types/private';
+import { BundleCompressionType, IAssetPathInfo, IBuildPaths, IBuildTaskOption, IBundleConfig, IJsonPathInfo, ISettings, UUID, IBuildSceneItem, ITextureCompressType, ITextureCompressFormatType, ICustomConfig } from '../public';
+import { BuilderAssetCache } from './asset-manager';
+import { ImportMap, ImportMapWithImports } from './import-map';
+import { IAssetInfo, IImportMapOptions, IInternalBuildOptions } from './options';
+import { IPacInfo } from './texture-packer';
 
 // 已经约定好的一些统计 key （不完整）
 export const enum BuildMetricKey {
@@ -47,17 +49,17 @@ export const enum BuildCrashMetricKey {
 export class TextureCompress {
     _taskMap: Record<string, IImageTaskInfo>;
     platform: string;
-    async init(): Promise<void>;
-    async updateUserConfig(): Promise<void>;
+    init(): Promise<void>;
+    updateUserConfig(): Promise<void>;
     addTask(assetInfo: IAssetInfo): IImageTaskInfo;
-    async run(): Promise<void>;
+    run(): Promise<void>;
 }
 
-export enum BuiltinBundleName {
-    RESOURCES = 'resources',
-    MAIN = 'main',
-    START_SCENE = 'start-scene',
-    INTERNAL = 'internal',
+/**
+ * 构建内置的脚本编译模块，后续会开放更多的接口，供平台使用
+ */
+export declare class ScriptBuilder {
+    static outputImportMap(importMap: ImportMap, options: IImportMapOptions): Promise<void>;
 }
 
 export interface IBundleManager {
@@ -65,7 +67,7 @@ export interface IBundleManager {
     bundles: IBundle[];
     destDir: string;
     scriptBuilder: ScriptBuilder;
-    packResults: PacInfo;
+    packResults: IPacInfo[];
     cache: BuilderAssetCache;
     hookMap: Record<string, string>;
 
@@ -77,6 +79,8 @@ export interface IBundleManager {
     bundleDataTask(): Promise<void>;
 
     runPluginTask(hookName: string): Promise<void>;
+
+    break(reason: string): Promise<void>;
 }
 
 export class IBuildTemplate {
@@ -84,6 +88,7 @@ export class IBuildTemplate {
     initUrl(relativeUrl: string, name?: string): string | undefined;
     copyTo(dest: string): Promise<void>;
     findFile(dest: string): string | undefined;
+    isEnable: boolean;
 }
 
 export class InternalBuildResult {
@@ -115,7 +120,7 @@ export interface ICompressConfig {
     uuid: string;
     suffix: string;
     formatType: ITextureCompressFormatType;
-} 
+}
 
 export interface ImageCompressTask {
     src: string;
@@ -175,6 +180,15 @@ export class IBuilder {
     buildTemplate: IBuildTemplate;
 
     updateProcess(message: string, increment?: number): void;
+    break(reason: string): Promise<void>;
+}
+
+export class IBuildStageTask {
+    options: IBuildTaskOption;
+    buildTaskOptions?: IBuildTaskOption;
+
+    run(): Promise<boolean>;
+    saveOptions(): Promise<void>;
 }
 
 export interface IBuildHooksInfo {
@@ -208,9 +222,9 @@ export class IBundle {
     readonly isZip: boolean; // 该 bundle 是否是 zip 模式
     zipVer: string; // Zip 压缩模式，压缩包的版本
     // 存储纹理压缩 image uuid 与对应的纹理资源地址
-    public compressRes: Record<string, string[]> = {};
+    public compressRes: Record<string, string[]>;
     atlasRes: IAtlasResult;
-    compressTask: Record<UUID, IImageTaskInfo> ;
+    compressTask: Record<UUID, IImageTaskInfo>;
     _rootAssets: Set<UUID>; // 该 bundle 直接包含的资源
     _scenes: Record<string, IBuildSceneItem>;
     _scripts: Set<UUID>; // 所有脚本，包含插件脚本
@@ -218,15 +232,26 @@ export class IBundle {
     output: boolean;
     md5Cache: boolean;
     debug: boolean;
-    public paths: Record<string, string[]> = {};
+    public paths: Record<string, string[]>;
 
     // addScene(scene: UUID): void;
-    // addScript(script: UUID): void;
     build(): void;
     initConfig(): void;
     initAssetPaths(): Promise<void>;
-    addRootAsset(asset: IAssetInfo): void;
-    addAsset(asset: IAssetInfo): void;
+    /**
+     * 添加根资源，此方法会递归添加子资源的数据支持普通资源与脚本资源
+     * @param asset 
+     * @returns 
+     */
+    addRootAsset(asset: IAsset): void;
+    addAsset(asset: IAsset): void;
+    /**
+     * 添加参与 Bundle 打包的脚本资源，最终输出到 index.js 内
+     * 需要提前判断脚本资源类型
+     * @param asset 
+     * @returns 
+     */
+    addScript(asset: IAsset): void;
     removeAsset(asset: UUID): void;
     addRedirect(asset: UUID, redirect: string): void;
     addAssetWithUuid(asset: UUID): void;
@@ -257,4 +282,11 @@ export interface IDefaultGroup {
     assetUuids: UUID[];
     scriptUuids: UUID[];
     jsonUuids: UUID[];
+}
+
+
+export interface IPreviewSettingsResult {
+    settings: ISettings;
+    script2library: Record<string, string>;
+    bundleConfigs: IBundleConfig[];
 }

@@ -36,7 +36,7 @@ export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBu
     }
     if (Utils.isMinigame(options.platform)) {
         if (!options.md5Cache) {
-            BuildLogger.warn(tag, "小游戏建议开启Md5Cache");
+            BuildLogger.error(tag, "小游戏请开启Md5Cache");
         }
         await Minigame.modifyServer(options, result);
         await Minigame.uploadToAliOss(options, result);

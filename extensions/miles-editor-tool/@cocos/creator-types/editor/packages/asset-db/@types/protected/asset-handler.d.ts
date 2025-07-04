@@ -116,17 +116,36 @@ export interface AssetHandlerBase extends CustomHandlerBase {
      * 资源创建信息
      */
     createInfo?: {
-        generateMenuInfo(): ICreateMenuInfo[] | Promise<ICreateMenuInfo[]>;
+        generateMenuInfo?(): ICreateMenuInfo[] | Promise<ICreateMenuInfo[]>;
  
         /**
          * 创建当前资源，可选，无此方法时走 db 默认创建资源的流程（需要提供模板地址）
          * @param option 
          */
         create?(option: CreateAssetOptions): Promise<string | string[] | null>;
+
+        /**
+         * 保存当前资源，可选，无此方法时走 db 默认保存资源的流程
+         * @param asset 需要保存的资源信息
+         * @param content 资源内容
+         */
+        save?(asset: IAsset, content: string | Buffer | JSON): boolean | Promise<boolean>;
+
+        // 阻止默认的模板菜单自动创建，默认为 false ，如果 generateMenuInfo 里接管了模板菜单的生成，此处需要设置
+        preventDefaultTemplateMenu?: boolean;
     };
   
     // 虚拟资源可以实例化成实体的话，会带上这个扩展名
     instantiation?: string;
+}
+
+export interface FileNameCheckConfig {
+    // 匹配规则
+    regStr: string;
+    // 匹配失败时的提示类型
+    failedType: 'error' | 'warn' | 'info',
+    // 匹配失败时的提示信息，支持 i18n:xxx
+    failedInfo: string;
 }
 
 export interface ICreateMenuInfo extends Editor.Menu.ContextMenuItem {
@@ -134,8 +153,14 @@ export interface ICreateMenuInfo extends Editor.Menu.ContextMenuItem {
     label: string;
     // 创建的默认文件名称带后缀，具体实际上是为 assets 面板提供的数据，assets 面板新建时，需要先让用户填写清楚命名最后才创建
     fullFileName?: string;
-    // 资源模板地址，例如 db://xxx/ani ，支持 url 与绝对路径
+
+    // 资源文件内容，支持字符串、Buffer、JSON
+    content?: string | Buffer | JSON;
+    // 资源文件模板地址，例如 db://xxx/ani ，支持 url 与绝对路径
     template?: string;
+    // (当 content 与 template 都未传递时，将创建文件夹)
+    // (当 content 与 template 都传递时，优先使用 content 创建文件)
+
     // 创建类型的 handler 名称，默认为当前处理器名称
     handler?: string;
 
@@ -143,6 +168,9 @@ export interface ICreateMenuInfo extends Editor.Menu.ContextMenuItem {
     submenu?: ICreateMenuInfo[];
     // 分组名称
     group?: string;
+
+    // 资源创建时的名称校验规则
+    fileNameCheckConfigs?: FileNameCheckConfig[];
 }
 
 export interface CustomHandlerBase {
@@ -152,7 +180,7 @@ export interface CustomHandlerBase {
      * 打开资源文件行为
      * @param asset 
      */
-    open?(asset: IAsset);
+    open?(asset: IAsset): boolean | Promise<boolean>;
 
     /**
      * 一些自定义的处理行为方法，方法 key 即 ID 是唯一的
@@ -192,13 +220,22 @@ export interface ImporterHook {
 export interface CreateAssetOptions {
     // 资源创建的输出地址，支持绝对路径和 url
     target: string;
-    // 资源处理器名称，决定了此新建资源将由哪个资源处理器处理
-    handler: string;
+
+    // 资源文件内容，支持字符串、Buffer、JSON
+    content?: string | Buffer | JSON;
+    // 资源文件模板地址，例如 db://xxx/ani ，支持 url 与绝对路径
     template?: string;
+    // (当 content 与 template 都未传递时，将创建文件夹)
+    // (当 content 与 template 都传递时，优先使用 content 创建文件)
+
+    // 资源处理器名称，决定了此新建资源将由哪个资源处理器处理，未指定时将由 target 的后缀查找处理器
+    handler?: string;
     // 指定 uuid ，由于 uuid 也有概率冲突，uuid 冲突时会自动重新分配 uuid
     uuid?: string;
     // 默认 false 不覆盖同名时文件将会重命名指定的 path
     overwrite?: boolean;
+    // 是否自动重命名冲突文件，默认 false
+    rename?: boolean;
     // 新建资源时指定的一些 userData 默认配置值
     userData?: Record<string, any>;
     // 传递一些自定义配置信息，可以在自定义资源处理器内使用

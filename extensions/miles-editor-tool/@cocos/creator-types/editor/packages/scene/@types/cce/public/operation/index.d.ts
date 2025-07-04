@@ -1,6 +1,6 @@
 import { ISizeLike } from 'cc';
 import { IDragEvent, ISceneKeyboardEvent, ISceneMouseEvent } from '../../../../@types/private';
-export type SceneMouseEvent = 'mousedown' | 'mousemove' | 'mouseup' | 'mousewheel';
+export type SceneMouseEvent = 'dblclick' | 'mousedown' | 'mousemove' | 'mouseup' | 'mousewheel';
 export type SceneKeyboardEvent = 'keydown' | 'keyup';
 export type SceneDragEvent = 'onDragOver' | 'onDrop';
 export type OperationEvent = SceneDragEvent | SceneKeyboardEvent | SceneMouseEvent | 'resize';

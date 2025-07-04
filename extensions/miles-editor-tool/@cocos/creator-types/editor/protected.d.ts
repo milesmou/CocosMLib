@@ -6,7 +6,6 @@
 import type { FileFilter, BrowserWindow, OpenDialogReturnValue, SaveDialogReturnValue, MessageBoxReturnValue, MenuItemConstructorOptions } from 'electron';
 
 import type { EventEmitter } from 'events';
-import type { SpawnOptions } from 'child_process';
 
 declare global {
     export namespace Editor {
@@ -526,12 +525,16 @@ declare global {
                     readonly package: any;
                 };
                 window(options: {
-                    beforeOpen(options: Editor.Windows.IWindowOptions): void,
+                    beforeOpen(options: Editor.Windows.IWindowOptions, userData: { layout: Editor.Layout.ILayout }): void,
                     afterOpen(windows: any): void,
                 }): Promise<void>;
-                manager(skipLogin: boolean): Promise<void>;
-                startPackage(): Promise<void>;
+                manager(skipLogin: boolean, outputMetricLog?: boolean): Promise<void>;
+                startPackage(options?: {
+                    preList?: string[];
+                    list?: string[];
+                }): Promise<void>;
                 build(options: any, debug: boolean): Promise<any>;
+                test(options: any, debug: boolean): Promise<any>;
                 on(action: string, handle: (...args: any[]) => void): void;
                 once(action: string, handle: (...args: any[]) => void): void;
                 removeListener(action: string, handle: (...args: any[]) => void): void;
@@ -852,13 +855,16 @@ declare global {
                 fullscreen?: boolean;
                 minimizable?: boolean;
                 show?: boolean;
+                title?: string;
                 webPreferences?: {
                     nodeIntegration?: boolean;
+                    nodeIntegrationInWorker?: boolean;
                     webviewTag?: boolean;
                     // backgroundThrottling?: boolean;
                     enableRemoteModule?: boolean;
                     contextIsolation?: boolean;
                     backgroundThrottling?: boolean;
+                    zoomFactor?: number;
                 };
             }
 
@@ -868,7 +874,30 @@ declare global {
                 minimize(): void;
                 close(): void;
                 open(HTML: string, options?: IWindowOptions, userData?: { [key: string]: any }): Promise<string>;
-
+                /**
+                 * 设置默认配置 ZoomLevel
+                 * 设置后会同步到所有窗口
+                 * @param level
+                 */
+                setDefaultZoomLevel(level: number): void;
+                /**
+                 * 设置默认配置 ZoomLevel
+                 * 设置后会同步到所有窗口
+                 * @return zoom level
+                 */
+                getDefaultZoomLevel(): Promise<number> | number;
+                /**
+                 * 设置窗口缩放级别（默认当前聚焦的窗口，如果没有就是主窗口）
+                 * @param level - 缩放级别
+                 * @param winID - 指定窗口 id
+                 */
+                setZoomLevel(level: number, winID?: string): void;
+                /**
+                 * 获取窗口缩放级别（默认当前聚焦的窗口，如果没有就是主窗口）
+                 * @param winID - 指定窗口 id
+                 * @return level - 缩放级别
+                 */
+                getZoomLevel(winID?: string): Promise<number>;
                 queryUserData(winID?: string): any;
                 changeUserData(data: { [key: string]: any }, winID?: string): void;
                 changeMinSize(width: number, height: number, winID?: string): void;
@@ -877,7 +906,9 @@ declare global {
                 openSubWindow(size: { width: number, height: number }, userData: { [key: string]: any })
                 openSimpleWindow(size: { width: number, height: number }, userData: { [key: string]: any })
 
-                setBeforeOpenHook(func: (windows: any) => void): void;
+                changeMainTitle(title: string): void;
+                queryMainTitle(): Promise<string>;
+                setBeforeOpenHook(func: (options: Editor.Windows.IWindowOptions, userData: { layout: Editor.Layout.ILayout, }) => void): void;
                 setAfterOpenHook(func: (windows: any) => void): void;
             };
         }

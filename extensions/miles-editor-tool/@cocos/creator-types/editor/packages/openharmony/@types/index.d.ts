@@ -2,16 +2,18 @@
 export * from '@cocos/creator-types/editor/packages/builder/@types/protected';
 
 import { IInternalBuildOptions, InternalBuildResult } from '@cocos/creator-types/editor/packages/builder/@types/protected';
+import { ITaskOption as INativeTaskOption } from '../../native/@types/index';
 
 export type IOrientation = 'landscape' | 'portrait';
 
-export interface ITaskOption extends IInternalBuildOptions {
+export interface ITaskOption extends INativeTaskOption {
     packages: {
         'openharmony': IOptions;
     }
 }
 
 export type IAppABI = 'armeabi-v7a' | 'arm64-v8a';
+export type IJsEngine = 'JSVM' | 'V8' | 'ARK';
 
 export interface IOptions {
     packageName: string;
@@ -22,7 +24,7 @@ export interface IOptions {
         upsideDown: boolean;
     },
 
-    apiLevel: number;
+    // apiLevel: number;
     sdkPath: string;
     ndkPath: string;
     appABIs: IAppABI[];
@@ -32,8 +34,9 @@ export interface IOptions {
         gles3: boolean;
         // gles2: boolean;
     };
+    jsEngine: IJsEngine;
     useAotOptimization: boolean;
-    useV8: boolean;
+    //useV8: boolean;
 }
 
 export interface IBuildResult extends InternalBuildResult {

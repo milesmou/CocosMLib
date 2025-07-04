@@ -22,6 +22,10 @@ export declare class TerrainEditorSelect extends TerrainEditorMode {
     getCurrentWeightData(): TerrainEditorWeightMapData | null;
     getCurrentLayerList(): (Texture2D | null)[];
     onDeactivate(): void;
+    /**
+     * 强制更新 Block Select 笔刷材质
+     */
+    forceUpdate(): void;
     onMouseDown(terrain: Terrain, cam: Camera, x: number, y: number): void;
     private _pickTerrainBlock;
     private _updateBlockSelectMaterial;

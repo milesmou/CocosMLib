@@ -1,13 +1,15 @@
-import { Camera, Component, Node } from 'cc';
+/// <reference path="../../../../../../../../resources/3d/engine/bin/.declarations/cc.d.ts" />
+/// <reference path="../utils/engine/3d.d.ts" />
+/// <reference path="data.d.ts" />
+/// <reference path="../../../3d/manager/asset/asset-watcher.d.ts" />
+/// <reference types="@cocos/creator-types/engine/cc" />
+import { Camera, Component, gfx, IVec3Like, Node, Vec3 } from 'cc';
 import { EventEmitter } from '@itharbors/structures';
 import { IChangeNodeOptions } from '../../../../../@types/private';
 import { TransformToolData, SnapConfigs, ISnapConfigData } from './transform-tool';
 import GizmoBase from '../components/base/gizmo-select';
 import { ISceneEvents } from '../../../3d/manager/scene-events-interface';
 import { IRectSnapConfigData } from '../utils/rect-transform-snapping';
-import LightProbeEditModeListener from '../utils/light-probe-edit-mode-listener';
-import LightProbeGizmo from '../components/light-probe-group/gizmo-select';
-import { NodeProbe } from '../components/light-probe-group/controller-light-probe';
 import { TGizmoType } from './pool';
 type IGizmoEventTable = {
     'init': {
@@ -119,6 +121,9 @@ declare class TransformGizmoManager extends GizmoPoolManager {
     transformToolData: TransformToolData;
     get transformToolName(): import("./transform-tool").TransformToolDataToolNameType;
     set transformToolName(toolName: import("./transform-tool").TransformToolDataToolNameType);
+    get isViewMode(): boolean;
+    get viewMode(): import("./transform-tool").TransformToolDataViewMode;
+    set viewMode(viewMode: import("./transform-tool").TransformToolDataViewMode);
     get coordinate(): import("./transform-tool").TransformToolDataCoordinateType;
     set coordinate(value: import("./transform-tool").TransformToolDataCoordinateType);
     get pivot(): import("./transform-tool").TransformToolDataPivotType;
@@ -143,7 +148,154 @@ declare class SelectionGizmoManager extends TransformGizmoManager {
     protected hasSelected(id: string): boolean;
     protected onNodeSelectionChanged(node: Node, selected: boolean): void;
 }
-export declare class GizmoManager extends SelectionGizmoManager implements ISceneEvents, LightProbeEditModeListener {
+export declare class GizmoManager extends SelectionGizmoManager implements ISceneEvents {
+    __EngineUtils__: import("../utils/engine/3d").Engine3D;
+    __ControllerShape__: {
+        calcCylinderData(radiusTop?: number, radiusBottom?: number, height?: number, opts?: any): {
+            positions: any[];
+            normals: any[];
+            uvs: any[];
+            indices: any[];
+            minPos: Vec3;
+            maxPos: Vec3;
+        };
+        calcConeData(radius: number, height: number, opts?: any): {
+            positions: any[];
+            normals: any[];
+            uvs: any[];
+            indices: any[];
+            minPos: Vec3;
+            maxPos: Vec3;
+        };
+        calcPositionData(center: Readonly<Vec3>, width: number, height: number, normal?: Readonly<Vec3>, needBoundingBox?: boolean): {
+            positions: Vec3[];
+            minPos: Vec3 | undefined;
+            maxPos: Vec3 | undefined;
+        };
+        calcQuadData(center: Readonly<Vec3>, width: number, height: number, normal?: Readonly<Vec3>, needBoundingBox?: boolean): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            minPos: Vec3 | undefined;
+            maxPos: Vec3 | undefined;
+            uvs: any[];
+            doubleSided: boolean;
+        };
+        lineWithBoundingBox(length: number, size?: number): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            minPos: Vec3;
+            maxPos: Vec3;
+            primitiveType: gfx.PrimitiveMode;
+        };
+        calcCubeData(width: number, height: number, length: number, center?: IVec3Like | undefined, opts?: any): {
+            positions: Vec3[];
+            indices: number[];
+            normals: Vec3[];
+            minPos: Vec3;
+            maxPos: Vec3;
+        };
+        torus(radius: number, tube: number, opts?: any): {
+            positions: Vec3[];
+            indices: number[];
+            normals: Vec3[];
+            uvs: any[];
+            minPos: Vec3;
+            maxPos: Vec3;
+        };
+        calcArcPoints(center: Readonly<Vec3>, normal: Readonly<Vec3>, fromDir: Readonly<Vec3>, radian: number, radius: number, segments?: number): Vec3[];
+        getBiNormalByNormal(normal: Readonly<Vec3>): Vec3;
+        calcCirclePoints(center: Readonly<Vec3>, normal: Readonly<Vec3>, radius: number, segments?: number): Vec3[];
+        calcDiscPoints(center: Readonly<Vec3>, normal: Readonly<Vec3>, radius: number, segments?: number): Readonly<Vec3>[];
+        calcSectorPoints(center: Readonly<Vec3>, normal: Readonly<Vec3>, fromDir: Readonly<Vec3>, radian: number, radius: number, segments: number): Readonly<Vec3>[];
+        indicesFanToList(fanIndices: number[]): any[];
+        calcSectorData(center: Readonly<Vec3>, normal: Readonly<Vec3>, fromDir: Readonly<Vec3>, radian: number, radius: number, segments: number): {
+            positions: Readonly<Vec3>[];
+            normals: any[];
+            indices: any[];
+            primitiveType: gfx.PrimitiveMode;
+        };
+        arcDirectionLine(center: Vec3, normal: Vec3, fromDir: Vec3, radian: number, radius: number, length: number, segments: number): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            primitiveType: gfx.PrimitiveMode;
+        };
+        calcBoxPoints(center: Vec3, size: Vec3): Vec3[];
+        wireframeBox(center: Vec3, size: Vec3): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            primitiveType: gfx.PrimitiveMode;
+        };
+        calcFrustum(isOrtho: boolean, orthoHeight: number, fov: number, aspect: number, near: number, far: number, isFOVY: boolean): {
+            positions: Vec3[];
+            indices: number[];
+            normals: any[];
+            primitiveType: gfx.PrimitiveMode;
+        };
+        calcRectanglePoints: (center: Readonly<Vec3>, rotation: Readonly<import("cc").math.Quat>, size: any) => {
+            vertices: Vec3[];
+            indices: number[];
+        };
+        calcRectangleData(center: Readonly<Vec3>, rotation: Readonly<import("cc").math.Quat>, size: any): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            primitiveType: gfx.PrimitiveMode;
+        };
+        calcSphereData: (center: Readonly<Vec3>, radius?: number, opts?: any) => import("../utils/defines").IMeshPrimitive;
+        calcArcData(center: Readonly<Vec3>, normal: Readonly<Vec3>, fromDir: Readonly<Vec3>, radian: number, radius: number, segments?: number): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            primitiveType: gfx.PrimitiveMode;
+        };
+        calcCircleData(center: Readonly<Vec3>, normal: Readonly<Vec3>, radius: number, segments?: number): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            primitiveType: gfx.PrimitiveMode;
+        };
+        calcLinesData(vertices: Vec3[], indices: number[], needBoundingBoxData?: boolean): import("../utils/defines").IMeshPrimitive;
+        calcDiscData(center: Readonly<Vec3>, normal: Readonly<Vec3>, radius: number, segments?: number): {
+            positions: Readonly<Vec3>[];
+            normals: any[];
+            indices: any[];
+            primitiveType: gfx.PrimitiveMode;
+            minPos: Vec3;
+            maxPos: Vec3;
+        };
+        calcLineData(startPos: Vec3, endPos: Vec3): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            minPos: Vec3;
+            maxPos: Vec3;
+            primitiveType: gfx.PrimitiveMode;
+        };
+        /**
+         * 更新光照探针的四面体，需要通知到 MeshRenderer Gizmo
+         * @returns
+         */
+        calcPolygonData(points: Vec3[], indices?: number[] | undefined): {
+            positions: Vec3[];
+            normals: any[];
+            indices: number[];
+            minPos: Vec3;
+            maxPos: Vec3;
+            primitiveType: gfx.PrimitiveMode;
+        };
+        calcOctahedronData(lowerPoint: IVec3Like, upperPoint: IVec3Like, width: number, length: number, ratio?: number): {
+            primitiveType: gfx.PrimitiveMode;
+            positions: Vec3[];
+            normals: Vec3[];
+            indices: number[];
+            minPos: Vec3;
+            maxPos: Vec3;
+        };
+    };
     sceneGizmoCamera: Camera;
     gizmoRootNode: Node;
     private _worldAxisController;
@@ -180,7 +332,6 @@ export declare class GizmoManager extends SelectionGizmoManager implements IScen
      */
     callAllGizmoFuncOfNode<T extends keyof GizmoBase>(node: Node, funcName: T, ...params: Parameters<any>): boolean;
     onDimensionChanged(is2D: boolean): void;
-    onMouseLeave(): void;
     onResize(): void;
     onSceneOpened(): void;
     onSceneClosed(): void;
@@ -190,47 +341,13 @@ export declare class GizmoManager extends SelectionGizmoManager implements IScen
     onComponentAdded(comp: Component): void;
     onComponentRemoved(comp: Component): void;
     /**
-     * 存放探针编辑模式变化的监听器
-     * 需要监听的 Gizmo 需要自身实现下面接口
-     * 其它监听器需要从数组头部插入
-     * @see LightProbeEditModeListener
-     * 注册方式位于
-     * @see registerLightProbeEditModeListener
+     * 执行 Gizmo 管理器上实现的方法
+     * @param name
+     * @param funcName
+     * @param params
+     * @returns
      */
-    _lightProbeEditModeListener: LightProbeEditModeListener[];
-    private _lightProbeEditMode;
-    private _lightProbeBoundingBoxEditMode;
-    set lightProbeEditMode(value: boolean);
-    get lightProbeEditMode(): boolean;
-    set lightProbeBoundingBoxEditMode(value: boolean);
-    get lightProbeBoundingBoxEditMode(): boolean;
-    /**
-     * 光照探针编辑模式改变，需要通知到GizmoOperation和LightProbeGizmo
-     * 调用方在GeneralSceneManager的changeLightProbeEditMode方法中调用
-     * @param mode
-     */
-    lightProbeEditModeChanged(mode: boolean): void;
-    /**
-     * 引擎更新了光照探针的数据，需要通知到 LightProbeGizmo
-     * 探针插件里用到了这个接口
-     */
-    updateLightProbeInfo(): void;
-    /**
-     * 引擎更新了光照探针的数据，需要通知到 LightProbeGizmo
-     * 探针插件里用到了这个接口
-     */
-    lightProbeInfoChanged(): void;
-    /**
-     * 包围盒编辑模式改变，需要通知到GizmoOperation和LightProbeGizmo
-     * @param mode
-     */
-    boundingBoxEditModeChanged(mode: boolean): void;
-    get globalSelectProbes(): NodeProbe[];
-    registerLightProbeEditModeListener(listener: LightProbeEditModeListener): void;
-    /**
-     * 遍历所有正常显示的光照探针
-     */
-    walkAllLightProbeGizmoListener(callback: (e: LightProbeGizmo) => void): void;
+    execGizmoMethods(name: string, funcName: string, params?: any[]): any;
     /**
      * 更新光照探针的四面体，需要通知到 MeshRenderer Gizmo
      * @returns
@@ -239,6 +356,11 @@ export declare class GizmoManager extends SelectionGizmoManager implements IScen
     duplicateCurrentSelectedProbes(): void;
     removeCurrentSelectedProbes(): void;
     selectAllLightProbes(): void;
+    /**
+     * 切换选中状态，0 是正常选中节点，1 是选中 gizmo 节点
+     * @param mode
+     */
+    _changeRegionSelectMode(mode: number): void;
 }
 export declare const gizmoManager: GizmoManager;
 export {};

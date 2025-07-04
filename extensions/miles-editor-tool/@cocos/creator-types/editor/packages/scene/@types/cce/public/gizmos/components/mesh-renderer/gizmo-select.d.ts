@@ -5,7 +5,6 @@ declare class ModelComponentGizmo extends SelectGizmo<MeshRenderer> {
     private _controller;
     tetrahedronController: LightProbeTetrahedronController;
     init(): void;
-    lightProbeInfoChanged(): void;
     onShow(): void;
     onHide(): void;
     createController(): void;

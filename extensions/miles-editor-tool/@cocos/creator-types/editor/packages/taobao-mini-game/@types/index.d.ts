@@ -13,6 +13,7 @@ export interface ITaskOption extends IInternalBuildOptions {
             globalVariable: string;
             separateEngine: boolean;
             wasmSubpackage: boolean;
+            injectGlobal: boolean;
         };
     };
 }

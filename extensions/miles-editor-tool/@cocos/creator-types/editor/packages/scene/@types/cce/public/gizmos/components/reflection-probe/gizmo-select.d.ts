@@ -1,5 +1,5 @@
 import { Material, IMaterialInfo } from 'cc';
-import type { IControlMouseEvent } from '../../utils/defines';
+import type { GizmoMouseEvent } from '../../utils/defines';
 import { SelectGizmo } from '../base';
 declare class ReflectionProbeGizmo extends SelectGizmo {
     private _controller;
@@ -13,9 +13,9 @@ declare class ReflectionProbeGizmo extends SelectGizmo {
     private _sphere;
     private _plane;
     protected _loadModelState: 'loading' | 'completed' | 'idle';
-    onBBControllerMouseDown(event: IControlMouseEvent): void;
-    onBBControllerMouseMove(event: IControlMouseEvent): void;
-    onBBControllerMouseUp(event: IControlMouseEvent): void;
+    onBBControllerMouseDown(event: GizmoMouseEvent): void;
+    onBBControllerMouseMove(event: GizmoMouseEvent): void;
+    onBBControllerMouseUp(event: GizmoMouseEvent): void;
     init(): void;
     onShow(): void;
     generateMaterial(options?: IMaterialInfo): Material;

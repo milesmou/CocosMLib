@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 import { IRectLike } from '../../../../../@types/private';
 declare class NativeWindow {
     handler: number;

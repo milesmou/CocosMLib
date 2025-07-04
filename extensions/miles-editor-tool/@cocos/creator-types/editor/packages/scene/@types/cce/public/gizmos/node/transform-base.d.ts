@@ -1,7 +1,7 @@
 import Gizmo from '../components/base/gizmo-select';
 import ControllerBase from '../controller/base';
 import { Node, Component } from 'cc';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 import { ISceneKeyboardEvent } from '../../../../../@types/private';
 declare class TransformGizmo extends Gizmo<Component> {
     protected _controller: ControllerBase;
@@ -14,7 +14,7 @@ declare class TransformGizmo extends Gizmo<Component> {
     onNodeChanged(): void;
     protected broadcastNodeChangeMessage(node: Node): void;
     getSnappedValue(inNumber: number, snapStep: number): number;
-    isControlKeyPressed(event: IControlMouseEvent): boolean;
+    isControlKeyPressed(event: GizmoMouseEvent): boolean;
     /**
      * 默认行为是 controller 被按下就打断
      * @param event

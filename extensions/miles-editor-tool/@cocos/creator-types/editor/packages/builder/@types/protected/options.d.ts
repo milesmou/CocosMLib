@@ -1,8 +1,10 @@
-import { StatsQuery, ConfigInterface } from '@cocos/ccbuild';
-import { IPolyFills, IBuildDesignResolution, IBuildOptionBase, IBuildTaskOption, ITaskItemJSON, BundleCompressionType, IPhysicsConfig, IBundleOptions } from '../public';
-import { IAssetInfo, IAssetMeta } from '../../../asset-db/@types/protected';
-
+import { StatsQuery } from '@cocos/ccbuild';
+import { IPolyFills, IBuildDesignResolution, IBuildOptionBase, IBuildTaskOption, ITaskItemJSON, BundleCompressionType, IPhysicsConfig, IBundleOptions, Platform, BundleFilterConfig } from '../public';
+import { IAssetMeta } from '../../../asset-db/@types/protected';
+import { IAssetInfo as IAssetInfoFromDB } from '../../../asset-db/@types/public';
+import * as rollup from 'rollup';
 import { EngineInfo } from '../../../engine/@types/index';
+import { BuiltinBundleName } from './bundle-config';
 
 export interface IBundleInternalOptions extends IBundleOptions {
     dest: string, // bundle 的输出目录
@@ -16,7 +18,7 @@ export interface IBundleInternalOptions extends IBundleOptions {
 type PlatformType = StatsQuery.ConstantManager.PlatformType;
 type IBuildTimeConstantValue = StatsQuery.ConstantManager.ValueType;
 
-export interface ScriptAssetuserData {
+export interface ScriptAssetUserData {
     isPlugin?: boolean;
     isNative?: boolean;
     loadPluginInNative?: boolean;
@@ -36,15 +38,6 @@ export const enum TaskAddResult {
     SUCCESS,
     PARAM_ERROR,
 }
-export interface BundleFilterConfig {
-    range: 'include' | 'exclude';
-    type: 'asset' | 'url';
-    patchOption?: {
-        patchType: 'glob' | 'beginWith' | 'endWith' | 'contain';
-        value: string;
-    };
-    assets?: string[];
-}
 
 export interface IBundleInitOptions extends IBundleOptions {
     root: string, // bundle 的根目录, 开发者勾选的目录，如果是 main 包，这个字段为''
@@ -59,13 +52,6 @@ export interface IBundleInitOptions extends IBundleOptions {
 
     dest: string, // bundle 的输出目录
     scriptDest: string, // 脚本的输出地址
-}
-
-export enum BuiltinBundleName {
-    RESOURCES = 'resources',
-    MAIN = 'main',
-    START_SCENE = 'start-scene',
-    INTERNAL = 'internal',
 }
 
 export interface IBuildScriptParam {
@@ -144,7 +130,6 @@ export interface IBundleBuildOptions {
     logDest?: string;
 }
 
-
 export interface TransformOptions {
     /**
      * Babel plugins to excluded. Will be passed to as partial `exclude` options of `@babel/preset-env`.
@@ -165,12 +150,13 @@ export interface IMD5Options {
     excludes: string[];
     includes: string[];
     replaceOnly: string[];
+    handleTemplateMd5Link: boolean;
 }
 
 export interface IScriptOptions {
     transform: TransformOptions;
     debug: boolean;
-    sourceMaps: boolean;
+    sourceMaps: boolean | 'inline';
     hotModuleReload: boolean;
     moduleFormat: rollup.ModuleFormat;
     modulePreservation: ModulePreservation;
@@ -186,30 +172,37 @@ export interface IImportMapOptions {
 
 export type IPlatformType = 'native' | 'miniGame' | 'web';
 
-export interface IInternalBuildOptions extends IBuildTaskOption {
-    dest: string;
-    // 编译 application.js 参数配置
-    appTemplateData: appTemplateData;
-    // 编译引擎参数配置
-    buildEngineParam: IBuildEngineParam;
+export interface IInternalBundleBuildOptions extends IBuildTaskOption {
+    dest: string; // bundle 构建的输出地址，常规构建时为 assets 目录
     // 编译脚本配置选项
     buildScriptParam: IBuildScriptParam;
     // 序列化打包资源时的特殊处理
     assetSerializeOptions: AssetSerializeOptions;
     // 配置添加 md5 后缀时需要过滤的路径匹配列表
     md5CacheOptions: IMD5Options,
+    includeModules: string[];
+    macroConfig: Record<string, any>;
+
+    logDest: string; // log 输出地址
+}
+export interface IInternalBuildOptions extends IInternalBundleBuildOptions {
+    dest: string;
+    // 编译 application.js 参数配置
+    appTemplateData: appTemplateData;
+    // 编译引擎参数配置
+    buildEngineParam: IBuildEngineParam;
+    // 配置添加 md5 后缀时需要过滤的路径匹配列表
+    md5CacheOptions: IMD5Options,
     updateOnly: boolean;
     generateCompileConfig?: boolean;
     recompileConfig?: IRecompileConfig;
-    logDest: string; // log 输出地址
 
     // 项目设置，重复定义为必选参数
-    includeModules: string[];
+    customPipeline: boolean;
     renderPipeline: string;
     designResolution: IBuildDesignResolution;
     physicsConfig: IPhysicsConfig;
     flags?: Record<string, boolean>;
-    macroConfig?: Record<string, any>;
     // 构建之前默认会清空构建目录，如不希望清空，请在 onBeforeInit 之前修改当前参数为 true
     useCache?: boolean;
     bundleConfigs?: IBundleInternalOptions[];
@@ -240,7 +233,8 @@ export interface appTemplateData {
 export interface IBuildEngineParam {
     entry?: string; // 引擎入口文件
     debug: boolean;
-    sourceMaps: boolean;
+    mangleProperties: boolean;
+    sourceMaps: boolean | 'inline';
     platform: PlatformType;
     includeModules: string[];
     engineVersion: string;
@@ -250,7 +244,7 @@ export interface IBuildEngineParam {
     split?: boolean;
     targets?: ITransformTarget;
     skip?: boolean;
-    nativeCodeBundleMode:  'wasm' | 'asmjs' | 'both';
+    nativeCodeBundleMode: 'wasm' | 'asmjs' | 'both';
     assetURLFormat?:
     | 'relative-from-out'
     | 'relative-from-chunk'
@@ -259,20 +253,22 @@ export interface IBuildEngineParam {
     flags?: Record<string, IBuildTimeConstantValue>;
     output?: string;
     preserveType?: boolean;
-    isNative?: boolean;
     wasmCompressionMode?: 'brotli';
     enableNamedRegisterForSystemJSModuleFormat?: boolean;
+    inlineEnum?: boolean;
 }
 
 export type ITransformTarget = string | string[] | Record<string, string>;
 
-export interface IAssetInfo extends IAssetInfo {
+export interface IAssetInfo extends IAssetInfoFromDB {
     temp?: string; // 资源的构建缓存目录
     fatherInfo?: any;
     // fatherUuid?: string | undefined;
     userData?: any;
 
     dirty?: boolean;
+    // TODO
+    userData?: Record<string, any>;
     meta: IAssetMeta;
     subAssets: Record<string, IAssetInfo>;
     mtime: number;

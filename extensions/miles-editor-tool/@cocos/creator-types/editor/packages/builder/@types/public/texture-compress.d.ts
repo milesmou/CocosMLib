@@ -1,4 +1,4 @@
-import { IDisplayOptions } from "./build-plugin";
+import { IDisplayOptions } from './build-plugin';
 
 export type ITextureCompressType =
     | 'jpg'
@@ -22,7 +22,7 @@ export type ITextureCompressType =
     | 'astc_10x10'
     | 'astc_12x12'
     | string;
-export type ITextureCompressPlatform = 'miniGame' | 'web' | 'ios' | 'android';
+export type ITextureCompressPlatform = 'miniGame' | 'web' | 'ios' | 'android' | 'harmonyos-next';
 
 export type ITextureCompressFormatType = 'pvr' | 'jpg' | 'png' | 'etc' | 'astc' | 'webp';
 export interface IHandlerInfo {
@@ -57,7 +57,7 @@ export interface AllTextureCompressConfig {
     // 用户的自定义纹理压缩配置
     customFormats: Record<string, ITextureFormatInfo>;
     // 配置的平台分组配置
-    configGroups: IConfigGroups; 
+    configGroups: IConfigGroups;
     // 默认的支持格式
     defaultSupport: ISupportFormat;
 
@@ -68,13 +68,13 @@ export interface UserCompressConfig {
     customConfigs: Record<string, ICustomConfig>;
     defaultConfig: Record<string, {
         name: string;
-        options: Record<string, Record<string, { quality: string | number}>>;
+        options: Record<string, Record<string, { quality: string | number }>>;
     }>;
     userPreset: Record<string, {
         name: string;
-        options: Record<string, Record<string, { quality: string | number}>>;
+        options: Record<string, Record<string, { quality: string | number }>>;
         // 平台覆盖配置
-        overwrite?: Record<string, Record<string, { quality: string | number}>>;
+        overwrite?: Record<string, Record<string, { quality: string | number }>>;
     }>;
     genMipmaps: boolean;
 }

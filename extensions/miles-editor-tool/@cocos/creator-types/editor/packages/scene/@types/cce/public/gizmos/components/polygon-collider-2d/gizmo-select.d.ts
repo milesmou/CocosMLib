@@ -1,5 +1,5 @@
 import { Vec3, PolygonCollider2D } from 'cc';
-import type { IControlMouseEvent } from '../../utils/defines';
+import type { GizmoMouseEvent } from '../../utils/defines';
 import { ISceneKeyboardEvent } from '../../../../../../@types/private';
 import { SelectGizmo } from '../base';
 import { IPolygonHandleData } from './controller-polygon';
@@ -26,10 +26,12 @@ declare class PolygonCollider2DGizmo extends SelectGizmo<PolygonCollider2D> {
     onHide(): void;
     createController(): void;
     onControllerMouseDown(): void;
-    onControllerMouseMove(event: IControlMouseEvent): void;
+    onControllerMouseMove(event: GizmoMouseEvent): void;
     onControllerMouseUp(): void;
-    onControllerHoverIn(event: IControlMouseEvent): void;
-    onControllerHoverOut(event: IControlMouseEvent): void;
+    onControllerHoverIn(event: GizmoMouseEvent<{
+        index: number;
+    }>): void;
+    onControllerHoverOut(event: GizmoMouseEvent): void;
     onKeyDown(event: ISceneKeyboardEvent): void;
     onKeyUp(event: ISceneKeyboardEvent): void;
     worldToLocalPos(out: Vec3, inPos: Vec3): void;

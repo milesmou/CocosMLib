@@ -476,7 +476,17 @@ interface ISceneFacade extends ISceneEvents {
     /**
      * 查询当前 gizmo 工具的名字
      */
-    queryGizmoToolName(): Promise<string>;
+    queryGizmoToolName(): string;
+
+    /**
+     * 是否是查看模式
+     */
+    queryIsViewMode(): boolean;
+
+    /**
+     * 查询当前 gizmo 模式
+     */
+    queryGizmoViewMode(): string;
 
     /**
      * 查询 gizmo 中心点类型

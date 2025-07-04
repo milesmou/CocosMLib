@@ -34,11 +34,23 @@ export interface IPacInfo {
     path: string;
     packOptions: IPackOptions;
 }
+interface StoreInfo {
+    uuid: string;
+    mtime: number;
+}
 
+export interface PacStoreInfo {
+    pac: StoreInfo;
+    sprites: ISpriteFrameInfo[];
+    atlas?: { sprits: string[], imagePath: string[]}[];
+    options: IPackOptions;
+}
 export interface PreviewPackResult {
     atlasImagePaths: string[];
     unpackedImages: {imageUuid: string, libraryPath: string} [];
     dirty: boolean;
+    storeInfo: PacStoreInfo;
+    atlases: IAtlasInfo[];
 }
 
 export interface IInternalPackOptions {

@@ -1,5 +1,5 @@
 import EditableController from '../../controller/editable';
-import type { IControlMouseEvent } from '../../utils/defines';
+import type { GizmoMouseEvent } from '../../utils/defines';
 import { Color, Node, Vec3, EAxisDirection } from 'cc';
 declare class CylinderController extends EditableController {
     get radius(): number;
@@ -33,10 +33,10 @@ declare class CylinderController extends EditableController {
     _updateEditHandle(axisName: string): void;
     initShape(): void;
     updateSize(center: Vec3, radius: number, height: number): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
     getDeltaRadius(): number;
     getDeltaHeight(): number;
     private getUpperCapData;

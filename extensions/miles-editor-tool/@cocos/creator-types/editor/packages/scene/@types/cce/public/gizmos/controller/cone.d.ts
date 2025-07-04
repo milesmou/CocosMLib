@@ -1,6 +1,6 @@
 import { Vec3, Node, Color, EAxisDirection } from 'cc';
 import EditableController from './editable';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class ConeController extends EditableController {
     private _oriDir;
     private _center;
@@ -31,10 +31,10 @@ declare class ConeController extends EditableController {
     getSideLinesData(center: Vec3, radius: number, height: number): import("../utils/defines").IMeshPrimitive;
     getLowerCapData(center: Vec3, radius: number, height: number): any;
     updateSize(center: Vec3, radius: number, height: number): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
     getDeltaRadius(): number;
     getDeltaHeight(): number;
 }

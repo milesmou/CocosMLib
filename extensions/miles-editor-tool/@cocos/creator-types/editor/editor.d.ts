@@ -16,6 +16,11 @@ declare global {
              */
             export const dev: boolean;
             /**
+             * @zh 是否是打包后的编辑器
+             * @en Is the editor packaged
+             */
+            export const isPackaged: boolean;
+            /**
              * @zh 编辑器启动参数
              * @en Editor startup parameters
              */
@@ -25,6 +30,11 @@ declare global {
              * @en Editor version
              */
             export const version: string;
+            /**
+             * @zh 编辑器包名
+             * @en App name
+             */
+            export const name: string;
             /**
              * @zh 主目录
              * @en Home folder
@@ -333,7 +343,7 @@ declare global {
             }
             export interface ContextMenuItem extends BaseMenuItem {
                 accelerator?: string;
-                // 菜单点击后发送哪一个消息
+                // 菜单点击后发送哪一个消息，与 click 二选一，同时存在只响应 click 函数
                 message?: Message.MessageInfo;
                 submenu?: ContextMenuItem[];
             }
@@ -454,6 +464,9 @@ declare global {
             export function getFreePort(port: number): Promise<number>;
         }
         export namespace Package {
+            /**
+             * @deprecated Please use Editor.Interface.PackageInfo instead
+             */
             export interface IGetPackageOptions {
                 name?: string;
                 debug?: boolean;
@@ -461,6 +474,9 @@ declare global {
                 enable?: boolean;
                 invalid?: boolean;
             }
+            /**
+             * @deprecated Please use Editor.Interface.PackageJson instead
+             */
             export interface PackageJson {
                 name: string;
                 version: string;
@@ -830,6 +846,11 @@ declare global {
                  */
                 timeout?: number;
             }
+
+            export interface NoticeInfo extends NoticeOptions {
+                id: number;
+                timer?: NodeJS.Timeout;
+            }
             /**
              * @zh 添加一个通知
              * @en Add a notification
@@ -854,7 +875,12 @@ declare global {
              * @zh 查询所有通知
              * @en Query all notifications
              */
-            export function queryNotices(): NoticeOptions[];
+            export function queryNotices(): NoticeInfo[];
+            /**
+             * @zh 查询指定通知
+             * @en Query notification
+             */
+            export function queryNotice(id: number): NoticeInfo;
         }
         export namespace Theme {
             /**

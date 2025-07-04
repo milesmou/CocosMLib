@@ -65,12 +65,18 @@ export declare class SnapConfigs extends EventEmitter<{
      */
     initFromData(data: ISnapConfigData): void;
 }
-export type TransformToolDataToolNameType = 'position' | 'rotation' | 'scale' | 'rect';
+export type TransformToolDataToolNameType = 'view' | 'position' | 'rotation' | 'scale' | 'rect';
+export declare const transformToolDataToolNameTypeList: string[];
 export type TransformToolDataCoordinateType = 'local' | 'global';
 export type TransformToolDataPivotType = 'pivot' | 'center';
+export type TransformToolDataViewMode = 'view' | 'select';
 export declare class TransformToolData extends EventEmitter<{
     'tool-name-changed': {
         params: [TransformToolDataToolNameType];
+        result: void;
+    };
+    'view-mode-changed': {
+        params: [TransformToolDataViewMode];
         result: void;
     };
     'coordinate-changed': {
@@ -101,6 +107,9 @@ export declare class TransformToolData extends EventEmitter<{
     private _toolName;
     get toolName(): TransformToolDataToolNameType;
     set toolName(value: TransformToolDataToolNameType);
+    private _viewMode;
+    get viewMode(): TransformToolDataViewMode;
+    set viewMode(value: TransformToolDataViewMode);
     private _coordinate;
     get coordinate(): TransformToolDataCoordinateType;
     set coordinate(value: TransformToolDataCoordinateType);

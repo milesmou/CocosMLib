@@ -1,6 +1,6 @@
 import { Color, Node, Vec3, EAxisDirection } from 'cc';
 import EditableController from './editable';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class CapsuleController extends EditableController {
     get radius(): number;
     set radius(value: number);
@@ -33,10 +33,10 @@ declare class CapsuleController extends EditableController {
     _updateEditHandle(axisName: string): void;
     initShape(): void;
     updateSize(center: Vec3, radius: number, height: number): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
     getDeltaRadius(): number;
     getDeltaHeight(): number;
     private getUpperCapData;

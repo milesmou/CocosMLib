@@ -1,6 +1,6 @@
-import { Node } from 'cc';
+import { Node, Vec3 } from 'cc';
 import ControllerBase from './base';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class TerrainController extends ControllerBase {
     private _quadNode;
     private _quadMR;
@@ -8,13 +8,16 @@ declare class TerrainController extends ControllerBase {
     shape: Node;
     constructor(rootNode: Node, opts?: any);
     initShape(opts: any): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(event: IControlMouseEvent): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     onShow(): void;
     onHide(): void;
+    updateWorldPosition(value: Vec3): void;
     updateSize(width: number, height: number): void;
 }
 export default TerrainController;

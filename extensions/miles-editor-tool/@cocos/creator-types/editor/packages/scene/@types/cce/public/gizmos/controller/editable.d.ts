@@ -1,6 +1,6 @@
 import { Node, Vec3, Color, Quat } from 'cc';
 import ControllerBase from './base';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 declare class EditableController extends ControllerBase {
     protected _editable: boolean;
     protected _edit: boolean;
@@ -30,8 +30,10 @@ declare class EditableController extends ControllerBase {
     _updateEditHandle(handleName: string): void;
     updateEditHandles(): void;
     checkEdit(): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(event: IControlMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     onEditorCameraMoved(): void;
     adjustControllerSize(): void;
     adjustEditHandlesSize(): void;

@@ -1,9 +1,5 @@
 import { Asset, VirtualAsset } from '@editor/asset-db';
-
-export interface IRedirectInfo {
-    type: string; // 跳转资源的类型
-    uuid: string; // 跳转资源的 uuid
-}
+import { CCON } from 'cc/editor/serialization';
 
 export interface IExportData {
     import: {
@@ -25,7 +21,7 @@ export class VirtualAsset extends VirtualAsset {
     setData: (name: 'output', data: IExportData) => void;
 }
 
-export class Asset extends Asset, IVirtualAsset {};
+export class Asset extends Asset, IVirtualAsset { };
 
 export type IAsset = VirtualAsset | Asset;
 

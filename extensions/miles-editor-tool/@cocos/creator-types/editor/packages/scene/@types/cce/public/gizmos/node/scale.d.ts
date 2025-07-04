@@ -1,6 +1,6 @@
 import TransformGizmo from './transform-base';
 import { Node, Vec3 } from 'cc';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 import { ISceneKeyboardEvent } from '../../../../../@types/private';
 declare class ScaleGizmo extends TransformGizmo {
     private _localScaleList;
@@ -12,13 +12,13 @@ declare class ScaleGizmo extends TransformGizmo {
     onTargetUpdate(): void;
     createController(): void;
     onControllerMouseDown(): void;
-    onControllerMouseMove(event: IControlMouseEvent): void;
+    onControllerMouseMove(event: GizmoMouseEvent): void;
     onControllerMouseUp(): void;
     onKeyDown(event: ISceneKeyboardEvent): boolean;
     onKeyUp(event: ISceneKeyboardEvent): boolean;
     setScaleWithPrecision(node: Node, newScale: Vec3, precision: number): void;
     checkSnap(scaleDelta: Vec3, snapStep: number): void;
-    updateDataFromController(event: IControlMouseEvent): void;
+    updateDataFromController(event: GizmoMouseEvent): void;
     updateControllerTransform(): void;
 }
 export default ScaleGizmo;

@@ -1,6 +1,6 @@
 import { Color, Node, Vec2, Vec3 } from 'cc';
 import { ISceneKeyboardEvent } from '../../../../../@types/private';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 import { SnapGuidelineGroup } from '../utils/rect-transform-snapping';
 import LinesController from '../controller/lines';
 import TransformGizmo from './transform-base';
@@ -30,7 +30,7 @@ declare class RectGizmo extends TransformGizmo {
     createController(): void;
     onControllerMouseDown(): void;
     onControllerMouseMove(): void;
-    onControllerMouseUp(event: IControlMouseEvent): void;
+    onControllerMouseUp(event: GizmoMouseEvent): void;
     onKeyDown(event: ISceneKeyboardEvent): boolean | undefined;
     onKeyUp(event: ISceneKeyboardEvent): boolean;
     handleAreaMove(delta: Vec3): void;

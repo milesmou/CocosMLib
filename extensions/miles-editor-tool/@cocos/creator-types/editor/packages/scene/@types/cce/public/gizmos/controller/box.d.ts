@@ -1,5 +1,5 @@
 import { Node, Vec3, Color } from 'cc';
-import type { IControlMouseEvent } from '../utils/defines';
+import type { GizmoMouseEvent } from '../utils/defines';
 import EditableController from './editable';
 declare class BoxController extends EditableController {
     private _center;
@@ -17,12 +17,14 @@ declare class BoxController extends EditableController {
     _updateEditHandle(axisName: string): void;
     initShape(): void;
     updateSize(center: Readonly<Vec3>, size: Vec3): void;
-    onMouseDown(event: IControlMouseEvent): void;
-    onMouseMove(event: IControlMouseEvent): void;
-    onMouseUp(event: IControlMouseEvent): void;
-    onMouseLeave(event: IControlMouseEvent): void;
-    onHoverIn(event: IControlMouseEvent): void;
-    onHoverOut(): void;
+    onMouseDown(event: GizmoMouseEvent): void;
+    onMouseMove(event: GizmoMouseEvent): void;
+    onMouseUp(event: GizmoMouseEvent): void;
+    onMouseLeave(event: GizmoMouseEvent): void;
+    onHoverIn(event: GizmoMouseEvent): void;
+    onHoverOut(event: GizmoMouseEvent<{
+        hoverInNodeMap: Map<Node, boolean>;
+    }>): void;
     getDeltaSize(): Vec3;
     showEditHandles(): void;
     hideEditHandles(): void;

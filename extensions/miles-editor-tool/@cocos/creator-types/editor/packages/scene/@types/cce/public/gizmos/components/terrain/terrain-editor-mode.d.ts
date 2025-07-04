@@ -12,5 +12,6 @@ export declare class TerrainEditorMode {
     onUpdate(terrain: Terrain, dTime: number, isShiftDown: boolean): void;
     onActivate(): void;
     onDeactivate(): void;
+    forceUpdate(): void;
 }
 //# sourceMappingURL=terrain-editor-mode.d.ts.map
