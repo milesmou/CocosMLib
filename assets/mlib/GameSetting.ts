@@ -167,7 +167,7 @@ class GameSetting extends Component {
         this._gameCode = this._gameName + "_" + this.channel
         this._commonRemoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
         this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/Resources`;
-        this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/${this._mainVersion}/GameConfig.txt`;
+        this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/Config/${this._mainVersion}.txt`;
 
         if (EDITOR_NOT_IN_PREVIEW) {
             this.saveGameSetting();
@@ -252,9 +252,9 @@ class GameSetting extends Component {
             /** 热更资源地址 */
             hotupdateServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/${this.mainVersion}/ResPkg`,
             /** 小游戏资源地址 */
-            minigameServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/${this.version}/ResPkg/`,
+            minigameServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/ResPkg/`,
             /** 小游戏远程资源OSS上传目录 */
-            minigameOSSUploadDir: `${this.gameName}/Channel/${this.channel}/${this.version}/ResPkg/`
+            minigameOSSUploadDir: `${this.gameName}/Channel/${this.channel}/ResPkg/`
         };
         Editor.Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
     }
