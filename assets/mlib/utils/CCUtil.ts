@@ -1,7 +1,6 @@
-import { Button, Component, EventHandler, Layers, Node, Prefab, ScrollView, Slider, Toggle, ToggleContainer, TweenEasing, UITransform, Vec3, instantiate, misc, sp, tween, v2, v3, view } from "cc";
+import { Animation, Button, Component, EventHandler, Layers, Node, Prefab, ScrollView, Slider, Toggle, ToggleContainer, TweenEasing, UITransform, Vec3, instantiate, misc, sp, tween, v2, v3, view } from "cc";
 
 export class CCUtils {
-
 
     /** 创建一个UI节点 */
     public static createUINode(name: string, parent?: Node) {
@@ -211,6 +210,36 @@ export class CCUtils {
         }).start();
     }
 
+    /** 设置Spine同时显示多个皮肤 */
+    public static setSpineSkins(spine: sp.Skeleton, skinNames: string[]) {
+        if (!spine?.isValid) return;
+        let skinCache: Map<string, sp.spine.Skin> = spine['skinCache'];
+        if (!skinCache) {//缓存动态创建的皮肤，否则Native平台在回收皮肤时会崩溃
+            skinCache = new Map();
+            spine['skinCache'] = skinCache;
+        }
+        let skinCacheKey = skinNames.sort().join(",");
+        let combineSkin = skinCache.get(skinCacheKey);
+        const skeleton = spine._skeleton;
+        if (!combineSkin) {
+            const runtimeData = spine.skeletonData.getRuntimeData();
+            combineSkin = new sp.spine.Skin(skinCacheKey);
+            for (const skinName of skinNames) {
+                let skin = runtimeData.findSkin(skinName);
+                if (skin) {
+                    combineSkin.addSkin(skin);
+                } else {
+                    console.warn("皮肤未找到:" + skinName);
+                }
+            }
+            skinCache.set(skinCacheKey, combineSkin);
+        }
+        if (skeleton.skin.name != combineSkin.name) {
+            skeleton.setSkin(combineSkin);
+            skeleton.setSlotsToSetupPose();
+        }
+    }
+
     /** 设置spine各动画之间的融合时间 */
     public static setSpineCommonMix(spine: sp.Skeleton, dur: number) {
         if (!spine?.isValid) return;
@@ -241,6 +270,19 @@ export class CCUtils {
             child.active = visible;
             if (child.children.length > 0) this.setBoneChildsVisible(child, visible);
         }
+    }
+
+    /**
+     * 重置animation到初始状态
+     */
+    public static resetAnimation(anim: Animation) {
+        if (!anim || !anim.isValid) return;
+        if (anim.clips.length == 0) return;
+        anim.clips.forEach(clip => {
+            const state = anim.getState(clip.name);
+            state.time = 0;
+            state.sample();
+        });
     }
 
 }

@@ -1,4 +1,4 @@
-import { Label, Node, UIOpacity, _decorator } from 'cc';
+import { _decorator } from 'cc';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { ConfirmArgs } from './ConfirmArgs';
 import { LoadingArgs } from './LoadingArgs';
@@ -7,18 +7,6 @@ import { TipMsgLoading } from './TipMsgLoading';
 import { TipMsgTip } from './TipMsgTip';
 import { TipMsgToast } from './TipMsgToast';
 const { ccclass, property } = _decorator;
-
-class ToastItem {
-    /** 节点 */
-    node: Node;
-    /** 文本组件 */
-    content: Label;
-    /** 透明度组件 */
-    uiOpacity: UIOpacity;
-    /** 是否正在移动 */
-    move: boolean;
-}
-
 
 @ccclass('UITipMsg')
 export class UITipMsg extends UIComponent {
@@ -33,7 +21,10 @@ export class UITipMsg extends UIComponent {
 
     protected onLoad() {
         UITipMsg.Inst = this;
+    }
 
+    protected onDestroy(): void {
+        UITipMsg.Inst = undefined;
     }
 
     public showTip(content: string) {

@@ -5,20 +5,18 @@ import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
 
     //@ts-ignore
-    globalThis.PromiseAll = function <T>(promises: Promise<T>[], progress?: Progress) {
-        return new Promise((resolve, reject) => {
-            let results: T[] = [];
+    globalThis.PromiseAll = function (promises: Promise<any>[], progress?: Progress) {
+        return new Promise<void>((resolve, reject) => {
             let completedCount = 0;
-            if (promises.length === 0) {
-                resolve(results);
+            if (!promises || promises.length == 0) {
+                resolve();
             }
-            promises.forEach((promise, index) => {
-                Promise.resolve(promise).then(value => {
-                    results[index] = value;
+            promises.forEach((promise) => {
+                Promise.resolve(promise).then(() => {
                     completedCount++;
                     progress && progress(completedCount, promises.length);
                     if (completedCount == promises.length) {
-                        resolve(results);
+                        resolve();
                     }
                 }).catch(reject);
             });
@@ -181,9 +179,21 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         for (const kv of self) {
             if (predicate(kv[1])) {
                 self.delete(kv[0]);
+                return true;
             }
         }
-        return undefined;
+        return false;
+    }
+
+    Map.prototype.deleteV = function <K, V>(value: V) {
+        let self: Map<K, V> = this;
+        for (const kv of self) {
+            if (kv[1] == value) {
+                self.delete(kv[0]);
+                return true;
+            }
+        }
+        return false;
     }
 
     Map.prototype.toArray = function <K, V>() {
@@ -246,7 +256,7 @@ declare global {
     type Action<T1 = undefined, T2 = undefined, T3 = undefined, T4 = undefined, T5 = undefined> = (arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4, arg5?: T5) => void;
 
     /** 建立一个所有异步操作都完成的异步操作 */
-    const PromiseAll: <T>(promises: Promise<T>[], progress?: Progress) => Promise<T[]>;
+    const PromiseAll: (promises: Promise<any>[], progress?: Progress) => Promise<void>;
 
     interface Number {
         /** 
@@ -335,6 +345,10 @@ declare global {
          * 删除符合要求的元素
          */
         deleteP(predicate: (value: V) => boolean): boolean;
+        /** 
+         * 删除指定的值
+         */
+        deleteV(value: V): boolean;
         /** 
          * 转化为一个二维数组
          */

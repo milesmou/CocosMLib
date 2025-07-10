@@ -107,7 +107,7 @@ export class AudioComponent extends Component {
             if (!this.isValid) return;
             if (!clip) return;
             if (!this.stack.has(priority, location)) {//未加载音乐完就已停止
-                this._asset.decRef(location);
+                this._asset.decRef(location, AudioClip);
                 return;
             }
             onLoaded && onLoaded(clip);
@@ -159,7 +159,7 @@ export class AudioComponent extends Component {
             tween(clip)
                 .delay(clip.getDuration())
                 .call(() => {
-                    if (deRef) AssetMgr.decRef(location);
+                    if (deRef) AssetMgr.decRef(location, AudioClip);
                     onFinished && onFinished();
                 })
                 .start();
@@ -232,7 +232,7 @@ export class AudioComponent extends Component {
                 this._loopEffect = this._loopEffect.splice(index, 1);
                 if (audioState.audio?.isValid) {
                     audioState.audio.destroy();
-                    this._asset.decRef(audioState.location);
+                    this._asset.decRef(audioState.location, AudioClip);
                 }
             }
         }
@@ -242,7 +242,7 @@ export class AudioComponent extends Component {
     public stopAllEffect() {
         this._loopEffect.forEach(v => {
             if (v.audio?.isValid) {
-                this._asset.decRef(v.location);
+                this._asset.decRef(v.location, AudioClip);
                 v.audio.destroy();
             }
         });
@@ -295,7 +295,7 @@ export class AudioComponent extends Component {
         let onEnd = () => {
             if (stop) {
                 audioSource?.isValid && audioSource.destroy();
-                this._asset.decRef(audioState.location);
+                this._asset.decRef(audioState.location, AudioClip);
             }
             else {
                 audioSource.pause();

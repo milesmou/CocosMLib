@@ -25,6 +25,7 @@ export const LoadingText = {
     DownloadUpdate: textObject("下载更新中", "加載配置中", "Loading Config"),
     UpdateFinished: textObject("更新完成", "加載配置中", "Loading Config"),
     Login: textObject("登录中", "登錄中", "Login"),
+    LoginFail: textObject("登录失败,请检查网络", "登錄失敗,請檢查網絡", "Login failed, please check the network"),
     SyncGameData: textObject("数据同步中", "數據同步中", "Sync PlayerData"),
     LoadGameRes: textObject("加载游戏资源", "加載遊戲資源", "Loading GameData"),
     LoadScene: textObject("加载场景", "加載場景", "Loading Scene"),

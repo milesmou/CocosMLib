@@ -1,6 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Component, misc, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
+import { Asset, Component, misc, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 //@ts-ignore
@@ -276,7 +276,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
     })
 
     Tween.prototype.finish = function () {
-        let finalAction: TweenAction = this['_finalAction'];
+        let finalAction: TweenAction<any> = this['_finalAction'];
         if (finalAction) {
             if (finalAction['_repeatForever']) return;
             this.setTime(finalAction.getDuration());
@@ -284,7 +284,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
     }
 
     Tween.prototype.setTime = function (time: number) {
-        let finalAction: TweenAction = this['_finalAction'];
+        let finalAction: TweenAction<any> = this['_finalAction'];
         if (finalAction) {
             let dur = finalAction.getDuration();
             time = misc.clampf(time, 0, dur);
@@ -308,6 +308,12 @@ declare global {
 
     /** 游戏当前允许环境 */
     type GameEnv = "develop" | "trial" | "release";
+
+    /** CC中的资源类型 */
+    type AssetProto<T extends Asset = Asset> = new (...args: any[]) => T;
+
+    /** CC中的组件类型 */
+    type CompProto<T extends Component = Component> = new (...args: any[]) => T;
 }
 
 //扩展CC中的一些类
@@ -346,7 +352,7 @@ declare module 'cc' {
          */
         matchParent(immediately?: boolean): void;
         /** 获取节点在场景树的路径 */
-        getPath(): void;
+        getPath(): string;
         /** 根据zIndex的值更新子节点的SiblingIndex */
         regularSiblingIndex(): void;
         /** 2d节点的UITransform组件 */
@@ -415,7 +421,7 @@ declare module 'cc' {
         /**
          * 缓动开始后的动作对象
          */
-        get finalAction(): TweenAction;
+        get finalAction(): TweenAction<T>;
 
         /** 
          * 立即完成缓动(已经start并且非永久重复的才有效)

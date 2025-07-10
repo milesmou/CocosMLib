@@ -1,12 +1,12 @@
-import { Asset, Label, ProgressBar, TextAsset, Tween, _decorator, loadWasmModuleSpine, sys, tween } from 'cc';
-import { PREVIEW } from 'cc/env';
+import { Asset, Label, Prefab, ProgressBar, TextAsset, Tween, _decorator, loadWasmModuleSpine, sys, tween } from 'cc';
+import { MINIGAME, PREVIEW } from 'cc/env';
 import { TimeDuration } from 'db://assets/mlib/module/timer/TimeDuration';
 import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
-import { UnionProgress } from '../../../mlib/utils/UnionProgress';
+import { SlowProgress, UnionProgress } from '../../../mlib/utils/UnionProgress';
 import { GameTool } from '../../game/GameTool';
 import { UIConstant } from '../../gen/UIConstant';
 import { StageModel } from '../../ui/guanka/StageModel';
@@ -16,7 +16,8 @@ import { EventKey } from '../GameEnum';
 import { GameInit } from '../GameInit';
 import GameTable from '../GameTable';
 import { GameGuide } from '../guide/GameGuide';
-import { ThinkingDataCollect } from '../publish/sdk/thinkingdata/ThinkingDataCollect';
+import { EChannel } from '../publish/EChannel';
+import { EasDataCollect } from '../publish/sdk/easdata/EasDataCollect';
 import { ILanguage, LoadingText } from './LoadingText';
 const { ccclass, property } = _decorator;
 
@@ -32,9 +33,7 @@ export class Loading extends UIComponent {
     private get lblDesc() { return this.rc.get("lblDesc", Label); }
     private get lblProgress() { return this.rc.get("lblProgress", Label); }
 
-    async start() {
-        await GameInit.initBeforeLoadConfig();
-
+    protected start() {
         //打点
         app.chan.reportEventLifetime(mReportEvent.init_newUser_lifetime, null, "NOZQY");
         app.chan.reportEvent(mReportEvent.init_loading_start, null, "NOZQY");
@@ -44,60 +43,104 @@ export class Loading extends UIComponent {
         app.chan.reportEvent(mReportEvent.init_loading_start, null, "SS");
         // mLogger.debug("----------新玩家登陆流程KIN--------------" + "2加载远程配置");
 
-        TimeDuration.time("Loading");
-
-        this.loadCfg();
         //版本号
-        this.lblVersion.string = mGameSetting.channel + "_" + mGameSetting.version;
+        this.lblVersion.string = app.verDetail;
+
+        this.startGame();
     }
 
     protected onDestroy(): void {
-        AssetMgr.decRef(UIConstant.Loading);
+        AssetMgr.decRef(UIConstant.Loading, Prefab);
+    }
+
+    private async startGame() {
+        TimeDuration.time("Loading");
+
+        await GameInit.initBeforeLoadConfig();
+
+        //加载配置和登录
+        TimeDuration.time("加载配置和登录");
+        this.setTips(LoadingText.Login);
+        this.startFakeProgress(2);
+        await Promise.all([this.loadCfg(), this.checkVersion(), this.login()]);
+        TimeDuration.timeEndLog("加载配置和登录");
+
+        //同步云端存档
+        TimeDuration.time("同步云端存档");
+        this.setTips(LoadingText.SyncGameData);
+        this.startFakeProgress(2);
+        await Promise.all([loadWasmModuleSpine(), this.syncGameData()]);
+        TimeDuration.timeEndLog("同步云端存档");
+
+        //加载游戏资源
+        TimeDuration.time("加载游戏资源");
+        this.setTips(LoadingText.LoadGameRes);
+        await this.loadRes();
+        TimeDuration.timeEndLog("加载游戏资源");
+
+        TimeDuration.timeEndLog("Loading");
     }
 
     /** 加载游戏配置 */
-    private async loadCfg() {
+    private loadCfg() {
         this.setTips(LoadingText.Config);
         this.startFakeProgress(2);
-        TimeDuration.time("loadCfg");
-        if (mGameSetting.gameConfigType == mGameSetting.ConfigType.Local) {//使用本地配置
-            let textAsset = await AssetMgr.loadAsset("GameConfig", TextAsset);
-            mGameConfig.deserialize(textAsset.text);
-            AssetMgr.decRef("GameConfig");
-            this.checkVersion();
-        } else {
-            let strRes = await HttpRequest.requestText(mGameSetting.gameConfigUrl + "?" + Date.now(), { method: "GET" });
-            if (strRes) {
-                //打点
-                app.chan.reportEvent(mReportEvent.init_get_config_success, null, "NOZQY");
-                app.chan.reportEventDaily(mReportEvent.init_get_config_success_daily, null, "NOZQY");
 
-                //数数打点
-                app.chan.reportEvent(mReportEvent.init_get_config_success, null, "SS");
-                // mLogger.debug("----------新玩家登陆流程KIN--------------" + "3加载配置成功");
-                mGameConfig.deserialize(strRes);
-                this.checkVersion();
+        let loadCfgFunc = (retry = 3, onEnded: () => void) => {
+            if (mGameSetting.gameConfigType == mGameSetting.ConfigType.Local && mGameSetting.channelId == EChannel.Dev) {//DEV渠道使用本地配置
+                mLogger.debug("加载本地配置",);
+                AssetMgr.loadAsset("GameConfig", TextAsset).then(textAsset => {
+                    mGameConfig.deserialize(textAsset.text);
+                    AssetMgr.decRef("GameConfig", TextAsset);
+                    onEnded && onEnded();
+                });
             } else {
-                //打点
-                app.chan.reportEvent(mReportEvent.init_get_config_fail, null, "NOZQY");
-                app.chan.reportEventDaily(mReportEvent.init_get_config_fail_daily, null, "NOZQY");
+                HttpRequest.requestText(mGameSetting.gameConfigUrl + "?" + Date.now(), { method: "GET" }).then(strRes => {
+                    if (strRes) {
+                        //打点
+                        app.chan.reportEvent(mReportEvent.init_get_config_success, null, "NOZQY");
+                        app.chan.reportEventDaily(mReportEvent.init_get_config_success_daily, null, "NOZQY");
 
-                //数数打点
-                app.chan.reportEvent(mReportEvent.init_get_config_fail, null, "SS");
+                        //数数打点
+                        app.chan.reportEvent(mReportEvent.init_get_config_success, null, "SS");
+                        // mLogger.debug("----------新玩家登陆流程KIN--------------" + "3加载配置成功");
+                        mGameConfig.deserialize(strRes);
+                        onEnded && onEnded();
+                    } else {
+                        //打点
+                        app.chan.reportEvent(mReportEvent.init_get_config_fail, null, "NOZQY");
+                        app.chan.reportEventDaily(mReportEvent.init_get_config_fail_daily, null, "NOZQY");
 
-                mLogger.error(`加载配置失败 Url=${mGameSetting.gameConfigUrl}`);
-                app.tipMsg.showConfirm(this.getText(LoadingText.ConfigFail), {
-                    type: 1, cbOk: () => {
-                        this.loadCfg();
+                        //数数打点
+                        app.chan.reportEvent(mReportEvent.init_get_config_fail, null, "SS");
+
+                        if (retry > 0) {
+                            retry--;
+                            loadCfgFunc(retry - 1, onEnded);
+                        } else {
+                            mLogger.error(`加载配置失败 Url=${mGameSetting.gameConfigUrl}`);
+                            app.tipMsg.showConfirm(this.getText(LoadingText.ConfigFail), {
+                                type: 1, cbOk: () => {
+                                    loadCfgFunc(3, onEnded);
+                                }
+                            });
+                        }
                     }
                 });
+
             }
-        }
+        };
+
+        let p = new Promise<void>((resolve, reject) => {
+            loadCfgFunc(3, resolve);
+        });
+        return p;
     }
+
 
     /** 版本更新检测 */
     private async checkVersion() {
-        TimeDuration.timeEndLog("loadCfg");
+        if (MINIGAME && app.env == "release") mGameConfig.gm = false;//正式版强制关闭gm功能
         if (!PREVIEW) {
             if (mGameSetting.hotupdate && mGameConfig.rg && sys.isNative) {
                 let manifest = await AssetMgr.loadAsset("project", Asset);
@@ -115,86 +158,98 @@ export class Loading extends UIComponent {
                 }
             }
         }
-        this.login();
     }
 
     /** 登录 */
     private login() {
-        TimeDuration.time("login");
-        this.setTips(LoadingText.Login, false);
-        app.chan.login({
-            success: user => {
-                mLogger.debug("登录成功", user);
-                ThinkingDataCollect.Inst.login(user.id);
-                app.chan.user = user;
-                this.uUID.string = "UUID：" + user.id;
-                this.syncGameData();
-                app.chan.reportEventLifetime(mReportEvent.init_sdk_login_success, null, "NOZQY");
-                app.chan.reportEventDaily(mReportEvent.init_sdk_login_success_daily, null, "NOZQY");
+        let loginFunc = (retry = 3, onEnded: () => void) => {
+            app.chan.login({
+                success: user => {
+                    mLogger.debug("登录成功", user);
+                    EasDataCollect.Inst.login(user.uid);
+                    app.chan.user = user;
+                    this.uUID.string = "UUID：" + user.uid;
+                    app.chan.reportEventLifetime(mReportEvent.init_sdk_login_success, null, "NOZQY");
+                    app.chan.reportEventDaily(mReportEvent.init_sdk_login_success_daily, null, "NOZQY");
 
-                //数数打点
-                app.chan.reportEvent(mReportEvent.init_sdk_login_success, null, "SS");
-                // mLogger.debug("----------新玩家登陆流程KIN--------------" + "4第三方SDK加载成功（掌趣游登录）");
-            },
-            fail: reason => {
-                mLogger.error("登录失败", reason);
-            },
-        })
+                    //数数打点
+                    app.chan.reportEvent(mReportEvent.init_sdk_login_success, null, "SS");
+                    // mLogger.debug("----------新玩家登陆流程KIN--------------" + "4第三方SDK加载成功（掌趣游登录）");
+
+                    onEnded && onEnded();
+                },
+                fail: reason => {
+                    if (retry > 0) {
+                        loginFunc(retry - 1, onEnded);
+                    } else {
+                        mLogger.error("登录失败", reason);
+                        app.tipMsg.showConfirm(this.getText(LoadingText.LoginFail), {
+                            type: 1, cbOk: () => {
+                                loginFunc(3, onEnded);
+                            }
+                        });
+                    }
+                },
+            })
+        }
+        let p = new Promise<void>((resolve, reject) => {
+            loginFunc(3, resolve);
+        });
+        return p;
+
     }
 
     /** 同步玩家数据 */
     private syncGameData() {
-        TimeDuration.timeEndLog("login");
-        // this.loadRes();
-        // return;
-        //加载游戏数据
-        this.setTips(LoadingText.SyncGameData);
-        TimeDuration.time("syncGameData");
-        app.chan.getGameData({
-            userId: app.chan.user.id,
-            success: args => {
-                let localSaveTime = GameData.getSaveTime();
-                mLogger.debug("获取数据成功", args, localSaveTime);
-                if (args.data) {
-                    mLogger.debug(`存档时间 云端:${new Date(args.updateTimeMS).toLocaleString()} 本地:${new Date(localSaveTime).toLocaleString()}`);
-                    if (args.updateTimeMS > localSaveTime) {
-                        if (!sys.isNative) {
-                            mLogger.debug("使用云存档");
-                            GameData.replaceGameData(args.data);
+        let syncDataFunc = (retry = 3, onEnded: () => void) => {
+            app.chan.getGameData({
+                userId: app.chan.user.uid,
+                success: args => {
+                    let localSaveTime = GameData.getSaveTime();
+                    mLogger.debug("获取数据成功", args, localSaveTime);
+                    if (args.data) {
+                        mLogger.debug(`存档时间 云端:${new Date(args.updateTimeMS).toLocaleString()} 本地:${new Date(localSaveTime).toLocaleString()}`);
+                        if (args.updateTimeMS > localSaveTime) {
+                            if (!sys.isNative) {
+                                mLogger.debug("使用云存档");
+                                GameData.replaceGameData(args.data);
+                            } else {
+                                mLogger.debug("原生暂时不使用云存档");
+                            }
                         } else {
-                            mLogger.debug("原生暂时不使用云存档");
+                            mLogger.debug("使用本地存档");
                         }
                     } else {
-                        mLogger.debug("使用本地存档");
+                        mLogger.debug("无云存档数据");
                     }
-                } else {
-                    mLogger.debug("无云存档数据");
-                }
-                this.loadRes();
-            },
-            fail: () => {
-                this.loadRes();
-            },
-        })
+                    onEnded && onEnded();
+                },
+                fail: () => {
+                    if (retry > 0) {
+                        syncDataFunc(retry - 1, onEnded);
+                    } else {
+                        mLogger.error("同步数据失败,跳过!!!");
+                        onEnded && onEnded();
+                    }
+                },
+            })
+        }
+
+        let p = new Promise<void>((resolve, reject) => {
+            syncDataFunc(3, resolve);
+        });
+        return p;
     }
 
     /** 加载游戏资源 */
     private async loadRes() {
-        //TODO 加一步，开始加载资源
-        TimeDuration.timeEndLog("syncGameData");
 
         let unionProgress = new UnionProgress();
 
-        //加载游戏数据
-        this.setTips(LoadingText.LoadGameRes);
         unionProgress.init(this.onProgress.bind(this), 2);
         //数数打点
         app.chan.reportEvent(mReportEvent.loadWasmModuleSpine, null, "SS");
         // mLogger.debug("----------新玩家登陆流程KIN--------------" + "5开始远程加载SPINE组建");
-        TimeDuration.time("loadWasmModuleSpine");
-        this.des2.string = "H";
-        await loadWasmModuleSpine();
-        TimeDuration.timeEndLog("loadWasmModuleSpine");
 
         //加载资源包
         //数数打点
@@ -229,23 +284,20 @@ export class Loading extends UIComponent {
         await GameInit.initBeforeEnterHUD();
         TimeDuration.timeEndLog("initBeforeEnterHUD");
 
-        ThinkingDataCollect.Inst.enableSuperProperties();
+        EasDataCollect.Inst.enableSuperProperties();
 
         /** 未通过第一关的新用户 */
         let isNewUser = !GameTool.isPassedFirstStage;
         if (!isNewUser) {
             //加载场景
             this.setTips(LoadingText.LoadScene);
-            unionProgress.init(this.onProgress.bind(this), 2);
-            TimeDuration.time("load UIHUD");
+            let slowProgress = new SlowProgress().init(this.onProgress.bind(this), 2);
+            TimeDuration.time("load UIHUD And Map");
             this.des2.string = "L";
-            await app.ui.show(UIConstant.UIHUD, { bottom: true, onProgress: unionProgress.getOnProgress("1") });
-            TimeDuration.timeEndLog("load UIHUD");
-            //加载地图
-            TimeDuration.time("loadMap");
-            this.des2.string = "M";
-            await MapUtil.loadMap(unionProgress.getOnProgress("2"));
-            TimeDuration.timeEndLog("loadMap");
+            let p1 = app.ui.show(UIConstant.UIHUD, { bottom: true, onProgress: slowProgress.getOnProgress("1") });
+            let p2 = MapUtil.loadMap(slowProgress.getOnProgress("2"));
+            await Promise.all([p1, p2]);
+            TimeDuration.timeEndLog("load UIHUD And Map");
         }
 
 
@@ -271,8 +323,6 @@ export class Loading extends UIComponent {
         //初始化游戏内容
         GameInit.initAfterEnterHUD();
         this.des2.string = "P";
-
-        TimeDuration.timeEndLog("Loading");
     }
 
     /** 

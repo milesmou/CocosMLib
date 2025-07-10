@@ -1,4 +1,5 @@
-import { _decorator, Asset, Component, ImageAsset, Sprite, SpriteFrame } from "cc";
+import { _decorator, Asset, Component, Sprite, SpriteFrame } from "cc";
+import { AssetCache } from "./AssetCache";
 import { AssetMgr } from "./AssetMgr";
 
 const { ccclass, property } = _decorator;
@@ -6,56 +7,66 @@ const { ccclass, property } = _decorator;
 @ccclass("AssetComponent")
 export class AssetComponent extends Component {
 
-    //Location:Asset
-    private _cache: Map<string, Asset> = new Map();
+    private _key: string;
 
-    protected onDestroy() {
-        // this.decRefCount();
+    protected __preload(): void {
+        this._key = this.node.getPath();
     }
 
-    private decRefCount() {
-        this._cache.forEach((v, k) => {
-            if (v?.isValid) {
-                AssetMgr.decRef(k);
-            }
+    //CacheKey:Asset
+    private get cache() {
+        if (!AssetCache.Inst.assetCompCache.has(this._key)) {
+            AssetCache.Inst.assetCompCache.set(this._key, new Map());
+        }
+        return AssetCache.Inst.assetCompCache.get(this._key);
+    }
+
+    /** 组件加载的所有资源引用计数-1 */
+    public decRefAll() {
+        this.cache.forEach((v, k) => {
+            AssetMgr.decAssetRef(v);
         });
-        this._cache.clear();
+        this.cache.clear();
     }
 
-    public async loadAsset<T extends Asset>(location: string, type: new (...args: any[]) => T, onProgress?: Progress): Promise<T> {
-        let cacheKey = AssetMgr.parseLocation(location, type);
-        let asset = this._cache.get(cacheKey);
+    public async loadAsset<T extends Asset>(location: string, type: AssetProto<T>, onProgress?: Progress): Promise<T> {
+        let cacheKey = AssetMgr.getCacheKey(location, type);
+        let asset = this.cache.get(cacheKey);
         if (asset?.isValid) {
             onProgress && onProgress(1, 1);
             return asset as T;
         }
         asset = await AssetMgr.loadAsset(location, type, onProgress);
         if (!this.isValid) {//资源未加载完,界面已被销毁
-            // AssetMgr.decRef(cacheKey);  可能引起渲染失败卡死
+            AssetMgr.decAssetRef(asset);  //可能引起渲染失败卡死
             return null;
         }
-        if (asset?.isValid) this._cache.set(cacheKey, asset);
+        if (asset?.isValid) this.cache.set(cacheKey, asset);
         return asset as T;
     }
 
-    public async loadRemoteAsset<T extends Asset>(url: string): Promise<T> {
-        let asset = this._cache.get(url);
+    public async loadRemoteAsset<T extends Asset>(url: string, opts?: { [k: string]: any; ext?: string; }): Promise<T> {
+        let asset = this.cache.get(url);
         if (asset?.isValid) return asset as T;
-        asset = await AssetMgr.loadRemoteAsset(url);
+        asset = await AssetMgr.loadRemoteAsset(url, opts);
         if (!this.isValid) {//资源未加载完,界面已被销毁
-            // AssetMgr.decRef(url); 可能引起渲染失败卡死
+            AssetMgr.decAssetRef(asset); //可能引起渲染失败卡死
             return null;
         }
-        if (asset?.isValid) this._cache.set(url, asset);
+        if (asset?.isValid) this.cache.set(url, asset);
         return asset as T;
     }
 
-    public async loadRemoteSpriteFrame(url: string) {
-        let img = await this.loadRemoteAsset<ImageAsset>(url);
-        if (img) {
-            return SpriteFrame.createWithImage(img);
+    public async loadRemoteSpriteFrame(url: string): Promise<SpriteFrame> {
+        let asset = this.cache.get(url);
+        if (asset?.isValid) return asset as SpriteFrame;
+        asset = await AssetMgr.loadRemoteSpriteFrame(url);
+        if (!this.isValid) {//资源未加载完,界面已被销毁
+            AssetMgr.decAssetRef(asset); //可能引起渲染失败卡死
+            return null;
         }
-        return null;
+        if (asset?.isValid) this.cache.set(url, asset);
+        return asset as SpriteFrame;
     }
 
     /**
@@ -78,21 +89,20 @@ export class AssetComponent extends Component {
         } else {
             spFrame = await this.loadAsset(location, SpriteFrame);
         }
-        if (!sprite?.isValid) {
-            console.warn("Sprite已销毁 " + location);
-            return;
-        }
+        if (!sprite?.isValid) return;
         if (!spFrame) return;
         sprite.spriteFrame = spFrame;
     }
 
     /** 
-     * 让资源引用计数减少 (注意精灵和纹理需要使用完整路径)
+     * 组件加载的资源引用计数-1
      */
-    public decRef(location: string) {
-        if (this._cache.has(location)) {
-            this._cache.delete(location);
-            AssetMgr.decRef(location, 1);
+    public decRef<T extends Asset>(location: string, type: AssetProto<T>) {
+        let cacheKey = AssetMgr.getCacheKey(location, type);
+        let asset = this.cache.get(cacheKey);
+        if (asset?.isValid) {
+            AssetMgr.decAssetRef(asset);
         }
+        this.cache.delete(cacheKey);
     }
 }

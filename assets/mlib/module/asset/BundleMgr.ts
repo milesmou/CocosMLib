@@ -8,23 +8,35 @@ export class BundleMgr {
     private _address: Map<string, string> = new Map();
 
     /** 加载Bundle(实际是加载Bundle的清单文件)  */
-    public loadBundle(bundleName: string, version?: string) {
+    public loadBundle(bundleName: string, opts?: { version?: string, onProgress?: Progress }) {
         let p = new Promise<AssetManager.Bundle>((resolve, reject) => {
             assetManager.loadBundle(bundleName,
-                {
-                    version: version,
-                },
+                opts,
                 (err, bundle) => {
                     if (err) {
                         console.error(err);
                         reject(err);
                     } else {
+                        opts?.onProgress && opts.onProgress(1, 1);
                         resolve(bundle);
                     }
                 }
             )
         })
         return p;
+    }
+
+    /** 加载多个Bundle */
+    public async loadBundles(bundleNames: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: Progress }) {
+        let bundleVers = opts && opts.bundleVers;
+        let onProgress = opts && opts.onProgress;
+
+        let promises: Promise<AssetManager.Bundle>[] = [];
+        for (let i = 0; i < bundleNames.length; i++) {
+            let bundleName = bundleNames[i];
+            promises.push(this.loadBundle(bundleName, { version: bundleVers && bundleVers[bundleName] }));
+        }
+        return PromiseAll(promises, onProgress);
     }
 
     /** 卸载Bundle releaseAll:是否释放所有资源 */
@@ -40,19 +52,6 @@ export class BundleMgr {
         } else {
             console.warn(`bundle不存在 ${bundleName}`);
         }
-    }
-
-    /** 加载多个Bundle */
-    public async loadBundles(bundleNames: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: (loaded: number, total: number) => void }) {
-        let bundleVers = opts && opts.bundleVers;
-        let onProgress = opts && opts.onProgress;
-
-        let promises: Promise<AssetManager.Bundle>[] = [];
-        for (let i = 0; i < bundleNames.length; i++) {
-            let bundleName = bundleNames[i];
-            promises.push(this.loadBundle(bundleName, bundleVers && bundleVers[bundleName]));
-        }
-        return PromiseAll(promises, onProgress);
     }
 
     private getAssetKey<T extends Asset>(location: string, type: new (...args: any[]) => T) {
@@ -73,9 +72,7 @@ export class BundleMgr {
         if (this._address.has(key)) {
             ab = assetManager.getBundle(this._address.get(key));
         } else {
-            ab = assetManager.bundles.find(bundle => {
-                return Boolean(bundle.getInfoWithPath(location, type));
-            });
+            ab = assetManager.bundles.find(bundle => Boolean(bundle.getInfoWithPath(location, type)));
             if (ab) {
                 this._address.set(key, ab.name);
             } else {
@@ -85,29 +82,20 @@ export class BundleMgr {
         return ab;
     }
 
-    /** 获取目录内所有该资源类型资源信息 */
-    public getDirAssets<T extends Asset>(location: string, type?: new (...args: any[]) => T) {
+    /** 通过目录地址和类型获取所在的Bundle */
+    public getDirLocatedBundle<T extends Asset>(location: string, type: new (...args: any[]) => T, logError = true): AssetManager.Bundle {
         let ab: AssetManager.Bundle = null;
-        let key = location + "|dir|" + js.getClassName(type);
+        let key = this.getAssetKey(location, type);
         if (this._address.has(key)) {
             ab = assetManager.getBundle(this._address.get(key));
         } else {
-            ab = assetManager.bundles.find(bundle => {
-                return bundle.getDirWithPath(location, type).length > 0;
-            });
+            ab = assetManager.bundles.find(bundle => bundle.getDirWithPath(location, type)?.length > 0);
             if (ab) {
                 this._address.set(key, ab.name);
             } else {
-                console.error(`location: ${location}  目录不存在或所在Bundle未加载`);
+                if (logError) console.error(`location: ${location}  目录不存在或所在Bundle未加载`);
             }
         }
-        let assetInfos = ab.getDirWithPath(location, type);
-        for (const assetInfo of assetInfos) {
-            let key = this.getAssetKey(location, assetInfo.ctor);
-            this._address.set(key, ab.name);
-        }
-        return assetInfos;
+        return ab;
     }
-
-
 }

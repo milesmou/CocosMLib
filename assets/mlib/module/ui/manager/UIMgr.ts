@@ -160,7 +160,10 @@ export class UIMgr extends Component {
             if (ui.whenClose > EUIFormClose.NONE) {
                 ui.node.destroy();
                 this._uiDict.delete(uiName);
-                if (ui.whenClose == EUIFormClose.DestroyAndRelease) AssetMgr.decRef(uiName);
+                if (ui.whenClose == EUIFormClose.DestroyAndRelease) {
+                    ui.release();
+                    AssetMgr.decRef(uiName, Prefab, true);
+                }
             }
             else {
                 ui.node.active = false;

@@ -42,7 +42,6 @@ interface IApp {
     readonly l10n: typeof L10nMgr;
     /** 提示信息 */
     readonly tipMsg: typeof TipMsg;
-
 }
 
 /** 应用程序启动入口 */

@@ -12,7 +12,7 @@ export abstract class UIForm extends UIComponent {
     @property({
         type: EUIFormClose,
         displayName: "关闭时",
-        tooltip: "关闭界面时的处理 NONE:不做任何处理 Destroy:销毁界面节点 DestroyAndRelease:销毁界面节点并释放预制体资源"
+        tooltip: "关闭界面时的处理 NONE:不做任何处理 Destroy:销毁界面节点 DestroyAndRelease:销毁界面并释放资源"
     })
     whenClose = EUIFormClose.Destroy;
     @property({
@@ -72,6 +72,9 @@ export abstract class UIForm extends UIComponent {
 
     /** 播放界面关闭动画 */
     public abstract playHideAnim(): Promise<void>;
+
+    /** 释放界面及其引用资源 */
+    public abstract release();
 
     /** 关闭界面 */
     protected abstract safeClose();

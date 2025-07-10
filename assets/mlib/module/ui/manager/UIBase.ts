@@ -1,6 +1,7 @@
 import { Animation, BlockInputEvents, Node, Sprite, UIOpacity, _decorator, color, tween } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
+import { js } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
 import { AssetComponent } from "../../asset/AssetComponent";
 import { EventMgr } from "../../event/EventMgr";
@@ -22,7 +23,7 @@ export class UIBase extends UIForm {
     public get isAnimEnd() { return this._isAnimEnd; }
 
     protected __preload(): void {
-        this.addComponent(AssetComponent);
+        this.ensureComponent(AssetComponent);
         this.ensureComponent(UIOpacity);
         super.__preload();
     }
@@ -166,6 +167,10 @@ export class UIBase extends UIForm {
             }
         });
         return p;
+    }
+
+    public release() {
+        this.asset.decRefAll();
     }
 
     /** 关闭UI时调用此方法 */
