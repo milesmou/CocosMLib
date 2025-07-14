@@ -38,7 +38,7 @@ export class AssetComponent extends Component {
         }
         asset = await AssetMgr.loadAsset(location, type, onProgress);
         if (!this.isValid) {//资源未加载完,界面已被销毁
-            AssetMgr.decAssetRef(asset);  //可能引起渲染失败卡死
+            AssetMgr.decAssetRef(asset);
             return null;
         }
         if (asset?.isValid) this.cache.set(cacheKey, asset);
@@ -50,7 +50,7 @@ export class AssetComponent extends Component {
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset(url, opts);
         if (!this.isValid) {//资源未加载完,界面已被销毁
-            AssetMgr.decAssetRef(asset); //可能引起渲染失败卡死
+            AssetMgr.decAssetRef(asset);
             return null;
         }
         if (asset?.isValid) this.cache.set(url, asset);
@@ -62,7 +62,7 @@ export class AssetComponent extends Component {
         if (asset?.isValid) return asset as SpriteFrame;
         asset = await AssetMgr.loadRemoteSpriteFrame(url);
         if (!this.isValid) {//资源未加载完,界面已被销毁
-            AssetMgr.decAssetRef(asset); //可能引起渲染失败卡死
+            AssetMgr.decAssetRef(asset);
             return null;
         }
         if (asset?.isValid) this.cache.set(url, asset);

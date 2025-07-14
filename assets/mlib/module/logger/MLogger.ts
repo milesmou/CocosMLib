@@ -46,6 +46,7 @@ class MLogger {
     public static warn: (...data) => void;
     public static error: (...data) => void;
 
+
     //日志打印对象
     private constructor(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
         this.debug = globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ?
