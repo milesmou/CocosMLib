@@ -1,6 +1,6 @@
 import * as babel from '@babel/core';
-import { ITextureCompressPlatform, ITextureCompressType, PlatformCompressConfig } from './texture-compress';
 import { IPlatformType } from '../protected';
+import { ITextureCompressPlatform, ITextureCompressType, PlatformCompressConfig } from './texture-compress';
 export interface IPhysicsConfig {
     gravity: IVec3Like; // （0，-10， 0）
     allowSleep: boolean; // true

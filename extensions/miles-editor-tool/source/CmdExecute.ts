@@ -37,14 +37,12 @@ export class CmdExecute {
             }
         ).then(code => {
             if (!code) {
-                let bundles = Utils.ProjectPath + "/assets/bundles";
-                let dirs = Utils.getAllDirs(bundles, null, true);
-                dirs.push(Utils.ProjectPath + "/assets/resources");
+                let path1 = Utils.ProjectPath + "/assets/bundles";
+                let path2 = Utils.ProjectPath + "/assets/resources";
+                let filter = dir => dir.endsWith("/table");
+                let dirs = Utils.getAllDirs(path1, filter).concat(Utils.getAllDirs(path2, filter));
                 for (const dir of dirs) {
-                    let tableDir = dir + "/table";
-                    if (fs.existsSync(tableDir)) {
-                        Utils.refreshAsset(tableDir);
-                    }
+                    Utils.refreshAsset(dir);
                 }
                 Utils.refreshAsset(tsDir);
             } else {
@@ -55,30 +53,6 @@ export class CmdExecute {
 
     /** 生成一些常量 */
     public static genConst() {
-        //生成Bundles.ts
-        {
-            let bundlesDir = Utils.ProjectPath + "/assets/bundles";
-            let outFile = Utils.ProjectPath + "/assets/scripts/gen/BundleConstant.ts";
-            let result: string[] = [];
-
-            let list = fs.readdirSync(bundlesDir);
-
-            for (const name of list) {
-                let path = bundlesDir + "/" + name;
-                if (fs.statSync(path).isDirectory()) {
-                    let obj = fs.readJSONSync(path + ".meta");
-                    if (obj['userData'] && obj['userData']['isBundle']) {
-                        result.push(name);
-                    }
-                }
-            }
-
-            let content = `export const BundleConstant = ${JSON.stringify(result)};`
-            fs.writeFileSync(outFile, content);
-            Utils.refreshAsset(outFile);
-            Logger.info("生成BundleConstant.ts成功");
-        }
-
         //生成UIConstant
         {
             let map = {};
@@ -91,15 +65,10 @@ export class CmdExecute {
             let files = Utils.getAllFiles(path1, filter).concat(Utils.getAllFiles(path2, filter));
             files.forEach(v => {
                 let basename = path.basename(v);
-                if (v.indexOf("/uiPrefab/") > 0) {
+                let index = v.indexOf("/uiPrefab/");
+                if (index > 0) {
                     let name = basename.replace(ext, "");
-                    let location = "";
-                    if (v.startsWith(path1)) {
-                        location = v.replace(path1 + "/", "");
-                        location = location.substring(location.indexOf("/") + 1);
-                    } else if (v.startsWith(path2)) {
-                        location = v.replace(path2 + "/", "");
-                    }
+                    let location = v.substring(index + 1);
                     location = location.replace(ext, "");
                     map[name] = location;
                 }

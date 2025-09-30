@@ -4,14 +4,15 @@
     /* Add your custom configuration here. */
     /* Add your custom configuration here. */
     "compilerOptions": {
+        "ignoreDeprecations": "6.0",
         "target": "ES2017",
         "strict": true,
         "noImplicitAny": false,
         "strictNullChecks": false,
         "strictPropertyInitialization": false,
         "types": [
-            "minigame-api-typings", //微信小游戏API
-        ],
+            "./node_modules/minigame-api-typings"
+        ]
     },
     "exclude": [
         "extensions",

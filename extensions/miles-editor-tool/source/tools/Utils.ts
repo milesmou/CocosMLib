@@ -91,8 +91,9 @@ export class Utils {
         };
         walkSync(dir, file => {
             if (file.endsWith(".meta")) return;
+            file = this.toUniSeparator(file);
             if (!filter || filter(file)) {
-                files.push(this.toUniSeparator(file));
+                files.push(file);
             }
         });
         return files;
@@ -116,8 +117,9 @@ export class Utils {
             });
         };
         walkSync(dir, subDir => {
+            subDir = this.toUniSeparator(subDir);
             if (!filter || filter(subDir)) {
-                dirs.push(this.toUniSeparator(subDir));
+                dirs.push(subDir);
             }
         });
         return dirs;

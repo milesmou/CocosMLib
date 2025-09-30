@@ -19,9 +19,15 @@ interface ReplaceValue {
     scriptField: string;
 }
 
+interface ReplaceAssetValue {
+    uuid: string;
+    asset: string;
+}
+
 interface Config {
     insert: InsertCode[];
     replace: ReplaceValue[];
+    replaceAsset: ReplaceAssetValue[];
 }
 
 /** 自定义构建配置处理 */
@@ -36,6 +42,7 @@ export class BuildConfig {
         this.copyTemplate(options, result);
         this.insert(options, result, config.insert);
         this.replace(options, result, config.replace);
+        this.replaceAsset(options, result, config.replaceAsset);
     }
 
     private static createBuildConfig(path: string) {
@@ -43,10 +50,12 @@ export class BuildConfig {
             "注释": {
                 "!注意!": "下面的file字段均为与构建目录的相对路径",
                 "insert": "在指定文件的指定行插入需要的代码 字段解释{file:文件名 line:第几行 content:插入内容}",
-                "replace": "替换指定文件中的字符串为需要的值 字段解释{file:文件名 label:文件中被替代的文本 scriptName:从GameSetting上哪个脚本获取属性值 scriptField:脚本中的字段名字}"
+                "replace": "替换指定文件中的字符串为需要的值 字段解释{file:文件名 label:文件中被替代的文本 scriptName:从GameSetting上哪个脚本获取属性值 scriptField:脚本中的字段名字}",
+                "replaceAsset": "使用assets目录中的文件替换打包后的文件 字段解释{uuid:被替换文件的uuid asset:buildConfig下assets目录中的文件名 }"
             },
             "insert": [],
-            "replace": []
+            "replace": [],
+            "replaceAsset": []
         }
         fs.createFileSync(path);
         fs.writeJsonSync(path, obj, { spaces: 4 });
@@ -71,6 +80,7 @@ export class BuildConfig {
 
     /** 在文件指定位置插入代码 */
     private static insert(options: IBuildTaskOption, result: IBuildResult, data: InsertCode[]) {
+        if (!data) return;
         let tag = "[InsertCode]";
         let buildDest = this.resolveBuildDest(Utils.toUniSeparator(result.dest), options.platform);
         for (const d of data) {
@@ -99,6 +109,7 @@ export class BuildConfig {
 
     /** 替换指定文件中的字符串为需要的值 */
     private static replace(options: IBuildTaskOption, result: IBuildResult, data: ReplaceValue[]) {
+        if (!data) return;
         let tag = "[ReplaceValue]";
         let buildDest = this.resolveBuildDest(Utils.toUniSeparator(result.dest), options.platform);
         let mainScene = Utils.findFile(Utils.ProjectPath + "/assets", v => v.endsWith("main.scene"));
@@ -128,6 +139,34 @@ export class BuildConfig {
 
         }
     }
+
+    /** 使用assets目录中的文件替换打包后的文件 */
+    private static replaceAsset(options: IBuildTaskOption, result: IBuildResult, data: ReplaceAssetValue[]) {
+        let assetsPath = `${Utils.ProjectPath}/${Constant.BuildConfigDirName}/${Constant.BuildAssetsDirName}`;
+        fs.ensureDirSync(assetsPath);
+        if (!data) return;
+        let tag = "[ReplaceAssetValue]";
+        let buildDest = this.resolveBuildDest(Utils.toUniSeparator(result.dest), options.platform);
+
+        for (const d of data) {
+            let oFile = `${assetsPath}/${d.asset}`;
+            if (!fs.existsSync(oFile)) {
+                BuildLogger.warn(tag, "源文件文件不存在", d.uuid, d.asset);
+                continue;
+            }
+            let ext = path.extname(oFile);
+            let destFile = Utils.getAllFiles(buildDest, file => file.includes(d.uuid) && file.endsWith(ext))[0];
+            if (!fs.existsSync(destFile)) {
+                BuildLogger.warn(tag, "目标文件不存在", d.uuid, d.asset);
+                continue;
+            }
+
+            fs.copyFileSync(oFile, destFile);
+            BuildLogger.info(tag, d.uuid, d.asset);
+        }
+    }
+
+
 
 
     private static resolveBuildDest(buildDest, platform) {

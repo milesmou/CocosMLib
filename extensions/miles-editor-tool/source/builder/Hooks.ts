@@ -11,6 +11,7 @@ const tag = "[Build]";
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
+    
 };
 
 export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {

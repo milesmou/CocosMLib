@@ -83,8 +83,8 @@
     "shortcuts": [
       {
         "message": "open-view-panel",
-        "mac": "",
-        "win": ""
+        "mac": "alt+p",
+        "win": "alt+p"
       }
     ],
     "assets": {

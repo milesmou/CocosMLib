@@ -3,6 +3,8 @@ export class Constant {
     public static BuildConfigDirName = "buildConfig";
     /** 构建模板的根目录名 */
     public static BuildTemplateDirName = "template";
+    /** 构建替换资源的根目录名 */
+    public static BuildAssetsDirName = "assets";
     /** 原生构建模块的根目录名 */
     public static BuildNativeDirName = "buildNative";
     /** 保存插件配置的文件路径 */
