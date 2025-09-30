@@ -99,56 +99,42 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return groupMap;
     }
 
-    Array.prototype.isSuperset = function <T>(other: T[]) {
-        let self: T[] = this;
-        if (self.length <= other.length) return false;
-        return self.isSubsetE(other);
-    }
-
-    Array.prototype.isSupersetE = function <T>(other: T[]) {
-        let self: T[] = this;
-        if (self.length < other.length) return false;
-        let indexSet: Set<number> = new Set();
-        for (const v of other) {
-            let index = self.findIndex((v1, i1) => {
-                return v1 == v && !indexSet.has(i1);
-            });
-            if (index > -1) {
-                indexSet.add(index);
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
     Array.prototype.isSubset = function <T>(other: T[]) {
         let self: T[] = this;
-        if (self.length >= other.length) return false;
-        return self.isSubsetE(other);
+        return self.length < other.length && self.isSubsetE(other);
     }
 
     Array.prototype.isSubsetE = function <T>(other: T[]) {
         let self: T[] = this;
-        if (self.length > other.length) return false;
-        let indexSet: Set<number> = new Set();
-        for (const v of self) {
-            let index = other.findIndex((v1, i1) => {
-                return v1 == v && !indexSet.has(i1);
-            });
-            if (index > -1) {
-                indexSet.add(index);
-            } else {
+        if (self.length == 0) return true;
+        const supersetCount = new Map<T, number>();
+        for (const item of other) {
+            supersetCount.set(item, (supersetCount.get(item) ?? 0) + 1);
+        }
+        for (const item of self) {
+            const count = supersetCount.get(item) ?? 0;
+            if (count === 0) {
                 return false;
             }
+            supersetCount.set(item, count - 1);
         }
         return true;
     }
 
     Array.prototype.equals = function <T>(other: T[]) {
         let self: T[] = this;
-        if (self.length != other.length) return false;
-        return self.isSupersetE(other);
+        return self.length == other.length && self.isSubsetE(other);
+    }
+
+    Array.prototype.intersect = function <T>(other: T[]) {
+        let self: T[] = this;
+        const set = new Set(self);
+        for (const item of other) {
+            if (set.has(item)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     String.prototype.upperFirst = function () {
@@ -156,9 +142,22 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return this[0].toUpperCase() + this.substring(1);
     }
 
+    String.isNullOrWhiteSpace = function (str: string) {
+        if (!str) return true;
+        return str.trim() === "";
+    }
+
     String.prototype.lowerFirst = function () {
         if (this.length < 2) return this.toLowerCase();
         return this[0].toLowerCase() + this.substring(1);
+    }
+
+    Map.prototype.getKey = function <K, V>(value: V) {
+        let self: Map<K, V> = this;
+        for (const kv of self) {
+            if (kv[1] == value) return kv[0];
+        }
+        return undefined;
     }
 
     Map.prototype.find = function <K, V>(predicate: (value: V, key: K) => boolean) {
@@ -242,9 +241,64 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return Math.floor(Date.now() / 1000);
     }
 
+    Date.nowYMD = function () {
+        return new Date().getYMD();
+    }
+
     Date.prototype.getTimeS = function () {
         let self: Date = this;
         return Math.floor(self.getTime() / 1000);
+    }
+
+    Date.prototype.getYMD = function () {
+        let self: Date = this;
+        let lt10 = (v: number) => {
+            return v < 10 ? "0" + v : v.toString();
+        }
+        let str = self.getFullYear() + lt10(self.getMonth() + 1) + lt10(self.getDate());
+        return parseInt(str);
+    }
+
+    Date.prototype.addYears = function (years: number, returnNew?: boolean) {
+        let self: Date = this;
+        if (returnNew) self = new Date(self.getTime());
+        self.setFullYear(self.getFullYear() + years);
+        return self;
+    }
+
+    Date.prototype.addMonths = function (months: number, returnNew?: boolean) {
+        let self: Date = this;
+        if (returnNew) self = new Date(self.getTime());
+        self.setMonth(self.getMonth() + months);
+        return self;
+    }
+
+    Date.prototype.addDays = function (days: number, returnNew?: boolean) {
+        let self: Date = this;
+        if (returnNew) self = new Date(self.getTime());
+        self.setDate(self.getDate() + days);
+        return self;
+    }
+
+    Date.prototype.addHours = function (hours: number, returnNew?: boolean) {
+        let self: Date = this;
+        if (returnNew) self = new Date(self.getTime());
+        self.setHours(self.getHours() + hours);
+        return self;
+    }
+
+    Date.prototype.addMinutes = function (minutes: number, returnNew?: boolean) {
+        let self: Date = this;
+        if (returnNew) self = new Date(self.getTime());
+        self.setMinutes(self.getMinutes() + minutes);
+        return self;
+    }
+
+    Date.prototype.addSeconds = function (seconds: number, returnNew?: boolean) {
+        let self: Date = this;
+        if (returnNew) self = new Date(self.getTime());
+        self.setSeconds(self.getSeconds() + seconds);
+        return self;
     }
 }
 
@@ -252,6 +306,20 @@ declare global {
 
     /** 通用进度回调方法的声明 */
     type Progress = (loaded: number, total: number) => void;
+    
+    /** 通用结果回调方法的参数 */
+    interface ResultParam {
+        /** 结果码 0:成功 1失败 2错误 其它根据需求自定义 */
+        code: number,
+        /** 数据 */
+        data?: string
+        /** 错误信息 */
+        msg?: string,
+    }
+
+    /** 通用结果回调方法 */
+    type ResultCallback = (result: ResultParam) => void;
+
     /** 无返回值的方法声明 */
     type Action<T1 = undefined, T2 = undefined, T3 = undefined, T4 = undefined, T5 = undefined> = (arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4, arg5?: T5) => void;
 
@@ -300,25 +368,26 @@ declare global {
          */
         groupBy<ID = any>(groupIdGetter: (value: T) => ID): Map<ID, T[]>;
         /**
-         * 是否是另一个数组的父集
-         */
-        isSuperset(other: T[]): boolean;
-        /**
-         * 是否是另一个数组的父集或相等
-         */
-        isSupersetE(other: T[]): boolean;
-        /**
          *  是否是另一个数组的子集
          */
         isSubset(other: T[]): boolean;
         /**
-         *  是否是另一个数组的子集或相等
+         *  是否是另一个数组的子集或相同
          */
         isSubsetE(other: T[]): boolean;
         /** 
          * 是否和另一个数组中元素相同
          */
         equals(other: T[]): boolean;
+        /**
+         * 是否和另一个数组有相同元素
+         */
+        intersect(other: T[]): boolean;
+    }
+
+    interface StringConstructor {
+        /** 字符串是否为null、undefined、""、纯空格 */
+        isNullOrWhiteSpace(str: string): boolean;
     }
 
     interface String {
@@ -333,6 +402,10 @@ declare global {
     }
 
     interface Map<K, V> {
+        /**
+         * 通过值获取key,返回第一个符合要求的
+         */
+        getKey(value: V): K | undefined;
         /**
          * 查找符合要求的元素
          */
@@ -377,11 +450,27 @@ declare global {
     interface DateConstructor {
         /** 返回当前时间的秒级时间戳 */
         nowS(): number;
+        /** 返回当前时间的年月日 例:20010101 */
+        nowYMD(): number;
     }
 
     interface Date {
         /** 返回时间对象的秒级时间戳 */
         getTimeS(): number;
+        /** 返回时间对象的年月日 例:20010101 */
+        getYMD(): number;
+        /** 增加指定的年 returnNew:是否返回一个新的时间对象,默认false */
+        addYears(years: number, returnNew?: boolean): Date;
+        /** 增加指定的月 returnNew:是否返回一个新的时间对象,默认false */
+        addMonths(months: number, returnNew?: boolean): Date;
+        /** 增加指定的天 returnNew:是否返回一个新的时间对象,默认false */
+        addDays(days: number, returnNew?: boolean): Date;
+        /** 增加指定的小时 returnNew:是否返回一个新的时间对象,默认false */
+        addHours(hours: number, returnNew?: boolean): Date;
+        /** 增加指定的分钟 returnNew:是否返回一个新的时间对象,默认false */
+        addMinutes(minutes: number, returnNew?: boolean): Date;
+        /** 增加指定的秒 returnNew:是否返回一个新的时间对象,默认false */
+        addSeconds(seconds: number, returnNew?: boolean): Date;
     }
 
 }

@@ -1,10 +1,10 @@
-import { Component, Node, _decorator, instantiate, v3 } from "cc";
+import { Component, Node, _decorator, v3 } from "cc";
 import { UIConstant } from "../../gen/UIConstant";
 import { TUnforcedGuide } from "../../gen/table/schema";
 import { GameData } from "../GameData";
 import { EventKey } from "../GameEnum";
-import { GameGuide } from "./GameGuide";
 import GameTable from "../GameTable";
+import { GameGuide } from "./GameGuide";
 
 const { ccclass, property } = _decorator;
 

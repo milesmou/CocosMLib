@@ -1,4 +1,4 @@
-import { Animation, Button, Component, EventHandler, Layers, Node, Prefab, ScrollView, Slider, Toggle, ToggleContainer, TweenEasing, UITransform, Vec3, instantiate, misc, sp, tween, v2, v3, view } from "cc";
+import { Animation, Button, Component, EventHandler, Layers, Node, Prefab, ScrollView, Slider, Toggle, ToggleContainer, TweenEasing, UITransform, Vec3, misc, sp, tween, v2, v3, view } from "cc";
 
 export class CCUtils {
 
@@ -71,6 +71,7 @@ export class CCUtils {
 
     /** 滚动到指定的Item */
     public static scrollToItem(scrollView: ScrollView, itemIndex: number, timeInSecond = 0) {
+        itemIndex = misc.clampf(itemIndex, 0, scrollView.content.children.length - 1);
         let targetItem = scrollView.content.children[itemIndex];
         if (targetItem) {
             //获取item左上角坐标
@@ -102,16 +103,24 @@ export class CCUtils {
     /** 记录每次加载列表的开始时间，便于重复加载时停止上一次操作 */
     private static loadListTimeMS: Map<string, number> = new Map();
 
+    /**
+     * 分帧加载一个列表
+     * @param content 列表父节点
+     * @param listData 列表数据
+     * @param action 数据的处理方法
+     * @param args item:用于克隆的节点或预制体 frameTimeMS:每帧耗时 默认2ms appendStartIndex:从索引多少开始追加列表数据(>0时要求之前的item节点已存在)
+     */
     public static loadList<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
-        args?: { item?: Node | Prefab, frameTimeMS?: number, comp?: Component }) {
+        args?: { item?: Node | Prefab, frameTimeMS?: number, appendStartIndex?: number }) {
 
+        //记录加载开始时间 避免重复加载
         let timeMS = Date.now();
-
         this.loadListTimeMS.set(content.uuid, timeMS);
 
         return new Promise<void>((resolve, reject) => {
-            let { item, frameTimeMS, comp } = args || {};
+            let { item, frameTimeMS, appendStartIndex } = args || {};
             frameTimeMS = frameTimeMS === undefined ? 2 : frameTimeMS;
+            appendStartIndex = appendStartIndex || 0;
 
             if (!content || listData == null) {
                 console.error("Content或listData不正确");
@@ -123,16 +132,21 @@ export class CCUtils {
                 return;
             }
 
-            if (content.children.length > listData.length) //隐藏多余的Item
+            if (appendStartIndex > content.children.length) {
+                console.error("appendStartIndex>0时要求索引<appendStartIndex的item节点已存在");
+                return;
+            }
+
+            if (content.children.length > appendStartIndex + listData.length) //隐藏多余的Item
             {
-                for (let i = listData.length; i < content.children.length; i++) {
+                for (let i = appendStartIndex + listData.length; i < content.children.length; i++) {
                     content.children[i].active = false;
                 }
             }
 
-            comp = content.getComponent(Component);
+            let comp = content.getComponent(Component);
 
-            let gen = this.listGenerator(content, listData, action, item);
+            let gen = this.listGenerator(content, listData, action, item, appendStartIndex);
 
             let execute = () => {
                 let startMS = Date.now();
@@ -140,7 +154,8 @@ export class CCUtils {
                 for (let iter = gen.next(); ; iter = gen.next()) {
 
                     if (!comp?.isValid) break;//组件销毁后停止加载
-                    if (timeMS != this.loadListTimeMS.get(content.uuid)) break;//本次操作需要终止
+
+                    if (timeMS != this.loadListTimeMS.get(content.uuid)) break;//重复加载 本次操作需要终止
 
                     if (iter == null || iter.done) {
                         this.loadListTimeMS.delete(content.uuid);
@@ -165,12 +180,13 @@ export class CCUtils {
     }
 
     private static *listGenerator<T>(content: Node, listData: T[], action?: (data: T, item: Node, index: number) => void,
-        item: Node | Prefab = null) {
+        item: Node | Prefab = null, appendStartIndex = 0) {
         let instNode = (index: number) => {
             if (!content?.isValid) return;
+            let itemIndex = appendStartIndex + index;
             let child: Node;
-            if (content.children.length > index) {
-                child = content.children[index];
+            if (content.children.length > itemIndex) {
+                child = content.children[itemIndex];
             }
             else {
                 child = item ? instantiate(item) as Node : instantiate(content.children[0]);
@@ -178,7 +194,7 @@ export class CCUtils {
             }
 
             child.active = true;
-            action && action(listData[index], child, index);
+            action && action(listData[index], child, itemIndex);
         }
 
         for (let i = 0; i < listData.length; i++) {

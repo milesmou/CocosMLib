@@ -1,5 +1,4 @@
-import { Asset, AssetManager, assetManager, ImageAsset, js, Sprite, SpriteFrame, sys, Texture2D } from "cc";
-import { BundleConstant } from "../../../scripts/gen/BundleConstant";
+import { Asset, AssetManager, assetManager, ImageAsset, js, Prefab, Sprite, SpriteFrame, sys, Texture2D } from "cc";
 import { AssetCache } from "./AssetCache";
 import { BundleMgr } from "./BundleMgr";
 
@@ -12,25 +11,21 @@ export class AssetMgr {
 
     /** 正在加载的资源(非预加载) */
     private static loadingAsset: Set<string> = new Set();
-    /** 已加载完成的资源 */
-    private static get loadedAsset() { return AssetCache.Inst.loadedAsset; }
-    /** 预加载完成的资源 */
-    private static get preloadedAsset() { return AssetCache.Inst.preloadedAsset; }
+    /** 资源缓存 */
+    private static get cache() { return AssetCache.Inst; }
 
     /** 当前正在加载的资源数量(非预加载) */
     public static get loadingCount() {
         return this.loadingAsset ? this.loadingAsset.size : 0;
     }
 
+    /** 加载Bundle(zip、分包会下载整个bundle,其它是加载Bundle的清单文件) */
     public static loadBundle(bundleName: string, opts?: { version?: string, onProgress?: Progress }) {
         return BundleMgr.Inst.loadBundle(bundleName, opts);
     }
 
-    public static loadBundles(bundleNames?: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: Progress }) {
-        if (!bundleNames) {
-            bundleNames = BundleConstant;
-            this.loadingAsset.clear();
-        }
+    /** 加载多个Bundle  */
+    public static loadBundles(bundleNames: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: Progress }) {
         return BundleMgr.Inst.loadBundles(bundleNames, opts);
     }
 
@@ -72,13 +67,24 @@ export class AssetMgr {
 
     /** 资源是否已经加载成功 */
     public static isAssetLoaded<T extends Asset>(location: string, type: AssetProto<T>) {
-        return this.loadedAsset.get(this.getCacheKey(location, type))?.isValid;
+        return this.cache.loadedAsset.get(this.getCacheKey(location, type))?.isValid;
     }
 
     /** 资源是否已经预加载成功 (使用loadAsset加载成功资源也算预加载成功) */
     public static isAssetPreloaded<T extends Asset>(location: string, type: AssetProto<T>) {
         let cacheKey = this.getCacheKey(location, type);
-        return this.loadedAsset.get(cacheKey)?.isValid || this.preloadedAsset.has(cacheKey);
+        return this.cache.loadedAsset.get(cacheKey)?.isValid || this.cache.preloadedAsset.has(cacheKey);
+    }
+
+    /** 加载bundle后再加载资源 */
+    public static async loadBundleAsset<T extends Asset>(bundleName: string, location: string, type: AssetProto<T>, onProgress?: Progress) {
+        let bunlde = await this.loadBundle(bundleName);
+        if (bunlde) {
+            return await this.loadAsset(location, type, onProgress);
+        } else {
+            mLogger.error("bunlde加载失败", bundleName);
+            return null;
+        }
     }
 
     /** 加载资源 */
@@ -86,9 +92,11 @@ export class AssetMgr {
         let cacheKey = this.getCacheKey(location, type);
         let loadPath = this.getLoadPath(location, type);
         let p = new Promise<T>((resolve, reject) => {
-            let casset = this.loadedAsset.get(cacheKey) as T;
+            let casset = this.cache.loadedAsset.get(cacheKey) as T;
             if (casset?.isValid) {
-                casset.addRef();
+                if (type as any !== Prefab) {//预制体由节点自动管理
+                    casset.addRef();
+                }
                 onProgress && onProgress(1, 1);
                 resolve(casset);
                 return;
@@ -102,13 +110,26 @@ export class AssetMgr {
                     resolve(null);
                 }
                 else {
-                    asset.addRef();
-                    this.loadedAsset.set(cacheKey, asset);
+                    if (type as any !== Prefab) {//预制体由节点自动管理
+                        asset.addRef();
+                    }
+                    this.cache.loadedAsset.set(cacheKey, asset);
                     resolve(asset);
                 }
             });
         })
         return p;
+    }
+
+    /** 加载bundle后再加载目录资源 */
+    public static async loadBundleDir<T extends Asset>(bundleName: string, location: string, type: AssetProto<T>, onProgress?: Progress) {
+        let bunlde = await this.loadBundle(bundleName);
+        if (bunlde) {
+            return await this.loadDir(location, type, onProgress);
+        } else {
+            mLogger.error("bunlde加载失败", bundleName);
+            return null;
+        }
     }
 
     /** 加载目录中的所有资源 */
@@ -127,7 +148,7 @@ export class AssetMgr {
                     assetInfos.forEach(v => {
                         let asset = bundle.get(v.path);
                         asset.addRef();
-                        this.loadedAsset.set(v.path, asset);
+                        this.cache.loadedAsset.set(v.path, asset);
                     });
                     resolve(assets);
                 }
@@ -139,7 +160,7 @@ export class AssetMgr {
     /** 加载远程资源 */
     public static loadRemoteAsset<T extends Asset>(url: string, opts?: { [k: string]: any; ext?: string; }) {
         let p = new Promise<T>((resolve, reject) => {
-            let casset = this.loadedAsset.get(url) as T;
+            let casset = this.cache.loadedAsset.get(url) as T;
             if (casset?.isValid) {
                 casset.addRef();
                 resolve(casset);
@@ -153,7 +174,7 @@ export class AssetMgr {
                     resolve(null);
                 }
                 else {
-                    this.loadedAsset.set(url, asset);
+                    this.cache.loadedAsset.set(url, asset);
                     asset.addRef();
                     resolve(asset);
                 }
@@ -164,7 +185,7 @@ export class AssetMgr {
 
     /** 加载远程的图片精灵 */
     public static async loadRemoteSpriteFrame(url: string) {
-        let casset = this.loadedAsset.get(url);
+        let casset = this.cache.loadedAsset.get(url);
         if (casset?.isValid) {
             casset.addRef();
             return casset as SpriteFrame;
@@ -172,8 +193,10 @@ export class AssetMgr {
         let img = await this.loadRemoteAsset<ImageAsset>(url);
         if (img) {
             let spFrame = SpriteFrame.createWithImage(img);
+            spFrame.texture.addRef();
             spFrame.addRef();
-            this.loadedAsset.set(url, spFrame);
+            this.cache.remoteAssetDepends.set(spFrame, [img, spFrame.texture]);
+            this.cache.loadedAsset.set(url, spFrame);
             return spFrame;
         }
         return null;
@@ -222,7 +245,7 @@ export class AssetMgr {
     }
 
     /** 
-     * 预加载资源 (只会下载资源到本地 不会加载到内存中)
+     * 预加载资源 (下载资源到本地,不会加载到内存中,适用于H5和小游戏平台提前下载远程资源,原生平台不需要)
      */
     public static preloadAsset<T extends Asset>(location: string, type: AssetProto<T>, onProgress?: Progress) {
         location = this.getLoadPath(location, type);
@@ -232,7 +255,7 @@ export class AssetMgr {
                 if (err) {
                     console.error(err);
                 } else {
-                    this.preloadedAsset.add(location);
+                    this.cache.preloadedAsset.add(location);
                 }
                 resolve();
             });
@@ -292,7 +315,7 @@ export class AssetMgr {
 
     /** 让资源引用计数+1 */
     public static addRef<T extends Asset>(location: string, type: AssetProto<T> | T) {
-        let asset = this.loadedAsset.get(this.getCacheKey(location, type));
+        let asset = this.cache.loadedAsset.get(this.getCacheKey(location, type));
         if (asset?.isValid) {
             asset.addRef();
         } else {
@@ -303,12 +326,11 @@ export class AssetMgr {
     /** 
      * 让资源引用计数-1
      * @param type 资源类型
-     * @param [forceRealse=false] 是否强制释放资源
      */
-    public static decRef<T extends Asset>(location: string, type: AssetProto<T>, forceRealse?: boolean) {
-        let asset = this.loadedAsset.get(this.getCacheKey(location, type));
+    public static decRef<T extends Asset>(location: string, type: AssetProto<T>) {
+        let asset = this.cache.loadedAsset.get(this.getCacheKey(location, type));
         if (asset?.isValid) {
-            this.decAssetRef(asset, forceRealse);
+            this.decAssetRef(asset);
         } else {
             console.warn(`[decRef] 资源不存在或已销毁 ${location}`);
         }
@@ -317,35 +339,29 @@ export class AssetMgr {
     /** 
      * 让目录下指定类型资源引用计数-1
      * @param type 资源类型 不填表示处理目录内所有资源
-     * @param [forceRealse=false] 是否强制释放资源
      */
-    public static decDirRef<T extends Asset>(location: string, type?: AssetProto<T>, forceRealse?: boolean) {
+    public static decDirRef<T extends Asset>(location: string, type?: AssetProto<T>) {
         let bundle = BundleMgr.Inst.getDirLocatedBundle(location, type);
         let assetInfos = bundle.getDirWithPath(location, type);
         for (const v of assetInfos) {
-            this.decRef(v.path, type, forceRealse);
+            this.decRef(v.path, type);
         }
     }
 
     /** 
      * 让资源引用计数-1
-     * @param [forceRealse=false] 是否强制释放资源
      */
-    public static decAssetRef<T extends Asset>(asset: T, forceRealse?: boolean) {
+    public static decAssetRef<T extends Asset>(asset: T) {
         if (!asset?.isValid) return;
-        let destroy = false;
-        if (forceRealse) {
-            destroy = true;
-        } else {
-            asset.decRef();
-            if (asset.refCount <= 0) destroy = true;
-        }
-        if (destroy) {
-            assetManager.releaseAsset(asset);
-            this.loadedAsset.deleteV(asset);
+        asset.decRef();
+        if (asset.refCount <= 0) {
+            this.cache.loadedAsset.deleteV(asset);
+            if (this.cache.remoteAssetDepends.has(asset)) {//释放远程资源的依赖资源
+                for (const element of this.cache.remoteAssetDepends.get(asset)) {
+                    element.decRef();
+                }
+            }
         }
     }
-
-
 
 }

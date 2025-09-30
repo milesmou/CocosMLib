@@ -10,7 +10,7 @@ export class PlayerData extends PlayerInventory {
 
     public static get Inst() { return createSingleton(PlayerData); }
 
-    protected onInst() {
+    protected onCreate() {
         this.init(GameData.Inst, () => {
             app.event.emit(mEventKey.OnInventoryChange);
         });

@@ -1,3 +1,9 @@
+import { sys } from "cc";
+import { MINIGAME } from "cc/env";
+
+/** 临时关闭gm的本地存档key */
+const closeGmKey = "CloseGM";
+
 /** 游戏一些配置 可以是远程或本地 */
 class GameConfig {
     //基本配置
@@ -20,6 +26,12 @@ class GameConfig {
     /** 其它配置 */
     public static others: Record<string, string> = {};
 
+    /** 临时关闭gm功能,会自动重启游戏(只生效一次,再次重启失效) */
+    public static closeGM() {
+        sys.localStorage.setItem(closeGmKey, "1");
+        app.chan.restartGame();
+    }
+
     public static deserialize(content: string) {
         let iniData = this.getTxtData(content);
 
@@ -39,6 +51,13 @@ class GameConfig {
                     }
                 }
             }
+        }
+
+        if (MINIGAME && app.env == "release") this.gm = false;//小游戏正式版强制关闭gm功能
+        if (this.gm) {//判断是否需要临时关闭gm
+            let closeGM = sys.localStorage.getItem(closeGmKey) === "1";
+            sys.localStorage.removeItem(closeGmKey);
+            if (closeGM) this.gm = false;
         }
 
         if (iniData.has("bundle")) {

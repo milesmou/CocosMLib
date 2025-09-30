@@ -1,4 +1,4 @@
-import { Component, Mask, Node, ScrollView, UITransform, _decorator, geometry, instantiate } from "cc";
+import { Component, Mask, Node, ScrollView, UITransform, _decorator, geometry } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
 import { ObjectPool } from "../../pool/ObjectPool";
 

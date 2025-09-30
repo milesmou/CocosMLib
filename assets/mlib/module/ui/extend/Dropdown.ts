@@ -1,4 +1,4 @@
-import { _decorator, CCString, clamp, Component, EventHandler, instantiate, Label, Node, ScrollView, Toggle } from 'cc';
+import { _decorator, CCString, clamp, Component, EventHandler, Label, Node, ScrollView, Toggle } from 'cc';
 import { MEvent } from 'db://assets/mlib/module/event/MEvent';
 const { ccclass, property } = _decorator;
 

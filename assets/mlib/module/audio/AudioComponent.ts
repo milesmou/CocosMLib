@@ -1,10 +1,10 @@
 import { AudioClip, AudioSource, Component, Tween, _decorator, tween } from 'cc';
 import { AssetComponent } from '../asset/AssetComponent';
 import { AssetMgr } from '../asset/AssetMgr';
+import { SortedMap } from '../core/collection/SortedMap';
 import { AudioMgr } from './AudioMgr';
 import { AudioState } from './AudioState';
 import { AudioVolume } from './AudioVolume';
-import { SortedMap } from './SortedMap';
 
 const { ccclass, property } = _decorator;
 
@@ -85,7 +85,7 @@ export class AudioComponent extends Component {
         if (this.stack.has(priority, location)) return; //已在播放列表则忽略
 
         if (this.stack.size > 0) {
-            if (this.stack.hasKey(priority)) {//停止原来同优先级的音乐并释放
+            if (this.stack.has(priority)) {//停止原来同优先级的音乐并释放
                 let audioState = this.musicGet(priority, this.stack.get(priority));
                 this.fadeOutMusic(priority == this.stack.topKey ? fadeOut : 0, audioState, true);
             } else if (priority > this.stack.topKey) {//优先级更大则暂停当前音乐
@@ -96,8 +96,8 @@ export class AudioComponent extends Component {
 
         /* -------播放或恢复音乐------ */
         let audioState = this.musicGet(priority, location) || new AudioState(location, this.addComponent(AudioSource), volumeScale);
-        this.stack.set(priority, location); //加入栈中
         this.musicAdd(priority, location, audioState);
+        this.stack.set(priority, location); //加入栈中
         if (audioState.audio?.isValid && audioState.audio.clip?.isValid) { //恢复音乐
             if (this.stack.isTop(priority, location) && !this._pause) {
                 this.fadeInMusic(fadeIn, audioState);

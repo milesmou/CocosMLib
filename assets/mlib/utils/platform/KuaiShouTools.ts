@@ -71,8 +71,8 @@ if (isKuaiShou) {
 }
 
 declare global {
-    /** 是否快手渠道 */
+    /** 是否快手平台 (发布后生效) */
     const isKuaiShou: boolean;
-    /** 快手平台工具类 */
+    /** 快手平台工具类 (发布后生效) */
     const ksTools: KuaiShouTools;
 }

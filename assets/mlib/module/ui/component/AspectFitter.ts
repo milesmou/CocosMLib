@@ -37,7 +37,7 @@ export class AspectFitter extends Component {
         displayName: "对齐强度",
         tooltip: "向上下左右对齐时,1表示该方向完全对齐边界,0表示该方向在中心位置",
         range: [0, 1],
-        visible: function () { return this.alignment != Alignment.None && this.alignment != Alignment.Center; }
+        visible: function () { return (this as any).alignment != Alignment.None && (this as any).alignment != Alignment.Center; }
     })
     alignmentIntensity = 1;
 

@@ -1,6 +1,6 @@
 import { Component, director } from "cc";
 
-interface RequestArgs {
+interface RequestParams {
     method: "GET" | "POST";
     header?: Record<string, string>;
     contentType?: "application/json" | "application/x-www-form-urlencoded";
@@ -10,7 +10,7 @@ interface RequestArgs {
 
 export class HttpRequest {
 
-    public static async request(url: string, args: RequestArgs) {
+    public static async request(url: string, args: RequestParams) {
         let { method, header, contentType, data, timeout } = args;
         method = method || "GET";
         timeout = timeout || 5000;
@@ -66,23 +66,25 @@ export class HttpRequest {
     }
 
 
-    public static async requestText(url: string, args: RequestArgs) {
+    public static async requestText(url: string, args: RequestParams) {
         let xhr = await this.request(url, args);
         if (xhr) return xhr.responseText;
         return null;
     }
 
-    public static async requestObject(url: string, args: RequestArgs) {
+    public static async requestObject(url: string, args: RequestParams) {
         let text = await this.requestText(url, args);
-        try {
-            return JSON.parse(text);
-        } catch (error) {
-            mLogger.error(error);
+        if (text != null) {
+            try {
+                return JSON.parse(text);
+            } catch (error) {
+                mLogger.error(error);
+            }
         }
         return null;
     }
 
-    public static async requestBuffer(url: string, args: RequestArgs) {
+    public static async requestBuffer(url: string, args: RequestParams) {
         let xhr = await this.request(url, args);
         if (xhr?.response && xhr.response instanceof ArrayBuffer) {
             return xhr.response;;
@@ -97,7 +99,7 @@ export class HttpRequest {
      * @param predicate 判断是否中断请求 true请求成功中断请求 false请求失败继续请求
      * @param duration 请求最多持续时间 单位:秒 (失败后0.5秒后会再次请求)
      */
-    public static async requestTextUntil(url: string, predicate: (res: string) => boolean, duration: number, args: RequestArgs): Promise<string> {
+    public static async requestTextUntil(url: string, predicate: (res: string) => boolean, duration: number, args: RequestParams): Promise<string> {
         let endTimeMS = Date.now() + duration * 1000;
         while (true) {
             let result = await this.requestText(url, args);
@@ -117,7 +119,7 @@ export class HttpRequest {
     * @param predicate 判断是否中断请求 true请求成功中断请求 false请求失败继续请求
     * @param duration 请求最多持续时间 单位:秒 (失败后0.5秒后会再次请求)
     */
-    public static async requesObjectUntil<T extends object>(url: string, predicate: (res: T) => boolean, duration: number, args: RequestArgs): Promise<T> {
+    public static async requesObjectUntil<T extends object>(url: string, predicate: (res: T) => boolean, duration: number, args: RequestParams): Promise<T> {
         let endTimeMS = Date.now() + duration * 1000;
         while (true) {
             let result = await this.requestObject(url, args) as T;

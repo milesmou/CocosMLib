@@ -1,40 +1,50 @@
-import { game, Game } from "cc";
+export { }; // 确保文件被视为模块
 
-/** 保存所有单例类 */
-const singletonSet = new Set();
-/** 类保存单例字段的名字 */
-const instFieldName = "_instance";
-/** 创建单例时执行的方法名 */
-const onInstFuncName = "onInst";
+/** 单例缓存Map */
+const singletonMap = new Map<Function, object>();
 
-/** 创建单例并缓存,在引擎重启时会自动销毁(创建单例时会执行onInst方法) */
-function createSingleton<T>(clazz: { new(): T }): T {
-    if (!clazz[instFieldName]) {
+/** 创建单例 (创建单例时会执行onCreate方法) */
+function createSingleton<T extends object>(clazz: { new(): T }): T {
+    if (!singletonMap.has(clazz)) {
         let instance = new clazz();
-        clazz[instFieldName] = instance;
-        if (!singletonSet.has(clazz)) {
-            singletonSet.add(clazz);
+        let onCreate: Function = instance["onCreate"];
+        if (onCreate && typeof onCreate === "function") {
+            onCreate.call(instance);
         }
-        let onInst: Function = instance[onInstFuncName];
-        if (onInst && typeof onInst === "function") {
-            onInst.call(instance);
-        }
+        singletonMap.set(clazz, instance);
     }
-    return clazz[instFieldName];
+    return singletonMap.get(clazz) as T;
 }
 
-//游戏重启时清除单例
-game.on(Game.EVENT_RESTART, () => {
-    singletonSet.forEach(clazz => {
-        clazz[instFieldName] = undefined;
-    });
-    singletonSet.clear();
-});
+/** 销毁单例 (销毁单例时会执行onDestroy方法) */
+function destroySingleton<T extends object>(clazz: { new(): T }): void {
+    let instance = singletonMap.get(clazz);
+    if (instance) {
+        let onDestroy: Function = instance["onDestroy"];
+        if (onDestroy && typeof onDestroy === "function") {
+            onDestroy.call(instance);
+        }
+        singletonMap.delete(clazz);
+    }
+}
+
+/** 单例是否存在 */
+function isSingletonValid<T extends object>(clazz: { new(): T }): boolean {
+    return singletonMap.has(clazz);
+}
 
 //@ts-ignore
 globalThis["createSingleton"] = createSingleton;
+//@ts-ignore
+globalThis["destroySingleton"] = destroySingleton;
+//@ts-ignore
+globalThis["isSingletonValid"] = isSingletonValid;
 
 declare global {
-    /** 创建单例并缓存,在引擎重启时会自动销毁(创建单例时会执行onInst方法) */
-    const createSingleton: <T>(clazz: { new(): T }) => T;
+    /** 创建单例 (创建单例时会执行onCreate方法) */
+    const createSingleton: <T extends object>(clazz: { new(): T }) => T;
+    /** 销毁单例 (销毁单例时会执行onDestroy方法) */
+    const destroySingleton: <T extends object>(clazz: { new(): T }) => T;
+    /** 单例是否存在 */
+    const isSingletonValid: <T extends object>(clazz: { new(): T }) => boolean;
 }

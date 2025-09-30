@@ -1,17 +1,20 @@
 import { _decorator, game, sys } from 'cc';
+import { PREVIEW } from 'cc/env';
 import { StroageMap } from '../module/stroage/StroageMap';
 import { StroageValue } from '../module/stroage/StroageValue';
-import { MCloudDataSDK } from '../sdk/MCloudDataSDK';
 import { Utils } from '../utils/Utils';
+import { HttpGameData } from './GameWeb/GameData/HttpGameData';
+import { HttpEvent } from './GameWeb/HttpEvent';
 import { IReportEvent } from './IReportEvent';
-import { EIAPResult, ENativeBridgeKey, GetGameDataArgs, LoginArgs, MSDKWrapper, RequestIAPArgs, SaveGameDataArgs, SDKCallback, ShowRewardedAdArgs, UserInfo } from './MSDKWrapper';
+import { GetGameDataParams, PayParams, RewardedVideoParams, SaveGameDataParams, SDKCallback, SDKTemp, UserInfo } from './SDKWrapper/SDKCallback';
+import { SDKListener } from './SDKWrapper/SDKListener';
 const { ccclass } = _decorator;
 
 @ccclass("Channel")
 export class Channel {
 
     /** 用户信息 包含用户id和名字*/
-    public user: UserInfo = { uid: "", name: "" };
+    public user: UserInfo = { userId: "", userName: "" };
 
     /** 设备震动开关 */
     public vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
@@ -25,7 +28,11 @@ export class Channel {
 
     /** 重启游戏 */
     public restartGame() {
-        game.restart();
+        if (sys.isBrowser) {
+            location.reload();
+        } else {
+            game.restart();
+        }
     }
 
     /** 初始化SDK */
@@ -39,52 +46,46 @@ export class Channel {
 
     /** 初始化内购 */
     public initIAP() {
-        SDKCallback.initInAppPurchase && SDKCallback.initInAppPurchase();
+        SDKListener.onInitPay();
     }
 
     /** 登录 */
-    public login(args: LoginArgs) {
+    public login(args?: string) {
         let userId = sys.localStorage.getItem("userId");
         if (!userId) {
             userId = Utils.genUUID();
             sys.localStorage.setItem("userId", userId);
         }
-        SDKCallback.login = args;
-        MSDKWrapper.loginSuccess({ uid: userId, name: "游客" });
+        SDKListener.onLogin({ code: 0, userId: userId, userName: "游客" });
     }
 
     /** 获取玩家存档 */
-    public getGameData(args: GetGameDataArgs) {
+    public getGameData(args: GetGameDataParams) {
         mLogger.debug("getGameData", args.userId);
-        SDKCallback.getGameData = args;
-        MCloudDataSDK.getPlayerGameData(args.userId).then(v => {
+        HttpGameData.getPlayerGameData({ userId: args.userId }).then(v => {
             if (v) {
-                args.success && args.success(v);
+                SDKListener.onGetGameData({ code: 0, data: v.data, updateTime: v.updateTime });
             } else {
-                args.fail && args.fail();
+                SDKListener.onGetGameData({ code: 1 })
             }
         });
     }
 
     /** 上传玩家存档 */
-    public uploadGameData(args: SaveGameDataArgs) {
+    public saveGameData(args: SaveGameDataParams) {
         mLogger.debug("uploadGameData", args.userId);
-        SDKCallback.uploadGameData = args;
-        MCloudDataSDK.savePlayerGameData(args.userId, args.gameData).then(v => {
-            if (v) {
-                args.success && args.success();
-            } else {
-                args.fail && args.fail();
-            }
+        SDKTemp.saveGameDataParams = args;
+        HttpGameData.savePlayerGameData({ userId: args.userId, data: args.gameData }).then(v => {
+            SDKListener.onSaveGameData({ code: v ? 0 : 1 });
         });
     }
 
     /** 展示激励视频广告 */
-    public showRewardedAd(args: ShowRewardedAdArgs) {
-        SDKCallback.rewardedAd = args;
-        MSDKWrapper.rewardedAdStart();//开始请求广告
-        MSDKWrapper.rewardedAdShow();//测试直接成功
-        MSDKWrapper.rewardedAdSuccess();//测试直接成功
+    public showRewardedAd(args: RewardedVideoParams) {
+        SDKTemp.rewardedVideoParams = args;
+        SDKListener.onRewardedVideo({ code: 3 })
+        SDKListener.onRewardedVideo({ code: 4 })
+        SDKListener.onRewardedVideo({ code: 0 })
     }
 
     /** 展示插屏广告 */
@@ -104,18 +105,76 @@ export class Channel {
 
     /** 获取所有商品的详情信息 商品id之间用|隔开 */
     public reqProductDetails(productIds: string) {
-        MSDKWrapper.call(ENativeBridgeKey.ReqProductDetails, EIAPResult.ProductDetail.toString(), "default")//测试直接成功
+        SDKListener.onGetProducts("default");
     }
 
     /** 发起内购 */
-    public requestIAP(args: RequestIAPArgs) {
-        SDKCallback.onStartInAppPurchase && SDKCallback.onStartInAppPurchase(args.productId);
-        MSDKWrapper.call(ENativeBridgeKey.RequestIAP, EIAPResult.Success.toString(), args.productId)//测试直接成功
+    public requestIAP(args: PayParams) {
+        SDKTemp.payParams = args;
+        SDKListener.onStartPay();
+        SDKListener.onPay({ code: 0, productId: args.productId });
     }
 
     /** 恢复内购(订阅或漏单) */
     public restoreIAP() {
 
+    }
+
+    /** 使设备发生震动 */
+    public vibrate(duration?: "short" | "long") {
+
+    }
+
+    /**
+    * 敏感词检测
+    * @param content 待检测内容
+    * @param callback 检测回调
+    */
+    public checkMsgSec(content: string, callback: (isPass: boolean) => void) {
+        callback && callback(true);
+    }
+
+    /**
+    * 敏感图片检测
+    * @param image 待检测的图片url
+    * @param callback 检测回调
+    */
+    public checkImageSec(image: string, callback: (isPass: boolean) => void) {
+        callback && callback(true);
+    }
+
+    /** 设置系统剪贴板内容 */
+    public setClipboard(data: string, success?: () => void, fail?: (errMsg: string) => void) {
+        if (!sys.isBrowser) return;
+        navigator.clipboard.writeText(data).then((res) => {
+            success && success();
+        }).catch((err) => {
+            console.error("setClipboard", err);
+            fail && fail(err)
+        });
+    }
+
+    /** 获取系统剪贴板内容 */
+    public getClipboard(success: (data: string) => void, fail?: (errMsg: string) => void) {
+        if (!sys.isBrowser) return;
+        navigator.clipboard.readText().then((res) => {
+            success && success(res);
+        }).catch((err) => {
+            console.error("getClipboard", err);
+            fail && fail(err)
+        });
+    }
+
+    /** 调用渠道方法 无返回值 */
+    public callChannelVoid(key: string, args?: string) {
+
+    }
+
+    /** 调用异步的渠道方法 需要传入一个回调 */
+    public callChanneAsync(key: string, args: string, callback: (res: string) => void) {
+        SDKCallback.callback.set(key, callback);
+        // 逻辑处理完成后，通过SDKListener.onCallback 触发回调
+        // SDKListener.onCallback(key, "");
     }
 
     /** 
@@ -126,7 +185,8 @@ export class Channel {
     public reportEvent(event: IReportEvent, args?: { [key: string]: any }, tag?: string) {
         if (!event.enable || !event.name) return;
         let paramStr = args ? Object.values(args).join("|") : "";
-        MCloudDataSDK.reportEvent(event.name, paramStr);
+        let eventName = PREVIEW ? "0_" + event.name : event.name;
+        HttpEvent.reportEvent({ eventName: eventName, param: paramStr });
     }
 
     /** 上报事件 每天一次(本地存档卸载失效)*/
@@ -142,101 +202,8 @@ export class Channel {
     /** 上报数值累加事件(仅用于自己的打点系统) */
     public reportSumEvent(event: IReportEvent, num: number, args?: { [key: string]: any }) {
         let paramStr = args ? Object.values(args).join("|") : "";
-        MCloudDataSDK.reportEvent(event.name, paramStr, num);
-    }
-
-    /** 使设备发生震动 */
-    public vibrate(duration?: "short" | "long") {
-
-    }
-
-    /**
-    * 敏感词检测
-    * @param content 待检测内容
-    * @param callback 回调
-    */
-    public checkMsgSec(content: string, callback: (isPass: boolean) => void) {
-
-    }
-
-    /**
-    * 敏感图片检测
-    * @param mediaUrl 需检测的图片url
-    * @param mediaType 媒体类型
-    * @param callback 回调
-    */
-    public checkMediaSec(content: { mediaUrl: string, mediaType?: number }, callback: (isPass: boolean) => void) {
-
-    }
-
-    /** 设置系统剪贴板内容 */
-    public setClipboard(data: string, success?: () => void, fail?: (errMsg: string) => void) {
-        if (!sys.isBrowser) return;
-        let fn = () => {
-            // 复制结果
-            let copyResult = true;
-            // 创建一个input元素
-            //@ts-ignore
-            let inputDom = document.createElement('textarea');
-            // 设置为只读 防止移动端手机上弹出软键盘  
-            inputDom.setAttribute('readonly', 'readonly');
-            // 给input元素赋值
-            inputDom.value = data;
-            // 将创建的input添加到body
-            //@ts-ignore
-            document.body.appendChild(inputDom);
-            // 选中input元素的内容
-            inputDom.select();
-            // 执行浏览器复制命令
-            // 复制命令会将当前选中的内容复制到剪切板中（这里就是创建的input标签中的内容）
-            // Input要在正常的编辑状态下原生复制方法才会生效
-            //@ts-ignore
-            const result = document.execCommand('copy');
-            // 判断是否复制成功
-            if (result) {
-                success && success();
-            }
-            else {
-                // mLogger.debug('复制失败');
-                fail && fail("fail");
-                copyResult = false;
-            }
-            // 复制操作后再将构造的标签 移除
-            //@ts-ignore
-            document.body.removeChild(inputDom);
-            // 返回复制操作的最终结果
-            return copyResult;
-        };
-        // 复制结果
-        let copyResult = true;
-        // 判断是否支持clipboard方式
-        if (window.navigator.clipboard) {
-            // 利用clipboard将文本写入剪贴板（这是一个异步promise）
-            window.navigator.clipboard.writeText(data).then((res) => {
-                success && success();
-                return copyResult;
-            }).catch((err) => {
-                fn();
-            });
-        }
-        else {
-            fn();
-        }
-    }
-
-    /** 获取系统剪贴板内容 */
-    public getClipboard(success: (data: string) => void, fail?: (errMsg: string) => void) {
-
-    }
-
-    /** 额外的方法 用于一些特殊的处理 */
-    public extraMethod<R = any, T1 = any, T2 = any, T3 = any, T4 = any>(key?: string, arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4): R {
-        return;
-    }
-
-    /** 额外的方法 用于一些特殊的处理 异步接口*/
-    public async extraMethodAsync<R = any, T1 = any, T2 = any, T3 = any, T4 = any>(key?: string, arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4): Promise<R> {
-        return;
+        let eventName = PREVIEW ? "0_" + event.name : event.name;
+        HttpEvent.reportEvent({ eventName: eventName, param: paramStr, sum: num });
     }
 
     private eventCache = new StroageMap(mGameSetting.gameName + "_ReportEvent", 0, true);

@@ -1,9 +1,10 @@
 import { sys } from "cc";
-import { GameData } from "../GameData";
 import { EChannel } from "../publish/EChannel";
 import { ESpecialNodeType, ESpecialNodeTypeLimit } from "./ESpecialNodeType";
 
 export class SpecialNodeMgr {
+
+
     public static get Inst() { return createSingleton(SpecialNodeMgr); }
 
     private _isAndroid: boolean;
@@ -15,11 +16,11 @@ export class SpecialNodeMgr {
     private _isKuaiShou: boolean;
     private _isBlibli: boolean;
 
-    protected onInst() {
+    protected onCreate() {
         this._isAndroid = sys.platform == sys.Platform.ANDROID;
         this._isIOS = sys.platform == sys.Platform.IOS;
-        this._isWechatGame = mGameSetting.channelId == EChannel.WX_ZQY;
-        this._isByteDanceGame = mGameSetting.channelId == EChannel.DY_ZQY;
+        this._isWechatGame = mGameSetting.channelId == EChannel.WX_ZQY || mGameSetting.channelId == EChannel.WX_YXT;
+        this._isByteDanceGame = mGameSetting.channelId == EChannel.DY_ZQY || mGameSetting.channelId == EChannel.DY_YXT2;
         this._isZFB = mGameSetting.channelId == EChannel.ZFB_ZQY;
         this._isKuaiShou = mGameSetting.channelId == EChannel.KS_ZQY;
     }
@@ -52,26 +53,17 @@ export class SpecialNodeMgr {
             return false;
         } else {
             let value = true;
-            if (gm) value = value && mGameConfig.gm;
-            if (sh) value = value && mGameConfig.sh;
-            if (android) value = value && this._isAndroid;
-            if (ios) value = value && this._isIOS;
-            if (wechatGame) value = value && this._isWechatGame;
-            if (byteDanceGame) value = value && this._isByteDanceGame;
-            if (zfb) value = value && this._isZFB;
-            if (taoBao) value = value && this._isTaoBao;
-            if (kuaiShou) value = value && this._isKuaiShou;
-            if (blibli) value = value && this._isBlibli;
+            if (value && gm) value = value && mGameConfig.gm;
+            if (value && sh) value = value && mGameConfig.sh;
+            if (value && android) value = value && this._isAndroid;
+            if (value && ios) value = value && this._isIOS;
+            if (value && wechatGame) value = value && this._isWechatGame;
+            if (value && byteDanceGame) value = value && this._isByteDanceGame;
+            if (value && zfb) value = value && this._isZFB;
+            if (value && taoBao) value = value && this._isTaoBao;
+            if (value && kuaiShou) value = value && this._isKuaiShou;
+            if (value && blibli) value = value && this._isBlibli;
             return value;
         }
     }
-
-    /** 获取特殊节点的透明度 */
-    public getOpacity(bitValue: number, typeLimit = ESpecialNodeTypeLimit.Any): number {
-        let gm = bitValue & ESpecialNodeType.GM;
-        if (gm) return GameData.Inst.isShowGmBtns ? 255 : 0
-
-        return 255;
-    }
-
 }

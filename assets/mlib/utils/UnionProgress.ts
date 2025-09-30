@@ -15,6 +15,16 @@ export class UnionProgress {
      * @param onProgress 总进度回调方法
      * @param loadItemNum 加载项数量
      */
+    public constructor(onProgress: (loaded: number, total: number) => void, loadItemNum: number) {
+        this._onProgress = onProgress;
+        this._loadItemNum = loadItemNum;
+        this._loadProgress.clear();
+    }
+
+    /**
+     * @param onProgress 总进度回调方法
+     * @param loadItemNum 加载项数量
+     */
     public init(onProgress: (loaded: number, total: number) => void, loadItemNum = 1) {
         this._onProgress = onProgress;
         this._loadItemNum = loadItemNum;
@@ -26,6 +36,7 @@ export class UnionProgress {
     public getOnProgress(key: string, debug = false) {
         return (loaded: number, total: number) => {
             this._loadProgress.set(key, loaded / total);
+            if (!this._onProgress) return;
             let totalProgress = 0;
             for (const v of this._loadProgress.values()) {
                 totalProgress += (v || 0);
@@ -51,18 +62,19 @@ export class SlowProgress {
 
     /**
      * @param onProgress 总进度回调方法
+     * @param loadItemNum 加载项数量
      */
-    public init(onProgress: (loaded: number, total: number) => void, loadItemNum = 1) {
+    public constructor(onProgress: (loaded: number, total: number) => void, loadItemNum: number) {
         this._onProgress = onProgress;
         this._loadItemNum = loadItemNum;
         this._loadProgress.clear();
-        return this;
     }
 
     /** 获取一个加载项的进度回调方法 */
     public getOnProgress(key: string, debug = false) {
         return (loaded: number, total: number) => {
             this._loadProgress.set(key, loaded / total);
+            if (!this._onProgress) return;
             if (this._loadProgress.size < this._loadItemNum) {
                 this._onProgress(0, 1);
             } else {

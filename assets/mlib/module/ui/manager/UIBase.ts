@@ -1,13 +1,12 @@
 import { Animation, BlockInputEvents, Node, Sprite, UIOpacity, _decorator, color, tween } from "cc";
 const { property, ccclass, requireComponent } = _decorator;
 
-import { js } from "cc";
 import { CCUtils } from "../../../utils/CCUtil";
 import { AssetComponent } from "../../asset/AssetComponent";
-import { EventMgr } from "../../event/EventMgr";
+import { DontRelease } from "../../asset/DontRelease";
 import { EUIFormAnim } from "./EUIFormAnim";
+import { EUIFormClose } from "./EUIFormClose";
 import { UIForm } from "./UIForm";
-import { UIMgr } from "./UIMgr";
 
 
 @ccclass("UIBase")
@@ -25,6 +24,9 @@ export class UIBase extends UIForm {
     protected __preload(): void {
         this.ensureComponent(AssetComponent);
         this.ensureComponent(UIOpacity);
+        if (this.whenClose < EUIFormClose.Release) {
+            this.ensureComponent(DontRelease);
+        }
         super.__preload();
     }
 
@@ -36,7 +38,7 @@ export class UIBase extends UIForm {
 
         if (this.showShade) this.initShade();
         if (this.autoHide) this.enableAutoHide();
-        if (this.blockInputEvent) this.addComponent(BlockInputEvents);
+        if (this.blockInputEvent) this.ensureComponent(BlockInputEvents);
 
         this.closeBtn && this.closeBtn.onClick.addListener(this.safeClose, this);
         this.animation = this.getComponent(Animation) || CCUtils.getComponentInChildren(this.node, Animation);
@@ -47,19 +49,16 @@ export class UIBase extends UIForm {
             this._shadeNode = this.node.children[0];
             this._shadeNode.ensureComponent(UIOpacity);
         } else {
-            this._shadeNode = CCUtils.createUINode("shade");
-            this._shadeNode.parent = this.node;
+            this._shadeNode = CCUtils.createUINode("shade", this.node);
             this._shadeNode.addComponent(UIOpacity);
             this._shadeNode.setSiblingIndex(0);
             this._shadeNode.matchParent();
-            let imgNode = CCUtils.createUINode("img");
-            imgNode.parent = this._shadeNode;
+            let imgNode = CCUtils.createUINode("img", this._shadeNode);
             let sp = imgNode.addComponent(Sprite);
             sp.sizeMode = Sprite.SizeMode.CUSTOM;
-            sp.spriteFrame = UIMgr.Inst.defaultSprite;
-            sp.color = color(0, 0, 0, UIMgr.Inst.shadeOpacity);
+            sp.spriteFrame = app.ui.whiteSplash;
+            sp.color = color(0, 0, 0, app.ui.shadeOpacity);
             imgNode.matchParent();
-
         }
     }
 
@@ -85,25 +84,25 @@ export class UIBase extends UIForm {
     private enableAutoHide() {
         let listenToHide = (ui: UIBase) => {
             if (this?.isValid) {
-                if (ui != this && ui.fullScreen && UIMgr.Inst.isUIBeCover(this) && UIMgr.Inst.isUIInStack(this)) this.setVisible(false);
+                if (ui != this && ui.fullScreen && app.ui.isUIBeCover(this) && app.ui.isUIInStack(this)) this.setVisible(false);
             } else {
-                EventMgr.off(mEventKey.OnUIShow, listenToHide);
+                app.event.off(mEventKey.OnUIShow, listenToHide);
             }
         }
-        EventMgr.on(mEventKey.OnUIShow, listenToHide);
+        app.event.on(mEventKey.OnUIShow, listenToHide);
 
         let listenToShow = (ui: UIBase) => {
             if (this?.isValid) {
-                if (!UIMgr.Inst.isUIBeCover(this) && UIMgr.Inst.isUIInStack(this)) this.setVisible(true);
+                if (!app.ui.isUIBeCover(this) && app.ui.isUIInStack(this)) this.setVisible(true);
             }
             else {
-                EventMgr.off(mEventKey.OnUIHideBegin, listenToShow);
+                app.event.off(mEventKey.OnUIHideBegin, listenToShow);
             }
         }
-        EventMgr.on(mEventKey.OnUIHideBegin, listenToShow);
+        app.event.on(mEventKey.OnUIHideBegin, listenToShow);
     }
 
-    public playShowAnim() {
+    public playShowAnim(name?: string) {
         this._isAnimEnd = false;
         let p = new Promise<void>((resovle, reject) => {
             let callback = () => {
@@ -112,10 +111,11 @@ export class UIBase extends UIForm {
             };
             if (Boolean(this.action & EUIFormAnim.OPEN)) {
                 if (this.animation) {//播放指定动画
-                    let clip = this.animation.clips[0];
-                    UIMgr.Inst.blockTime = clip.duration + 0.1;
+                    let clip = name ? this.animation.clips.find(v => v.name == name) : this.animation.clips[0];
+                    app.ui.blockTime = clip.duration + 0.1;
                     if (clip) {
                         this.animation.stop();
+                        this.animation.setTime(clip.name);
                         this.animation.once(Animation.EventType.FINISHED, callback);
                         this.animation.play(clip.name);
                         if (this._shadeNode) {
@@ -137,7 +137,7 @@ export class UIBase extends UIForm {
         return p;
     }
 
-    public playHideAnim() {
+    public playHideAnim(name?: string) {
         this._isAnimEnd = false;
         let p = new Promise<void>((resovle, reject) => {
             let callback = () => {
@@ -146,7 +146,7 @@ export class UIBase extends UIForm {
             };
             if (Boolean(this.action & EUIFormAnim.CLOSE)) {
                 if (this.animation) {//播放指定动画
-                    let clip = this.animation.clips[1];
+                    let clip = name ? this.animation.clips.find(v => v.name == name) : this.animation.clips[1];
                     if (clip) {
                         this.animation.stop();
                         this.animation.once(Animation.EventType.FINISHED, callback);
@@ -175,6 +175,6 @@ export class UIBase extends UIForm {
 
     /** 关闭UI时调用此方法 */
     protected safeClose() {
-        UIMgr.Inst.hide(this._uiName);
+        app.ui.hide(this._uiName);
     }
 }

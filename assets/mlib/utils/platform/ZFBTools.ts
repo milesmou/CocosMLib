@@ -87,8 +87,8 @@ if (isZFB) {
 }
 
 declare global {
-    /** 是否支付宝渠道 */
+    /** 是否支付宝平台 (发布后生效) */
     const isZFB: boolean;
-    /** 支付宝平台工具类 */
+    /** 支付宝平台工具类 (发布后生效) */
     const zfbTools: ZFBTools;
 }

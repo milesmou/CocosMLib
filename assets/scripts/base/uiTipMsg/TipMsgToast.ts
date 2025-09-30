@@ -1,4 +1,4 @@
-import { _decorator, instantiate, Label, misc, Node, tween, UIOpacity, v3 } from 'cc';
+import { _decorator, Label, misc, Node, tween, UIOpacity, v3 } from 'cc';
 import { ObjectPool } from 'db://assets/mlib/module/pool/ObjectPool';
 import { UIComponent } from 'db://assets/mlib/module/ui/manager/UIComponent';
 const { ccclass, property } = _decorator;

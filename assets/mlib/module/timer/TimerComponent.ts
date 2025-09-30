@@ -1,4 +1,4 @@
-import { _decorator, Animation, Component, macro, sp, Tween } from "cc";
+import { _decorator, Animation, Component, sp, Tween } from "cc";
 import { TimerAnimation } from "./TimerAnimation";
 import { TimerObject } from "./TimerObject";
 import { TimerSpine } from "./TimerSpine";
@@ -208,7 +208,7 @@ export class TimerComponent extends Component {
             v.delay -= realDt;
             v.totalDt += realDt;
             if (v.delay <= 0) {
-                v.callback.call(v.thisObj, v.totalDt);
+                v.callback && v.callback.call(v.thisObj, v.totalDt);
                 v.delay = v.interval;
                 v.totalDt = 0;
             }
@@ -218,7 +218,7 @@ export class TimerComponent extends Component {
             v.totalDt += realDt;
             v.onRatio && v.onRatio(v.totalDt / v.delay);
             if (v.totalDt >= v.delay) {
-                v.callback.call(v.thisObj, v.totalDt);
+                v.callback && v.callback.call(v.thisObj, v.totalDt);
                 this._onceSchedules.delete(v);
             }
         });

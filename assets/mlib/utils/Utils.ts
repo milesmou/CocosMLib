@@ -85,6 +85,30 @@ export class Utils {
     }
 
     /**
+     * 比较两个数字拼接字符串的大小 str1大返回1 str2返回-1 相等返回0
+     * (两个字符串的格式必须一致 例如：str1="1_1_1" str2="1_2_1")
+     * @param split 数字拼接字符串的分隔符
+     */
+    public static stringCompare(str1: string, str2: string, split: string) {
+        let arr1 = str1.split(split);
+        let arr2 = str2.split(split);
+        if (arr1.length != arr2.length) {
+            console.error("两个字符串格式不一致");
+            return 0;
+        }
+        for (let i = 0; i < arr1.length; i++) {
+            let v1 = parseInt(arr1[i]);
+            let v2 = parseInt(arr2[i]);
+            if (v1 > v2) {
+                return 1;
+            } else if (v1 < v2) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    /**
      * 将比较大的数字格式化显示 英文后缀
      * @param fractionDigits 保留小数位数
      * @param canEndWithZero 是否需要用0填补小数位数 默认为false
@@ -373,6 +397,16 @@ export class Utils {
         return Math.round(+new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) / 1000);
     }
 
+    /**
+     * 当时0点的时间戳（毫秒）
+     * @returns  
+     */
+    static getTodayStartTimestamp(): number {
+        const date = new Date();
+        date.setHours(0, 0, 0, 0);
+        return date.getTime();
+    };
+
     /**获得秒差，需要传入一个时间戳，和现在作对比,返回的单位是秒 */
     static getDurationSecond(time: number) {
         return this.getNowTime() - time;
@@ -470,5 +504,20 @@ export class Utils {
         format = format.replace(":", "");
         return format;
     }
+
+    /**
+     * 校验字符串：
+     * @param str 待校验字符串(中文、字母、数字)
+     * @returns 符合规则返回true，否则false
+     */
+    static isValidString(str: string): boolean {
+        const regex = /^[\u4e00-\u9fa5a-zA-Z0-9]+$/;
+        return regex.test(str);
+    };
+
+    /** 字符串是否为空 */
+    static isEmptyStrict(str: string | null | undefined): boolean {
+        return str == null || str.trim() === "";
+    };
 
 }

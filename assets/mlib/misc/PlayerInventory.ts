@@ -5,29 +5,24 @@ type ItemInfo = [number, number, number];
 /** 物品信息 只有物品ID和物品数量 物品类型默认为1 */
 type ItemInfo2 = [number, number];
 
-/** 背包物品的基本信息 */
-export class InventoryItemSO {
-
-    /** 物品唯一识别id */
-    public uid: number;
-
-    /** 物品的大类型 */
-    public type: number;
-
-    /** 物品id */
-    public id: number;
-
-    /** 物品数量 */
-    public amount: number;
-
-    /** 物品被谁持有 */
-    public holder: number;
-}
+/** 背包物品存档格式 [uid(唯一),类型,id,数量,持有者(可选)] */
+export type ItemSO = [
+    /** uid(唯一) */
+    number,
+    /** 类型 */
+    number,
+    /** id */
+    number,
+    /** 数量 */
+    number,
+    /** 持有者(可选) */
+    number?
+];
 
 export class PlayerInventory {
     private _gameSave: GameSave;
 
-    private _itemCache: { [key: string]: InventoryItemSO } = {};
+    private _itemCache: { [key: string]: ItemSO } = {};
 
     private _onInventoryChange: () => void;
 
@@ -91,12 +86,12 @@ export class PlayerInventory {
                 this.delGameItem(itemSO, num, false);
             }
             else {
-                var inventoryItemSos = this._gameSave.inventory.filter(v => v.type == type && v.id == id);
+                var inventoryItemSos = this._gameSave.inventory.filter(v => v[1] == type && v[2] == id);
                 for (const itemSo of inventoryItemSos) {
                     if (num > 0) {
-                        if (num >= itemSo.amount) {
-                            this.delGameItem(itemSo, itemSo.amount, false);
-                            num -= itemSo.amount;
+                        if (num >= itemSo[3]) {
+                            this.delGameItem(itemSo, itemSo[3], false);
+                            num -= itemSo[3];
                         }
                         else {
                             this.delGameItem(itemSo, num, false);
@@ -133,13 +128,13 @@ export class PlayerInventory {
     /** 获取背包物品数量 */
     public getItemAmount(type: number, itemId: number) {
         let itemSo = this.getCacheItemSO(type, itemId);
-        if (itemSo) return itemSo.amount;
-        var inventoryItemSos = this._gameSave.inventory.filter(v => v.type == type && v.id == itemId);
+        if (itemSo) return itemSo[3];
+        var inventoryItemSos = this._gameSave.inventory.filter(v => v[1] == type && v[2] == itemId);
         if (inventoryItemSos.length == 0) return 0;
         else {
             let num = 0;
             for (const itemInfo of inventoryItemSos) {
-                num += itemInfo.amount;
+                num += itemInfo[3];
             }
 
             return num;
@@ -152,28 +147,28 @@ export class PlayerInventory {
         //无堆叠上限
         if (stackLimit <= 0) {
             let key = type + "_" + itemId;
-            let inventoryItemSo: InventoryItemSO = this.getCacheItemSO(type, itemId);
+            let inventoryItemSo: ItemSO = this.getCacheItemSO(type, itemId);
             if (!inventoryItemSo) {
                 inventoryItemSo = this.genInventoryItemSO(type, itemId);
                 this._itemCache[key] = inventoryItemSo;
                 this._gameSave.inventory.push(inventoryItemSo);
             }
 
-            inventoryItemSo.amount += itemNum;
+            inventoryItemSo[3] += itemNum;
         }
         else {
             let remain = itemNum;
             //补充背包未堆叠满的物品
-            var inventoryItemSos = this._gameSave.inventory.filter(v => v.type == type && v.id == itemId && v.amount < stackLimit);
+            var inventoryItemSos = this._gameSave.inventory.filter(v => v[1] == type && v[2] == itemId && v[3] < stackLimit);
             for (const itemSo of inventoryItemSos) {
-                if (itemSo.amount + remain <= stackLimit) {
-                    itemSo.amount += remain;
+                if (itemSo[3] + remain <= stackLimit) {
+                    itemSo[3] += remain;
                     remain = 0;
                     break;
                 }
                 else {
-                    let dt = stackLimit - itemSo.amount;
-                    itemSo.amount = stackLimit;
+                    let dt = stackLimit - itemSo[3];
+                    itemSo[3] = stackLimit;
                     remain -= dt;
                 }
             }
@@ -183,13 +178,13 @@ export class PlayerInventory {
                 var num1 = Math.floor(remain / stackLimit);
                 for (let i = 0; i < num1; i++) {
                     var inventoryItemSo = this.genInventoryItemSO(type, itemId);
-                    inventoryItemSo.amount = stackLimit;
+                    inventoryItemSo[3] = stackLimit;
                 }
 
                 var num2 = remain % stackLimit;
                 if (num2 > 0) {
                     var inventoryItemSo = this.genInventoryItemSO(type, itemId);
-                    inventoryItemSo.amount = num2;
+                    inventoryItemSo[3] = num2;
                 }
             }
         }
@@ -204,7 +199,7 @@ export class PlayerInventory {
         let inventoryItemSo = this._itemCache[key];
         if (inventoryItemSo) return inventoryItemSo;
         else {
-            inventoryItemSo = this._gameSave.inventory.find(v => v.type == type && v.id == itemId);
+            inventoryItemSo = this._gameSave.inventory.find(v => v[1] == type && v[2] == itemId);
             if (inventoryItemSo == null) {
                 inventoryItemSo = this.genInventoryItemSO(type, itemId);
                 this._gameSave.inventory.push(inventoryItemSo);
@@ -215,13 +210,8 @@ export class PlayerInventory {
     }
 
     /**可重写 生成用于缓存的物品对象 */
-    protected genInventoryItemSO(type: number, itemId: number): InventoryItemSO {
-        var inventoryItemSo = new InventoryItemSO();
-        inventoryItemSo.uid = this._gameSave.newUid;
-        inventoryItemSo.type = type;
-        inventoryItemSo.id = itemId;
-        inventoryItemSo.amount = 0;
-        return inventoryItemSo;
+    protected genInventoryItemSO(type: number, itemId: number): ItemSO {
+        return [this._gameSave.newUid, type, itemId, 0];
     }
 
     /**可重写 物品堆叠上限 0表示无限制 */
@@ -232,11 +222,11 @@ export class PlayerInventory {
     /** 从背包中删除指定物品和数量
      * @param saveInventory 是否立即保存背包信息
      */
-    public delGameItem(itemSo: InventoryItemSO, num: number, saveInventory = true) {
+    public delGameItem(itemSo: ItemSO, num: number, saveInventory = true) {
         if (itemSo && num > 0) {
-            itemSo.amount -= num;
-            if (itemSo.amount <= 0) {
-                delete this._itemCache[itemSo.type + "_" + itemSo.id];
+            itemSo[3] -= num;
+            if (itemSo[3] <= 0) {
+                delete this._itemCache[itemSo[1] + "_" + itemSo[2]];
                 let index = this._gameSave.inventory.indexOf(itemSo);
                 if (index > -1) this._gameSave.inventory.splice(index, 1);
             }
@@ -268,18 +258,18 @@ export class PlayerInventory {
 
     /** 合并背包中的物品堆叠 */
     private mergeInventoryItem() {
-        let map: { [key: string]: InventoryItemSO[] } = {};
+        let map: { [key: string]: ItemSO[] } = {};
         let mapAmount: { [key: string]: number } = {};
         let mapLimit: { [key: string]: number } = {};
         for (const itemSo of this._gameSave.inventory) {
-            let limit = this.getItemStackLimit(itemSo.type, itemSo.id);
+            let limit = this.getItemStackLimit(itemSo[1], itemSo[2]);
             if (limit <= 0) continue;
-            if (itemSo.amount >= limit) continue;
-            let key = itemSo.type + "_" + itemSo.id;
+            if (itemSo[3] >= limit) continue;
+            let key = itemSo[1] + "_" + itemSo[2];
             let list = map[key] || [];
             list.push(itemSo);
             let amount = mapAmount[key] || 0;
-            mapAmount[key] = amount + itemSo.amount;
+            mapAmount[key] = amount + itemSo[3];
             mapLimit[key] = limit;
         }
         for (const key in map) {
@@ -290,8 +280,8 @@ export class PlayerInventory {
             let num2 = amount % limit;
             for (var i = 0; i < list.length; i++) {
                 var itemSo = list[i];
-                if (i < num1) itemSo.amount = limit;
-                else if (num2 > 0 && i == num1) itemSo.amount = num2;
+                if (i < num1) itemSo[3] = limit;
+                else if (num2 > 0 && i == num1) itemSo[3] = num2;
                 else {
                     let index = this._gameSave.inventory.indexOf(itemSo);
                     if (index > -1) this._gameSave.inventory.splice(index, 1);

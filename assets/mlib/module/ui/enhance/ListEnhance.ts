@@ -9,11 +9,11 @@ export class ListEnhance extends Component {
     @property({
         displayName: "检测频率",
         tooltip: "滚动时，多少帧进行一次检测",
-        range: [1, 5],
+        range: [1, 3],
         slide: true,
     })
     @integer
-    private m_dcOptimizeFrame = 2;
+    private m_dcOptimizeFrame = 1;
     @property({
         type: Node,
         displayName: "View",

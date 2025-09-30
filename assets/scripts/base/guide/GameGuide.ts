@@ -34,7 +34,7 @@ export enum EGuideCondition {
 export class GameGuide {
 
     public static get Inst() { return createSingleton(GameGuide); }
-    protected onInst() {
+    protected onCreate() {
         this._readyToGuide = false;
         app.event.on(mEventKey.OnGuideStart, () => {
             this._readyToGuide = false;

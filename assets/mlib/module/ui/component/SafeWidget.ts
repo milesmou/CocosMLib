@@ -30,11 +30,15 @@ export class SafeWidget extends Component {
     protected onLoad() {
         let safeAreaGap = SafeWidget.safeAreaGap;
         let widget = this.getComponent(Widget);
-        if (!widget) return;
+        if (!widget) {
+            mLogger.error("Widget组件不存在!", this.node.getPath());
+            return;
+        }
         if (widget.isAlignTop) widget.top += safeAreaGap.top;
         if (widget.isAlignBottom) widget.bottom += safeAreaGap.bottom;
         if (widget.isAlignLeft) widget.left += safeAreaGap.left;
         if (widget.isAlignRight) widget.right += safeAreaGap.right;
+        widget.updateAlignment();
     }
 
     private static getSafeArea() {
@@ -68,7 +72,5 @@ export class SafeWidget extends Component {
         }
         return safeAreaGap;
     }
-
-
 
 }

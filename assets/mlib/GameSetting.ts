@@ -44,7 +44,7 @@ class GameSetting extends Component {
     @property private _version = "1.0.0";
     @property({
         displayName: "版本",
-        tooltip: "使用3位版本号(x.x.x),补丁包使用4位版本号(x.x.x.x)\n与远程资源相关的都只会使用前3位版本号"
+        tooltip: "使用3位版本号(x.x.x),第三位表示补丁版本\n与远程资源相关的都只会使用前2位版本号(配置文件除外)"
     })
     public get version() { return this._version; }
     private set version(val: string) { this._version = val.trim(); this.saveGameSetting(); }
@@ -141,11 +141,15 @@ class GameSetting extends Component {
     public get logLevel() { return this._logLevel; }
     private set logLevel(val: number) { this._logLevel = val; }
 
+    @property
+    private _modifyTime = "";
+    /** GameSetting最后修改时间 */
+    public get modifyTime() { return this._modifyTime; }
 
     /**  渠道名字 */
-    public get channel() { return EChannel[this._channelId]; }
+    public get channel(): string { return EChannel[this._channelId]; }
     private _mainVersion: string;
-    /** 游戏的主版本号 (只有3位 X.X.X) */
+    /** 游戏的主版本号 (只有2位 X.X) */
     public get mainVersion() { return this._mainVersion; }
     private _gameCode: string;
     /** 游戏识别码 游戏名_渠道名 */
@@ -163,11 +167,11 @@ class GameSetting extends Component {
     protected onLoad(): void {
         //@ts-ignore
         globalThis.mGameSetting = this;
-        this._mainVersion = this.getMainVersion();
+        this.setMainVersion();
         this._gameCode = this._gameName + "_" + this.channel
         this._commonRemoteResUrl = `${this._cdnUrl}/${this._gameName}/Resources`;
         this._remoteResUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/Resources`;
-        this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/Config/${this._mainVersion}.txt`;
+        this._gameConfigUrl = `${this._cdnUrl}/${this._gameName}/Channel/${this.channel}/Config/${this._version}.txt`;
 
         if (EDITOR_NOT_IN_PREVIEW) {
             this.saveGameSetting();
@@ -198,13 +202,21 @@ class GameSetting extends Component {
         }
     }
 
-    /** 主版本号 取前三位 */
-    private getMainVersion() {
+    /** 设置主版本号 取前两位 */
+    private setMainVersion() {
+        let mainVersion: string;
         let versionArr = this._version.split(".");
-        if (versionArr.length == 4) {
-            return versionArr.slice(0, 3).join(".");
+        if (versionArr.length == 3) {
+            mainVersion = versionArr.slice(0, 2).join(".");
+        } else {
+            mainVersion = this._version;
         }
-        return this._version;
+        this._mainVersion = mainVersion;
+    }
+
+    /** 是否指定渠道 */
+    public isChannel(channelId: number) {
+        return this.channelId == channelId;
     }
 
     /** 启用节点事件打印 */
@@ -236,6 +248,11 @@ class GameSetting extends Component {
     /** 编辑器保存配置到本地 */
     private saveGameSetting() {
         if (!EDITOR_NOT_IN_PREVIEW) return;
+        this.setMainVersion();
+        let date = new Date();
+        this._modifyTime = date.toLocaleString();
+        //小游戏远程资源使用季度缓存
+        let quarter = date.getFullYear().toString() + (Math.floor(date.getMonth() / 3) + 1);
         let gameSetting = {
             /** 游戏名 */
             gameName: this.gameName,
@@ -243,18 +260,18 @@ class GameSetting extends Component {
             channel: this.channel,
             /** 版本号(全) */
             version: this.version,
-            /** 主版本号(只有3位 X.X.X) */
+            /** 主版本号(只有2位 X.X) */
             mainVersion: this.mainVersion,
             /** CDN地址 */
             cdnUrl: this.cdnUrl,
             /** 热更开关 */
             hotupdate: this.hotupdate,
             /** 热更资源地址 */
-            hotupdateServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/${this.mainVersion}/ResPkg`,
+            hotupdateServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/ResPkg/${this.mainVersion}`,
             /** 小游戏资源地址 */
-            minigameServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/ResPkg/`,
+            minigameServer: `${this.cdnUrl}/${this.gameName}/Channel/${this.channel}/ResPkg/${quarter}/`,
             /** 小游戏远程资源OSS上传目录 */
-            minigameOSSUploadDir: `${this.gameName}/Channel/${this.channel}/ResPkg/`
+            minigameOSSUploadDir: `${this.gameName}/Channel/${this.channel}/ResPkg/${quarter}/`
         };
         Editor.Message.send("miles-editor-tool", "saveGameSetting", JSON.stringify(gameSetting));
     }

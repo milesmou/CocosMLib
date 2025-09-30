@@ -1,7 +1,7 @@
 import { AudioVolume } from "./AudioVolume";
 /** 管理音频播放组建 */
 export class AudioMgr {
-
+    
     public static get Inst() { return createSingleton(AudioMgr); }
 
     /** 全局音量 */

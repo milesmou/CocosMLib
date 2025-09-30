@@ -1,4 +1,13 @@
 import { Asset, AssetManager, assetManager, js } from "cc";
+import { SlowProgress } from "../../utils/UnionProgress";
+
+/** 加载bundle时文件下载进度 */
+interface LoadFileProgress {
+    /** 已加载资源 */
+    totalBytesWritten: number;
+    /** 总计资源 */
+    totalBytesExpectedToWrite: number;
+}
 
 export class BundleMgr {
 
@@ -7,11 +16,19 @@ export class BundleMgr {
     //资源地址|资源类型名字:Bundle名字
     private _address: Map<string, string> = new Map();
 
-    /** 加载Bundle(实际是加载Bundle的清单文件)  */
+    /** 加载Bundle(zip、分包会下载整个bundle,其它是加载Bundle的清单文件)  */
     public loadBundle(bundleName: string, opts?: { version?: string, onProgress?: Progress }) {
         let p = new Promise<AssetManager.Bundle>((resolve, reject) => {
             assetManager.loadBundle(bundleName,
-                opts,
+                {
+                    ...opts,
+                    onFileProgress: (obj: LoadFileProgress) => {
+                        let loaded = obj.totalBytesWritten || 0;
+                        let total = obj.totalBytesExpectedToWrite || 0;
+                        if (total == 0) return;
+                        opts?.onProgress && opts.onProgress(loaded, total);
+                    }
+                },
                 (err, bundle) => {
                     if (err) {
                         console.error(err);
@@ -30,13 +47,14 @@ export class BundleMgr {
     public async loadBundles(bundleNames: string[], opts?: { bundleVers?: { [bundleName: string]: string }, onProgress?: Progress }) {
         let bundleVers = opts && opts.bundleVers;
         let onProgress = opts && opts.onProgress;
+        let slowProgress = new SlowProgress(onProgress, bundleNames.length);
 
         let promises: Promise<AssetManager.Bundle>[] = [];
         for (let i = 0; i < bundleNames.length; i++) {
             let bundleName = bundleNames[i];
-            promises.push(this.loadBundle(bundleName, { version: bundleVers && bundleVers[bundleName] }));
+            promises.push(this.loadBundle(bundleName, { version: bundleVers && bundleVers[bundleName], onProgress: slowProgress.getOnProgress(bundleName) }));
         }
-        return PromiseAll(promises, onProgress);
+        return Promise.all(promises);
     }
 
     /** 卸载Bundle releaseAll:是否释放所有资源 */

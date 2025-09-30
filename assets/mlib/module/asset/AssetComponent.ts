@@ -1,13 +1,17 @@
-import { _decorator, Asset, Component, Sprite, SpriteFrame } from "cc";
+import { _decorator, Asset, Component, Prefab, Sprite, SpriteFrame } from "cc";
 import { AssetCache } from "./AssetCache";
 import { AssetMgr } from "./AssetMgr";
-
 const { ccclass, property } = _decorator;
 
 @ccclass("AssetComponent")
 export class AssetComponent extends Component {
 
+    @property({ tooltip: "在组件销毁时释放动态加载的资源" })
+    protected releaseOnDestroy = false;
+
     private _key: string;
+
+    private _isDecRefAll = false;
 
     protected __preload(): void {
         this._key = this.node.getPath();
@@ -21,11 +25,18 @@ export class AssetComponent extends Component {
         return AssetCache.Inst.assetCompCache.get(this._key);
     }
 
+    protected onDestroy(): void {
+        if (this.releaseOnDestroy) {
+            this.decRefAll();
+        }
+    }
+
     /** 组件加载的所有资源引用计数-1 */
     public decRefAll() {
         this.cache.forEach((v, k) => {
             AssetMgr.decAssetRef(v);
         });
+        this._isDecRefAll = true;
         this.cache.clear();
     }
 
@@ -38,10 +49,14 @@ export class AssetComponent extends Component {
         }
         asset = await AssetMgr.loadAsset(location, type, onProgress);
         if (!this.isValid) {//资源未加载完,界面已被销毁
-            AssetMgr.decAssetRef(asset);
+            if (this._isDecRefAll) AssetMgr.decAssetRef(asset);
             return null;
         }
-        if (asset?.isValid) this.cache.set(cacheKey, asset);
+        if (asset?.isValid) {
+            if (type as any !== Prefab) {//预制体由节点自动管理
+                this.cache.set(cacheKey, asset);
+            }
+        }
         return asset as T;
     }
 
@@ -50,7 +65,7 @@ export class AssetComponent extends Component {
         if (asset?.isValid) return asset as T;
         asset = await AssetMgr.loadRemoteAsset(url, opts);
         if (!this.isValid) {//资源未加载完,界面已被销毁
-            AssetMgr.decAssetRef(asset);
+            if (this._isDecRefAll) AssetMgr.decAssetRef(asset);
             return null;
         }
         if (asset?.isValid) this.cache.set(url, asset);
@@ -62,7 +77,7 @@ export class AssetComponent extends Component {
         if (asset?.isValid) return asset as SpriteFrame;
         asset = await AssetMgr.loadRemoteSpriteFrame(url);
         if (!this.isValid) {//资源未加载完,界面已被销毁
-            AssetMgr.decAssetRef(asset);
+            if (this._isDecRefAll) AssetMgr.decAssetRef(asset);
             return null;
         }
         if (asset?.isValid) this.cache.set(url, asset);

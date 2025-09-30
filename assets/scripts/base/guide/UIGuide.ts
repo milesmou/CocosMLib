@@ -1,4 +1,5 @@
-import { Button, EventTouch, Label, Node, Prefab, Size, Tween, UIOpacity, Vec3, _decorator, instantiate, misc, tween, v3, view } from 'cc';
+import { Button, EventTouch, Label, Node, Prefab, Size, Tween, UIOpacity, Vec3, _decorator, misc, tween, v3, view } from 'cc';
+import NodeTag from 'db://assets/mlib/module/core/NodeTag';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
 import { ELoggerLevel } from '../../../mlib/module/logger/ELoggerLevel';
 import { SafeWidget } from '../../../mlib/module/ui/component/SafeWidget';
@@ -123,7 +124,7 @@ export class UIGuide extends UIComponent {
         app.chan.reportEvent(mReportEvent.GuideStep, { GuideStep_Id: data.GuideID + "_" + data.StepId }, "SS");
         mLogger.debug("----------新玩家登陆流程KIN--------------" + "17过了新手引导" + data.GuideID + "_" + data.StepId);
         // 广点通打点
-        if (isWechat) {
+        if (isZQYSDK) {
             GameSdk.BI.reportZqyWxInvestSdk('onTutorialFinish');
         }
         if (this._dataIndex == this._guideData.length - 1) {
@@ -226,7 +227,7 @@ export class UIGuide extends UIComponent {
         this._logger.debug("---------开始引导步骤", this._guideId, this.stepId);
         //开始引导SS打点
         app.chan.reportEvent(mReportEvent.GuideStepEnter, { GuideStep_Id: this._guideId + "_" + this.stepId }, "SS");
-        mLogger.debug("----------新玩家登陆流程KIN--------------" + "17显示新手引导" + this._guideId + "_" + this.stepId);
+        // mLogger.debug("----------新玩家登陆流程KIN--------------" + "17显示新手引导" + this._guideId + "_" + this.stepId);
         let guide = this._guideData[this._dataIndex];
 
         app.ui.blockTime = 99999;
@@ -346,7 +347,7 @@ export class UIGuide extends UIComponent {
         if (this.prefabParent.children.length > 0) {
             let nodeName = this.prefabParent.children[0].name;
             this.prefabParent.destroyAllChildren();
-            AssetMgr.decRef("prefab/guide/" + nodeName);
+            AssetMgr.decRef("prefab/guide/" + nodeName, Prefab);
         }
         this.prefabParent.active = false;
     }
@@ -355,7 +356,7 @@ export class UIGuide extends UIComponent {
     /** 展示挖孔 */
     private showHollow(pos?: Vec3, size?: Size) {
         let guide = this._guideData[this._dataIndex];
-        if ((pos || guide.HollowPos) && (size || guide.HollowSize)) {
+        if ((pos || guide.HollowPos || guide.HollowTaget) && (size || guide.HollowSize)) {
             let hollowPos = pos || this.fixupHollowPos();
             let hollowSize = size || new Size(guide.HollowSize.x, guide.HollowSize.y);
             let hollowType = guide.HollowType == 1 ? EMaskHollowType.Rect : EMaskHollowType.Circle;
@@ -383,7 +384,14 @@ export class UIGuide extends UIComponent {
 
     private fixupHollowPos() {
         let guide = this._guideData[this._dataIndex];
-        if (guide.HollowAlign.length >= 2) {
+        if (guide.HollowTaget) {
+            let hollowTaget = NodeTag.get(guide.HollowTaget.trim());
+            if (hollowTaget) {
+                return this.node.transform.convertToNodeSpaceAR(hollowTaget.getWorldPosition());
+            } else {
+                mLogger.error("挖孔目标节点未找到", guide);
+            }
+        } else if (guide.HollowAlign.length >= 2) {
             let viewSize = view.getVisibleSize();
             let x = guide.HollowPos.x;
             let y = guide.HollowPos.y;

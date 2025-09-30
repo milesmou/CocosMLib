@@ -1,4 +1,4 @@
-import { Component, ResolutionPolicy, _decorator, director, js, view } from 'cc';
+import { Component, _decorator, director, js } from 'cc';
 const { ccclass, property } = _decorator;
 
 import { Publish } from '../scripts/base/publish/Publish';
@@ -69,8 +69,6 @@ class App extends Component implements IApp {
         //@ts-ignore
         globalThis["app"] = this;
         director.addPersistRootNode(this.node);
-        this.setCanvasResolution();
-
         this.timer = this.addComponent(TimerComponent);
         this.asset = this.addComponent(AssetComponent);
         this.audio = this.addComponent(AudioComponent);
@@ -81,7 +79,7 @@ class App extends Component implements IApp {
         this.verDetail = mGameSetting.channel + "_" + mGameSetting.version + "_" + this.env.upperFirst();
 
         mLogger.info(`GameSetting Env=${this.env} Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version}`);
-        mLogger.info(`GameSetting ConfigType=${mGameSetting.gameConfigTypeStr} Language=${L10nMgr.lang}`);
+        mLogger.info(`GameSetting ModifyTime=${mGameSetting.modifyTime} ConfigType=${mGameSetting.gameConfigTypeStr} Language=${L10nMgr.lang}`);
         mLogger.info(`SDKSetting ${mSdkSetting.getPrintInfo()}`);
     }
 
@@ -95,25 +93,6 @@ class App extends Component implements IApp {
         PoolMgr.clear();
     }
 
-    private setCanvasResolution() {
-        let size = view.getVisibleSize();
-        let min = Math.min(size.width, size.height);
-        let max = Math.max(size.width, size.height);
-        let ratio = max / min;
-        if (size.width > size.height) {//横屏
-            if (ratio > 1.77) {//手机
-                view.setResolutionPolicy(ResolutionPolicy.FIXED_HEIGHT);
-            } else {//平板
-                view.setResolutionPolicy(ResolutionPolicy.FIXED_WIDTH);
-            }
-        } else {//竖屏
-            if (ratio > 1.77) {//手机
-                view.setResolutionPolicy(ResolutionPolicy.FIXED_WIDTH);
-            } else {//平板
-                view.setResolutionPolicy(ResolutionPolicy.FIXED_HEIGHT);
-            }
-        }
-    }
 }
 
 declare global {

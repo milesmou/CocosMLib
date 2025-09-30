@@ -1,98 +1,79 @@
 import { SimpleAStarItem } from "./SimpleAStarItem";
 
+/** 标准 A* 寻路模板 */
+export abstract class SimpleAStar<T extends SimpleAStarItem<T>> {
 
-/** 一个极简的A*寻路 */
-export abstract class SimpleAStar<T extends SimpleAStarItem<T>>{
-
-    /** 所有元素 */
-    protected dataList: T[];
-
-    /** 所有元素 */
-    protected dataMap: Map<string, T>;
-
-    /** 当前可用于寻路的元素 */
-    private _openList: T[];
-
-    /** 本次寻路已排除的元素 */
-    private _closeList: T[];
-
-    /** 初始化 */
-    public abstract init(): void;
-
-    /** 获取相邻且可通行的元素 */
+    /** 获取相邻且可通行的节点 */
     public abstract getNeighbors(item: T): T[];
 
-    /** 计算2个元素之间的权重 */
-    public abstract getWight(item1: T, item2: T): number;
+    /** 获取两个节点之间的实际代价（曼哈顿距离、欧几里得距离,用于累加给item的g值） */
+    public abstract getG(item1: T, item2: T): number;
 
+    /** 获取两个节点之间的预估代价（曼哈顿距离、欧几里得距离） */
+    public abstract getH(item: T, end: T): number;
 
-    /** 根据传入的起点和终点 返回一条最近的路线 */
-    public findPath(start: T, end: T): T[] {
+    /** 寻路 */
+    public findPath(start: T, end: T): T[] | null {
 
-        this._openList = [];
-        this._closeList = [];
-        this._openList.push(start);
+        const openSet: Map<string, T> = new Map();
+        const closedSet: Set<string> = new Set();
+
+        start.g = 0;
+        start.h = this.getH(start, end);
+        start.f = start.g + start.h;
         start.parent = null;
 
-        while (this._openList.length > 0) {
-            let item = this.getMinWeightItem();
-            this._closeList.push(item);
-            let neighbors = this.getNeighbors(item);
+        openSet.set(start.getKey(), start);
 
-            for (const neighbor of neighbors) {
-                if (this._closeList.indexOf(neighbor) > -1) continue;//忽略已在closelist的
+        while (openSet.size > 0) {
+            // 取出 f 最小的节点
+            let current = this.getLowestFNode(openSet);
+            if (current === end) {
+                return this.reconstructPath(current);
+            }
 
-                let weight = this.getWight(item, neighbor) + this.getWight(neighbor, end);
-                if (neighbor == end) {//寻路结束
-                    neighbor.parent = item;
-                    return this.getPath(neighbor);
-                }
-                else if (this._openList.indexOf(neighbor) > -1) {//已在openlist，如果权重更小则替换
-                    if (neighbor.weight > weight) {
-                        neighbor.parent = item;
-                        neighbor.weight = weight;
-                    }
-                } else {//加入openlist
-                    neighbor.parent = item;
-                    neighbor.weight = weight;
-                    this._openList.push(neighbor);
+            openSet.delete(current.getKey());
+            closedSet.add(current.getKey());
+
+            for (const neighbor of this.getNeighbors(current)) {
+                if (closedSet.has(neighbor.getKey())) continue;
+
+                const tentativeG = current.g + this.getG(current, neighbor);
+
+                // 新节点 或者 找到更优路径
+                if (!openSet.has(neighbor.getKey()) || tentativeG < neighbor.g) {
+                    neighbor.parent = current;
+                    neighbor.g = tentativeG;
+                    neighbor.h = this.getH(neighbor, end);
+                    neighbor.f = neighbor.g + neighbor.h;
+
+                    openSet.set(neighbor.getKey(), neighbor);
                 }
             }
         }
 
-        return null;
+        return null; // 没找到路径
     }
 
-    /** 寻路结束 返回路径 */
-    private getPath(item: T): T[] {
-        let result: T[] = [];
-        let v = item;
-        while (v) {
-            result.push(v);
-            v = v.parent;
+    /** 回溯路径 */
+    private reconstructPath(node: T): T[] {
+        const path: T[] = [];
+        let current: T | null = node;
+        while (current) {
+            path.push(current);
+            current = current.parent;
         }
-        return result.reverse();
+        return path.reverse();
     }
 
-    /** 获取openlist中权重最小的一个并从openlist中移除 */
-    private getMinWeightItem(): T {
-        let minWeightItem: T = null;
-        let index = -1;
-        for (let i = 0; i < this._openList.length; i++) {
-            const neighbor = this._openList[i];
-            if (minWeightItem == null) {
-                minWeightItem = neighbor;
-                index = i;
-                continue;
-            } else {
-                if (neighbor.weight < minWeightItem.weight) {
-                    minWeightItem = neighbor;
-                    index = i;
-                }
+    /** 在 openSet 中取 f 最小的节点 */
+    private getLowestFNode(openSet: Map<string, T>): T {
+        let best: T | null = null;
+        for (const node of openSet.values()) {
+            if (best === null || node.f < best.f) {
+                best = node;
             }
         }
-        this._openList.splice(index, 1);
-        return minWeightItem;
-
+        return best!;
     }
 }

@@ -3,9 +3,13 @@ import { ELoggerLevel } from 'db://assets/mlib/module/logger/ELoggerLevel';
 import { Dropdown } from 'db://assets/mlib/module/ui/extend/Dropdown';
 import { MToggle } from 'db://assets/mlib/module/ui/extend/MToggle';
 import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
+import { FengHaoCtrl } from '../../game/FengHaoCtrl';
 import { GameTool } from '../../game/GameTool';
 import { UIConstant } from '../../gen/UIConstant';
 import { UIFlyGold } from '../../ui/common/UIFlyGold';
+import { StageModel } from '../../ui/guanka/StageModel';
+import { NodeHelper } from '../../ui/Helper/NodeHelper';
+import { LimitedModel } from '../../ui/shop/Item/LimitedModel';
 import { GameData } from '../GameData';
 import { EventKey } from '../GameEnum';
 import GameTable from '../GameTable';
@@ -13,12 +17,12 @@ import { GameGuide } from '../guide/GameGuide';
 import { PlayerData } from '../PlayerData';
 import { EChannel } from '../publish/EChannel';
 import { ZhiQuCloudData } from '../publish/sdk/ZhiQuCloudData';
+import { giftBagCtrl } from '../../ui/shop/giftBagCtrl';
 const { ccclass, property } = _decorator;
 
 @ccclass('UIGM')
 export class UIGM extends UIBase {
 
-    private get m_gmBtgShowStage() { return this.rc.get("showStage", Label); }
     private get m_noAdStage() { return this.rc.get("noAdStage", Label); }
     private get m_qunShareStage() { return this.rc.get("qunShareStage", Label); }
 
@@ -26,19 +30,12 @@ export class UIGM extends UIBase {
 
     onEnable() {
         this.inintShow();
+        String
     }
 
     protected onLoad(): void {
         this._togs = this.rc.get("Togs", Node);
         this.initToggles();
-
-        //是否显示GM的显示初始化
-        if (GameData.Inst.isShowGmBtns) {
-            this.m_gmBtgShowStage.string = "显示";
-        } else {
-            this.m_gmBtgShowStage.string = "隐藏";
-        }
-
     }
 
     inintShow() {
@@ -93,11 +90,14 @@ export class UIGM extends UIBase {
             case "BtnAddDiamond":
                 this.onClickAddDiamond(btn);
                 break;
+            case "BtnClosAct":
+                this.onClickCloseAct(btn);
+                break;
             case "BtnAFinishGuide":
                 this.onClickFinishGuide(btn);
                 break;
             case "showGmBtn":
-                this.showGmBtn();
+                this.closeGmBtn();
                 break;
             case "delNoAd":
                 this.delNoAdVip();
@@ -116,8 +116,33 @@ export class UIGM extends UIBase {
             case "budanbtn":
                 this.buDan(btn);
                 break;
-            case "budanbtn":
-                this.buDan(btn);
+            case "clearHealth":
+                LimitedModel.Inst.save(3001, 0);
+                app.tipMsg.showToast("清空了无限体力");
+                break;
+            case "BtnJumpStage":
+                //跳关
+                // const chapter = NodeHelper.findChildrenByNameOnce(this.node, "JLGM_EditBox")?.getComponent(EditBox);
+                // const stage = NodeHelper.findChildrenByNameOnce(this.node, "JLGM_EditBox2")?.getComponent(EditBox);
+                // const star = NodeHelper.findChildrenByNameOnce(this.node, "JLGM_EditBox3")?.getComponent(EditBox);
+                // let jump = StageModel.Inst.gmJump(parseInt(chapter.string), parseInt(stage.string), parseInt(star.string));
+                // if (jump) {
+                //     this.scheduleOnce(() => {
+                //         app.chan.restartGame();
+                //     })
+                // }
+                break;
+            case "jieFeng1":
+                //正常解封，还会监管
+                FengHaoCtrl.jieFeng(0, true);
+                break;
+            case "jieFeng2":
+                //霸道解封，并且不再监管了
+                FengHaoCtrl.jieFeng(999, true);
+                break;
+            case "fengHao":
+                //封号
+                FengHaoCtrl.fengHao();
                 break;
             default:
                 break;
@@ -153,6 +178,13 @@ export class UIGM extends UIBase {
         if (_itemNum > 0) {
             PlayerData.Inst.getReward([+_itemId, +_itemNum]);
             app.tipMsg.showToast("添加道具成功");
+            //飞金币
+            UIFlyGold.flyProps(_itemId, {
+                from: this.node,
+                itemCount: 1,
+                myScale: 1,
+                itemNum: _itemNum,
+            })
         } else {
             PlayerData.Inst.delCost([_itemId, Math.abs(_itemNum)])
             app.tipMsg.showToast("删除道具成功");
@@ -239,21 +271,30 @@ export class UIGM extends UIBase {
 
     }
 
-    /**显示和隐藏GM按钮 */
-    private showGmBtn() {
-        if (GameData.Inst.isShowGmBtns) {
-            //开，切换成关
-            GameData.Inst.isShowGmBtns = false;
-            this.m_gmBtgShowStage.string = "隐藏";
-            app.tipMsg.showToast("现在隐藏了GM按钮");
-        } else {
-            //关，切换成开
-            GameData.Inst.isShowGmBtns = true;
-            app.tipMsg.showToast("现在显示了GM按钮");
-            this.m_gmBtgShowStage.string = "显示";
+    private onClickCloseAct(btn: Button) {
+        let node = btn.node.parent;
+
+        let editBoxs = node.getComponentsInChildren(EditBox);
+
+        let _actId = +editBoxs[0].string;
+
+        if (typeof _actId != "number" || typeof _actId != "number") {
+            app.tipMsg.showToast("咱就说起码得输入数字吧");
+            return;
         }
-        GameData.Inst.delaySave();
-        app.event.emit(EventKey.gmBtnSatgeChaned);
+
+        if (giftBagCtrl.Inst.isGiftOpen(_actId)) {
+            giftBagCtrl.Inst.closeGiftCheck(_actId)
+            app.tipMsg.showToast("活动关闭");
+        } else {
+            app.tipMsg.showToast("这个活动并未开启");
+        }
+
+    }
+
+    /** 关闭GM按钮 */
+    private closeGmBtn() {
+        mGameConfig.closeGM();
     }
 
     /**恢复广告，去掉已经购买的去广告礼包 */

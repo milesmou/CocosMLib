@@ -1,15 +1,24 @@
 import { Tween, tween } from "cc";
-import { InventoryItemSO } from "../../misc/PlayerInventory";
+import { ItemSO } from "../../misc/PlayerInventory";
 import { TaskItemSO } from "../../misc/PlayerTask";
-import { Utils } from "../../utils/Utils";
 import { LocalStorage } from "./LocalStorage";
 
 
-/** 游戏数据存档基类(存档的Key使用游戏名字) */
-export abstract class GameSave {
+/** 准备延迟存档,忽略其它存档请求 */
+let readySave = false;
+/** 字典或数组集合的元素的key的后缀 */
+const collectionItemSuffix = "$item";
+/** 存档更新时间戳 */
+function saveDataTimeMSKey() { return mGameSetting.gameName + "_SaveDataTimeMS"; }
+/** 当前登录的用户Id */
+function userIdKey() { return mGameSetting.gameName + "_UserId"; }
 
-    /** 准备延迟存档,忽略其它存档请求 */
-    private _readySave = false;
+/** 
+ * 游戏数据存档基类(存档的Key使用游戏名字)
+ * 存档中不要使用Map、Set等数据类型，反序列化时无法正确识别类型；以__开头的字段不会被存档
+ * 所有的字段都应当给予默认值 object类型应当给予默认值null
+ */
+export abstract class GameSave {
     /** 自增uid */
     private _uid = 0;
     /** 存档创建日期 */
@@ -26,14 +35,11 @@ export abstract class GameSave {
 
     /** 是否当天进来的新用户 */
     public get isNewUser() {
-        return this._createDate == Utils.getDate();
+        return this._createDate == mTime.date.getYMD();
     }
 
-    /** 用户id */
-    public userId: string = "";
-
     /** 背包数据存档 */
-    public inventory: InventoryItemSO[] = [];
+    public inventory: ItemSO[] = [];
 
     /** 任务数据存档 */
     public task: TaskItemSO[] = [];
@@ -56,11 +62,11 @@ export abstract class GameSave {
     public init(onInit: () => void, onNewUser: () => void, onDateChange: (lastDate: number, today: number) => void) {
         onInit && onInit();
         if (!this._createDate) {
-            this._createDate = Utils.getDate();
+            this._createDate = mTime.date.getYMD();
             onNewUser && onNewUser();
             this.delaySave();
         }
-        let today = Utils.getDate();
+        let today = mTime.date.getYMD();
         if (today > this._date) {
             onDateChange && onDateChange(this._date, today);
             this._date = today;
@@ -76,10 +82,10 @@ export abstract class GameSave {
 
     /** 延迟存档 */
     public delaySave() {
-        if (!this._readySave) {
-            this._readySave = true;
-            tween(GameSave).delay(0.05).call(() => {
-                this._readySave = false;
+        if (!readySave) {
+            readySave = true;
+            tween(GameSave).delay(0.1).call(() => {
+                readySave = false;
                 this.save();
             }).start();
         }
@@ -90,14 +96,35 @@ export abstract class GameSave {
         return GameSave.deserialize(inst);
     }
 
-    /** 获取存档序列化后的字符串 */
+    /** 获取压缩后的存档字符串 */
     public getSerializeStr() {
         let str = GameSave.getSerializeStr(this);
         return LZString.compressToBase64(str);
     }
 
-    /** 字典或数组集合的元素的key的后缀 */
-    private static readonly collectionItemSuffix = "$item";
+    /** 用户登录，若切换用户则清除本地存档 */
+    public static login(userId: string) {
+        let lastUserId = this.getUserId();
+        if (lastUserId && userId != lastUserId) {
+            mLogger.info("切换用户，清除本地存档。");
+            LocalStorage.clear();
+        }
+        if (this.getSaveTime() > 0 && !this.haveGameData()) {
+
+        }
+        LocalStorage.setValue(userIdKey(), userId);
+    }
+
+    /** 获取登录的用户Id */
+    public static getUserId() {
+        return LocalStorage.getValue(userIdKey(), "");
+    }
+
+    /** 本地是否有存档数据 */
+    public static haveGameData() {
+        let strData = LocalStorage.getValue(mGameSetting.gameName, "");
+        return strData.length > 0;
+    }
 
     /** 替换本地存档 */
     public static replaceGameData(strData: string) {
@@ -106,52 +133,51 @@ export abstract class GameSave {
             return;
         }
         Tween.stopAllByTarget(GameSave);
-        let decStrData: string = strData;
-        if (!strData.startsWith("{")) {
-            decStrData = LZString.decompressFromBase64(strData);
+        strData = LZString.decompressFromBase64(strData);
+        if (!strData || strData.length < 5) {
+            mLogger.error("[replaceGameData] 存档解压失败");
+            mExecption({ commit: "[replaceGameData] 存档解压失败", message: "" });
         }
-        if (!decStrData) {
-            mLogger.warn("存档解压失败!")
-            return;
-        }
-        LocalStorage.setValue(mGameSetting.gameName, decStrData);
-        GameSave.updateSaveTime();
+        LocalStorage.setValue(mGameSetting.gameName, strData);
+        GameSave.updateSaveTime(true);
     }
 
-    /** 清除本地存档 */
+    /** 清除存档(若未强行清除本地数据,云端存档也会失效) */
     public static clearGameData() {
         LocalStorage.removeValue(mGameSetting.gameName);
-        GameSave.updateSaveTime();
+        GameSave.updateSaveTime(true);
     }
 
-    /** 获取存档时间 毫秒 */
+    /** 
+     * 获取存档时间 毫秒 
+     * @ 如果获取的时间小于0 表示强制使用本地存档
+     */
     public static getSaveTime() {
-        let key = mGameSetting.gameName + "_SaveDataTimeMS";
-        return LocalStorage.getValue(key, 0);
+        return LocalStorage.getValue(saveDataTimeMSKey(), 0);
     }
 
-    /** 更新存档时间 */
-    public static updateSaveTime() {
-        let key = mGameSetting.gameName + "_SaveDataTimeMS";
-        LocalStorage.setValue(key, Date.now());
+    /** 更新存档时间 
+     * @param forceLocal 是否强制使用本地存档 true会将值设为-1 */
+    public static updateSaveTime(forceLocal = false) {
+        LocalStorage.setValue(saveDataTimeMSKey(), forceLocal ? -1 : mTime.now());
     }
 
     /** 从本地缓存读取存档 */
     public static deserialize<T extends GameSave>(inst: T): T {
-        Reflect.defineProperty(inst, "name", { enumerable: false });
-        Reflect.defineProperty(inst, "_readySave", { enumerable: false });
-        let name = mGameSetting.gameName;
-        let jsonStr = LocalStorage.getValue(name, "");
-        if (jsonStr) {
+        let parseData = (jsonStr: string) => {
+            if (!jsonStr || jsonStr.length == 0) return null;
             try {
-                let obj = JSON.parse(jsonStr);
-                if (obj) this.mergeValue(inst, obj);
-            } catch (err) {
-                mLogger.error(err);
+                return JSON.parse(jsonStr);
+            } catch (error) {//本地存档出错时，使用云端存档
+                mLogger.error(error);
+                mExecption({ commit: "[deserialize] 放档解析失败", message: jsonStr })
             }
-        } else {
-            mLogger.debug("无本地存档", name);
+            return null;
         }
+
+        let obj = parseData(LocalStorage.getValue(mGameSetting.gameName, ""));
+        if (obj) this.mergeValue(inst, obj);
+
         return inst;
     }
 
@@ -166,7 +192,7 @@ export abstract class GameSave {
     private static getSerializeStr<T extends GameSave>(inst: T) {
         return JSON.stringify(inst, (key, value) => {
             if (key.startsWith("__")) return;
-            if (key.endsWith(this.collectionItemSuffix)) return;
+            if (key.endsWith(collectionItemSuffix)) return;
             return value;
         });;
     }
@@ -175,14 +201,14 @@ export abstract class GameSave {
     private static mergeValue(target: object, source: object) {
         for (const key in target) {
             if (Reflect.has(source, key)) {
-                if (key.endsWith(this.collectionItemSuffix)) continue;
+                if (key.endsWith(collectionItemSuffix)) continue;
                 if (Array.isArray(target[key]) && Array.isArray(source[key])) {//数组
                     target[key] = source[key];
-                    if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
+                    if (target[key + collectionItemSuffix]) this.checkMissProperty(target[key], target[key + collectionItemSuffix]);
                 } else if (typeof target[key] === "object" && typeof source[key] === "object") {//对象拷贝
                     if (!target[key] || Object.keys(target[key]).length == 0) {//为空或使用空字典存储,完整赋值
                         target[key] = source[key];
-                        if (target[key + this.collectionItemSuffix]) this.checkMissProperty(target[key], target[key + this.collectionItemSuffix]);
+                        if (target[key + collectionItemSuffix]) this.checkMissProperty(target[key], target[key + collectionItemSuffix]);
                     } else {//递归赋值
                         this.mergeValue(target[key], source[key]);
                     }

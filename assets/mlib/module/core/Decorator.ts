@@ -6,9 +6,10 @@ import { EDITOR_NOT_IN_PREVIEW } from "cc/env";
 export function persistNode<T extends Component>(target: { Inst?: T, new(): T }) {
     if (EDITOR_NOT_IN_PREVIEW) return;
     director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
-        let nodeName = `[${js.getClassName(target)}]`;
         let scene = director.getScene();
         if (!scene) return;
+        if (typeof app === "undefined") return;
+        let nodeName = `[${js.getClassName(target)}]`;
         let node = scene.getChildByName(nodeName);
         if (!node) {
             node = new Node(nodeName);

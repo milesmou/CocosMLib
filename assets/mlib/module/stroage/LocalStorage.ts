@@ -52,4 +52,11 @@ export class LocalStorage {
         sys.localStorage.removeItem(stroageKey);
     }
 
+    /**
+    * 清除本地所有存档
+    */
+    public static clear() {
+        sys.localStorage.clear();
+    }
+
 }

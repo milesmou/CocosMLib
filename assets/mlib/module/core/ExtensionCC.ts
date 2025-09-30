@@ -1,6 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Asset, Component, misc, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
+import { Asset, Component, EventTouch, math, misc, ScrollView, Touch, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 //@ts-ignore
@@ -222,6 +222,13 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return this.node.ensureComponent(ctorOrClassName as any);
     }
 
+    ScrollView.prototype.stop = function () {
+        let self: ScrollView = this;
+        const event = new EventTouch([], true, Node.EventType.TOUCH_CANCEL);
+        event.touch = new Touch(0, 0);
+        self.node.dispatchEvent(event);
+    }
+
     Animation.prototype.setSpeed = function (speed: number, name?: string) {
         let self: Animation = this;
         if (name) {
@@ -229,7 +236,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
             if (state) {
                 state.speed = speed;
             } else {
-                console.warn(`动画不存在: ${name}`);
+                console.warn(`组件onLoad未执行 或 动画不存在:${name}`);
             }
         } else {
             for (const clip of self.clips) {
@@ -241,7 +248,7 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     }
 
-    Animation.prototype.setAtFirstFrame = function (name?: string) {
+    Animation.prototype.setTime = function (name?: string, time = 0) {
         let self: Animation = this;
         name = name || self.defaultClip?.name;
         if (!name) {
@@ -250,9 +257,11 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
         let state = self.getState(name);
         if (state) {
-            state.update(0);
+            time = math.clamp(time, 0, state.duration);
+            state.setTime(time);
+            state.sample();
         } else {
-            console.warn(`动画不存在: ${name}`);
+            console.warn(`组件onLoad未执行 或 动画不存在:${name}`);
         }
 
     }
@@ -306,7 +315,7 @@ declare global {
      */
     interface Animation { }
 
-    /** 游戏当前允许环境 */
+    /** 游戏当前运行环境 */
     type GameEnv = "develop" | "trial" | "release";
 
     /** CC中的资源类型 */
@@ -396,6 +405,11 @@ declare module 'cc' {
         ensureComponent<T extends Component>(className: string): T;
     }
 
+    interface ScrollView {
+        /** 停止滚动 (会派发一个'touch-cancel'事件给ScrollView) */
+        stop(): void;
+    }
+
     interface Animation {
         /**
          * 修改动画播放的速度 (注意调用时机,应当在组件onLoad完成后调用)
@@ -404,10 +418,11 @@ declare module 'cc' {
          */
         setSpeed(speed: number, name?: string): void;
         /**
-         * 动画未播放前，将动画控制的属性处于第一帧状态 (注意调用时机,应当在组件onLoad完成后调用)
+         * 设置动画处于指定时间 (注意调用时机,应当在组件onLoad完成后调用)
          * @param name 动画名字，若未指定则表示默认动画
+         * @param time 动画所处时间，默认为0
          */
-        setAtFirstFrame(name?: string): void;
+        setTime(name?: string, time?: number): void;
     }
 
     namespace Tween {

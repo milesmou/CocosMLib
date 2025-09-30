@@ -1,7 +1,6 @@
-import { Button, EditBox, Node, ScrollView, _decorator, game } from 'cc';
+import { Button, EditBox, Node, ScrollView, _decorator } from 'cc';
+import { HttpGmData } from 'db://assets/mlib/sdk/GameWeb/GmData/HttpGmData';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
-import { MCloudDataSDK } from '../../../mlib/sdk/MCloudDataSDK';
-import { RspGmData } from '../../../mlib/sdk/MResponse';
 import { CCUtils } from '../../../mlib/utils/CCUtil';
 import { GameData } from '../GameData';
 import { GMCloudDataItem } from './GMCloudDataItem';
@@ -51,8 +50,8 @@ export class GMCloudDataMgr extends UIComponent {
 
         let data = GameData.Inst.getSerializeStr();
 
-        MCloudDataSDK.saveGmData(data, desc).then(v => {
-            if (v.code == 0) {
+        HttpGmData.saveGmData({ data: data, commit: desc }).then(v => {
+            if (v) {
                 app.tipMsg.showToast("存档保存成功");
             } else {
                 app.tipMsg.showToast("存档保存失败");
@@ -73,7 +72,7 @@ export class GMCloudDataMgr extends UIComponent {
 
     /**显示列表中的所有存档 */
     private renderScrollView() {
-        MCloudDataSDK.getGmDatas().then(data => {
+        HttpGmData.getGmDatas().then(data => {
             if (data) {
                 mLogger.debug("获取所有存档成功");
                 let list = data.reverse();
@@ -101,13 +100,13 @@ export class GMCloudDataMgr extends UIComponent {
     }
 
     /**删除存档 */
-    private onClickDelKey(data: RspGmData) {
+    private onClickDelKey(data: HttpGmDataModel.GmData) {
         app.tipMsg.showConfirm(
             "删除存档不可逆，真的要删除么？!", {
             type: 2,
             cbOk: () => {
-                MCloudDataSDK.delGmData(data.id).then(v => {
-                    if (v && v.code == 0) {
+                HttpGmData.delGmData(data.id).then(v => {
+                    if (v) {
                         app.tipMsg.showToast("删除存档成功");
                         this.renderScrollView();
                     } else {
@@ -120,7 +119,7 @@ export class GMCloudDataMgr extends UIComponent {
     }
 
     /**读取存档 */
-    private onClickReadKey(data: RspGmData) {
+    private onClickReadKey(data: HttpGmDataModel.GmData) {
         app.tipMsg.showConfirm(
             "读取将失去现在的存档，请先确保当前存档保存了", {
             type: 2,

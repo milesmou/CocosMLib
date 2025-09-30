@@ -1,6 +1,6 @@
 import { Button, Label, _decorator } from 'cc';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
-import { RespGmData } from '../../../mlib/sdk/MResponse';
+import { RespGmData } from '../../../mlib/sdk/GameWeb/MResponse';
 import { Utils } from '../../../mlib/utils/Utils';
 const { ccclass, property } = _decorator;
 
