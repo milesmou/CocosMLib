@@ -6,7 +6,6 @@ import { Canvas, ResolutionPolicy, math, view } from 'cc';
 import { UIConstant } from '../../../../scripts/gen/UIConstant';
 import { CCUtils } from '../../../utils/CCUtil';
 import { AssetMgr } from '../../asset/AssetMgr';
-import { EventMgr } from '../../event/EventMgr';
 import { EUIFormClose } from './EUIFormClose';
 import { EUIFormPassiveType } from './EUIFormPassiveType';
 import { UIComponent } from './UIComponent';
@@ -144,17 +143,18 @@ export class UIMgr extends Component {
         });
     }
 
+    /** 打开一个普通的UI界面 */
     public async show<T extends UIForm>(uiName: string, options?: ShowUIParam): Promise<T> {
         let { args, parent, playAnim, animName, visible, bottom, onProgress } = options || {};
-        playAnim = playAnim === undefined ? true : playAnim;
-        visible = visible === undefined ? true : visible;
-        bottom = bottom === undefined ? false : bottom;
+        playAnim ??= true;
+        visible ??= true;
+        bottom ??= false;
         let parentUI = parent ? parent.getComponentInParent("UIBase") as UIForm : undefined;
         let parentUIName = parentUI ? parentUI.name : undefined;
         this._uiNameStack.add(uiName, !visible || bottom, parentUIName);
         this.blockTime = UIBlockTime;
         this.checkShowUI(uiName, visible);
-        EventMgr.emit(mEventKey.OnUIInitBegin, uiName, visible);
+        app.event.emit(mEventKey.OnUIInitBegin, uiName, visible);
         this._uiArgs[uiName] = args;
         let ui = await this.initUI(uiName, parent || this._normal, visible, bottom, onProgress);
         if (!ui) return;
@@ -164,11 +164,11 @@ export class UIMgr extends Component {
             let belowUI = this._uiStack.flatArr[this._uiStack.flatArr.length - 2];
             ui.onShowBegin();
             belowUI?.onPassive(EUIFormPassiveType.HideBegin, ui);
-            EventMgr.emit(mEventKey.OnUIShowBegin, ui);
+            app.event.emit(mEventKey.OnUIShowBegin, ui);
             if (playAnim) await ui.playShowAnim(animName);
             ui.onShow();
             belowUI?.onPassive(EUIFormPassiveType.Hide, ui);
-            EventMgr.emit(mEventKey.OnUIShow, ui);
+            app.event.emit(mEventKey.OnUIShow, ui);
         } else {
             ui.onShowBegin();
             ui.onShow();
@@ -176,15 +176,16 @@ export class UIMgr extends Component {
         return ui as T;
     }
 
+    /** 关闭一个UI界面 */
     public async hide(uiName: string, options?: HideUIParam): Promise<void> {
-
         let { playAnim, animName } = options || {};
-        playAnim = playAnim === undefined ? true : playAnim;
+        playAnim ??= true;
 
         this.blockTime = UIBlockTime;
         this._uiNameStack.remove(uiName);
         let ui = this._uiDict.get(uiName);
         if (!ui?.isValid) return;
+
         let hideUI = () => {
             if (ui.whenClose > EUIFormClose.NONE) {
                 ui.node.destroy();
@@ -196,58 +197,47 @@ export class UIMgr extends Component {
             else {
                 ui.node.active = false;
             }
+            app.event.emit(mEventKey.OnUIHide, ui);
         };
+        if (ui.node.parent == this._higher) {//较高层级UI
+            hideUI();
+            return;
+        }
         let isTopUI = this._uiStack.isTop(ui);
         this._uiStack.remove(ui);
         if (isTopUI) {//关闭最上层UI
-            let topUI = this._uiStack.flatArr[this._uiStack.flatArr.length - 1];
+            let topUI = this._uiStack.flatArr.last;
             ui.onHideBegin();
             topUI?.onPassive(EUIFormPassiveType.ShowBegin, ui);
-            EventMgr.emit(mEventKey.OnUIHideBegin, ui);
+            app.event.emit(mEventKey.OnUIHideBegin, ui);
             if (playAnim) await ui.playHideAnim(animName);
             ui.onHide();
             hideUI();
             topUI?.onPassive(EUIFormPassiveType.Show, ui);
-            EventMgr.emit(mEventKey.OnUIHide, ui);
         } else {//快速关闭非最上层UI 不播动画
-            EventMgr.emit(mEventKey.OnUIHideBegin, ui);
+            app.event.emit(mEventKey.OnUIHideBegin, ui);
             ui.onHide();
             hideUI();
-            EventMgr.emit(mEventKey.OnUIHide, ui);
         }
     }
 
+    /** 在较高的层级打开一个界面 (关闭时使用hideHigher方法) */
     public async showHigher(uiName: string, obj?: { args?: any, visible?: boolean, onProgress?: Progress }) {
         let { args, visible, onProgress } = obj || {};
-        visible = visible === undefined ? true : visible;
+        visible ??= true;
         this.blockTime = 0.2;
         let ui = await this.initUI(uiName, this._higher, visible, false, onProgress);
         ui.setArgs(args);
-        EventMgr.emit(mEventKey.OnUIShow, ui);
+        app.event.emit(mEventKey.OnUIShow, ui);
         return ui;
     }
 
-    public hideHigher(uiName: string) {
-        let ui = this._uiDict.get(uiName);
-        if (!ui?.isValid) return;
-        if (ui.whenClose > EUIFormClose.NONE) {
-            ui.node.destroy();
-            this._uiDict.delete(uiName);
-            if (ui.whenClose == EUIFormClose.Release) {
-                ui.release();
-                AssetMgr.decRef(uiName, Prefab);
-            }
-        }
-        else {
-            ui.node.active = false;
-        }
-        EventMgr.emit(mEventKey.OnUIHide, ui);
-    }
-
+    /** 在最上层打开UI界面 (此界面一般是常驻的，不会关闭) */
     public async showResident(uiName: string) {
         await this.instNode(uiName, this._resident);
     }
 
+    /** 关闭所有UI界面 */
     public hideAll(...exclude: string[]) {
         let hideList = this._uiStack.flatArr.filter(ui => exclude.indexOf(ui.uiName) == -1);
         hideList.forEach(ui => {
@@ -255,6 +245,7 @@ export class UIMgr extends Component {
         });
     }
 
+    /** 初始化一个UI界面 */
     private async initUI(uiName: string, parent: Node, visible = true, bottom = false, onProgress?: Progress): Promise<UIForm> {
         if (visible) this._blockInput.active = true;
         let ui = this._uiDict.get(uiName);
@@ -281,6 +272,7 @@ export class UIMgr extends Component {
         return ui;
     }
 
+    /** 等待UI加载完成 */
     private async waitUILoad(uiName: string) {
         while (!this._uiDict.get(uiName)) {
             await this.nextFrame();
@@ -288,6 +280,7 @@ export class UIMgr extends Component {
         return this._uiDict.get(uiName);
     }
 
+    /** 等待一帧 */
     private nextFrame() {
         let p = new Promise((resolve) => {
             this.scheduleOnce(resolve);
@@ -295,6 +288,7 @@ export class UIMgr extends Component {
         return p;
     }
 
+    /** 实例化一个UI节点 */
     private async instNode(uiName: string, parent: Node, active = true, onProgress?: Progress): Promise<Node> {
         let prefab = await AssetMgr.loadAsset(uiName, Prefab, onProgress);
         if (!prefab) return;
@@ -305,11 +299,15 @@ export class UIMgr extends Component {
         return uiObj;
     }
 
+    /** 获取UI参数 */
     public getUIArgs(uiName: string) {
         return this._uiArgs.get(uiName);
     }
 
-    /** 判断是否最上层UI isRealTime true:实时的,调用show方法瞬间即生效 false:ui加载完成才生效 */
+    /** 
+     * 判断是否最上层UI 
+     * @param [isRealTime=false]默认false 是否判断实时状态 true:实时的,调用show方法瞬间即生效 false:ui加载完成才生效
+     */
     public isTopUI(uiName: string, isRealTime = false) {
         if (isRealTime) {
             return this._uiNameStack.isTop(uiName);

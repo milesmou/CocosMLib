@@ -229,10 +229,10 @@ export class CCUtils {
     /** 设置Spine同时显示多个皮肤 */
     public static setSpineSkins(spine: sp.Skeleton, skinNames: string[]) {
         if (!spine?.isValid) return;
-        let skinCache: Map<string, sp.spine.Skin> = spine['skinCache'];
+        let skinCache: Map<string, sp.spine.Skin> = spine['_skinCache'];
         if (!skinCache) {//缓存动态创建的皮肤，否则Native平台在回收皮肤时会崩溃
             skinCache = new Map();
-            spine['skinCache'] = skinCache;
+            spine['_skinCache'] = skinCache;
         }
         let skinCacheKey = skinNames.sort().join(",");
         let combineSkin = skinCache.get(skinCacheKey);

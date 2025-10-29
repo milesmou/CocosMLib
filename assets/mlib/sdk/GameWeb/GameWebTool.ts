@@ -22,6 +22,6 @@ export class GameWebTool {
     public static getSignHeader(code: string): Record<string, string> {
         let ts = mTime.now().toString();
         let sign = CryptoUtil.MD5(code + ts + "224");
-        return { ts: ts, sign: sign, uid: app.chan.user.userId };
+        return { ts: ts, sign: sign, uid: app.user.userId };
     }
 }

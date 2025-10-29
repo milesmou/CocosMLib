@@ -190,7 +190,7 @@ export class AssetMgr {
             casset.addRef();
             return casset as SpriteFrame;
         }
-        let img = await this.loadRemoteAsset<ImageAsset>(url);
+        let img = await this.loadRemoteAsset<ImageAsset>(url, { ext: ".png" });
         if (img) {
             let spFrame = SpriteFrame.createWithImage(img);
             spFrame.texture.addRef();
@@ -248,14 +248,15 @@ export class AssetMgr {
      * 预加载资源 (下载资源到本地,不会加载到内存中,适用于H5和小游戏平台提前下载远程资源,原生平台不需要)
      */
     public static preloadAsset<T extends Asset>(location: string, type: AssetProto<T>, onProgress?: Progress) {
-        location = this.getLoadPath(location, type);
+        let cacheKey = this.getCacheKey(location, type);
+        let loadPath = this.getLoadPath(location, type);
         let p = new Promise<void>((resolve, reject) => {
-            let bundle = BundleMgr.Inst.getAssetLocatedBundle(location, type);
-            bundle.preload(location, type, onProgress, (err, asset) => {
+            let bundle = BundleMgr.Inst.getAssetLocatedBundle(loadPath, type);
+            bundle.preload(loadPath, type, onProgress, (err, asset) => {
                 if (err) {
                     console.error(err);
                 } else {
-                    this.cache.preloadedAsset.add(location);
+                    this.cache.preloadedAsset.add(cacheKey);
                 }
                 resolve();
             });

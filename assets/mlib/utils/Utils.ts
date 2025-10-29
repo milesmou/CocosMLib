@@ -55,9 +55,8 @@ export class Utils {
      * @returns 格式化的字符串 例 YYYY-MM-DD hh:mm:ss 返回 2022-01-01 12:30:30
      */
     public static formatTime(format: string, date?: Date) {
-        if (date == undefined) {
-            date = new Date();
-        }
+        date ??= new Date();
+        
         let lt10 = (v: number) => {
             return v < 10 ? "0" + v : v.toString();
         }

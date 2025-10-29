@@ -1,4 +1,5 @@
 import { Component, director } from "cc";
+import { CancelToken } from "../core/CancelToken";
 
 interface RequestParams {
     method: "GET" | "POST";
@@ -99,7 +100,7 @@ export class HttpRequest {
      * @param predicate 判断是否中断请求 true请求成功中断请求 false请求失败继续请求
      * @param duration 请求最多持续时间 单位:秒 (失败后0.5秒后会再次请求)
      */
-    public static async requestTextUntil(url: string, predicate: (res: string) => boolean, duration: number, args: RequestParams): Promise<string> {
+    public static async requestTextUntil(url: string, predicate: (res: string) => boolean, duration: number, args: RequestParams, cancelToken?: CancelToken): Promise<string> {
         let endTimeMS = Date.now() + duration * 1000;
         while (true) {
             let result = await this.requestText(url, args);
@@ -108,6 +109,7 @@ export class HttpRequest {
             } else if (Date.now() > endTimeMS) {//请求超时
                 return null;
             } else {//失败继续
+                if (cancelToken?.isCancelled) return null;//任务已取消
                 await this.delay(0.5);
             }
         }
@@ -119,7 +121,7 @@ export class HttpRequest {
     * @param predicate 判断是否中断请求 true请求成功中断请求 false请求失败继续请求
     * @param duration 请求最多持续时间 单位:秒 (失败后0.5秒后会再次请求)
     */
-    public static async requesObjectUntil<T extends object>(url: string, predicate: (res: T) => boolean, duration: number, args: RequestParams): Promise<T> {
+    public static async requesObjectUntil<T extends object>(url: string, predicate: (res: T) => boolean, duration: number, args: RequestParams, cancelToken?: CancelToken): Promise<T> {
         let endTimeMS = Date.now() + duration * 1000;
         while (true) {
             let result = await this.requestObject(url, args) as T;
@@ -128,6 +130,7 @@ export class HttpRequest {
             } else if (Date.now() > endTimeMS) {//请求超时
                 return null;
             } else {//失败继续
+                if (cancelToken?.isCancelled) return null;//请求已取消
                 await this.delay(0.5);
             }
         }

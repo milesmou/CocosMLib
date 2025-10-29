@@ -1,6 +1,6 @@
 //扩展Cocos中的一些类 添加新的方法
 
-import { Asset, Component, EventTouch, math, misc, ScrollView, Touch, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
+import { Asset, Component, EventTouch, math, misc, ScrollView, sp, Touch, Tween, TweenAction, TweenSystem, UITransform, Widget } from "cc";
 //@ts-ignore
 import { Node } from "cc";
 //@ts-ignore
@@ -301,6 +301,35 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         }
     }
 
+    sp.Skeleton.prototype.setSkins = function (skinNames: string[]) {
+        let self: sp.Skeleton = this;
+        if (!self?.isValid) return;
+        let skinCache: Map<string, sp.spine.Skin> = self['_skinCache'];
+        if (!skinCache) {//缓存动态创建的皮肤，否则Native平台在回收皮肤时会崩溃
+            skinCache = new Map();
+            self['_skinCache'] = skinCache;
+        }
+        let skinCacheKey = skinNames.sort().join(",");
+        let combineSkin = skinCache.get(skinCacheKey);
+        const skeleton = self._skeleton;
+        if (!combineSkin) {
+            const runtimeData = self.skeletonData.getRuntimeData();
+            combineSkin = new sp.spine.Skin(skinCacheKey);
+            for (const skinName of skinNames) {
+                let skin = runtimeData.findSkin(skinName);
+                if (skin) {
+                    combineSkin.addSkin(skin);
+                } else {
+                    console.warn("皮肤未找到:" + skinName);
+                }
+            }
+            skinCache.set(skinCacheKey, combineSkin);
+        }
+        if (skeleton.skin?.name != combineSkin.name) {
+            skeleton.setSkin(combineSkin);
+            skeleton.setSlotsToSetupPose();
+        }
+    }
 
 }
 
@@ -448,6 +477,13 @@ declare module 'cc' {
          * @param time [0,duration]
          */
         setTime(time: number): void;
+    }
+
+    namespace sp {
+        interface Skeleton {
+            /** 同时显示多个皮肤 */
+            setSkins(skinNames: string[]): void;
+        }
     }
 
 }

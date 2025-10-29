@@ -1,29 +1,31 @@
 import { _decorator, game, sys } from 'cc';
 import { PREVIEW } from 'cc/env';
 import { StroageMap } from '../module/stroage/StroageMap';
-import { StroageValue } from '../module/stroage/StroageValue';
 import { Utils } from '../utils/Utils';
 import { HttpGameData } from './GameWeb/GameData/HttpGameData';
 import { HttpEvent } from './GameWeb/HttpEvent';
 import { IReportEvent } from './IReportEvent';
-import { GetGameDataParams, PayParams, RewardedVideoParams, SaveGameDataParams, SDKCallback, SDKTemp, UserInfo } from './SDKWrapper/SDKCallback';
+import { GetGameDataParams, PayParams, RewardedVideoParams, SaveGameDataParams, SDKCallback, SDKTemp } from './SDKWrapper/SDKCallback';
 import { SDKListener } from './SDKWrapper/SDKListener';
 const { ccclass } = _decorator;
 
 @ccclass("Channel")
 export class Channel {
 
-    /** 用户信息 包含用户id和名字*/
-    public user: UserInfo = { userId: "", userName: "" };
-
-    /** 设备震动开关 */
-    public vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
-
     /**
      * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。
      */
     public getSafeAreaRect() {
         return sys.getSafeAreaRect();
+    }
+
+    /** 退出游戏 */
+    public exitGame() {
+        if (sys.isBrowser) {
+            location.href = 'about:blank';
+        } else {
+            console.warn("未实现游戏退出接口");
+        }
     }
 
     /** 重启游戏 */
@@ -120,49 +122,57 @@ export class Channel {
 
     }
 
+    /** 请求用户授权 */
+    public authorize(scope: string, result: ResultCallback) {
+
+    }
+
     /** 使设备发生震动 */
-    public vibrate(duration?: "short" | "long") {
+    public vibrate(type?: "short" | "long") {
 
     }
 
     /**
     * 敏感词检测
     * @param content 待检测内容
-    * @param callback 检测回调
     */
-    public checkMsgSec(content: string, callback: (isPass: boolean) => void) {
-        callback && callback(true);
+    public checkMsgSec(content: string, result: ResultCallback) {
+        result({ code: 0 });
     }
 
     /**
     * 敏感图片检测
     * @param image 待检测的图片url
-    * @param callback 检测回调
     */
-    public checkImageSec(image: string, callback: (isPass: boolean) => void) {
-        callback && callback(true);
+    public checkImageSec(image: string, result: ResultCallback) {
+        result({ code: 0 });
     }
 
     /** 设置系统剪贴板内容 */
-    public setClipboard(data: string, success?: () => void, fail?: (errMsg: string) => void) {
+    public setClipboard(data: string, result?: ResultCallback): void {
         if (!sys.isBrowser) return;
         navigator.clipboard.writeText(data).then((res) => {
-            success && success();
+            result && result({ code: 0 });
         }).catch((err) => {
             console.error("setClipboard", err);
-            fail && fail(err)
+            result && result({ code: 1, msg: err });
         });
     }
 
     /** 获取系统剪贴板内容 */
-    public getClipboard(success: (data: string) => void, fail?: (errMsg: string) => void) {
+    public getClipboard(result: ResultCallback) {
         if (!sys.isBrowser) return;
         navigator.clipboard.readText().then((res) => {
-            success && success(res);
+            result && result({ code: 0, data: res });
         }).catch((err) => {
             console.error("getClipboard", err);
-            fail && fail(err)
+            result && result({ code: 1, msg: err });
         });
+    }
+
+    /** 扫码识别 code=10取消扫码 code=11拒绝授权 */
+    public scanCode(opts: { onlyFromCamera?: boolean; scanType?: string[]; }, result: ResultCallback): void {
+        result({ code: 1, msg: "未实现扫码功能" });
     }
 
     /** 调用渠道方法 无返回值 */

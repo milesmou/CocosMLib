@@ -23,7 +23,7 @@ export class HttpLeaderboard {
     /** 获取排行榜数据 */
     public static async getLeaderboards(reqData: HttpLeaderboardModel.ReqLeaderboard) {
         let url = this.Url + `get_leaderboards`;
-        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData, header: GameWebTool.gameCodeHeader }) as MResponse<HttpLeaderboardModel.Leaderboard[]>;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData, header: GameWebTool.gameCodeHeader }) as MResponse<HttpLeaderboardModel.LeaderboardInfo[]>;
         if (result?.code == 0) {
             return result.data;
         } else {

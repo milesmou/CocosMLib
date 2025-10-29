@@ -79,8 +79,8 @@ export class AudioComponent extends Component {
     public async playMusic(location: string, priority = 0, volumeScale = 1, args: { fadeIn?: number, fadeOut?: number, onLoaded?: (clip: AudioClip) => void } = {}) {
         priority = Math.max(0, priority);
         let { fadeIn, fadeOut, onLoaded } = args;
-        fadeIn = fadeIn === undefined ? 0 : fadeIn;
-        fadeOut = fadeOut === undefined ? 0 : fadeOut;
+        fadeIn ??= 0;
+        fadeOut ??= 0;
 
         if (this.stack.has(priority, location)) return; //已在播放列表则忽略
 
@@ -283,8 +283,8 @@ export class AudioComponent extends Component {
             audioState.audio.volume = 0;
             audioState.audio.play();
             tween(audioState.audio).to(dur, { volume: audioState.volumeScale * this.mVolume }).start();
-        }
-        else {
+        } else {
+            audioState.audio.volume = audioState.volumeScale * this.mVolume;
             audioState.audio.play();
         }
     }
@@ -296,8 +296,7 @@ export class AudioComponent extends Component {
             if (stop) {
                 audioSource?.isValid && audioSource.destroy();
                 this._asset.decRef(audioState.location, AudioClip);
-            }
-            else {
+            } else {
                 audioSource.pause();
             }
         };

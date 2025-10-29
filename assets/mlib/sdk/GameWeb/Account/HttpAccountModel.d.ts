@@ -25,6 +25,12 @@ declare namespace HttpAccountModel {
        ip?: string;
    }
 
+   /** 白名单账户 */
+   export interface WhiteListAccount {
+       /** 用户Id */
+       userId: string;
+   }
+
    /** 自定义的异常 */
    export interface CustExecption {
        /** id */

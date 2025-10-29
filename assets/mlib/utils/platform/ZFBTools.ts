@@ -1,22 +1,25 @@
-import { math, Node, size, sys, view } from "cc";
+import { math, Node, size, view } from "cc";
+import { ALIPAY } from "cc/env";
 
 class ZFBTools {
-    public readonly sysInfo: zfb.SystemInfo;
+    public readonly sysInfo: my.SystemInfo;
 
     public get env(): GameEnv {
-        let env = zfb.getAccountInfoSync().miniProgram.envVersion;
+        if (!ALIPAY) return;
+        let env = my.getAccountInfoSync().miniProgram.envVersion;
         return env;
     }
 
     public constructor() {
-        this.checkUpdate();
-        this.sysInfo = zfb.getSystemInfoSync();
+        if (!ALIPAY) return;
+        this.sysInfo = my.getSystemInfoSync();
         console.log("SystemInfo", this.sysInfo);
     }
 
     /** 获取在cc下的安全区域范围 */
     public get safeAreaRect() {
-        let windowInfo = zfb.getWindowInfo();
+        if (!ALIPAY) return;
+        let windowInfo = my.getWindowInfo();
         let viewSize = view.getVisibleSize();
 
         let x = windowInfo.safeArea.left;
@@ -30,19 +33,10 @@ class ZFBTools {
         return new math.Rect(x, y, width, height);
     }
 
-    /** 安卓平台 */
-    public get isAndroid() {
-        return this.sysInfo.platform.indexOf("Android") > -1;
-    }
-
-    /** IOS平台 */
-    public get isIos() {
-        return this.sysInfo.platform.indexOf("iOS") > -1 || this.sysInfo.platform.indexOf("iPhone OS") > -1;
-    }
-
 
     /** 通过传入一个目标节点 获取在小游戏平台原生的坐标和大小 */
-    public getMiniGameStyle(target: Node) {
+    public getStyleRect(target: Node) {
+        if (!ALIPAY) return;
         let result = { left: 0, top: 0, width: 0, height: 0 };
         let cSize = view.getVisibleSize();
         let mSize = size(this.sysInfo.screenWidth, this.sysInfo.screenHeight);
@@ -57,37 +51,18 @@ class ZFBTools {
 
         return result;
     }
-
-    /**
-     * 开启版本更新检测
-     */
-    private checkUpdate() {
-        let updateManager = zfb.getUpdateManager();
-        updateManager.onUpdateReady(() => {
-            zfb.confirm({
-                title: "更新提示",
-                content: "新版本已准备好，是否重启应用？",
-                success: res => {
-                    if (res.confirm) {
-                        updateManager.applyUpdate();
-                    }
-                }
-            })
-        })
-    }
 }
 
 //@ts-ignore
-globalThis.isZFB = sys.platform == sys.Platform.ALIPAY_MINI_GAME;
+globalThis.isZFB = ALIPAY;
 if (isZFB) {
-    globalThis.zfb = globalThis.my;
     let zfbTools = new ZFBTools();
     //@ts-ignore
     globalThis.zfbTools = zfbTools;
 }
 
 declare global {
-    /** 是否支付宝平台 (发布后生效) */
+    /** 是否支付宝平台 */
     const isZFB: boolean;
     /** 支付宝平台工具类 (发布后生效) */
     const zfbTools: ZFBTools;

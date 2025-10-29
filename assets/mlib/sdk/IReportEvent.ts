@@ -28,7 +28,7 @@ export function eventObject(name: string, arg1?: boolean | Record<string, string
     //arg2的判断
     if (typeof arg2 === "boolean") enable = arg2;
 
-    if (enable === undefined) enable = true;
+    enable ??= true;
 
     return { name: name, eventName: eventName, enable: enable };
 }

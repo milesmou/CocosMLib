@@ -39,8 +39,8 @@ export class PlayerInventory {
     /** 获取奖励，添加到背包 */
     public getReward(rewards: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any, isEmit?: boolean }) {
         let { multiple, tag, isEmit } = args || {};
-        multiple = multiple || 1;
-        isEmit = isEmit === undefined ? true : isEmit;
+        multiple ??= 1;
+        isEmit ??= true;
         if (!rewards || rewards.length == 0) return
         let items = this.formatItems(rewards);
         items = this.postParseRewards(items, tag);
@@ -72,7 +72,7 @@ export class PlayerInventory {
     /** 消耗背包中的物品 */
     public delCost(costs: string | string[] | number[] | number[][], args?: { multiple?: number, tag?: any }) {
         let { multiple, tag } = args || {};
-        multiple = multiple || 1;
+        multiple ||= 1;
         if (!costs || costs.length == 0) return;
         let items = this.formatItems(costs);
         for (let item of items) {
@@ -84,8 +84,7 @@ export class PlayerInventory {
             let itemSO = this.getCacheItemSO(type, id);
             if (itemSO) {
                 this.delGameItem(itemSO, num, false);
-            }
-            else {
+            } else {
                 var inventoryItemSos = this._gameSave.inventory.filter(v => v[1] == type && v[2] == id);
                 for (const itemSo of inventoryItemSos) {
                     if (num > 0) {
@@ -146,14 +145,7 @@ export class PlayerInventory {
         let stackLimit = this.getItemStackLimit(type, itemId);
         //无堆叠上限
         if (stackLimit <= 0) {
-            let key = type + "_" + itemId;
-            let inventoryItemSo: ItemSO = this.getCacheItemSO(type, itemId);
-            if (!inventoryItemSo) {
-                inventoryItemSo = this.genInventoryItemSO(type, itemId);
-                this._itemCache[key] = inventoryItemSo;
-                this._gameSave.inventory.push(inventoryItemSo);
-            }
-
+            let inventoryItemSo: ItemSO = this.getCacheItemSO(type, itemId, true);
             inventoryItemSo[3] += itemNum;
         }
         else {
@@ -191,8 +183,10 @@ export class PlayerInventory {
 
     }
 
-    /** 从获取缓存的物品对象 */
-    private getCacheItemSO(type: number, itemId: number) {
+    /** 从获取缓存的物品对象 (无堆叠上限的物品才缓存)
+     * @param [force=false] 背包不存在这个物品时，是否强制创建对象并添加到背包
+     */
+    private getCacheItemSO(type: number, itemId: number, force = false): ItemSO {
         let stackLimit = this.getItemStackLimit(type, itemId);
         if (stackLimit > 0) return null;
         let key = type + "_" + itemId;
@@ -200,11 +194,13 @@ export class PlayerInventory {
         if (inventoryItemSo) return inventoryItemSo;
         else {
             inventoryItemSo = this._gameSave.inventory.find(v => v[1] == type && v[2] == itemId);
-            if (inventoryItemSo == null) {
+            if (inventoryItemSo) {
+                this._itemCache[key] = inventoryItemSo;
+            } else if (force) {
                 inventoryItemSo = this.genInventoryItemSO(type, itemId);
                 this._gameSave.inventory.push(inventoryItemSo);
+                this._itemCache[key] = inventoryItemSo;
             }
-            this._itemCache[key] = inventoryItemSo;
         }
         return inventoryItemSo;
     }
@@ -226,9 +222,9 @@ export class PlayerInventory {
         if (itemSo && num > 0) {
             itemSo[3] -= num;
             if (itemSo[3] <= 0) {
-                delete this._itemCache[itemSo[1] + "_" + itemSo[2]];
-                let index = this._gameSave.inventory.indexOf(itemSo);
-                if (index > -1) this._gameSave.inventory.splice(index, 1);
+                let key = itemSo[1] + "_" + itemSo[2];
+                delete this._itemCache[key];
+                this._gameSave.inventory.delete(itemSo);
             }
         }
 

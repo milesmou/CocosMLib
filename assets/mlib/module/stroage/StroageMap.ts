@@ -21,8 +21,7 @@ export class StroageMap<V> {
 
 
     public get(key: string) {
-        let v = this._cache[key];
-        if (v === undefined) v = this._defaultValue;
+        let v = this._cache[key] ??= this._defaultValue;
         return v;
     }
 

@@ -26,4 +26,16 @@ export class HttpMisc {
         HttpRequest.request(url, { method: "POST", data: reqData, header: GameWebTool.gameCodeHeader });
     }
 
+    /** 生成二维码(Base64格式) */
+    public static async genQRCode(text: string) {
+        let url = this.Url + `gen_qrcode?text=${text}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST" }) as MResponse<string>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
 }

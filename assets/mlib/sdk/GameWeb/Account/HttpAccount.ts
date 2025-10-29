@@ -32,4 +32,47 @@ export class HttpAccount {
         }
     }
 
+    /** 添加白名单账户 (多个用户id使用;隔开) */
+    public static async addWhiteListAccount(key: string, userId: string) {
+        let url = this.Url + `add_white?key=${key}&userId=${userId}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", header: GameWebTool.gameCodeHeader }) as MResponse;
+        if (result?.code == 0) {
+            return true;
+        } else {
+            mLogger.error(result);
+            return false;
+        }
+    }
+
+    /** 移除白名单账户 (多个用户id使用;隔开) */
+    public static async deleteWhiteListAccount(key: string, userId: string) {
+        let url = this.Url + `del_white?key=${key}&userId=${userId}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", header: GameWebTool.gameCodeHeader }) as MResponse;
+        if (result?.code == 0) {
+            return true;
+        } else {
+            mLogger.error(result);
+            return false;
+        }
+    }
+
+    /** 是否白名单账户 */
+    public static async getAllWhiteListAccount(key: string) {
+        let url = this.Url + `get all_white?key=${key}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", header: GameWebTool.gameCodeHeader }) as MResponse<string[]>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
+    /** 是否白名单账户 */
+    public static async isWhiteListAccount(key: string, userId: string) {
+        let url = this.Url + `is_white?key=${key}&userId=${userId}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", header: GameWebTool.gameCodeHeader }) as MResponse;
+        return result;
+    }
+
 }

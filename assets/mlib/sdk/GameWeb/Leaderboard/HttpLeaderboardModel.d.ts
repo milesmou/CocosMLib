@@ -11,13 +11,25 @@ declare namespace HttpLeaderboardModel {
        score: number;
    }
 
+   /** 排行榜数据信息(由PlayInfo和Leaderboard组合出的结构) */
+   export interface LeaderboardInfo {
+       /** 用户id */
+       userId: string;
+       /** 分数 */
+       score: number;
+       /** 头像 */
+       avatar?: string;
+       /** 名字 */
+       name?: string;
+   }
+
    /** 请求 获取排行榜 */
    export interface ReqLeaderboard {
        /** 排行榜名字 */
        name: string;
        /** 排名前多少位 */
        count: number;
-       /** 是否正序 否则倒序 */
+       /** 是否正序 默认倒序 */
        ascending?: boolean;
    }
 

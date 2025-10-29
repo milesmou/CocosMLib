@@ -10,13 +10,14 @@ import { EventMgr } from "./module/event/EventMgr";
 import { L10nMgr } from './module/l10n/L10nMgr';
 import { PoolMgr } from "./module/pool/PoolMgr";
 import { LocalStorage } from './module/stroage/LocalStorage';
+import { StroageValue } from './module/stroage/StroageValue';
 import { TimerComponent } from './module/timer/TimerComponent';
 import { UIMgr } from "./module/ui/manager/UIMgr";
 import { Channel } from "./sdk/Channel";
 
 interface IApp {
     /** 游戏运行环境 */
-    readonly env: GameEnv;
+    readonly gameEnv: GameEnv;
     /** 渠道能力实例 */
     readonly chan: Channel;
     /** 版本详细信息 */
@@ -42,13 +43,18 @@ interface IApp {
     readonly l10n: typeof L10nMgr;
     /** 提示信息 */
     readonly tipMsg: typeof TipMsg;
+
+    /** 设备震动开关 */
+    readonly vibrateEnable: StroageValue<boolean>;
+    /** 登录用户信息 */
+    user: { userId: string, userName: string };
 }
 
 /** 应用程序启动入口 */
 @ccclass('App')
 class App extends Component implements IApp {
 
-    public env: GameEnv;
+    public gameEnv: GameEnv;
     public chan: Channel;
     public verDetail: string;
 
@@ -63,22 +69,24 @@ class App extends Component implements IApp {
     public l10n = L10nMgr;
     public tipMsg = TipMsg;
 
-
+    public vibrateEnable: StroageValue<boolean>;
+    public user = { userId: "", userName: "" };
 
     protected onLoad() {
-        //@ts-ignore
-        globalThis["app"] = this;
+        (globalThis as any).app = this;
         director.addPersistRootNode(this.node);
         this.timer = this.addComponent(TimerComponent);
         this.asset = this.addComponent(AssetComponent);
         this.audio = this.addComponent(AudioComponent);
         this.audio.setKey("App");
 
-        this.env = Publish.getGameEnv();
+        this.gameEnv = Publish.getGameEnv();
         this.chan = Publish.getChannelInstance();
-        this.verDetail = mGameSetting.channel + "_" + mGameSetting.version + "_" + this.env.upperFirst();
+        this.verDetail = mGameSetting.channel + "_" + mGameSetting.version + "_" + this.gameEnv.upperFirst();
 
-        mLogger.info(`GameSetting Env=${this.env} Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version}`);
+        this.vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
+
+        mLogger.info(`GameSetting Env=${this.gameEnv} Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version}`);
         mLogger.info(`GameSetting ModifyTime=${mGameSetting.modifyTime} ConfigType=${mGameSetting.gameConfigTypeStr} Language=${L10nMgr.lang}`);
         mLogger.info(`SDKSetting ${mSdkSetting.getPrintInfo()}`);
     }

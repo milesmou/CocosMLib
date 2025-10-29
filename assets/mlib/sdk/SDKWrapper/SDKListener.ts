@@ -87,10 +87,6 @@ export class SDKListener {
 
     /** 内购结果回调 */
     public static onPay(args: string | PayResult) {
-        if (!SDKTemp.payParams) {
-            mLogger.error("SDKTemp.payParams未赋值");
-            return;
-        }
         if (!SDKCallback.payListener?.onPayResult) return;
         try {
             let obj = typeof args === "string" ? JSON.parse(args) : args;

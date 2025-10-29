@@ -1,7 +1,6 @@
 import { Tween, tween } from "cc";
 import { ItemSO } from "../../misc/PlayerInventory";
 import { TaskItemSO } from "../../misc/PlayerTask";
-import { LocalStorage } from "./LocalStorage";
 
 
 /** 准备延迟存档,忽略其它存档请求 */
@@ -104,25 +103,17 @@ export abstract class GameSave {
 
     /** 用户登录，若切换用户则清除本地存档 */
     public static login(userId: string) {
-        let lastUserId = this.getUserId();
+        let lastUserId = app.stroage.getValue(userIdKey(), "");
         if (lastUserId && userId != lastUserId) {
-            mLogger.info("切换用户，清除本地存档。");
-            LocalStorage.clear();
+            mLogger.info("切换用户，清除本地存档。", lastUserId, userId);
+            app.stroage.clear();
         }
-        if (this.getSaveTime() > 0 && !this.haveGameData()) {
-
-        }
-        LocalStorage.setValue(userIdKey(), userId);
-    }
-
-    /** 获取登录的用户Id */
-    public static getUserId() {
-        return LocalStorage.getValue(userIdKey(), "");
+        app.stroage.setValue(userIdKey(), userId);
     }
 
     /** 本地是否有存档数据 */
     public static haveGameData() {
-        let strData = LocalStorage.getValue(mGameSetting.gameName, "");
+        let strData = app.stroage.getValue(mGameSetting.gameName, "");
         return strData.length > 0;
     }
 
@@ -138,13 +129,13 @@ export abstract class GameSave {
             mLogger.error("[replaceGameData] 存档解压失败");
             mExecption({ commit: "[replaceGameData] 存档解压失败", message: "" });
         }
-        LocalStorage.setValue(mGameSetting.gameName, strData);
+        app.stroage.setValue(mGameSetting.gameName, strData);
         GameSave.updateSaveTime(true);
     }
 
     /** 清除存档(若未强行清除本地数据,云端存档也会失效) */
     public static clearGameData() {
-        LocalStorage.removeValue(mGameSetting.gameName);
+        app.stroage.removeValue(mGameSetting.gameName);
         GameSave.updateSaveTime(true);
     }
 
@@ -153,13 +144,13 @@ export abstract class GameSave {
      * @ 如果获取的时间小于0 表示强制使用本地存档
      */
     public static getSaveTime() {
-        return LocalStorage.getValue(saveDataTimeMSKey(), 0);
+        return app.stroage.getValue(saveDataTimeMSKey(), 0);
     }
 
     /** 更新存档时间 
      * @param forceLocal 是否强制使用本地存档 true会将值设为-1 */
     public static updateSaveTime(forceLocal = false) {
-        LocalStorage.setValue(saveDataTimeMSKey(), forceLocal ? -1 : mTime.now());
+        app.stroage.setValue(saveDataTimeMSKey(), forceLocal ? -1 : mTime.now());
     }
 
     /** 从本地缓存读取存档 */
@@ -175,7 +166,7 @@ export abstract class GameSave {
             return null;
         }
 
-        let obj = parseData(LocalStorage.getValue(mGameSetting.gameName, ""));
+        let obj = parseData(app.stroage.getValue(mGameSetting.gameName, ""));
         if (obj) this.mergeValue(inst, obj);
 
         return inst;
@@ -185,7 +176,7 @@ export abstract class GameSave {
     private static serialize<T extends GameSave>(inst: T) {
         let name = mGameSetting.gameName;
         let jsonStr = this.getSerializeStr(inst);
-        LocalStorage.setValue(name, jsonStr);
+        app.stroage.setValue(name, jsonStr);
     }
 
     /** 获取存档序列化后的字符串 */

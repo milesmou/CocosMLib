@@ -1,36 +1,36 @@
 export { }; // 确保文件被视为模块
 
-/** 单例缓存Map */
-const singletonMap = new Map<Function, object>();
+/** 单例缓存属性名字 */
+const instanceField = '_instance';
 
 /** 创建单例 (创建单例时会执行onCreate方法) */
 function createSingleton<T extends object>(clazz: { new(): T }): T {
-    if (!singletonMap.has(clazz)) {
+    if (!clazz[instanceField]) {
         let instance = new clazz();
         let onCreate: Function = instance["onCreate"];
         if (onCreate && typeof onCreate === "function") {
             onCreate.call(instance);
         }
-        singletonMap.set(clazz, instance);
+        clazz[instanceField] = instance;
     }
-    return singletonMap.get(clazz) as T;
+    return clazz[instanceField] as T;
 }
 
 /** 销毁单例 (销毁单例时会执行onDestroy方法) */
 function destroySingleton<T extends object>(clazz: { new(): T }): void {
-    let instance = singletonMap.get(clazz);
+    let instance = clazz[instanceField];
     if (instance) {
         let onDestroy: Function = instance["onDestroy"];
         if (onDestroy && typeof onDestroy === "function") {
             onDestroy.call(instance);
         }
-        singletonMap.delete(clazz);
+        delete clazz[instanceField];
     }
 }
 
 /** 单例是否存在 */
 function isSingletonValid<T extends object>(clazz: { new(): T }): boolean {
-    return singletonMap.has(clazz);
+    return Boolean(clazz[instanceField]);
 }
 
 //@ts-ignore

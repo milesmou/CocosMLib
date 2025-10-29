@@ -53,7 +53,7 @@ class GameConfig {
             }
         }
 
-        if (MINIGAME && app.env == "release") this.gm = false;//小游戏正式版强制关闭gm功能
+        if (MINIGAME && app.gameEnv == "release") this.gm = false;//小游戏正式版强制关闭gm功能
         if (this.gm) {//判断是否需要临时关闭gm
             let closeGM = sys.localStorage.getItem(closeGmKey) === "1";
             sys.localStorage.removeItem(closeGmKey);

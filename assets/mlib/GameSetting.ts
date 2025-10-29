@@ -5,15 +5,17 @@ import { ELanguage } from './module/l10n/ELanguage';
 import { ELoggerLevel } from './module/logger/ELoggerLevel';
 const { ccclass, property, integer, executeInEditMode } = _decorator;
 
-const EGameConfigType = Enum({
+const CEGameConfigType = Enum({
     Local: 0,
     Remote: 1
 })
 
-const LogLevel = Enum({
+const CELogLevel = Enum({
     Auto: 0,
     ...ELoggerLevel
 });
+
+const CEChannel = Enum(EChannel);
 
 @ccclass('GameSetting')
 @executeInEditMode
@@ -23,7 +25,7 @@ class GameSetting extends Component {
     protected _scriptName: string = "GameSetting";
 
     /** 配置文件类型 */
-    public readonly ConfigType = EGameConfigType;
+    public readonly ConfigType = CEGameConfigType;
 
     @property private _gameName: string = "";
     @property({
@@ -33,10 +35,10 @@ class GameSetting extends Component {
     public get gameName() { return this._gameName; }
     private set gameName(val: string) { this._gameName = val; this.saveGameSetting(); }
 
-    @property private _channelId = EChannel.Dev;
+    @property private _channelId = CEChannel.Dev;
     @property({
         displayName: "渠道",
-        type: EChannel
+        type: CEChannel
     })
     public get channelId() { return this._channelId; }
     private set channelId(val: number) { this._channelId = val; this.saveGameSetting(); }
@@ -73,15 +75,15 @@ class GameSetting extends Component {
     public get languageId() { return this._languageId; }
     private set languageId(val: number) { this._languageId = val; }
 
-    @property private _gameConfigType = EGameConfigType.Local;
+    @property private _gameConfigType = CEGameConfigType.Local;
     @property({
         displayName: "配置",
-        type: EGameConfigType,
+        type: CEGameConfigType,
         tooltip: "配置类型 Local:使用本地配置 Remote:使用远程配置"
     })
     public get gameConfigType() { return this._gameConfigType; }
     private set gameConfigType(val: number) { this._gameConfigType = val; }
-    public get gameConfigTypeStr() { return EGameConfigType[this._gameConfigType]; }
+    public get gameConfigTypeStr() { return CEGameConfigType[this._gameConfigType]; }
 
     @property private _hotupdate = true;
     @property({
@@ -132,9 +134,9 @@ class GameSetting extends Component {
     public get nodeEvent() { return this._nodeEvent; }
     private set nodeEvent(val: boolean) { this._nodeEvent = val; }
 
-    @property private _logLevel = LogLevel.Auto;
+    @property private _logLevel = CELogLevel.Auto;
     @property({
-        type: LogLevel,
+        type: CELogLevel,
         displayName: "日志级别",
         tooltip: "默认为Auto,编辑器预览时日志级别为Debug,发布后日志级别为Info"
     })
@@ -147,7 +149,7 @@ class GameSetting extends Component {
     public get modifyTime() { return this._modifyTime; }
 
     /**  渠道名字 */
-    public get channel(): string { return EChannel[this._channelId]; }
+    public get channel(): string { return CEChannel[this._channelId]; }
     private _mainVersion: string;
     /** 游戏的主版本号 (只有2位 X.X) */
     public get mainVersion() { return this._mainVersion; }
@@ -191,11 +193,11 @@ class GameSetting extends Component {
     }
 
     private setLogLevel() {
-        if (this.logLevel == LogLevel.Auto) {
+        if (this.logLevel == CELogLevel.Auto) {
             if (PREVIEW) {
-                mLogger.setLevel(LogLevel.Debug);
+                mLogger.setLevel(CELogLevel.Debug);
             } else {
-                mLogger.setLevel(LogLevel.Info);
+                mLogger.setLevel(CELogLevel.Info);
             }
         } else {
             mLogger.setLevel(this.logLevel);

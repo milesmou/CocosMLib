@@ -1,13 +1,13 @@
 import { Component, _decorator } from 'cc';
-import { CBMSpecialNodeType, CESpecialNodeTypeLimit } from '../../../../scripts/base/specialNode/ESpecialNodeType';
+import { CBMSpecialNodeTypeNew, CESpecialNodeTypeLimit } from '../../../../scripts/base/specialNode/ESpecialNodeType';
 import { SpecialNodeMgr } from '../../../../scripts/base/specialNode/SpecialNodeMgr';
 const { ccclass, property } = _decorator;
 
 
-@ccclass('SpecialNode')
-export class SpecialNode extends Component {
+@ccclass('SpecialNodeNew')
+export class SpecialNodeNew extends Component {
     @property({
-        type: CBMSpecialNodeType,
+        type: CBMSpecialNodeTypeNew,
         tooltip: "节点的类型"
     })
     type = 0;
@@ -27,7 +27,7 @@ export class SpecialNode extends Component {
 
     private initVisible() {
         if (!this.isValid) return;
-        let active = SpecialNodeMgr.Inst.getActive(this.type, this.typeLimit);
+        let active = SpecialNodeMgr.Inst.getActiveNew(this.type, this.typeLimit);
         this.node.active = this.reverse ? !active : active;
     }
 
