@@ -54,7 +54,7 @@ export class UIWaitListener extends Component {
             this._showWaitUI.delete(uiName);
             if (this._showWaitUI.size == 0) {
                 this.scheduleOnce(() => {
-                    app.ui.hideHigher(UIConstant.UIWait);
+                    app.ui.hide(UIConstant.UIWait);
                 }, dur);
             }
         }

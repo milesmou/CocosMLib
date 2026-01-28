@@ -1,10 +1,10 @@
-import { math, Node, size, view } from "cc";
+import { math, Node, size, sys, view } from "cc";
 import { ALIPAY } from "cc/env";
 
 class ZFBTools {
     public readonly sysInfo: my.SystemInfo;
 
-    public get env(): GameEnv {
+    public get gameEnv(): GameEnv {
         if (!ALIPAY) return;
         let env = my.getAccountInfoSync().miniProgram.envVersion;
         return env;
@@ -13,11 +13,12 @@ class ZFBTools {
     public constructor() {
         if (!ALIPAY) return;
         this.sysInfo = my.getSystemInfoSync();
+        sys.getSafeAreaRect = () => { return this.getSafeAreaRect(); }
         console.log("SystemInfo", this.sysInfo);
     }
 
     /** 获取在cc下的安全区域范围 */
-    public get safeAreaRect() {
+    private getSafeAreaRect() {
         if (!ALIPAY) return;
         let windowInfo = my.getWindowInfo();
         let viewSize = view.getVisibleSize();

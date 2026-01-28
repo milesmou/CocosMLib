@@ -4,6 +4,7 @@ import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { CCUtils } from '../../../mlib/utils/CCUtil';
 import { GameData } from '../GameData';
 import { GMCloudDataItem } from './GMCloudDataItem';
+import { game } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('GMCloudDataMgr')
@@ -94,7 +95,7 @@ export class GMCloudDataMgr extends UIComponent {
                 type: 2,
                 cbOk: () => {
                     GameData.clearGameData();
-                    app.chan.restartGame();
+                    game.restart();
                 }
             });
     }
@@ -126,7 +127,7 @@ export class GMCloudDataMgr extends UIComponent {
             cbOk: () => {
                 try {
                     GameData.replaceGameData(data.data);
-                    app.chan.restartGame();
+                    game.restart();
                 } catch (e) {
                     console.error(e);
                 }

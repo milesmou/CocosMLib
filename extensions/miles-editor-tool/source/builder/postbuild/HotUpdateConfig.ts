@@ -1,12 +1,22 @@
 
 import { Config } from "../../tools/Config";
 
+const buildTaskNameKey = "hotupdate.buildTaskName";
 const buildPathKey = "hotupdate.buildPath";
 const urlKey = "gameSetting.hotupdateServer";
-const versionKey = "gameSetting.version";
-const mainVersionKey = "gameSetting.mainVersion";
+const appVersionKey = "gameSetting.appVersion";
+const patchVersionKey = "gameSetting.patchVersion";
 
 export class HotUpdateConfig {
+
+    public static get buildTaskName() {
+        return Config.get(buildTaskNameKey, "");
+    }
+
+    public static set buildTaskName(val: string) {
+        Config.set(buildTaskNameKey, val);
+    }
+
     public static get buildPath() {
         return Config.get(buildPathKey, "");
     }
@@ -23,19 +33,19 @@ export class HotUpdateConfig {
         Config.set(urlKey, val);
     }
 
-    public static get version() {
-        return Config.get(versionKey, "");
+    public static get appVersion() {
+        return Config.get(appVersionKey, "");
     }
 
-    public static set version(val: string) {
-        Config.set(versionKey, val);
+    public static set appVersion(val: string) {
+        Config.set(appVersionKey, val);
     }
 
-    public static get mainVersion() {
-        return Config.get(mainVersionKey, "");
+    public static get patchVersion() {
+        return Config.get(patchVersionKey, "");
     }
 
-    public static set mainVersion(val: string) {
-        Config.set(mainVersionKey, val);
+    public static set patchVersion(val: string) {
+        Config.set(patchVersionKey, val);
     }
 }

@@ -1,5 +1,5 @@
 import { Node, find } from "cc";
-import { ParseItemTool } from "../../../mlib/misc/PlayerInventory";
+import { ParseItemTool } from "db://assets/mlib/abstract/inventory/InventoryBase";
 import { GameTool } from "../../game/GameTool";
 import { UIConstant } from "../../gen/UIConstant";
 import { TUnforcedGuide } from "../../gen/table/schema";
@@ -36,13 +36,11 @@ export class GameGuide {
     public static get Inst() { return createSingleton(GameGuide); }
     protected onCreate() {
         this._readyToGuide = false;
-        app.event.on(mEventKey.OnGuideStart, () => {
+        app.event.on(mEventKey.OnGuideStart, (guideId: number) => {
             this._readyToGuide = false;
         }, this);
         app.event.on(mEventKey.OnGuideEnd, (guideId: number) => {
-            if (!mGameSetting.skipGuide) {
-                this.finisheGuide(guideId);
-            }
+            this.finisheGuide(guideId);
         }, this);
     }
 
@@ -53,6 +51,16 @@ export class GameGuide {
     /** 当前是否正在进行引导 或者 准备进行引导 */
     public get isGuide(): boolean {
         return this._readyToGuide || UIGuide.Inst.isGuide;
+    }
+
+    /**
+    *  开始引导
+    * @param guideId 引导ID
+    * @param once 是否只引导一次(完成一次引导后不会再触发这个引导)
+    */
+    public startGuide(guideId: number, once: boolean, onEnded?: () => void) {
+        if (once && this.isGuideFinished(guideId)) return;
+        UIGuide.Inst.startGuide(guideId, { onEnded: onEnded });
     }
 
     /** 当前是否正在进行指定的引导 */

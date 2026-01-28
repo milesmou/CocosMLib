@@ -7,6 +7,8 @@ import { MComponent } from '../../core/MComponent';
  Spine导出方式：spine制作时使用多皮肤来换装，导出spine文件时纹理图集打包为图片文件夹；导入cocos时只导入动画文件和atlas文本文件，图片资源单独导入到动态加载的资源目录中。
  */
 
+const emptyTexture = new Texture2D();
+
 const { ccclass, property, requireComponent } = _decorator;
 /** Spine换装组件 (基于多皮肤机制，按需动态加载资源) */
 @ccclass('SpineMixer')
@@ -32,8 +34,11 @@ export class SpineMixer extends MComponent {
     private _skeleton: sp.Skeleton;
     /** 图集文件中所有的图片名 */
     private _allImages: string[] = [];
-    /** Spine区域名到图片名的映射 */
+    /** Spine区域名到图片名的映射 (一个区域在哪一个图片) */
     private _atlasMap: Map<string, string> = null;
+    /** Spine皮肤到区域名的映射 (一个皮肤依赖哪些区域) */
+    private _skinRegionsMap: Map<string, Set<string>> = null;
+
     /** 创建好的SkeletonData缓存 */
     private _skeletonDataCache: Map<string, sp.SkeletonData> = new Map<string, sp.SkeletonData>();
 
@@ -41,6 +46,7 @@ export class SpineMixer extends MComponent {
     protected __preload(): void {
         this._skeleton = this.getComponent(sp.Skeleton);
         if (this.atlasText) this.parseSpineAtlas(this.atlasText.text);
+        if (this.skeletonJson) this.parseSpineSkinRegions();
     }
 
     /** 未在组件属性面板设置参数时，用此方法设置 */
@@ -51,6 +57,7 @@ export class SpineMixer extends MComponent {
         this.baseSkins = _baseSkins;
         this.autoRelease = _autoRelease;
         this.parseSpineAtlas(this.atlasText.text);
+        this.parseSpineSkinRegions();
     }
 
     /**
@@ -64,11 +71,10 @@ export class SpineMixer extends MComponent {
         let combinedSkeletonData: sp.SkeletonData = this._skeletonDataCache.get(skinCacheKey);
         if (!combinedSkeletonData) {
             onAsyncLoad && onAsyncLoad();
-            //获取皮肤包含的附件名
-            let attachmentNames = this.getSkinAttachmentNames(this.skeletonJson, skinNames);
-            //根据附件名找到需要加载的贴图文件名 需保证图片名数组的长度与顺序和atlas中的一致
-            let imageNames = this.findRequiredTextures(this._atlasMap, attachmentNames);
+            //找到皮肤依赖的图片资源
+            let imageNames = this.findRequiredTextures(skinNames);
             imageNames = this._allImages.concat().map(v => imageNames.includes(v) ? v : null);
+
             //加载贴图文件
             let textures: Texture2D[] = await this.loadSpineTextures(imageNames);
             //创建新的SkeletonData
@@ -115,53 +121,51 @@ export class SpineMixer extends MComponent {
     }
 
     /**
-     * 获取皮肤包含的所有附件名 (Attachment Name)
-     */
-    private getSkinAttachmentNames(skeletonData: sp.SkeletonData, skinNames: string[]): Map<string, Set<string>> {
-
-        const runtimeData = skeletonData.getRuntimeData();
-        const result = new Map<string, Set<string>>();
-
-        for (const skinName of skinNames) {
-            const skin = runtimeData.findSkin(skinName);
-
-            if (!skin) {
-                console.warn(`未找到皮肤: ${skinName}`);
-                continue;
+   * 解析skeletonJson内容，返回皮肤名到区域名的映射。
+   */
+    private parseSpineSkinRegions() {
+        this._skinRegionsMap = new Map<string, Set<string>>();
+        const skins: any[] = this.skeletonJson["_skeletonJson"]["skins"];
+        for (const skin of skins) {
+            const skinName = skin["name"];
+            const images: Set<string> = new Set();
+            const attachments: any[] = Object.values(skin["attachments"]);
+            for (const attachment of attachments) {
+                for (const key in attachment) {
+                    const item = attachment[key];
+                    let imageName: string = item['name'];
+                    if (imageName) {
+                        images.add(imageName);
+                    } else {
+                        images.add(key);
+                    }
+                }
             }
-
-            const key = skinName.substring(skinName.lastIndexOf("/") + 1);
-            const attachmentNames = new Set<string>();
-            result.set(key, attachmentNames);
-
-            for (const attachment of skin.attachments) {
-                attachmentNames.add((attachment as any).name);
-            }
+            this._skinRegionsMap.set(skinName, images);
         }
-
-        return result;
     }
 
     /**
      * 从完整的 atlas 文本中，找出给定皮肤列表依赖的所有贴图文件
-     * @param atlasMap 区域名到图片名字的映射
-     * @param attachmentMap 皮肤名字到附件名集合的映射
+     * @param skinNames 皮肤名字列表
      * @return 需要加载的贴图文件名列表
      */
-    private findRequiredTextures(atlasMap: Map<string, string>, attachmentMap: Map<string, Set<string>>): string[] {
+    private findRequiredTextures(skinNames: string[]): string[] {
         const requiredTextures: Set<string> = new Set<string>();
 
-        for (const [skinName, attachmentNames] of attachmentMap.entries()) {
-            for (const attachmentName of attachmentNames) {
-                let textureName: string = null;
-                const regionName1 = skinName + "/" + skinName + "/" + attachmentName;
-                const regionName2 = skinName + "/" + attachmentName;
-                textureName = atlasMap.get(regionName1) || atlasMap.get(regionName2) || atlasMap.get(attachmentName);
-                if (textureName) {
-                    requiredTextures.add(textureName);
-                } else {
-                    console.warn(`未找到附件对应的贴图: ${attachmentName} (皮肤: ${skinName})`);
+        for (const skinName of skinNames) {
+            const regions = this._skinRegionsMap.get(skinName);
+            if (regions) {
+                for (const region of regions) {
+                    const textureName = this._atlasMap.get(region);
+                    if (textureName) {
+                        requiredTextures.add(textureName);
+                    } else {
+                        console.warn(`未找到区域对应的贴图: ${region} (皮肤: ${skinName})`);
+                    }
                 }
+            } else {
+                console.warn(`未找到皮肤的区域: ${skinName}`);
             }
         }
 
@@ -174,7 +178,7 @@ export class SpineMixer extends MComponent {
         for (let i = 0; i < textureNames.length; i++) {
             const name = textureNames[i];
             if (!name) {
-                textures[i] = null;
+                textures[i] = emptyTexture;
                 continue;
             }
             let path = this.imagesRoot + "/" + name;

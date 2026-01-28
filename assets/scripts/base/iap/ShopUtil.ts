@@ -3,13 +3,26 @@ import { MProductDetail } from "../../../mlib/sdk/SDKWrapper/MProductDetail";
 import { Utils } from "../../../mlib/utils/Utils";
 import { GameTool } from "../../game/GameTool";
 import { UIConstant } from "../../gen/UIConstant";
+import { dressTools } from "../../ui/dress/dressTools";
+import { GuildModel } from "../../ui/guild/GuildModel";
+import { myHomeTools } from "../../ui/myHome/myHomeTools";
 import { giftBagCtrl } from "../../ui/shop/giftBagCtrl";
 import { GameData } from "../GameData";
 import { EventKey } from "../GameEnum";
+import GameTable from "../GameTable";
 import { GameTemp } from "../GameTemp";
 import { PlayerData } from "../PlayerData";
+import { EChannel } from "../publish/EChannel";
 import { EasDataCollect } from "../publish/sdk/easdata/EasDataCollect";
-import { dressTools } from "../../ui/dress/dressTools";
+
+interface ProductInfo {
+    /** 商品Id(表里的IAP ID，平台后台填写的IAP ID（如果有）) */
+    productId: string;
+    /** 自定义游戏订单Id */
+    orderId?: string;
+    /** 商品表唯一Id（表里的商品ID shopID） */
+    id?: string;
+}
 
 
 /** 统一处理内购 */
@@ -27,8 +40,19 @@ export class ShopUtil {
         if (this.isInit) return;
         this.isInit = true;
         SDKCallback.payListener = this;
+        this.initShopTable();
         this.reqProductDetail();
-        app.chan.restoreIAP();
+        app.chan.restorePay();
+    }
+
+    /** 初始化商城商品表 */
+    private static initShopTable() {
+        let list = GameTable.Table.TbStore.getDataList();
+        if (mGameSetting.channelId == EChannel.AZCN_YB) {
+            list.forEach(v => {
+                (v as any).IAPID = v.AZCNYBIAP;
+            });
+        }
     }
 
     /** 获取商品详情 */
@@ -93,7 +117,7 @@ export class ShopUtil {
 
     public static onStartPay(args: PayParams) {
         // UIWait.Inst.show();
-        let _shopData = GameTool.getOneShopDataByIapId(args.productId);
+        let _shopData = GameTool.getOneShopDataByIapIdOrShopId(args.productId);
         //兼容抖音的小额，找不到数据不管，因为小额就是没配置IAP ID
         if (!_shopData) return;
         //开始支付
@@ -105,14 +129,14 @@ export class ShopUtil {
 
     public static onPayResult(result: PayResult) {
         mLogger.debug("onPurchaseUpdate:", result.code, result.productId);
-        let _shopData = GameTool.getOneShopDataByIapId(result.productId);
+        let _shopData = GameTool.getOneShopDataByIapIdOrShopId(result.productId);
         //兼容抖音的小额，找不到数据不管，因为小额就是没配置IAP ID
         if (!_shopData) return;
 
         let _shopName = _shopData.Des;
         switch (result.code) {
             case 0:
-                this.purchaseSuccess(result.productId, true);
+                this.purchaseSuccess({ productId: result.productId, orderId: result.orderId, id: result.id }, true);
                 break;
             case 1:
                 // app.ui.showToast("IAP0004", true);//支付失败
@@ -135,7 +159,7 @@ export class ShopUtil {
                 app.chan.reportEvent(mReportEvent.iap_fail, { Shop_Name: _shopName }, "SS");
                 break;
             case 6:
-                this.purchaseSuccess(result.productId, false);
+                this.purchaseSuccess({ productId: result.productId, orderId: result.orderId, id: result.id }, false);
                 break;
             default:
                 break;
@@ -144,17 +168,16 @@ export class ShopUtil {
 
 
     /** 支付成功 */
-    private static purchaseSuccess(productId: string, showReward: boolean) {
+    private static purchaseSuccess(product: ProductInfo, showReward: boolean) {
         mLogger.debug("purchaseSuccess");
-        this.settleProduct(productId, showReward);
+        this.settleProduct(product, showReward);
     }
 
     /** 结算商品，内部需要处理所有IAPID的购买逻辑 */
-    private static settleProduct(productId: string, showReward: boolean) {
+    private static settleProduct(product: ProductInfo, showReward: boolean) {
         // app.tipMsg.showToast(`支付成功 ${productId} ${showReward}`);
         /**这一条商店数据，可以拿到奖励啥的，好发放 */
-        let _shopData = GameTool.getOneShopDataByIapId(productId);
-
+        let _shopData = GameTool.getOneShopDataByIapIdOrShopId(product.id || product.productId);
         let _shopName = _shopData.Des;
         /**静态表的价格，这个主要是为了打点和存档用的，真正的充值用的不是这个 */
         let _price = _shopData.Price;
@@ -194,7 +217,11 @@ export class ShopUtil {
             GameData.Inst.delaySave();
 
             //发事件
-            app.event.emit(EventKey.ChongQianLa, productId);
+            app.event.emit(EventKey.ChongQianLa, product.id || product.productId);
+
+            //买了礼包需要发送协会信息，无脑发，如果没配置的话会不管
+            let _planId = giftBagCtrl.Inst.getActIdByShopId(_shopData.Id);
+            GuildModel.Inst.httpSendGongXiTalkInfo(_planId || _shopData.Id);
 
         }
 
@@ -241,11 +268,26 @@ export class ShopUtil {
             let _newRewardString = dressTools.checkAndTransDressItemReward(_rewardItems);
             //发放奖励，弹出奖励界面
             PlayerData.Inst.getReward(_newRewardString);
-            if (showReward) GameTool.showMoneyReward(_newRewardString, { autoGet: false });
+            if (showReward) GameTool.showMoneyReward(_newRewardString, { autoGet: false, name: "服装礼包", isShowChangeItemIcon: true });
             //处理存档
             _buyShopGiftBag(_shopData.Id);
-            //关闭活动
-            giftBagCtrl.Inst.closeGiftCheck(_shopData.Id);
+            //上传魅力值排行榜数据
+            myHomeTools.httpSetMyMeiLiScore();
+            //获得时装，发给NEW TAG，标记获得了新的时装
+            let _newRewardArr = GameTool.cutStringMapToArr(_newRewardString);
+            for (const v of _newRewardArr) {
+                let _dressId = +v[0];
+                dressTools.addNewDressIdToBox(_dressId);
+            }
+
+            //通过商品id找到活动id
+            let _planId = giftBagCtrl.Inst.getActIdByShopId(_shopData.Id);
+            if (_planId == 99191 || _planId == 99192) {
+                //n选一礼包，不需要这里关闭
+            } else {
+                //关闭活动
+                giftBagCtrl.Inst.closeGiftCheck(_shopData.Id);
+            }
         }
 
         //1+N礼包需要特殊处理
@@ -287,9 +329,6 @@ export class ShopUtil {
             if (showReward) GameTool.showMoneyReward(_rewardItems, { autoGet: false });
             //处理存档
             _buyShopGiftBag(_shopData.Id);
-            //神秘礼包购买后有一些特殊的处理，比如存档啥的
-            GameData.Inst.mysticalGfitCount += 1;
-            GameData.Inst.delaySave();
         }
 
         //普通通行证（包含MINI通行证）
@@ -393,7 +432,17 @@ export class ShopUtil {
             _buyShopGiftBag(_shopData.Id);
         }
 
-        //去广告，2个ID写死的哈，2个ID会一起处理
+        //成长基金
+        if (_type == 2001) {
+            app.tipMsg.showToast("成长基金购买成功");
+            let _planId = giftBagCtrl.Inst.getActIdByShopId(_shopData.Id);
+            GameData.Inst.growthFundData.haveBuyActIdArr.push(_planId);
+            GameData.Inst.delaySave();
+            //处理存档
+            _buyShopGiftBag(_shopData.Id);
+        }
+
+        //（废弃）去广告，2个ID写死的哈，2个ID会一起处理
         if (_type == 2000) {
             if (_rewardItems != "") {
                 PlayerData.Inst.getReward(_rewardItems);

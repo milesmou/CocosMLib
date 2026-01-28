@@ -1,3 +1,4 @@
+import CryptoJS from "crypto-es";
 
 /**
  * 常用的一些方法工具类
@@ -56,7 +57,7 @@ export class Utils {
      */
     public static formatTime(format: string, date?: Date) {
         date ??= new Date();
-        
+
         let lt10 = (v: number) => {
             return v < 10 ? "0" + v : v.toString();
         }
@@ -379,8 +380,44 @@ export class Utils {
         });
     }
 
+    /** 将WordArray转换为Uint8Array */
+    private static wordToUint8Array(wordArray: CryptoJS.lib.WordArray) {
+        const words = wordArray.words;
+        const sigBytes = wordArray.sigBytes;
+        const u8 = new Uint8Array(sigBytes);
+        for (let i = 0; i < sigBytes; i++) {
+            u8[i] = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+        }
+        return u8;
+    }
+
+    /** 生成短UUID (22位) */
+    public static genShortUuid() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charsLength = chars.length;
+        let result = '';
+        const randomWords = CryptoJS.lib.WordArray.random(16);
+        const uint8Array = this.wordToUint8Array(randomWords);
+
+        let i = 0;
+        while (result.length < 22) {
+            const val = uint8Array[i % 16];
+            if (val < 248) {
+                result += chars[val % charsLength];
+            }
+            i++;
+
+            if (i >= 16 && result.length < 22) {
+                const nextBatch = this.wordToUint8Array(CryptoJS.lib.WordArray.random(1));
+                result += chars[nextBatch[0] % charsLength];
+            }
+        }
+
+        return result;
+    }
+
     /** 从数组删除元素 */
-    static delItemFromArray<T>(arr: T[], ...item: T[]) {
+    public static delItemFromArray<T>(arr: T[], ...item: T[]) {
         if (arr.length > 0 && item.length > 0) {
             item.forEach(v => {
                 let index = arr.indexOf(v);
@@ -392,32 +429,32 @@ export class Utils {
     }
 
     /** 当日24时的时间戳：单位秒 */
-    static getDay24TimeMS() {
+    public static getDay24TimeMS() {
         return Math.round(+new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) / 1000);
     }
 
     /**
      * 当时0点的时间戳（毫秒）
-     * @returns  
+     * @returns  当日0点的时间戳（毫秒）
      */
-    static getTodayStartTimestamp(): number {
+    public static getTodayStartTimestamp(): number {
         const date = new Date();
         date.setHours(0, 0, 0, 0);
         return date.getTime();
     };
 
     /**获得秒差，需要传入一个时间戳，和现在作对比,返回的单位是秒 */
-    static getDurationSecond(time: number) {
+    public static getDurationSecond(time: number) {
         return this.getNowTime() - time;
     }
 
     /**获取当前的时间戳：单位秒 */
-    static getNowTime() {
+    public static getNowTime() {
         return Math.round(new Date().getTime() / 1000);
     }
 
     /**给我一个时间戳和需要的倒计时秒，我返回给你剩余的秒，正数就是还没完，拿着可以倒计时，负数就是时间已到 */
-    static getLevelTimeS(timeNum: number, coolTimes: number) {
+    public static getLevelTimeS(timeNum: number, coolTimes: number) {
         let _leaveTimeS = Utils.getDurationSecond(timeNum);
         let _finalTimeS = coolTimes - _leaveTimeS;
         return _finalTimeS;
@@ -428,7 +465,7 @@ export class Utils {
      * @param seconds 秒
      * @returns 
      */
-    static convertSecondsToDaysHours(seconds: number): string {
+    public static convertSecondsToDaysHours(seconds: number): string {
         const days = Math.floor(seconds / (3600 * 24)); // 获取天数部分
         seconds -= days * 3600 * 24; // 从原始秒数中去除已经计算过的天数
         let timeStr: string = "";
@@ -469,7 +506,7 @@ export class Utils {
     * @param format hh:时 mm:分 ss:秒
     * @returns 格式化的字符串 xx小时xx分钟xx秒 返回 01时01分01秒
     */
-    static formatCountdown2(seconds: number, format: string = "mm:ss") {
+    public static formatCountdown2(seconds: number, format: string = "mm:ss") {
         // const dayStr = app.l10n.lang == ELanguageCode.English ? "day" : "天";
         // const hourStr = app.l10n.getStringByKey("WndText_081");//小时
         // const minuteStr = app.l10n.getStringByKey("100045");//分钟
@@ -509,13 +546,13 @@ export class Utils {
      * @param str 待校验字符串(中文、字母、数字)
      * @returns 符合规则返回true，否则false
      */
-    static isValidString(str: string): boolean {
+    public static isValidString(str: string): boolean {
         const regex = /^[\u4e00-\u9fa5a-zA-Z0-9]+$/;
         return regex.test(str);
     };
 
     /** 字符串是否为空 */
-    static isEmptyStrict(str: string | null | undefined): boolean {
+    public static isEmptyStrict(str: string | null | undefined): boolean {
         return str == null || str.trim() === "";
     };
 

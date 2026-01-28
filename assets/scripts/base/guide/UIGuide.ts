@@ -11,6 +11,7 @@ import { TGuide, vector2 } from '../../gen/table/schema';
 import GameTable from '../GameTable';
 import { EClickType, EMaskHollowType, GuideMask } from './GuideMask';
 import { GuidePrefab } from './GuidePrefab';
+import { ybEventName } from '../GameEnum';
 const { ccclass, property } = _decorator;
 
 /** 引导步骤完成方式 */
@@ -31,19 +32,22 @@ export class UIGuide extends UIComponent {
 
     public static Inst: UIGuide;
 
-    private _logger = mLogger.new("Guide", ELoggerLevel.Info);
+    private _logger = mLogger.new("Guide", ELoggerLevel.Debug);
 
     private get mask() { return this.rc.get("Mask", GuideMask); }
     private get ring() { return this.rc.get("Ring", Node); }
     private get finger() { return this.rc.get("Finger", Node); }
     private get tip() { return this.rc.get("Tip", Node); }
-    private get btnScreen() { return this.rc.get("BtnScreen", Node); }
+    private get btnScreen() { return this.rc.get("BtnScreen", MButton); }
     private get prefabParent() { return this.rc.get("PrefabParent", Node); }
-    private get skip() { return this.rc.get("Skip", Node); }
+    private get skip() { return this.rc.get("Skip", MButton); }
     private get debug() { return this.rc.get("Debug", Node); }
 
     /** 遮罩默认透明度 */
     private _maskOpacity = 0;
+
+    /** 避免错误触发BtnScreen点击事件出现bug 设置cd */
+    private _isInClickBtnScreenCd = false;
 
     public get isGuide() { return this._guideId > 0; }
     public get nowGuide() { return this._guideId; }
@@ -65,6 +69,13 @@ export class UIGuide extends UIComponent {
 
     protected onLoad() {
         UIGuide.Inst = this;
+        //跳过引导
+        this.skip.onClick.addListener(() => {
+            this._logger.debug(`点击跳过引导`);
+            this.guideOver();
+            this.unscheduleAllCallbacks();
+            app.ui.blockTime = -1;
+        });
 
         this._maskOpacity = this.mask.getComponent(UIOpacity).opacity;
 
@@ -74,25 +85,11 @@ export class UIGuide extends UIComponent {
             this._logger.debug(`点击挖孔成功`);
             this.checkOver();
         });
-        // this.mask.onClickFail.addListener(() => {
-        //     this._logger.debug(`点击挖孔失败`);
-        //     this.skip.active = true;
-        // });
 
         if (this.debug.active) {
             this.enableDebug();
         }
     }
-
-    protected onClickButton(btnName: string, btn: MButton) {
-        switch (btnName) {
-            case "BtnSkip":
-                this._logger.debug(`点击跳过引导`);
-                this.guideOver();
-                break;
-        }
-    }
-
 
     private hide(fast = false) {
 
@@ -102,33 +99,44 @@ export class UIGuide extends UIComponent {
         this.ring.active = false;
         this.finger.active = false;
         this.tip.active = false;
-        this.btnScreen.active = false;
-        this.skip.active = false;
+        this.btnScreen.node.active = false;
+        this.skip.node.active = false;
         this.destroyPrefab();
     }
 
     private guideOver() {
         app.event.emit(mEventKey.OnGuideEnd, this._guideId);
         this._guideId = 0;
+        this._isInClickBtnScreenCd = false;
         this.hide();
         this._onEnded && this._onEnded();
         this._onEnded = null;
     }
 
     private checkOver() {
-        this._logger.debug("---------结束引导步骤", this._guideId, this.stepId);
+
+        // this._logger.debug("---------结束引导步骤", this._guideId, this.stepId);
         this._logger.debug();
         let data = this._guideData[this._dataIndex];
         app.chan.reportEvent(mReportEvent.GuideStep, { guideId: data.GuideID + "_" + data.StepId });
         //数数打点
         app.chan.reportEvent(mReportEvent.GuideStep, { GuideStep_Id: data.GuideID + "_" + data.StepId }, "SS");
-        mLogger.debug("----------新玩家登陆流程KIN--------------" + "17过了新手引导" + data.GuideID + "_" + data.StepId);
+        //云步打点
+        let _stepIdString: string;
+        if (this.stepId <= 9) {
+            _stepIdString = "0" + this.stepId;
+        } else {
+            _stepIdString = "" + this.stepId;
+        }
+        let _guideIdYb = Number("" + this._guideId + _stepIdString);
+        app.chan.nativeBaseEvent(ybEventName.endNewUserGuide, _guideIdYb);
+        // mLogger.debug("云步打点：结束新手引导", _guildIdYb);
         // 广点通打点
         if (isZQYSDK) {
             GameSdk.BI.reportZqyWxInvestSdk('onTutorialFinish');
         }
         if (this._dataIndex == this._guideData.length - 1) {
-            this._logger.debug("结束引导" + this._guideId);
+            // this._logger.debug("结束引导" + this._guideId);
             this.guideOver();
         }
         else {
@@ -169,10 +177,7 @@ export class UIGuide extends UIComponent {
             this._onStep = onStep;
             this._onManualStep = onManualStep;
             this._onEnded = onEnded;
-            if (mGameSetting.skipGuide) {
-                this.guideOver();
-                return;
-            }
+            this.skip.node.active = mGameConfig.gm;
             this._logger.debug("开始引导" + guideId);
             this.showGuideStep();
         }
@@ -227,6 +232,17 @@ export class UIGuide extends UIComponent {
         this._logger.debug("---------开始引导步骤", this._guideId, this.stepId);
         //开始引导SS打点
         app.chan.reportEvent(mReportEvent.GuideStepEnter, { GuideStep_Id: this._guideId + "_" + this.stepId }, "SS");
+        //云步打点
+        let _stepIdString: string;
+        if (this.stepId <= 9) {
+            _stepIdString = "0" + this.stepId;
+        } else {
+            _stepIdString = "" + this.stepId;
+        }
+        let _guideIdYb = Number("" + this._guideId + _stepIdString);
+        app.chan.nativeBaseEvent(ybEventName.startNewUserGuide, _guideIdYb);
+        // mLogger.debug("云步打点：开始新手引导", _guildIdYb);
+
         // mLogger.debug("----------新玩家登陆流程KIN--------------" + "17显示新手引导" + this._guideId + "_" + this.stepId);
         let guide = this._guideData[this._dataIndex];
 
@@ -236,8 +252,7 @@ export class UIGuide extends UIComponent {
         if (!guide.HollowKeep) this.mask.reset();
         this.ring.active = false;
         this.finger.active = false;
-        this.btnScreen.active = false;
-        this.skip.active = false;
+        this.btnScreen.node.active = false;
 
         this.setShadeOpacity(guide.Opacity < 0 ? 0 : (guide.Opacity || this._maskOpacity));
         if (!guide.TipText || guide.Delay > 0) this.tip.active = false;
@@ -296,10 +311,20 @@ export class UIGuide extends UIComponent {
         let guide = this._guideData[this._dataIndex];
         if (guide.FinishStepType != EFinishStepType.ClickScreen) return;
         this._logger.debug("点击屏幕即可");
-        this.btnScreen.active = true
-        this.btnScreen.once(Button.EventType.CLICK, this.checkOver.bind(this));
+        this.btnScreen.node.active = true
+        this.btnScreen.onClick.addListener(this.onClickBtnScreen.bind(this), this, true);
         app.ui.blockTime = -1;
         app.ui.blockTime = 0.35;
+    }
+
+    private onClickBtnScreen() {
+        this._logger.debug("点击屏幕成功");
+        if (this._isInClickBtnScreenCd) return;
+        this._isInClickBtnScreenCd = true;
+        this.scheduleOnce(() => {
+            this._isInClickBtnScreenCd = false;
+        }, 0.25);
+        this.checkOver();
     }
 
     private delayFinishStep() {

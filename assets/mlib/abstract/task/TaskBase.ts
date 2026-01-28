@@ -1,4 +1,4 @@
-import { GameSave } from "../module/stroage/GameSave";
+import { GameSave } from "../../module/stroage/GameSave";
 
 /** 任务状态 */
 export enum TaskState {
@@ -35,7 +35,8 @@ export class TaskItemSO {
     public state: TaskState = TaskState.None;
 }
 
-export class PlayerTask {
+/** 玩家任务模块基类 */
+export abstract class TaskBase {
     private _localStroage: GameSave;
 
     private _onTaskChange: () => void;

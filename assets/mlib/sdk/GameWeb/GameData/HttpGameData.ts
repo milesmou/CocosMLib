@@ -60,12 +60,7 @@ export class HttpGameData {
     public static async getPlayerGameData(reqGetData: HttpGameDataModel.ReqGetPlayerGameData) {
         let url = this.Url + `get_playergamedata`;
         let result = await HttpRequest.requestObject(url, { method: "POST", data: reqGetData, header: GameWebTool.gameCodeHeader }) as MResponse<HttpGameDataModel.RspPlayerGameData>;
-        if (result?.code == 0) {
-            return result.data;
-        } else {
-            mLogger.error(result);
-            return null;
-        }
+        return result;
     }
 
     /** 更新玩家信息 */

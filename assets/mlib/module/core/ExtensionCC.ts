@@ -214,6 +214,12 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         self.childrenSiblingIndexDirty = false;
     }
 
+    Node.prototype.syncWorldPositionWith = function (node: Node) {
+        let self: Node = this;
+        let wPos = node.worldPosition;
+        self.setWorldPosition(wPos.x, wPos.y, wPos.z);
+    }
+
     Component.prototype.getComponentInParent = function <T extends Component>(ctorOrClassName: (new (...args: any[]) => T) | string, includeSlef = true) {
         return this.node.getComponentInParent(ctorOrClassName as any, includeSlef);
     }
@@ -357,6 +363,11 @@ declare global {
 //扩展CC中的一些类
 declare module 'cc' {
 
+    interface Game {
+        /** 退出游戏 */
+        exit: () => Promise<void>;
+    }
+
     interface Node {
         /**
          * 通过名称获取节点的子节点
@@ -374,7 +385,7 @@ declare module 'cc' {
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
          */
-        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T), includeSlef?: boolean);
+        getComponentInParent<T extends Component>(ctor: (new (...args: any[]) => T), includeSlef?: boolean): T;
         /** 
          * 从任意父节点上获取组件
          * @param includeSlef 是否包含自身所在节点 默认为true
@@ -399,6 +410,8 @@ declare module 'cc' {
         zIndex: number;
         /** 在子节点zIndex值改变时修改父节点此属性为true，表示需要更新子节点的SiblingIndex */
         childrenSiblingIndexDirty: boolean;
+        /** 同步世界坐标为指定节点 */
+        syncWorldPositionWith(node: Node): void;
         /** 世界坐标X */
         wpX: number;
         /** 世界坐标Y */

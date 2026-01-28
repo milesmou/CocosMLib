@@ -15,12 +15,20 @@ declare namespace HttpGuildModel {
        name: string;
        /** 公会简介 */
        desc?: string;
+       /** 公会等级 */
+       level?: number;
+       /** 公会背包 */
+       inventory?: string[];
        /** 扩展参数 */
        extParam?: string;
        /** 公会分数1 */
        score1?: number;
        /** 公会分数2 */
        score2?: number;
+       /** 任务分数 */
+       taskScore?: number;
+       /** 排位分数 */
+       matchScore?: number;
        /** 公会周分数 */
        weekScore?: number;
        /** 公会月分数 */

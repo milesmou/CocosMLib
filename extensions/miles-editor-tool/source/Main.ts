@@ -1,8 +1,8 @@
+import fs from "fs-extra";
 import { HotUpdate } from "./builder/postbuild/HotUpdate";
 import { CmdExecute } from "./CmdExecute";
 import { EventMain } from "./EventMain";
 import { SceneConnect } from "./scene/SceneConnect";
-
 
 
 /**
@@ -10,13 +10,16 @@ import { SceneConnect } from "./scene/SceneConnect";
  * @zh 为扩展的主进程的注册方法
  */
 export const methods: { [key: string]: (...any: any) => any } = {
-    /**  */
+    sendMessage: CmdExecute.sendMessage.bind(CmdExecute),
     saveGameSetting: CmdExecute.saveGameSetting.bind(CmdExecute),
+    saveFile: CmdExecute.saveFile.bind(CmdExecute),
+    deleteFile: CmdExecute.deleteFile.bind(CmdExecute),
     loadExcel: CmdExecute.loadExcel.bind(CmdExecute),
     genConst: CmdExecute.genConst.bind(CmdExecute),
     closeTexCompress: CmdExecute.closeTexCompress.bind(CmdExecute),
     setTexCompress: CmdExecute.setTexCompress.bind(CmdExecute),
     genHotUpdateRes: HotUpdate.genHotUpdateRes.bind(HotUpdate),
+    uploadHotUpdateRes: HotUpdate.uploadHotUpdateRes.bind(HotUpdate),
     //场景操作命令 除了在此处还需在SceneMain中注册
     replaceComponent: SceneConnect.send.bind(SceneConnect, "replaceComponent"),
     //测试

@@ -33,10 +33,10 @@ export class TipMsgConfirm extends UIComponent {
     /**  显示确认框  */
     public show(desc: string, args: ConfirmArgs) {
         let { type, autoHide, cbOk, cbCancel, title, okText, cancelText } = args || {};
-        autoHide = autoHide === undefined ? true : autoHide;
-        title = title || this._titleText;
-        okText = okText || this._okText;
-        cancelText = cancelText || this._cancelText;
+        autoHide ??= true;
+        title ??= this._titleText;
+        okText ??= this._okText;
+        cancelText ??= this._cancelText;
 
         this.node.active = true;
         this.title.string = title;

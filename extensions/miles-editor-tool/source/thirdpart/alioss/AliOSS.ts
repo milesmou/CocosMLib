@@ -68,9 +68,17 @@ export class AliOSS {
      * @param files 需要上传的文件
      */
     public async upload(taskName: string, files: string[]) {
+        if (!this.localDir) {
+            BuildLogger.error(tag, "本地资源目录为空");
+            return;
+        }
+        if (!this.ossDir) {
+            BuildLogger.error(tag, "OSS目录为空");
+            return;
+        }
 
         let p = new Promise<void>((resolve, reject) => {
-            let configPath = taskName + "_" + Constant.AliOSSConfigFilePath;
+            let configPath = Constant.AliOSSConfigFilePath.replace(".json", "_" + taskName + ".json");
             if (!fs.existsSync(configPath)) {
                 configPath = Constant.AliOSSConfigFilePath;
             }
@@ -108,19 +116,6 @@ export class AliOSS {
 
         return p;
     }
-
-    /** 文件是否已经存在OSS中 */
-    public async isFileExistsInOss(localPath: string) {
-        let remotePath = this.localToOssPath(localPath);
-        BuildLogger.info(tag, localPath, remotePath)
-        try {
-            const result = await this.client.head(remotePath);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
 
     private localToOssPath(file: string) {
         let dirName = path.basename(this.localDir);

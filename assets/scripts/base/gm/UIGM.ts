@@ -1,14 +1,14 @@
-import { Button, EditBox, Label, Node, _decorator, profiler } from 'cc';
+import { Button, EditBox, Label, Node, _decorator, game, profiler } from 'cc';
 import { ELoggerLevel } from 'db://assets/mlib/module/logger/ELoggerLevel';
-import { Dropdown } from 'db://assets/mlib/module/ui/extend/Dropdown';
 import { MToggle } from 'db://assets/mlib/module/ui/extend/MToggle';
+import { HttpGameData } from 'db://assets/mlib/sdk/GameWeb/GameData/HttpGameData';
 import { UIBase } from '../../../mlib/module/ui/manager/UIBase';
 import { FengHaoCtrl } from '../../game/FengHaoCtrl';
 import { GameTool } from '../../game/GameTool';
 import { UIConstant } from '../../gen/UIConstant';
 import { UIFlyGold } from '../../ui/common/UIFlyGold';
-import { StageModel } from '../../ui/guanka/StageModel';
-import { NodeHelper } from '../../ui/Helper/NodeHelper';
+import { GuildModel } from '../../ui/guild/GuildModel';
+import { giftBagCtrl } from '../../ui/shop/giftBagCtrl';
 import { LimitedModel } from '../../ui/shop/Item/LimitedModel';
 import { GameData } from '../GameData';
 import { EventKey } from '../GameEnum';
@@ -17,7 +17,6 @@ import { GameGuide } from '../guide/GameGuide';
 import { PlayerData } from '../PlayerData';
 import { EChannel } from '../publish/EChannel';
 import { ZhiQuCloudData } from '../publish/sdk/ZhiQuCloudData';
-import { giftBagCtrl } from '../../ui/shop/giftBagCtrl';
 const { ccclass, property } = _decorator;
 
 @ccclass('UIGM')
@@ -26,15 +25,16 @@ export class UIGM extends UIBase {
     private get m_noAdStage() { return this.rc.get("noAdStage", Label); }
     private get m_qunShareStage() { return this.rc.get("qunShareStage", Label); }
 
-    private _togs: Node;
+    private get togs() { return this.rc.get("Togs", Node); }
+    private get channelName() { return this.rc.get("ChannelName", Label); }
+
 
     onEnable() {
         this.inintShow();
-        String
+        this.channelName.string = mGameSetting.channel;
     }
 
     protected onLoad(): void {
-        this._togs = this.rc.get("Togs", Node);
         this.initToggles();
     }
 
@@ -55,7 +55,7 @@ export class UIGM extends UIBase {
     }
 
     private initToggles() {
-        let togs = this._togs.getComponentsInChildren(MToggle);
+        let togs = this.togs.getComponentsInChildren(MToggle);
         let togMap: Map<string, MToggle> = new Map();
         togs.forEach(v => {
             togMap.set(v.node.name.trim(), v);
@@ -128,7 +128,7 @@ export class UIGM extends UIBase {
                 // let jump = StageModel.Inst.gmJump(parseInt(chapter.string), parseInt(stage.string), parseInt(star.string));
                 // if (jump) {
                 //     this.scheduleOnce(() => {
-                //         app.chan.restartGame();
+                //         game.restart();
                 //     })
                 // }
                 break;
@@ -144,7 +144,9 @@ export class UIGM extends UIBase {
                 //封号
                 FengHaoCtrl.fengHao();
                 break;
-            default:
+            case "upPlayerBtn":
+                //强制上传这个玩家的数据到服务器
+                this.updateThePlayerInfo(btn);
                 break;
         }
     }
@@ -308,51 +310,65 @@ export class UIGM extends UIBase {
         app.event.emit(EventKey.ChongQianLa);
     }
 
+    /** 是否是掌趣游云存档的渠道 */
+    private isZQYChannel() {
+        let channelId = mGameSetting.channelId;
+        return channelId == EChannel.WX_ZQY || channelId == EChannel.WX_YXT || channelId == EChannel.DY_ZQY || channelId == EChannel.DY_YXT2;
+    }
 
     private onClickCloudData(root: Node, isDownload: boolean) {
-        let dropdown = root.getComponentInChildren(Dropdown);
         let editBox = root.getComponentInChildren(EditBox);
 
-        let channelName = dropdown.stringValue;
 
         let uid = editBox.string.trim();
-        let channelId = EChannel[channelName];
-        if (channelId === undefined) {
-            app.tipMsg.showToast("未知的渠道");
-            return;
-        }
+
         if (!uid) {
             app.tipMsg.showToast("请填入UID");
             return;
         }
 
         if (isDownload) {
-            ZhiQuCloudData.getGameData(uid, channelId).then(v => {
+
+            let cb = (v: HttpGameDataModel.RspPlayerGameData) => {
                 if (v.data) {
                     app.tipMsg.showConfirm("是否使用该用户【云端存档】覆盖【本地存档】？", {
                         type: 2, cbOk: () => {
                             GameData.replaceGameData(v.data);
-                            app.chan.restartGame();
+                            game.restart();
                         },
                     })
                 } else {
                     app.tipMsg.showToast("存档未找到");
                 }
-            });
+            }
+
+
+            if (this.isZQYChannel())
+                ZhiQuCloudData.getGameData(uid, mGameSetting.channelId).then(cb);
+            else
+                HttpGameData.getPlayerGameData({ userId: uid }).then(v => {
+                    if (v?.code == 0) {
+                        cb(v.data);
+                    } else {
+                        app.tipMsg.showToast("存档未找到");
+                    }
+                });
         } else {
 
             //KIN 一个土质密码机制
 
             let _call = () => {
+                let cb = v => {
+                    if (v) {
+                        app.tipMsg.showToast("替换用户云端存档成功，用户重新打开游戏后生效");
+                    } else {
+                        app.tipMsg.showToast("上传存档失败");
+                    }
+                }
                 app.tipMsg.showConfirm("是否使用【本地存档】覆盖指定用户的【云端存档】？该用户需要关闭游戏后再覆盖，否则可能失败！", {
                     type: 2, cbOk: () => {
-                        ZhiQuCloudData.saveGameData(uid, GameData.Inst.getSerializeStr(), channelId).then(v => {
-                            if (v) {
-                                app.tipMsg.showToast("替换用户云端存档成功，用户重新打开游戏后生效");
-                            } else {
-                                app.tipMsg.showToast("上传存档失败");
-                            }
-                        });
+                        if (this.isZQYChannel()) ZhiQuCloudData.saveGameData(uid, GameData.Inst.getSerializeStr(), mGameSetting.channelId).then(cb);
+                        else HttpGameData.savePlayerGameData({ userId: uid, data: GameData.Inst.getSerializeStr() }).then(cb);
                     },
                 })
             }
@@ -379,6 +395,16 @@ export class UIGM extends UIBase {
         }
 
         GameTool.buDanByShopId(_shopId);
+
+    }
+
+    /**紧急上传这个玩家的信息到服务器，注意渠道需要对应上，处理服务器拉取数据为NULL的BUG */
+    private async updateThePlayerInfo(btn: Button) {
+        let node = btn.node.parent;
+        let editBoxs = node.getComponentsInChildren(EditBox);
+        let _userId = editBoxs[0].string;;
+
+        GuildModel.Inst.httpUpdateMyPlayerInfo(_userId);
 
     }
 

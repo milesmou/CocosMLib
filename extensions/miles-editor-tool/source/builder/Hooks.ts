@@ -4,14 +4,14 @@ import { Utils } from '../tools/Utils';
 import { BuildLogger } from './BuildLogger';
 import { BuildConfig } from './postbuild/BuildConfig';
 import { BuildNative } from './postbuild/BuildNative';
+import { GameTool } from './postbuild/GameTool';
 import { HotUpdate } from './postbuild/HotUpdate';
-import { Minigame } from './postbuild/Minigame';
 
 const tag = "[Build]";
 
 export const onBeforeBuild: BuildHook.onBeforeBuild = async function (options: IBuildTaskOption, result: IBuildResult) {
     // Todo some thing
-    
+
 };
 
 export const onBeforeCompressSettings: BuildHook.onBeforeCompressSettings = async function (options: IBuildTaskOption, result: IBuildResult) {
@@ -39,9 +39,11 @@ export const onAfterBuild: BuildHook.onAfterBuild = async function (options: IBu
         if (!options.md5Cache) {
             BuildLogger.error(tag, "小游戏请开启Md5Cache");
         }
-        await Minigame.modifyServer(options, result);
-        await Minigame.uploadToAliOss(options, result);
+        GameTool.minigameDeleteManifest(options, result);
     }
+
+    await GameTool.modifyRemoteResServer(options, result);
+    await GameTool.uploadRemoteResToAliOss(options, result);
     BuildLogger.info(tag, "后处理结束");
 };
 

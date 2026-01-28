@@ -20,10 +20,10 @@ export class Publish {
 
     public static getGameEnv(): GameEnv {
         if (PREVIEW) return "develop";
-        else if (isWechat) return wxTools.env;
-        else if (isDouYin) return dyTools.env;
-        else if (isKuaiShou) return ksTools.env;
-        else if (isZFB) return zfbTools.env;
+        else if (isWechat) return wxTools.gameEnv;
+        else if (isDouYin) return dyTools.gameEnv;
+        else if (isKuaiShou) return wxTools.gameEnv;
+        else if (isZFB) return zfbTools.gameEnv;
         return "release";
     }
 
@@ -50,12 +50,16 @@ export class Publish {
         }
         chan = chan || new Dev();
 
-        //打点
-        chan.reportEvent(mReportEvent.init_game_boot, null, "NOZQY");
-        chan.reportEventDaily(mReportEvent.init_game_boot_daily, null, "NOZQY");
-        //数数打点
-        chan.reportEvent(mReportEvent.init_game_boot, null, "SS");
-        // mLogger.debug("---------新玩家登陆流程KIN--------------" + "1打开APP");
+        //延迟上报事件，否则依赖app.chan的代码会报错
+        setTimeout(() => {
+            //打点
+            chan.reportEvent(mReportEvent.init_game_boot, null, "NOZQY");
+            chan.reportEventDaily(mReportEvent.init_game_boot_daily, null, "NOZQY");
+            //数数打点
+            chan.reportEvent(mReportEvent.init_game_boot, null, "SS");
+            // mLogger.debug("---------新玩家登陆流程KIN--------------" + "1打开APP");
+        }, 1);
+
 
 
         chan.initSDK();

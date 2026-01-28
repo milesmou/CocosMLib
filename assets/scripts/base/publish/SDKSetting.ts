@@ -10,7 +10,7 @@ const ESDKMode = Enum({
 
 const IsDebugMode = (mode: number) => {
     if (mode == ESDKMode.Auto) {
-        return app.env != "release";
+        return app.gameEnv != "release";
     } else {
         return mode == ESDKMode.Debug;
     }

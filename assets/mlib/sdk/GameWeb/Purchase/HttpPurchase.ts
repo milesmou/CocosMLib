@@ -12,12 +12,7 @@ export class HttpPurchase {
     public static async queryOrder(uid: string, orderId: string) {
         let url = this.Url + `queryorder?uid=${uid}&orderId=${orderId}`;
         let result = await HttpRequest.requestObject(url, { method: "POST", header: GameWebTool.gameCodeHeader }) as MResponse;
-        if (result?.code == 0) {
-            return true;
-        } else {
-            mLogger.error(result);
-            return false;
-        }
+        return result;
     }
 
     /** 查询未完成的订单 */

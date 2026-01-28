@@ -48,7 +48,7 @@ export class Dropdown extends Component {
 
     public get options() { return this.m_Options; }
     public set options(val: string[]) {
-        this.m_Options = val;
+        this.m_Options = val || [];
         this.refresh();
     }
 

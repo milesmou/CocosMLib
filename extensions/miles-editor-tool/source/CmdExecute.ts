@@ -19,9 +19,83 @@ export class CmdExecute {
     }
 
 
+    /** 发送消息 */
+    public static sendMessage(jsonStr: string) {
+        interface Message {
+            /** 消息名称 */
+            key: string,
+            /** 消息参数 */
+            args: any[],
+        }
+        try {
+            let { key, args } = JSON.parse(jsonStr) as Message;
+
+        } catch (error) {
+            Logger.error("发送消息失败", error);
+        }
+    }
+
     /** 保存游戏配置到本地 */
     public static saveGameSetting(jsonStr: string) {
         Config.set("gameSetting", JSON.parse(jsonStr));
+    }
+
+    /** 保存文件 */
+    public static saveFile(jsonStr: string) {
+        interface SaveFileParams {
+            /** 相对项目路径的文件路径 */
+            filePath: string,
+            /** 文件内容 */
+            content: string,
+            /** 是否刷新资源 */
+            refreshAsset: boolean,
+            /** 是否打印成功日志 */
+            succLog?: boolean,
+        }
+        try {
+            let { filePath, content, refreshAsset = false, succLog = true } = JSON.parse(jsonStr) as SaveFileParams;
+            let fullPath = Utils.toUniSeparator(path.join(Utils.ProjectPath, filePath));
+            fs.ensureDirSync(path.dirname(fullPath));
+            fs.writeFileSync(fullPath, content);
+            if (refreshAsset) {
+                Utils.refreshAsset(fullPath);
+            }
+            if (succLog) Logger.info("保存文件成功", fullPath);
+        } catch (error) {
+            Logger.error("保存文件失败", error);
+            return;
+        }
+    }
+
+    /** 
+     * 删除文件
+     * @param filePath 相对项目路径的文件路径
+     */
+    public static deleteFile(jsonStr: string) {
+        interface DeleteFileParams {
+            /** 相对项目路径的文件路径 */
+            filePath: string,
+            /** 是否刷新资源 */
+            refreshAsset?: boolean,
+            /** 是否打印成功日志 */
+            succLog?: boolean,
+        }
+        try {
+            let { filePath, refreshAsset = false, succLog = true } = JSON.parse(jsonStr) as DeleteFileParams;
+            let fullPath = Utils.toUniSeparator(path.join(Utils.ProjectPath, filePath));
+            if (!fs.existsSync(fullPath)) {
+                Logger.warn("文件不存在", fullPath);
+                return;
+            }
+            fs.removeSync(fullPath);
+            if (refreshAsset) {
+                Utils.refreshAsset(fullPath);
+            }
+            if (succLog) Logger.info("删除文件成功", fullPath);
+        } catch (error) {
+            Logger.error("删除文件失败", error);
+            return;
+        }
     }
 
     /** 导表 */

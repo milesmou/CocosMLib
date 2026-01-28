@@ -13,6 +13,8 @@ declare namespace HttpAccountModel {
        ip?: string;
        /** 创建时间 */
        createTime?: string;
+       /** 最后登录时间 */
+       lastLoginTime?: string;
    }
 
    /** 请求 创建用户账号 */

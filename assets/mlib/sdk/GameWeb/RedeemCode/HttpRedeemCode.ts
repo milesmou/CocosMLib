@@ -20,6 +20,18 @@ export class HttpRedeemCode {
         }
     }
 
+    /** 生成多个兑换码(不可指定code) */
+    public static async genRedeemCodes(count: number, reqData: HttpRedeemCodeModel.ReqGenRedeemCode) {
+        let url = this.Url + `gen_redeemcodes?count=${count}`;
+        let result = await HttpRequest.requestObject(url, { method: "POST", data: reqData, header: GameWebTool.gameCodeHeader }) as MResponse<string>;
+        if (result?.code == 0) {
+            return result.data;
+        } else {
+            mLogger.error(result);
+            return null;
+        }
+    }
+
     /** 删除兑换码 */
     public static async delRedeemCode(code: string) {
         let url = this.Url + `del_redeemcode?code=${code}`;

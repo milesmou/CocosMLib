@@ -1,4 +1,4 @@
-import { sys } from "cc";
+import { game, sys } from "cc";
 import { MINIGAME } from "cc/env";
 
 /** 临时关闭gm的本地存档key */
@@ -11,6 +11,8 @@ class GameConfig {
     public static gf = false;
     /** 热更 */
     public static rg = true;
+    /** 热更用户 (用于热更测试 仅指定用户可以热更) */
+    public static rgusr = "";
     /** 审核 */
     public static sh = false;
     /** GM工具 */
@@ -29,7 +31,7 @@ class GameConfig {
     /** 临时关闭gm功能,会自动重启游戏(只生效一次,再次重启失效) */
     public static closeGM() {
         sys.localStorage.setItem(closeGmKey, "1");
-        app.chan.restartGame();
+        game.restart();
     }
 
     public static deserialize(content: string) {
@@ -40,6 +42,7 @@ class GameConfig {
             for (const line of lines) {
                 if (line.startsWith("GF=")) this.gf = this.convertBool(line.replace("GF=", ""));
                 else if (line.startsWith("RG=")) this.rg = this.convertBool(line.replace("RG=", ""));
+                else if (line.startsWith("RGUSR=")) this.rgusr = line.replace("RGUSR=", "").trim();
                 else if (line.startsWith("SH=")) this.sh = this.convertBool(line.replace("SH=", ""));
                 else if (line.startsWith("GM=")) this.gm = this.convertBool(line.replace("GM=", ""));
                 else {

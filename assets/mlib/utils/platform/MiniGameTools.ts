@@ -103,12 +103,15 @@ class MiniGameTools {
             });
         }
         if (WECHAT) {
-            wx.getUpdateManager().onUpdateReady(onUpdateReady);
+            updateManager = wx.getUpdateManager();
         } else if (BYTEDANCE) {
-            tt.getUpdateManager().onUpdateReady(onUpdateReady);
+            updateManager = tt.getUpdateManager();
         } else if (ALIPAY) {
-            my.getUpdateManager().onUpdateReady(onUpdateReady);
+            updateManager = my.getUpdateManager();
+        } else {
+            console.warn("[checkUpdate] 不支持的小游戏平台");
         }
+        updateManager?.onUpdateReady(onUpdateReady);
     }
 
 
@@ -264,11 +267,11 @@ class MiniGameTools {
     }
 
     /** 使手机发生振动（short:约15ms long:约400ms）默认short */
-    public vibrate(type?: "short" | "long") {
+    public vibrate(type?: "light" | "medium" | "heavy") {
         if (!MINIGAME) return;
-        type = type || "short";
-        if (WECHAT) type == "short" ? wx.vibrateShort({ type: "heavy" }) : wx.vibrateLong();
-        else if (BYTEDANCE) type == "short" ? tt.vibrateShort() : tt.vibrateLong();
+        type = type || "light";
+        if (WECHAT) type == "light" ? wx.vibrateShort({ type: "heavy" }) : wx.vibrateLong();
+        else if (BYTEDANCE) type == "medium" ? tt.vibrateShort() : tt.vibrateLong();
         else console.warn("[vibrate] 不支持的小游戏平台");
     }
 

@@ -1,4 +1,5 @@
-import { Component, EventTouch, Node, Rect, Size, Sprite, Vec2, Vec3, _decorator, v2, view } from "cc";
+import { EventTouch, Node, Rect, Size, Sprite, Vec2, Vec3, _decorator, v2, view } from "cc";
+import { MComponent } from "db://assets/mlib/module/core/MComponent";
 import { MEvent } from "../../../mlib/module/event/MEvent";
 import { HollowOut } from "./HollowOut";
 
@@ -21,7 +22,7 @@ export enum EClickType {
 
 @ccclass("GuideMask")
 @requireComponent(Sprite)
-export class GuideMask extends Component {
+export class GuideMask extends MComponent {
     @property(HollowOut)
     private hollowOut: HollowOut = null;
 

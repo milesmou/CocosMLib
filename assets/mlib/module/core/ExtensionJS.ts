@@ -245,6 +245,16 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return new Date().getYMD();
     }
 
+    Date.parseYMD = function (ymd: number) {
+        let str = ymd.toString();
+        if (str.length != 8) {
+            console.error('YMD格式不正确', ymd);
+            return null;
+        }
+        str = str.substring(0, 4) + "-" + str.substring(4, 6) + "-" + str.substring(6, 8) + " 00:00:00";
+        return new Date(str);
+    }
+
     Date.prototype.getTimeS = function () {
         let self: Date = this;
         return Math.floor(self.getTime() / 1000);
@@ -259,44 +269,54 @@ if (!EDITOR_NOT_IN_PREVIEW) {//非编辑器模式才生效
         return parseInt(str);
     }
 
-    Date.prototype.addYears = function (years: number, returnNew?: boolean) {
+    Date.prototype.getWeekOfYear = function () {
+        //设置小时为1点是为了避免整除导致周一的周数计算错误
+        let self = new Date(this.getFullYear(), this.getMonth(), this.getDate(), 1);
+        //当年1月1日的时间
+        let date = new Date(self.getFullYear(), 0, 1);
+        //当年第一个周一的时间
+        let week = date.getDay() || 7;
+        date.setDate(date.getDate() + (8 - week) % 7);
+        //当前时间是第几个周
+        let weekNum = Math.ceil((self.getTime() - date.getTime()) / 604800000);
+        //1月1日如果是周二到周四也算是第一周
+        if (week > 1 && week <= 4) weekNum++;
+        return weekNum;
+
+    }
+
+    Date.prototype.addYears = function (years: number) {
         let self: Date = this;
-        if (returnNew) self = new Date(self.getTime());
         self.setFullYear(self.getFullYear() + years);
         return self;
     }
 
-    Date.prototype.addMonths = function (months: number, returnNew?: boolean) {
+    Date.prototype.addMonths = function (months: number) {
         let self: Date = this;
-        if (returnNew) self = new Date(self.getTime());
         self.setMonth(self.getMonth() + months);
         return self;
     }
 
-    Date.prototype.addDays = function (days: number, returnNew?: boolean) {
+    Date.prototype.addDays = function (days: number) {
         let self: Date = this;
-        if (returnNew) self = new Date(self.getTime());
         self.setDate(self.getDate() + days);
         return self;
     }
 
-    Date.prototype.addHours = function (hours: number, returnNew?: boolean) {
+    Date.prototype.addHours = function (hours: number) {
         let self: Date = this;
-        if (returnNew) self = new Date(self.getTime());
         self.setHours(self.getHours() + hours);
         return self;
     }
 
-    Date.prototype.addMinutes = function (minutes: number, returnNew?: boolean) {
+    Date.prototype.addMinutes = function (minutes: number) {
         let self: Date = this;
-        if (returnNew) self = new Date(self.getTime());
         self.setMinutes(self.getMinutes() + minutes);
         return self;
     }
 
-    Date.prototype.addSeconds = function (seconds: number, returnNew?: boolean) {
+    Date.prototype.addSeconds = function (seconds: number) {
         let self: Date = this;
-        if (returnNew) self = new Date(self.getTime());
         self.setSeconds(self.getSeconds() + seconds);
         return self;
     }
@@ -306,7 +326,7 @@ declare global {
 
     /** 通用进度回调方法的声明 */
     type Progress = (loaded: number, total: number) => void;
-    
+
     /** 通用结果回调方法的参数 */
     interface ResultParam {
         /** 结果码 0:成功 1失败 2错误 其它根据需求自定义 */
@@ -452,6 +472,8 @@ declare global {
         nowS(): number;
         /** 返回当前时间的年月日 例:20010101 */
         nowYMD(): number;
+        /** 将年月日格式的数字(例:20010101)转换为时间对象  */
+        parseYMD(ymd: number): Date;
     }
 
     interface Date {
@@ -459,18 +481,20 @@ declare global {
         getTimeS(): number;
         /** 返回时间对象的年月日 例:20010101 */
         getYMD(): number;
-        /** 增加指定的年 returnNew:是否返回一个新的时间对象,默认false */
-        addYears(years: number, returnNew?: boolean): Date;
-        /** 增加指定的月 returnNew:是否返回一个新的时间对象,默认false */
-        addMonths(months: number, returnNew?: boolean): Date;
-        /** 增加指定的天 returnNew:是否返回一个新的时间对象,默认false */
-        addDays(days: number, returnNew?: boolean): Date;
-        /** 增加指定的小时 returnNew:是否返回一个新的时间对象,默认false */
-        addHours(hours: number, returnNew?: boolean): Date;
-        /** 增加指定的分钟 returnNew:是否返回一个新的时间对象,默认false */
-        addMinutes(minutes: number, returnNew?: boolean): Date;
-        /** 增加指定的秒 returnNew:是否返回一个新的时间对象,默认false */
-        addSeconds(seconds: number, returnNew?: boolean): Date;
+        /** 返回时间对象当年的周数(第一个周四所在周为第一周) */
+        getWeekOfYear(): number;
+        /** 增加指定的年 */
+        addYears(years: number): Date;
+        /** 增加指定的月 */
+        addMonths(months: number): Date;
+        /** 增加指定的天 */
+        addDays(days: number): Date;
+        /** 增加指定的小时 */
+        addHours(hours: number): Date;
+        /** 增加指定的分钟 */
+        addMinutes(minutes: number): Date;
+        /** 增加指定的秒 */
+        addSeconds(seconds: number): Date;
     }
 
 }

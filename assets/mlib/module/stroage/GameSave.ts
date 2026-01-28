@@ -1,6 +1,6 @@
 import { Tween, tween } from "cc";
-import { ItemSO } from "../../misc/PlayerInventory";
-import { TaskItemSO } from "../../misc/PlayerTask";
+import { ItemSO } from "../../abstract/inventory/InventoryBase";
+import { TaskItemSO } from "../../abstract/task/TaskBase";
 
 
 /** 准备延迟存档,忽略其它存档请求 */
@@ -11,6 +11,9 @@ const collectionItemSuffix = "$item";
 function saveDataTimeMSKey() { return mGameSetting.gameName + "_SaveDataTimeMS"; }
 /** 当前登录的用户Id */
 function userIdKey() { return mGameSetting.gameName + "_UserId"; }
+
+/** 从本地直接反序列化出来的数据 */
+let oldData: GameSave = null;
 
 /** 
  * 游戏数据存档基类(存档的Key使用游戏名字)
@@ -58,8 +61,9 @@ export abstract class GameSave {
      * @param onNewUser 新用户回调
      * @param onDateChange 日期变化回调
      */
-    public init(onInit: () => void, onNewUser: () => void, onDateChange: (lastDate: number, today: number) => void) {
-        onInit && onInit();
+    public init(onInit: (oldData: object) => void, onNewUser: () => void, onDateChange: (lastDate: number, today: number) => void) {
+        onInit && onInit(oldData);
+        oldData = null;
         if (!this._createDate) {
             this._createDate = mTime.date.getYMD();
             onNewUser && onNewUser();
@@ -101,6 +105,9 @@ export abstract class GameSave {
         return LZString.compressToBase64(str);
     }
 
+    /** 上次登录的用户Id */
+    public static get lastUserId() { return app.stroage.getValue(userIdKey(), ""); }
+
     /** 用户登录，若切换用户则清除本地存档 */
     public static login(userId: string) {
         let lastUserId = app.stroage.getValue(userIdKey(), "");
@@ -110,6 +117,17 @@ export abstract class GameSave {
         }
         app.stroage.setValue(userIdKey(), userId);
     }
+
+    /** 用户绑定，切换用户但不清除本地存档 */
+    public static bind(userId: string) {
+        let lastUserId = app.stroage.getValue(userIdKey(), "");
+        if (lastUserId && userId != lastUserId) {
+            mLogger.info("绑定用户", lastUserId, userId);
+            app.stroage.setValue(userIdKey(), userId);
+        }
+
+    }
+
 
     /** 本地是否有存档数据 */
     public static haveGameData() {
@@ -166,9 +184,8 @@ export abstract class GameSave {
             return null;
         }
 
-        let obj = parseData(app.stroage.getValue(mGameSetting.gameName, ""));
-        if (obj) this.mergeValue(inst, obj);
-
+        oldData = parseData(app.stroage.getValue(mGameSetting.gameName, ""));
+        if (oldData) this.mergeValue(inst, oldData);
         return inst;
     }
 

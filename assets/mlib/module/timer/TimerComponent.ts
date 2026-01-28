@@ -156,13 +156,13 @@ export class TimerComponent extends Component {
         for (const v of this._schedules.values()) {
             if (v.callback == callback && v.thisObj == thisObj) {
                 this._schedules.delete(v);
-                break;
+                return;
             }
         }
         for (const v of this._onceSchedules.values()) {
             if (v.callback == callback && v.thisObj == thisObj) {
                 this._onceSchedules.delete(v);
-                break;
+                return;
             }
         }
     }

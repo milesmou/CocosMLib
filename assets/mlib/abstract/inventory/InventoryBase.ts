@@ -1,4 +1,4 @@
-import { GameSave } from "../module/stroage/GameSave";
+import { GameSave } from "../../module/stroage/GameSave";
 
 /** 物品信息 物品类型,物品ID,物品数量 */
 type ItemInfo = [number, number, number];
@@ -19,13 +19,16 @@ export type ItemSO = [
     number?
 ];
 
-export class PlayerInventory {
+/** 玩家背包模块基类 */
+export abstract class InventoryBase {
+
+    /** 玩家数据缓存对象 */
     private _gameSave: GameSave;
-
+    /** 物品缓存 */
     private _itemCache: { [key: string]: ItemSO } = {};
-
+    /** 物品变更回调 */
     private _onInventoryChange: () => void;
-
+    /** 是否合并相同物品 */
     private _mergeInventoryItem: boolean;
 
     /** 初始化玩家背包 */
@@ -126,18 +129,30 @@ export class PlayerInventory {
 
     /** 获取背包物品数量 */
     public getItemAmount(type: number, itemId: number) {
-        let itemSo = this.getCacheItemSO(type, itemId);
-        if (itemSo) return itemSo[3];
-        var inventoryItemSos = this._gameSave.inventory.filter(v => v[1] == type && v[2] == itemId);
-        if (inventoryItemSos.length == 0) return 0;
-        else {
-            let num = 0;
-            for (const itemInfo of inventoryItemSos) {
-                num += itemInfo[3];
+        let stackLimit = this.getItemStackLimit(type, itemId);
+        if (stackLimit > 0) {
+            var inventoryItemSos = this._gameSave.inventory.filter(v => v[1] == type && v[2] == itemId);
+            if (inventoryItemSos.length == 0) return 0;
+            else {
+                let num = 0;
+                for (const itemInfo of inventoryItemSos) {
+                    num += itemInfo[3];
+                }
+                return num;
             }
-
-            return num;
+        } else {
+            let itemSo = this.getCacheItemSO(type, itemId);
+            if (itemSo) {
+                return itemSo[3];
+            }
+            return 0;
         }
+    }
+
+    /** 清空背包 （谨慎使用，会清空所有物品） */
+    public clearInventory() {
+        this._gameSave.inventory = [];
+        this.saveInventory();
     }
 
     /** 添加物品到背包中 */
@@ -303,12 +318,11 @@ export class PlayerInventory {
         }
     }
 
-
-
 }
 
+/** 物品解析工具类 */
 export class ParseItemTool {
-    static parseGameItem(strs: string | string[]) {
+    public static parseGameItem(strs: string | string[]) {
         let map: { [key: string]: number } = {};
         let array: string[];
         if (Array.isArray(strs)) array = strs;
@@ -341,7 +355,7 @@ export class ParseItemTool {
         return result;
     }
 
-    static parseSingleGameItem(str: string) {
+    public static parseSingleGameItem(str: string) {
         let result: ItemInfo = [1, 0, 0];
         let arr = str.trim().split(",").filter(v => v != "");
         if (arr.length >= 2) {

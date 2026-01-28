@@ -9,6 +9,8 @@ declare namespace HttpLeaderboardModel {
        userId: string;
        /** 分数 */
        score: number;
+       /** 是否追加分数(默认false 表示会覆盖掉之前的分数) */
+       isAdd?: boolean;
    }
 
    /** 排行榜数据信息(由PlayInfo和Leaderboard组合出的结构) */

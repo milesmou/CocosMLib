@@ -29,10 +29,28 @@
             "script": "./dist/scene/SceneMain.js"
         },
         "messages": {
+            "sendMessage": {
+                "public": true,
+                "methods": [
+                    "sendMessage"
+                ]
+            },
             "saveGameSetting": {
                 "public": true,
                 "methods": [
                     "saveGameSetting"
+                ]
+            },
+            "saveFile": {
+                "public": true,
+                "methods": [
+                    "saveFile"
+                ]
+            },
+            "deleteFile": {
+                "public": true,
+                "methods": [
+                    "deleteFile"
                 ]
             },
             "loadExcel": {
@@ -63,6 +81,11 @@
             "genHotUpdateRes": {
                 "methods": [
                     "genHotUpdateRes"
+                ]
+            },
+            "uploadHotUpdateRes": {
+                "methods": [
+                    "uploadHotUpdateRes"
                 ]
             },
             "test": {
@@ -101,6 +124,11 @@
                 "path": "MTools/热更",
                 "label": "生成热更资源",
                 "message": "genHotUpdateRes"
+            },
+            {
+                "path": "MTools/热更",
+                "label": "上传热更资源",
+                "message": "uploadHotUpdateRes"
             },
             {
                 "path": "MTools",

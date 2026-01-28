@@ -18,7 +18,7 @@ class MLogger {
     public static readonly ELogLevel = ELoggerLevel;
 
     /** 脚本加载时自动执行 */
-    private static init = (() => {
+    protected static init = (() => {
         MLogger.setLevel(ELoggerLevel.Debug);
     })();
 
@@ -49,14 +49,25 @@ class MLogger {
 
     //日志打印对象
     private constructor(tag: string, level: ELoggerLevel = ELoggerLevel.Info) {
-        this.debug = globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ?
-            none : console.log.bind(console, `%c[${globalTag} ${tag} Debug]`, debugStyle);
-        this.info = globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ?
-            none : console.log.bind(console, `%c[${globalTag} ${tag} Info]`, infoStyle);
-        this.warn = globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ?
-            none : console.warn.bind(console, `%c[${globalTag} ${tag} Warn]`, warnStyle);
-        this.error = globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ?
-            none : console.error.bind(console, `%c[${globalTag} ${tag} Error]`, errorStyle);
+        if (sys.isBrowser) {
+            this.debug = globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ?
+                none : console.log.bind(console, `%c[${globalTag} ${tag} Debug]`, debugStyle);
+            this.info = globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ?
+                none : console.log.bind(console, `%c[${globalTag} ${tag} Info]`, infoStyle);
+            this.warn = globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ?
+                none : console.warn.bind(console, `%c[${globalTag} ${tag} Warn]`, warnStyle);
+            this.error = globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ?
+                none : console.error.bind(console, `%c[${globalTag} ${tag} Error]`, errorStyle);
+        } else {
+            this.debug = globalLevel > ELoggerLevel.Debug || level > ELoggerLevel.Debug ?
+                none : console.log.bind(console, `[${globalTag} ${tag} Debug]`);
+            this.info = globalLevel > ELoggerLevel.Info || level > ELoggerLevel.Info ?
+                none : console.log.bind(console, `[${globalTag} ${tag} Info]`);
+            this.warn = globalLevel > ELoggerLevel.Warn || level > ELoggerLevel.Warn ?
+                none : console.warn.bind(console, `[${globalTag} ${tag} Warn]`);
+            this.error = globalLevel > ELoggerLevel.Error || level > ELoggerLevel.Error ?
+                none : console.error.bind(console, `[${globalTag} ${tag} Error]`);
+        }
     }
 
     public debug: (...data) => void;

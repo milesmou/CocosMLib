@@ -3,43 +3,31 @@ import { PREVIEW } from 'cc/env';
 import { StroageMap } from '../module/stroage/StroageMap';
 import { Utils } from '../utils/Utils';
 import { HttpGameData } from './GameWeb/GameData/HttpGameData';
-import { HttpEvent } from './GameWeb/HttpEvent';
+import { HttpMulti } from './GameWeb/HttpMulti';
 import { IReportEvent } from './IReportEvent';
+import { ENativeBridgeKey, NativeBridge } from './SDKWrapper/NativeBridge';
 import { GetGameDataParams, PayParams, RewardedVideoParams, SaveGameDataParams, SDKCallback, SDKTemp } from './SDKWrapper/SDKCallback';
 import { SDKListener } from './SDKWrapper/SDKListener';
+import { NativeTools } from './SDKWrapper/NativeTools';
 const { ccclass } = _decorator;
+
+if (sys.isBrowser) {
+    game.restart = async () => { location.reload(); }
+    game.exit = async () => { location.href = 'about:blank'; }
+}
+
+/** 上次展示激励视频广告的时间 */
+let lastShowRewardedAdTime: number = 0;
+/** 上次发起内购广告的时间 */
+let lastPayTime: number = 0;
 
 @ccclass("Channel")
 export class Channel {
 
-    /**
-     * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。
-     */
-    public getSafeAreaRect() {
-        return sys.getSafeAreaRect();
-    }
-
-    /** 退出游戏 */
-    public exitGame() {
-        if (sys.isBrowser) {
-            location.href = 'about:blank';
-        } else {
-            console.warn("未实现游戏退出接口");
-        }
-    }
-
-    /** 重启游戏 */
-    public restartGame() {
-        if (sys.isBrowser) {
-            location.reload();
-        } else {
-            game.restart();
-        }
-    }
-
     /** 初始化SDK */
     public initSDK() {
         this.initEvent();
+        NativeBridge.sendToNative("initSDK");
     }
 
     /** 初始化SDK相关的事件 */
@@ -47,7 +35,7 @@ export class Channel {
     }
 
     /** 初始化内购 */
-    public initIAP() {
+    public initPay() {
         SDKListener.onInitPay();
     }
 
@@ -65,10 +53,10 @@ export class Channel {
     public getGameData(args: GetGameDataParams) {
         mLogger.debug("getGameData", args.userId);
         HttpGameData.getPlayerGameData({ userId: args.userId }).then(v => {
-            if (v) {
-                SDKListener.onGetGameData({ code: 0, data: v.data, updateTime: v.updateTime });
+            if (v?.code == 0) {
+                SDKListener.onGetGameData({ code: 0, data: v.data?.data, updateTime: v.data?.updateTime });
             } else {
-                SDKListener.onGetGameData({ code: 1 })
+                SDKListener.onGetGameData({ code: 1, msg: v?.msg })
             }
         });
     }
@@ -82,12 +70,28 @@ export class Channel {
         });
     }
 
+    /**
+     *  激励视频防盗刷检查
+     * @param cd 冷却时间(秒) 两次请求小于cd秒则认为是盗刷 直接失败
+     * @returns 是否通过检查 true通过 false直接触发失败逻辑
+     */
+    protected rewardedAdCheck(cd: number = 5) {
+        const now = Date.now();
+        if (now - lastShowRewardedAdTime < cd * 1000) {
+            SDKListener.onRewardedVideo({ code: 2 });
+            mLogger.warn("激励视频请求频率过快");
+            return false;
+        }
+        lastShowRewardedAdTime = now;
+        return true;
+    }
+
     /** 展示激励视频广告 */
     public showRewardedAd(args: RewardedVideoParams) {
         SDKTemp.rewardedVideoParams = args;
-        SDKListener.onRewardedVideo({ code: 3 })
-        SDKListener.onRewardedVideo({ code: 4 })
-        SDKListener.onRewardedVideo({ code: 0 })
+        SDKListener.onRewardedVideo({ code: 3 });
+        SDKListener.onRewardedVideo({ code: 4 });
+        SDKListener.onRewardedVideo({ code: 0 });
     }
 
     /** 展示插屏广告 */
@@ -96,7 +100,7 @@ export class Channel {
     }
 
     /** 展示横幅广告 */
-    public showbanner(...args: any[]) {
+    public showBanner(...args: any[]) {
 
     }
 
@@ -105,20 +109,36 @@ export class Channel {
 
     }
 
+    /**
+     *  内购防盗刷检查
+     * @param cd 冷却时间(秒) 两次请求小于cd秒则认为是盗刷 直接失败
+     * @returns 是否通过检查 true通过 false直接触发失败逻辑
+     */
+    protected payCheck(cd: number = 5) {
+        const now = Date.now();
+        if (now - lastPayTime < cd * 1000) {
+            SDKListener.onPay({ code: 1, productId: SDKTemp.payParams?.productId });
+            mLogger.warn("内购请求频率过快");
+            return false;
+        }
+        lastPayTime = now;
+        return true;
+    }
+
     /** 获取所有商品的详情信息 商品id之间用|隔开 */
     public reqProductDetails(productIds: string) {
         SDKListener.onGetProducts("default");
     }
 
     /** 发起内购 */
-    public requestIAP(args: PayParams) {
+    public requestPay(args: PayParams) {
         SDKTemp.payParams = args;
         SDKListener.onStartPay();
-        SDKListener.onPay({ code: 0, productId: args.productId });
+        SDKListener.onPay({ code: 0, productId: args.productId, id: args.id });
     }
 
     /** 恢复内购(订阅或漏单) */
-    public restoreIAP() {
+    public restorePay() {
 
     }
 
@@ -128,7 +148,7 @@ export class Channel {
     }
 
     /** 使设备发生震动 */
-    public vibrate(type?: "short" | "long") {
+    public vibrate(type?: "light" | "medium" | "heavy") {
 
     }
 
@@ -181,10 +201,22 @@ export class Channel {
     }
 
     /** 调用异步的渠道方法 需要传入一个回调 */
-    public callChanneAsync(key: string, args: string, callback: (res: string) => void) {
-        SDKCallback.callback.set(key, callback);
-        // 逻辑处理完成后，通过SDKListener.onCallback 触发回调
-        // SDKListener.onCallback(key, "");
+    public callChanneAsync(key: string, args?: string): Promise<string> {
+        let p = new Promise<string>((resolve, reject) => {
+            SDKCallback.callback.set(key, resolve);
+            //逻辑处理完成后，通过SDKListener.onCallback 触发回调
+            SDKListener.onCallback(key, key);
+        });
+        return p;
+    }
+
+    /** 
+    * 原生平台基础事件 
+    * @param event 事件名
+    * @param args 事件参数
+   */
+    public nativeBaseEvent(event: string, args?: (string | number) | (string | number)[], tag?: string) {
+
     }
 
     /** 
@@ -196,7 +228,7 @@ export class Channel {
         if (!event.enable || !event.name) return;
         let paramStr = args ? Object.values(args).join("|") : "";
         let eventName = PREVIEW ? "0_" + event.name : event.name;
-        HttpEvent.reportEvent({ eventName: eventName, param: paramStr });
+        HttpMulti.reportEvent({ eventName: eventName, param: paramStr });
     }
 
     /** 上报事件 每天一次(本地存档卸载失效)*/
@@ -213,7 +245,7 @@ export class Channel {
     public reportSumEvent(event: IReportEvent, num: number, args?: { [key: string]: any }) {
         let paramStr = args ? Object.values(args).join("|") : "";
         let eventName = PREVIEW ? "0_" + event.name : event.name;
-        HttpEvent.reportEvent({ eventName: eventName, param: paramStr, sum: num });
+        HttpMulti.reportEvent({ eventName: eventName, param: paramStr, sum: num });
     }
 
     private eventCache = new StroageMap(mGameSetting.gameName + "_ReportEvent", 0, true);
@@ -243,4 +275,69 @@ export class Channel {
 
 }
 
+/** 原生渠道 */
+@ccclass("NativeChannel")
+export class NativeChannel extends Channel {
+    public login(args?: string): void {
+        NativeBridge.sendToNative(ENativeBridgeKey.Login);
+    }
+
+    public showRewardedAd(args: RewardedVideoParams): void {
+        SDKTemp.rewardedVideoParams = args;
+        if (!super.rewardedAdCheck()) return;
+        SDKListener.onRewardedVideo({ code: 3 });
+        NativeBridge.sendToNative(ENativeBridgeKey.ShowRewardedVideo, args.descEn);
+    }
+
+    public requestPay(args: PayParams): void {
+        SDKTemp.payParams = args;
+        if (!super.payCheck()) return;
+        NativeBridge.sendToNative(ENativeBridgeKey.RequestPay, args);
+    }
+
+    public restorePay(): void {
+        NativeBridge.sendToNative(ENativeBridgeKey.RestorePay);
+    }
+
+    public checkMsgSec(content: string, result: ResultCallback): void {
+        SDKCallback.callback.set(ENativeBridgeKey.CheckMsgSec, res => {
+            result({ code: res == "0" ? 0 : 1 });
+        });
+        NativeBridge.sendToNative(ENativeBridgeKey.CheckMsgSec, content);
+    }
+
+    public nativeBaseEvent(event: string, args?: (string | number) | (string | number)[], tag?: string): void {
+        NativeTools.nativeBaseEvent(event, args, tag);
+    }
+
+    public vibrate(type?: "light" | "medium" | "heavy"): void {
+        if (!app.vibrateEnable.value) return;
+        NativeTools.vibrate(type);
+    }
+
+    public setClipboard(data: string, result?: ResultCallback): void {
+        NativeTools.setClipboardData(data, (res) => {
+            if (res.code == 0) {
+                NativeTools.showToast("复制成功");
+            }
+            result({ code: res.code });
+        });
+    }
+
+    public getClipboard(result: ResultCallback): void {
+        NativeTools.getClipboardData(result);
+    }
+
+    public callChannelVoid(key: string, args?: string) {
+        NativeBridge.sendToNative(key, args);
+    }
+
+    public callChanneAsync(key: string, args?: string): Promise<string> {
+        let p = new Promise<string>((resolve, reject) => {
+            SDKCallback.callback.set(key, resolve);
+            NativeBridge.sendToNative(key, args);
+        });
+        return p;
+    }
+}
 

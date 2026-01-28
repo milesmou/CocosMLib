@@ -27,6 +27,13 @@ export class SDKCallback {
 
 }
 
+/** 激励视频回调参数 */
+export interface RewardedVideo extends ResultParam {
+    /** 0成功 1失败 2错误 3请求广告 4展示 5关闭 6点击 7产生收益 */
+    code: number;
+    /** 激励视频收入 */
+    revenue?: number;
+}
 
 /** 用户信息 */
 export interface UserInfo {
@@ -73,8 +80,12 @@ export interface SaveGameDataParams {
 
 /** 支付接口需要的参数 */
 export interface PayParams {
-    /** 商品ID （小额支付可能不需要商品id） */
+    /** 平台商品Id （抖音小额支付不需要商品id） */
     productId?: string;
+    /** 自定义游戏订单Id */
+    orderId?: string;
+    /** 商品表唯一Id */
+    id?: string;
     /** 商品价格 */
     price: number;
     /** 商品名称 */
@@ -103,16 +114,24 @@ export interface PayListenter {
 
 /** 支付结果 */
 export interface PayResult extends ResultParam {
-    /** 支付结果   0支付成功 1支付失败 2支付环境异常 3可能延迟 4支付取消 5商品未找到 6延迟到账(补单)*/
+    /** 支付结果  0:支付成功 1:支付失败 2:支付环境异常 3:可能延迟 4:支付取消 5:商品未找到 6:延迟到账(补单)*/
     code: number;
-    /** 游戏中商品ID */
+    /** 商品Id */
     productId: string;
+    /** 自定义游戏订单Id */
+    orderId?: string;
+    /** 商品表唯一Id */
+    id?: string;
 }
 
 /** 激励视频接口参数 */
 export interface RewardedVideoParams {
     /** 广告位Id */
     adId?: string;
+    /** 激励视频描述（中文） */
+    descZh?: string;
+    /** 激励视频描述（英文） */
+    descEn?: string;
     /** 获取视频奖励成功 */
     success: (adId: string) => void;
     /** 获取视频奖励失败 */

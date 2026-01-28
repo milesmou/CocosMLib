@@ -9,6 +9,8 @@ declare namespace HttpRedeemCodeModel {
        code: string;
        /** 奖励 */
        reward: string;
+       /** 兑换次数限制 */
+       maxCount?: number;
        /** 兑换码创建时间 */
        createTime: number;
        /** 兑换码生效时间 */
@@ -23,6 +25,8 @@ declare namespace HttpRedeemCodeModel {
        code?: string;
        /** 奖励 */
        reward: string;
+       /** 兑换次数限制 不填则无限制 */
+       maxCount?: number;
        /** 生效时间 */
        activeTime: number;
        /** 过期时间 */

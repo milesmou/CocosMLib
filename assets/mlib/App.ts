@@ -1,6 +1,8 @@
 import { Component, _decorator, director, js } from 'cc';
 const { ccclass, property } = _decorator;
 
+import { Event, Node, sys } from 'cc';
+import { JSB } from 'cc/env';
 import { Publish } from '../scripts/base/publish/Publish';
 import { TipMsg } from '../scripts/base/uiTipMsg/TipMsg';
 import { AssetComponent } from './module/asset/AssetComponent';
@@ -82,13 +84,22 @@ class App extends Component implements IApp {
 
         this.gameEnv = Publish.getGameEnv();
         this.chan = Publish.getChannelInstance();
-        this.verDetail = mGameSetting.channel + "_" + mGameSetting.version + "_" + this.gameEnv.upperFirst();
+
+        if (JSB && mGameSetting.hotupdate) {
+            let patchVersion = mGameSetting.hotupdateConfig.patchVersion;
+            this.verDetail = mGameSetting.channel + "_" + mGameSetting.version + `${patchVersion && patchVersion != "0" ? patchVersion : ""}_` + this.gameEnv.upperFirst();
+        } else {
+            this.verDetail = mGameSetting.channel + "_" + mGameSetting.version + "_" + this.gameEnv.upperFirst();
+        }
 
         this.vibrateEnable = new StroageValue(mGameSetting.gameName + "_VibrateEnable", true);
 
         mLogger.info(`GameSetting Env=${this.gameEnv} Channel=${mGameSetting.channel}|${js.getClassName(this.chan)} Version=${mGameSetting.version}`);
         mLogger.info(`GameSetting ModifyTime=${mGameSetting.modifyTime} ConfigType=${mGameSetting.gameConfigTypeStr} Language=${L10nMgr.lang}`);
         mLogger.info(`SDKSetting ${mSdkSetting.getPrintInfo()}`);
+        if (JSB && mGameSetting.hotupdate) {
+            mLogger.info(`Hotupdate AppVersion=${mGameSetting.hotupdateConfig.appVersion} PatchVersion=${mGameSetting.hotupdateConfig.patchVersion}`);
+        }
     }
 
     protected start() {
@@ -102,6 +113,34 @@ class App extends Component implements IApp {
     }
 
 }
+
+/** 调试命令 */
+const cmd = Object.defineProperties(globalThis.mCmd || {}, {
+    /** 调试节点事件 */
+    debugNodeEvent: {
+        get: () => {
+            Node.prototype.dispatchEvent = function (event: Event) {
+                let self: Node = this;
+                if (!event.type.startsWith("mouse-")) {//忽略鼠标事件
+                    mLogger.debug("[NodeEvent]", event.type, self.getPath());
+                    this._eventProcessor.dispatchEvent(event);
+                }
+            };
+            return;
+        },
+        enumerable: false
+    },
+    /** 新游戏 */
+    newGame: {
+        get: () => {
+            sys.localStorage.clear();
+            location.reload();
+            return;
+        },
+        enumerable: false
+    }
+});
+globalThis.mCmd = cmd;
 
 declare global {
     /** 应用程序管理单例 */

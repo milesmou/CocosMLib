@@ -20,13 +20,6 @@ const UIBlockTime = 0.2;
 
 /** 打开UI时的参数 */
 interface ShowUIParam {
-    /** 传递到UI的自定义参数 */
-    args?: any;
-    /** UI的父节,不填默认为UIRoot下的Normal节点 */
-    parent?: Node;
-    /** 是否播放打开动画 默认true(UI面板开启动画才有效) */
-    playAnim?: boolean;
-    /** 指定打开动画的名字 默认根节点Animation组件第1个动画 */
     animName?: string;
     /** UI是否显示 默认true*/
     visible?: boolean;
@@ -34,6 +27,15 @@ interface ShowUIParam {
     bottom?: boolean;
     /** UI加载进度回调 */
     onProgress?: Progress
+    /** 在初始化ui之前执行操作 (会等待操作完成再初始化UI) */
+    preInitUI?: Promise<void>;
+    /** 传递到UI的自定义参数 */
+    args?: any;
+    /** UI的父节,不填默认为UIRoot下的Normal节点 */
+    parent?: Node;
+    /** 是否播放打开动画 默认true(UI面板开启动画才有效) */
+    playAnim?: boolean;
+
 }
 
 /** 关闭UI时的参数 */
@@ -51,6 +53,9 @@ export class UIMgr extends Component {
 
     @property({ tooltip: "弹窗遮罩透明度" })
     public shadeOpacity = 200;
+
+    @property({ tooltip: "是否裁切掉画布外的内容" })
+    public trimCanvas = true;
 
     private _camera: Camera;
     /** UI摄像机 */
@@ -117,6 +122,7 @@ export class UIMgr extends Component {
     }
 
     private init() {
+        let mask = this.node.getChildByName("Mask");
         //创建3个UI层级
         this._normal = CCUtils.createUINode("Normal", this.node);
         this._normal.matchParent();
@@ -141,11 +147,12 @@ export class UIMgr extends Component {
         AssetMgr.loadAsset(UIConstant.Loading, Prefab).then(prefab => {
             instantiate(prefab).parent = this._resident;
         });
+        mask?.setSiblingIndex(99999);
     }
 
     /** 打开一个普通的UI界面 */
     public async show<T extends UIForm>(uiName: string, options?: ShowUIParam): Promise<T> {
-        let { args, parent, playAnim, animName, visible, bottom, onProgress } = options || {};
+        let { animName, visible, bottom, onProgress, preInitUI, args, parent, playAnim, } = options || {};
         playAnim ??= true;
         visible ??= true;
         bottom ??= false;
@@ -156,6 +163,7 @@ export class UIMgr extends Component {
         this.checkShowUI(uiName, visible);
         app.event.emit(mEventKey.OnUIInitBegin, uiName, visible);
         this._uiArgs[uiName] = args;
+        if (preInitUI) await preInitUI;
         let ui = await this.initUI(uiName, parent || this._normal, visible, bottom, onProgress);
         if (!ui) return;
         this._uiStack.add(ui, !visible || bottom, parentUI)
@@ -402,6 +410,7 @@ export class UIMgr extends Component {
 
     /** 更新画布适配模式 */
     private updateCanvasResolution() {
+        
         let designSize = view.getDesignResolutionSize();//设计分辨率
         let visibleSize = view.getVisibleSize();//实际视图分辨率
 
@@ -428,6 +437,9 @@ export class UIMgr extends Component {
 
     /** 更新摄像机视野范围 0:显示全部 1:横屏裁切上下 2:竖屏裁切左右 */
     private updateCameraViewRect(type: 0 | 1 | 2) {
+
+        if(!this.trimCanvas) return;
+
         let visibleSize = view.getVisibleSize();
         switch (type) {
             case 0:

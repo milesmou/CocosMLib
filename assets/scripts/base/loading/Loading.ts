@@ -1,9 +1,10 @@
-import { Asset, Label, Prefab, ProgressBar, TextAsset, Tween, _decorator, loadWasmModuleSpine, sys, tween } from 'cc';
-import { PREVIEW } from 'cc/env';
+import { Asset, Label, Node, Sprite, TextAsset, Tween, _decorator, game, loadWasmModuleSpine, sys, tween } from 'cc';
+import { JSB, MINIGAME, PREVIEW } from 'cc/env';
 import { TimeDuration } from 'db://assets/mlib/module/timer/TimeDuration';
+import { ENativeBridgeKey } from 'db://assets/mlib/sdk/SDKWrapper/NativeBridge';
 import { SDKCallback } from 'db://assets/mlib/sdk/SDKWrapper/SDKCallback';
-import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/misc/HotUpdate';
 import { AssetMgr } from '../../../mlib/module/asset/AssetMgr';
+import { EHotUpdateResult, EHotUpdateState, HotUpdate } from '../../../mlib/module/hotupdate/HotUpdate';
 import { HttpRequest } from '../../../mlib/module/network/HttpRequest';
 import { UIComponent } from '../../../mlib/module/ui/manager/UIComponent';
 import { UIForm } from '../../../mlib/module/ui/manager/UIForm';
@@ -12,6 +13,7 @@ import { GameTool } from '../../game/GameTool';
 import { UIConstant } from '../../gen/UIConstant';
 import { StageModel } from '../../ui/guanka/StageModel';
 import { MapUtil } from '../../ui/Map/MapUtil';
+import { DaiDa } from '../../ui/set/DaiDa/DaiDa';
 import { GameData } from '../GameData';
 import { EventKey } from '../GameEnum';
 import { GameInit } from '../GameInit';
@@ -28,11 +30,31 @@ export class Loading extends UIComponent {
 
     private get lblVersion() { return this.rc.get("lblVersion", Label); }
     private get uUID() { return this.rc.get("UUID", Label); }
-    private get progressBar() { return this.rc.get("progressBar", ProgressBar); }
+    private get progressBar() { return this.rc.get("progressBar", Sprite); }
     // private get des() { return this.rc.get("des", loadingTipHelp); }
     private get des2() { return this.rc.get("des2", Label); }
     private get lblDesc() { return this.rc.get("lblDesc", Label); }
     private get lblProgress() { return this.rc.get("lblProgress", Label); }
+
+    private get shiLingWnd() { return this.rc.get("shiLingWnd", Node); }
+
+    /**KIN 是否加载完成可以进入游戏咯？ */
+    private isLoadingComplete = false;
+
+    protected onClickButton(btnName: string): void {
+        switch (btnName) {
+            case "yunBu2":
+                sys.openURL("https://beian.miit.gov.cn/");
+                break;
+            case "shiLingBtn":
+                this.shiLingWnd.active = true;
+                break;
+            case "BtnCloseHelp":
+                this.shiLingWnd.active = false;
+                this.enterGameCheck();
+                break;
+        }
+    }
 
     protected start() {
         //打点
@@ -55,12 +77,105 @@ export class Loading extends UIComponent {
 
         await GameInit.initBeforeLoadConfig();
 
+        if (MINIGAME || PREVIEW) {//小游戏平台加载流程
+            this.normalStart();
+        } else if (sys.platform == sys.Platform.IOS) {
+            if (mGameSetting.channelId == EChannel.IOSCN_YB) {//ios国内
+                this.iosCNStart();
+            } else {
+                this.normalStart();
+            }
+
+        } else if (sys.platform == sys.Platform.ANDROID) {
+            if (mGameSetting.channelId == EChannel.AZCN_YB) {//android国内
+                this.azCNStart();
+            } else {
+                this.normalStart();
+            }
+        } else {//其他平台
+            this.normalStart();
+        }
+
+    }
+
+    /** 常规开始流程 */
+    private async normalStart() {
         //加载配置和登录
         TimeDuration.time("加载配置和登录");
         this.setTips(LoadingText.Login);
         this.startFakeProgress(2);
-        await Promise.all([this.loadCfg(), this.login(), AssetMgr.loadBundle("dynamic"), AssetMgr.loadBundle("dynamic")]);
+        await Promise.all([this.loadCfg(), this.login(), AssetMgr.loadBundle("dynamic")]);
         TimeDuration.timeEndLog("加载配置和登录");
+
+        if (JSB) {
+            this.setTips(LoadingText.CheckUpdate);
+            await this.checkVersion();
+        }
+
+        //同步云端存档
+        TimeDuration.time("同步云端存档 初始化数据表");
+        this.setTips(LoadingText.SyncGameData);
+        this.startFakeProgress(2);
+        await Promise.all([loadWasmModuleSpine(), this.syncGameData(), GameTable.initData()]);
+        TimeDuration.timeEndLog("同步云端存档 初始化数据表");
+
+        //加载游戏资源
+        TimeDuration.time("加载游戏资源");
+        await this.loadRes();
+        TimeDuration.timeEndLog("加载游戏资源");
+
+        TimeDuration.timeEndLog("Loading");
+    }
+
+    /** 国内ios开始流程 */
+    private async iosCNStart() {
+        //加载配置
+        TimeDuration.time("加载配置");
+        this.setTips(LoadingText.Config);
+        this.startFakeProgress(2);
+        await Promise.all([this.loadCfg(), AssetMgr.loadBundle("dynamic")]);
+        TimeDuration.timeEndLog("加载配置");
+
+        this.setTips(LoadingText.CheckUpdate);
+        await this.checkVersion();
+
+        //展示隐私协议
+        this.hideProgress();
+        await app.chan.callChanneAsync(ENativeBridgeKey.ShowPrivacy);
+
+        //登录
+        await this.login();
+
+        //实名认证
+        this.hideProgress();
+        await app.chan.callChanneAsync(ENativeBridgeKey.RealNameCertification);
+
+        //同步云端存档
+        TimeDuration.time("同步云端存档 初始化数据表");
+        this.setTips(LoadingText.SyncGameData);
+        this.startFakeProgress(2);
+        await Promise.all([loadWasmModuleSpine(), this.syncGameData(), GameTable.initData()]);
+        TimeDuration.timeEndLog("同步云端存档 初始化数据表");
+
+        //加载游戏资源
+        TimeDuration.time("加载游戏资源");
+        await this.loadRes();
+        TimeDuration.timeEndLog("加载游戏资源");
+
+        TimeDuration.timeEndLog("Loading");
+    }
+
+    /** 国内安卓开始流程 */
+    private async azCNStart() {
+        //加载配置
+        TimeDuration.time("加载配置");
+        this.setTips(LoadingText.Config);
+        this.startFakeProgress(2);
+        await Promise.all([this.loadCfg(), AssetMgr.loadBundle("dynamic")]);
+        TimeDuration.timeEndLog("加载配置");
+
+        //登录
+        await this.login();
 
         //同步云端存档
         TimeDuration.time("同步云端存档 初始化数据表");
@@ -136,23 +251,37 @@ export class Loading extends UIComponent {
 
     /** 版本更新检测 */
     private async checkVersion() {
-        if (!PREVIEW) {
-            if (mGameSetting.hotupdate && mGameConfig.rg && sys.isNative) {
-                let manifest = await AssetMgr.loadAsset("project", Asset);
-                if (manifest) {
-                    HotUpdate.Inst.start(
-                        manifest,
-                        mGameSetting.mainVersion,
-                        this.onUpdateStateChange.bind(this),
-                        this.onUpdateDownloadProgress.bind(this),
-                        this.onUpdateComplete.bind(this)
-                    );
-                    return;
+        let p = new Promise<void>(async (resolve, reject) => {
+            if (JSB) {//原生平台
+                if (mGameSetting.hotupdate && mGameConfig.rg) {
+                    if (mGameConfig.rgusr && mGameConfig.rgusr != GameData.lastUserId) {//限制指定用户可热更
+                        mLogger.debug("非指定用户 跳过热更", mGameConfig.rgusr);
+                        resolve();
+                        return;
+                    }
+
+                    let manifest = await AssetMgr.loadAsset("project", Asset);
+                    if (manifest) {
+                        HotUpdate.Inst.start(
+                            manifest,
+                            mGameSetting.hotupdateConfig.appVersion,
+                            this.onUpdateStateChange.bind(this),
+                            this.onUpdateDownloadProgress.bind(this),
+                            this.onUpdateComplete.bind(this, resolve)
+                        );
+                    } else {
+                        mLogger.error("加载清单文件失败 清单文件不存在 跳过热更");
+                        resolve();
+                    }
                 } else {
-                    mLogger.error("加载清单文件失败");
+                    mLogger.debug("热更功能未开启 跳过热更", mGameSetting.hotupdate, mGameConfig.rg);
+                    resolve();
                 }
+            } else {
+                resolve();
             }
-        }
+        });
+        return p;
     }
 
     /** 登录 */
@@ -163,7 +292,7 @@ export class Loading extends UIComponent {
                     mLogger.debug("登录成功", result.userId);
                     EasDataCollect.Inst.login(result.userId);
                     GameData.login(result.userId);
-                    app.chan.user = { userId: result.userId, userName: result.userName };
+                    app.user = { userId: result.userId, userName: result.userName };
                     this.uUID.string = "UUID：" + result.userId;
                     app.chan.reportEventLifetime(mReportEvent.init_sdk_login_success, null, "NOZQY");
                     app.chan.reportEventDaily(mReportEvent.init_sdk_login_success_daily, null, "NOZQY");
@@ -186,7 +315,9 @@ export class Loading extends UIComponent {
                     }
                 }
             };
-            app.chan.login();
+            if (!DaiDa.Inst.isDaida()) {//非代打模式正常登录
+                app.chan.login();
+            }
         }
         let p = new Promise<void>((resolve, reject) => {
             loginFunc(3, resolve);
@@ -211,12 +342,8 @@ export class Loading extends UIComponent {
                     if (result.data) {
                         mLogger.debug(`存档时间 云端:${new Date(result.updateTime).toLocaleString()} 本地:${new Date(localSaveTime).toLocaleString()}`);
                         if (result.updateTime > localSaveTime) {
-                            if (!sys.isNative) {
-                                mLogger.info("使用云存档");
-                                GameData.replaceGameData(result.data);
-                            } else {
-                                mLogger.debug("原生暂时不使用云存档");
-                            }
+                            mLogger.info("使用云存档");
+                            GameData.replaceGameData(result.data);
                         } else {
                             mLogger.info("使用本地存档");
                         }
@@ -237,7 +364,7 @@ export class Loading extends UIComponent {
                     }
                 }
             }
-            app.chan.getGameData({ userId: app.chan.user.userId });
+            app.chan.getGameData({ userId: app.user.userId });
         }
 
         let p = new Promise<void>((resolve, reject) => {
@@ -280,7 +407,8 @@ export class Loading extends UIComponent {
             await AssetMgr.loadBundle("shenhe", { onProgress: unionProgress.getOnProgress("shenhe bundle") });
             await app.ui.show(UIConstant.wxYxtPuzzle, { onProgress: unionProgress.getOnProgress("wxYxtPuzzle") });
             TimeDuration.timeEndLog("load shenhe");
-            this.node.destroy();
+            this.isLoadingComplete = true;
+            this.enterGameCheck();
         } else {
             /** 未通过第一关的新用户 */
             let isNewUser = GameTool.isNewUser();
@@ -301,7 +429,8 @@ export class Loading extends UIComponent {
             if (!isNewUser) {
                 this.des2.string = "N";
                 await app.timer.dealy(0.15);
-                this.node.destroy();
+                this.isLoadingComplete = true;
+                this.enterGameCheck();
                 this.des2.string = "N1";
                 await GameGuide.Inst.checkShowGuide();
             } else {
@@ -309,7 +438,8 @@ export class Loading extends UIComponent {
                 let hideLoading = (ui: UIForm) => {
                     if (ui.uiName == UIConstant.UIFightLoading) {
                         app.event.off(EventKey.OnUIShow, hideLoading);
-                        this.node.destroy();
+                        this.isLoadingComplete = true;
+                        this.enterGameCheck();
                     }
                 }
                 app.event.on(EventKey.OnUIShow, hideLoading);
@@ -340,7 +470,7 @@ export class Loading extends UIComponent {
 
         if (newProgress) {
             if (this.progressBar) {
-                this.progressBar.progress = 0;
+                this.progressBar.fillRange = 0;
             }
             if (this.lblProgress) {
                 this.lblProgress.string = "0%";
@@ -352,10 +482,11 @@ export class Loading extends UIComponent {
     /** 更新进度 */
     private onProgress(loaded: number, total: number) {
         if (this.progressBar) {
+            this.progressBar.node.active = true;
             let progress = loaded / total;
             progress = isNaN(progress) ? 0 : progress;
-            if (this.progressBar.progress > progress) return;
-            this.progressBar.progress = progress;
+            if (this.progressBar.fillRange > progress) return;
+            this.progressBar.fillRange = progress;
             if (this.lblProgress) {
                 this.lblProgress.string = Math.round(progress * 100) + "%";
             }
@@ -364,7 +495,7 @@ export class Loading extends UIComponent {
 
     /** 
      * 开始一个假的进度条
-     * @param dur 进度条时长 <0表示停止进度条
+     * @param dur 进度条时长 <=0表示停止进度条
      * @param value 进度到多少停止
      */
     private startFakeProgress(dur: number, value = 0.99) {
@@ -379,6 +510,13 @@ export class Loading extends UIComponent {
         }).start();
     }
 
+    /** 隐藏进度条 */
+    private hideProgress() {
+        this.lblDesc.string = "";
+        this.lblProgress.string = "";
+        this.progressBar.node.active = false;
+    }
+
     /** 热更状态变化 */
     private onUpdateStateChange(code: EHotUpdateState) {
         switch (code) {
@@ -389,7 +527,7 @@ export class Loading extends UIComponent {
                 this.setTips(LoadingText.DownloadUpdate);
                 break;
             case EHotUpdateState.Finished:
-                this.setTips(LoadingText.UpdateFinished);
+                this.setTips(LoadingText.UpdateFinished, false);
                 break;
 
         }
@@ -403,28 +541,38 @@ export class Loading extends UIComponent {
     /**
      * 热更新结果
      */
-    private onUpdateComplete(code: EHotUpdateResult) {
+    private onUpdateComplete(onEnded: () => void, code: EHotUpdateResult) {
         mLogger.info("HotUpdate ResultCode = ", EHotUpdateResult[code]);
         if (code == EHotUpdateResult.Success) {
-            app.chan.restartGame();
+            this.scheduleOnce(() => {
+                game.restart();
+            });
         } else if (code == EHotUpdateResult.Fail) {
             app.tipMsg.showConfirm(
-                "版本更新失敗，請檢查網絡是否正常，重新嘗試更新!", {
-                type: 1,
-                cbOk: () => {
-                    app.chan.restartGame();
-                }
-            });
-        } else {//最新版本或manifest文件异常 跳过更新
-            this.login()
+                this.getText(LoadingText.UpdateFailTip),
+                {
+                    type: 1,
+                    cbOk: () => {
+                        game.restart();
+                    }
+                });
+        } else if (code == EHotUpdateResult.UpToDate || code == EHotUpdateResult.ManifestError) {//最新版本或manifest文件异常 跳过更新
+            onEnded?.();
         }
     }
-
 
     /** 从LoadingText获取多语言文本 */
     private getText(obj: ILanguage) {
         if (!obj) return "";
         return obj[app.l10n.lang];
+    }
+
+    /**加载完成进入游戏 */
+    private enterGameCheck() {
+        //资源加载完成，并且适龄界面没有打开，才能进入游戏哈
+        if (this.isLoadingComplete && !this.shiLingWnd.active) {
+            this.node.destroy();
+        }
     }
 
 

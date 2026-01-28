@@ -2,7 +2,6 @@ import { Enum, Label, Node, RichText, Sprite, _decorator } from "cc";
 
 const { ccclass, property, menu } = _decorator;
 
-import { CCUtils } from "../../utils/CCUtil";
 import { UIComponent } from "../ui/manager/UIComponent";
 import { IL10n } from "./IL10n";
 import { L10nMgr } from "./L10nMgr";
@@ -38,46 +37,48 @@ export class L10n extends UIComponent implements IL10n {
     @property({
         tooltip: "文本组件为语言表中的key，图片组件为图片名字"
     })
-    key: string = "";
+    private key: string = "";
 
     @property({
         type: ELocalizationType,
         tooltip: "Single:单节点(所有语言共用同一节点)\nMultiple:多节点(每种语言对应一个节点)"
     })
-    type = ELocalizationType.Single;
+    private type = ELocalizationType.Single;
     @property({
         type: L10nNode,
         tooltip: "每种语言对应的节点",
         visible: function () { return this.type == ELocalizationType.Multiple; }
     })
-    multipleNode: L10nNode = null;
+    private multipleNode: L10nNode = null;
     @property({
         tooltip: "是否需要在切换语言的时候切换字体",
     })
-    needSwitchFont = false;
+    private needSwitchFont = false;
 
     private args: any[] = [];
 
-    onLoad() {
+    protected onLoad() {
         app.l10n.add(this);
         this.refreshContent();
     }
 
-    onDestroy() {
+    protected onDestroy() {
         app.l10n.remove(this);
     }
 
     /** 设置文本参数并刷新内容(针对文本中有动态内容,便于切换语言环境自动刷新内容) */
-    setStringArgs(...args: any[]) {
+    public setStringArgs(...args: any[]) {
         this.args = args;
         this.refreshContent();
     }
 
-    refreshContent() {
+    /** 刷新显示内容 */
+    public refreshContent() {
         if (!this.isValid) return;
         let node: Node;
-        if (this.type == ELocalizationType.Single) node = this.node;
-        else if (this.multipleNode) {
+        if (this.type == ELocalizationType.Single) {
+            node = this.node;
+        } else if (this.multipleNode) {
             for (const key in this.multipleNode) {
                 let n: Node = this.multipleNode[key];
                 if (!n?.isValid) continue;
@@ -86,7 +87,7 @@ export class L10n extends UIComponent implements IL10n {
             }
         }
         if (node) {
-            for (const comp of node["_components"]) {
+            for (const comp of node.components) {
                 if (comp instanceof Label || comp instanceof RichText) {
                     if (this.needSwitchFont) {
                         let font = app.l10n.getFont();
@@ -110,7 +111,7 @@ export class L10n extends UIComponent implements IL10n {
                 }
             }
         } else {
-            mLogger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${CCUtils.getNodePath(this.node)}`);
+            mLogger.warn(`Localization ${L10nMgr.lang} 节点不存在 ${node.getPath()}`);
         }
     }
 

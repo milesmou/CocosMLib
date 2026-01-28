@@ -4,30 +4,45 @@ import { SDKListener } from "./SDKListener";
 
 type StringCallback = (args: string) => void;
 
-/** 原生和JS交互的Key */
+/** 常用的原生和JS交互的Key */
 export enum ENativeBridgeKey {
+
     /** 登录 */
-    Login,
+    Login = "login",
     /** 横幅广告 */
-    ShowBanner,
+    ShowBanner = "showBanner",
     /** 插屏广告 */
-    ShowInterstitial,
+    ShowInterstitial = "showInterstitial",
     /** 激励视频广告 */
-    ShowRewardedVideo,
+    ShowRewardedVideo = "showRewardedVideo",
     /** 分享 */
-    Share,
+    Share = "share",
     /** 请求商品信息 */
-    ReqProductDetails,
+    ReqProductDetails = "reqProductDetails",
     /** 发起内购 */
-    RequestIAP,
+    RequestPay = "requestPay",
     /** 恢复内购(补单或订阅) */
-    RestoreIAP,
+    RestorePay = "restorePay",
+    /** 敏感词检测 */
+    CheckMsgSec = "checkMsgSec",
+    /** 敏感图片检测 */
+    CheckImageSec = "checkImageSec",
     /** 事件上报 */
-    ReportEvent,
+    ReportEvent = "reportEvent",
+    /** 原生平台基础事件 */
+    NativeBaseEvent = "nativeBaseEvent",
     /** 震动 */
-    Vibrate,
-    /** 执行额外的方法 */
-    ExtraMethod,
+    Vibrate = "vibrate",
+
+    //#region 国内原生渠道常用
+
+
+    /** 展示隐私协议 */
+    ShowPrivacy = "showPrivacy",
+    /** 实名认证 */
+    RealNameCertification = "realNameCertification",
+
+    //#region 
 }
 
 
@@ -43,6 +58,7 @@ export class NativeBridge {
 
     /** 原生层发回来的消息 */
     private static onNativeCall(key: string, args: string) {
+        mLogger.debug(`onNativeCall Key=${key} args=${args}`);
         let func: StringCallback = SDKListener[key];
         if (typeof func === "function") {
             func.call(SDKListener, args);
@@ -61,9 +77,9 @@ export class NativeBridge {
         fKey = typeof key === "number" ? ENativeBridgeKey[key] : key;
         if (!args) fArgs = "";
         else fArgs = typeof args === "object" ? JSON.stringify(args) : args;
-        native.bridge.sendToNative(fKey, fArgs);
+        mLogger.debug(`sendToNative Key=${fKey} args=${fArgs}`);
+        native?.bridge?.sendToNative(fKey, fArgs);
     }
-
 }
 
 

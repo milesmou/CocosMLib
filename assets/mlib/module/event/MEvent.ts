@@ -1,6 +1,7 @@
 interface EventListener<T1 = undefined, T2 = undefined, T3 = undefined, T4 = undefined, T5 = undefined> {
     func: (arg1?: T1, arg2?: T2, arg3?: T3, arg4?: T4, arg5?: T5) => void;
     thisObj: object;
+    /** 响应一次后立即移除监听 */
     disposable: boolean;
 }
 

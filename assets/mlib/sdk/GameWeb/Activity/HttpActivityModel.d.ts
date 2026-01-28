@@ -3,7 +3,7 @@
 /** 游戏活动数据结构 */
 declare namespace HttpActivityModel {
 
-   /** 游戏活动 */
+   /** 游戏活动 (可配置两段时间，两段时间不可交叉) */
    export interface GameActivity {
        /** 活动名字(唯一,不可重复) */
        name: string;
@@ -11,6 +11,10 @@ declare namespace HttpActivityModel {
        cronStart: string;
        /** 结束时间(使用Cron表达式) */
        cronEnd: string;
+       /** 开始时间2(使用Cron表达式) */
+       cronStart2?: string;
+       /** 结束时间2(使用Cron表达式) */
+       cronEnd2?: string;
        /** 活动配置的时间相对UTC时间偏移的小时数 默认为北京时间+8 */
        utcOffset?: number;
        /** 活动描述 */

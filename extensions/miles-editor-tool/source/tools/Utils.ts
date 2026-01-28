@@ -242,10 +242,10 @@ export class Utils {
     }
 
     /** 将编辑器内资源路径转化为本地文件路径 */
-    public static toAbsolutePath(dbUrlOrprojUrl: string) {
-        if (dbUrlOrprojUrl.startsWith("db://")) return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
-        else if (dbUrlOrprojUrl.startsWith("project://")) return dbUrlOrprojUrl.replace("db://", this.ProjectPath + "/");
-        else return dbUrlOrprojUrl;
+    public static toAbsolutePath(dbUrlOprojUrl: string) {
+        if (dbUrlOprojUrl.startsWith("db://")) return dbUrlOprojUrl.replace("db://", this.ProjectPath + "/");
+        else if (dbUrlOprojUrl.startsWith("project://")) return dbUrlOprojUrl.replace("db://", this.ProjectPath + "/");
+        else return dbUrlOprojUrl;
     }
 
     /** 统一路径分隔符为(/) */

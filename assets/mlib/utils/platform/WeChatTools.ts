@@ -1,4 +1,4 @@
-import { Component, director, Node, size, view } from "cc";
+import { Component, director, game, Node, size, view } from "cc";
 import { WECHAT } from "cc/env";
 
 class WeChatTools {
@@ -17,6 +17,8 @@ class WeChatTools {
     public constructor() {
         if (!WECHAT) return;
         this.sysInfo = wx.getSystemInfoSync();
+        game.restart = async () => { wx.restartMiniProgram({}); }
+        game.exit = async () => { wx.exitMiniProgram(); }
         console.log("SystemInfo", this.sysInfo);
     }
 

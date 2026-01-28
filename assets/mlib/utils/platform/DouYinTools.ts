@@ -1,4 +1,4 @@
-import { Node, size, sys, view } from "cc";
+import { game, Node, size, sys, view } from "cc";
 import { BYTEDANCE } from "cc/env";
 
 /** 激励视频缓存 广告id:激励视频 */
@@ -33,6 +33,8 @@ class DouYinTools {
         if (!BYTEDANCE) return;
         this.sysInfo = tt.getSystemInfoSync();
         this.checkSupportSidebar();
+        game.restart = async () => { tt.restartMiniProgramSync(); }
+        game.exit = async () => { tt.exitMiniProgram({ isFullExit: true }); }
         console.log("SystemInfo", this.sysInfo);
     }
 
