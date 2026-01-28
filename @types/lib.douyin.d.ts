@@ -4,18 +4,26 @@ interface CallbackOpt { success?: () => void, fail?: () => void, complete?: () =
 
 /** 抖音小游戏API声明 */
 declare namespace tt {
-
+    export const env: { USER_DATA_PATH: string };
     export function setKeepScreenOn(opts?: any): boolean;
     export function canIUse(func: string): boolean;
     export function authorize(opts?: any);
     export function openSetting();
+    export function getSetting(opts?: any);
     export function getSystemInfoSync(): SystemInfo;
     export function getEnvInfoSync(): EnvInfo;
     export function getLaunchOptionsSync();
     export function getUpdateManager();
+    export function getFileSystemManager();
+    export function base64ToArrayBuffer(str: string);
     export function checkScene(opts?: any);
+    export function exitMiniProgram(opts?: any);
     export function restartMiniProgramSync();
+    export function showToast(opts: any);
     export function showModal(opts?: any);
+    export function showActionSheet(opts?: any);
+    export function showLoading(opts?: any);
+    export function hideLoading(opts?: any);
     export function vibrateShort(opts?: any);
     export function vibrateLong(opts?: any);
     export function reportScene(opts?: any);
@@ -24,6 +32,7 @@ declare namespace tt {
     export function checkFeedSubscribeStatus(opts?: any);
     export function navigateToMiniProgram(opts?: any);
     export function getGameClubData(opts?: any);
+    export function scanCode(opts?: any);
     /** 显示当前小游戏页面的转发按钮。转发按钮位于小游戏页面右上角的“更多”中。*/
     export function showShareMenu(opts?: { success?: (errMsg: string) => void, fail?: (errMsg: string) => void, complete?: () => void });
     /** 调用该API可以跳转到某个小游戏入口场景，目前仅支持跳转「侧边栏」场景 */
@@ -89,10 +98,6 @@ declare namespace tt {
     export function createContactButton(opts: { type: "image" | "text", image?: string, text?: string, style: any }): ContactButton;
     export function setClipboardData(opts: { data: string, success?: () => void, fail?: (errMsg: string) => void, complete?: () => void })
     export function getClipboardData(opts?: { success?: (obj: any) => void, fail?: (errMsg: string) => void, complete?: () => void })
-    export function showToast(opts: {
-        title: string, icon?: string, duration?: number,
-        success?: () => void, fail?: (errMsg: string) => void, complete?: () => void
-    });
 
     export interface SystemInfo {
         /** 操作系统版本。示例："11.4", "8.0.0" */

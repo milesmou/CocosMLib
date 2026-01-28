@@ -3,7 +3,7 @@
 interface CallbackOpt { success?: () => void, fail?: () => void, complete?: () => void }
 
 /** 支付宝小游戏API声明 */
-declare namespace zfb {
+declare namespace my {
     export const SDKVersion: string;
     export function canIUse(func: string): boolean;
     export function getSystemInfoSync(opt?: CallbackOpt): SystemInfo;

@@ -1,13 +1,18 @@
 {
-    "name": "cocosmlib",
-    "uuid": "c30b28da-749e-479b-bcb6-cecd8d7be9e3",
-    "creator": {
-        "version": "3.8.3"
+  "name": "newcooking",
+  "uuid": "c30b28da-749e-479b-bcb6-cecd8d7be9e3",
+  "creator": {
+    "version": "3.8.8",
+    "registry": {
+      "remote": {}
     },
-    "devDependencies": {
-        "minigame-api-typings": "^3.8.4"
-    },
-    "dependencies": {
-        "crypto-es": "^2.1.0"
-    }
+    "dependencies": {}
+  },
+  "devDependencies": {
+    "minigame-api-typings": "^3.8.4"
+  },
+  "description": "",
+  "dependencies": {
+    "crypto-es": "^2.1.0"
+  }
 }
